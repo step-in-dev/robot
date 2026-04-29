@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import time
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,10 +12,12 @@ from .model import RobotEnv, RobotError, RobotPathError
 
 
 RunStatus = Literal["success", "wrong", "crashed", "error"]
+DEFAULT_COMMAND_DELAY_SECONDS = 0.2
 
 _active_env: RobotEnv | None = None
 _expected_task_id: str | None = None
 _is_executing_solution = False
+_active_command_delay_seconds = 0.0
 
 
 @dataclass(frozen=True)
@@ -44,19 +47,32 @@ def task(task_id: str) -> None:
     window = RobotWindow(
         task_id=task_id,
         envs=envs,
-        run_env=lambda env: run_solution_on_env(script_path, task_id, env),
+        run_env=lambda env: run_solution_on_env(
+            script_path,
+            task_id,
+            env,
+            command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
+        ),
     )
     window.run()
     raise SystemExit(0)
 
 
-def run_solution_on_env(script_path: Path, task_id: str, env: RobotEnv) -> RunResult:
+def run_solution_on_env(
+    script_path: Path,
+    task_id: str,
+    env: RobotEnv,
+    command_delay_seconds: float = 0.0,
+) -> RunResult:
+    global _active_command_delay_seconds
     global _active_env, _expected_task_id, _is_executing_solution
 
+    previous_command_delay_seconds = _active_command_delay_seconds
     env.reset()
     _active_env = env
     _expected_task_id = task_id
     _is_executing_solution = True
+    _active_command_delay_seconds = command_delay_seconds
 
     namespace = {
         "__name__": "__main__",
@@ -98,27 +114,33 @@ def run_solution_on_env(script_path: Path, task_id: str, env: RobotEnv) -> RunRe
         _active_env = None
         _expected_task_id = None
         _is_executing_solution = False
+        _active_command_delay_seconds = previous_command_delay_seconds
 
     return _check_final_state(env)
 
 
 def move_right() -> None:
+    _delay_before_command()
     _robot().move_right()
 
 
 def move_left() -> None:
+    _delay_before_command()
     _robot().move_left()
 
 
 def move_up() -> None:
+    _delay_before_command()
     _robot().move_up()
 
 
 def move_down() -> None:
+    _delay_before_command()
     _robot().move_down()
 
 
 def paint() -> None:
+    _delay_before_command()
     _robot().paint()
 
 
@@ -167,7 +189,13 @@ def pol() -> int:
 
 
 def printn(value: int) -> None:
+    _delay_before_command()
     _robot().print_number(value)
+
+
+def _delay_before_command() -> None:
+    if _active_command_delay_seconds > 0:
+        time.sleep(_active_command_delay_seconds)
 
 
 def _robot():
