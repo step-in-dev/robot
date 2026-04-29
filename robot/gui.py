@@ -30,6 +30,8 @@ class RobotWindow:
         self.root = tk.Tk()
         self.root.title(f"Robot: {task_id}")
         self.root.protocol("WM_DELETE_WINDOW", self.close)
+        self.root.lift()
+        self.root.attributes("-topmost", True)
 
         self.tab_frame = tk.Frame(self.root)
         self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
