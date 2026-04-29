@@ -24,4 +24,4 @@ The target audience is school students who are learning introductory programming
 - `robot/runtime.py` exposes the student-facing command API, executes student solution files in a controlled robot context, and converts outcomes into run results.
 - `robot/gui.py` provides the `tkinter` window that displays task environments, runs solutions across all environments, and redraws the grid as the robot state changes.
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
-- `robot/tests` covers core model behavior, task loading, and runtime execution.
+- `tests/` at the repository root covers core model behavior, task loading, and runtime execution.
