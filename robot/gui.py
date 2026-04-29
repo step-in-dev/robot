@@ -233,11 +233,12 @@ class RobotWindow:
     def draw_robot(self, env: RobotEnv) -> None:
         row = env.robot.row
         col = env.robot.col
+        half_wall_width = self.wall_width // 2
         padding = self.cell_size * 0.27
-        x1 = col * self.cell_size + padding
-        y1 = row * self.cell_size + padding
-        x2 = (col + 1) * self.cell_size - padding
-        y2 = (row + 1) * self.cell_size - padding
+        x1 = half_wall_width + col * self.cell_size + padding
+        y1 = half_wall_width + row * self.cell_size + padding
+        x2 = half_wall_width + (col + 1) * self.cell_size - padding
+        y2 = half_wall_width + (row + 1) * self.cell_size - padding
         self.canvas.create_rectangle(
             x1,
             y1,
@@ -305,9 +306,10 @@ class RobotWindow:
     def draw_centered_text(
         self, cell: Cell, text: str, color: str, font_size: int
     ) -> None:
+        half_wall_width = self.wall_width // 2
         self.canvas.create_text(
-            cell.c * self.cell_size + self.cell_size / 2,
-            cell.r * self.cell_size + self.cell_size / 2,
+            half_wall_width + cell.c * self.cell_size + self.cell_size / 2,
+            half_wall_width + cell.r * self.cell_size + self.cell_size / 2,
             text=text,
             fill=color,
             font=("Arial", font_size, "bold"),
