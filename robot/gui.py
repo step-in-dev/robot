@@ -7,21 +7,29 @@ from .model import Cell, RobotEnv
 from .runtime import RunResult
 
 
+STATUS_RUNNING = "Выполнение..."
+
+
 class RobotWindow:
     def __init__(
         self,
         task_id: str,
         envs: list[RobotEnv],
-        run_env: Callable[[RobotEnv], RunResult],
+        run_env: Callable[[RobotEnv], RunResult] | None,
+        initial_index: int = 0,
+        debug_mode: bool = False,
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
-        self.selected_index = 0
+        self.selected_index = initial_index
+        self.debug_mode = debug_mode
         self.current_listener: Callable[[], None] | None = None
+        self.is_closed = False
 
         self.root = tk.Tk()
         self.root.title(f"Robot: {task_id}")
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
 
         self.tab_frame = tk.Frame(self.root)
         self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
@@ -43,15 +51,22 @@ class RobotWindow:
         self.controls = tk.Frame(self.root)
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
-        self.run_button = tk.Button(
-            self.controls, text="Запустить", command=self.run_all
-        )
-        self.run_button.pack(side=tk.LEFT)
+        self.run_button: tk.Button | None = None
+        if not debug_mode:
+            self.run_button = tk.Button(
+                self.controls, text="Запустить", command=self.run_all
+            )
+            self.run_button.pack(side=tk.LEFT)
 
-        self.reset_button = tk.Button(self.controls, text="Сброс", command=self.reset)
-        self.reset_button.pack(side=tk.LEFT, padx=(6, 0))
+        self.reset_button: tk.Button | None = None
+        if not debug_mode:
+            self.reset_button = tk.Button(
+                self.controls, text="Сброс", command=self.reset
+            )
+            self.reset_button.pack(side=tk.LEFT, padx=(6, 0))
 
-        self.status_var = tk.StringVar(value="Готово")
+        initial_status = STATUS_RUNNING if debug_mode else "Готово"
+        self.status_var = tk.StringVar(value=initial_status)
         self.status_label = tk.Label(
             self.controls, textvariable=self.status_var, anchor=tk.W
         )
@@ -69,10 +84,30 @@ class RobotWindow:
         self.wall_width = 4
         self.cell_size = 80
 
-        self.select_env(0)
+        self.select_env(initial_index)
 
     def run(self) -> None:
         self.root.mainloop()
+
+    def run_until_closed(self) -> None:
+        if self.is_closed:
+            return
+        try:
+            self.root.mainloop()
+        except tk.TclError:
+            self.is_closed = True
+
+    def close(self) -> None:
+        if self.is_closed:
+            return
+        self.is_closed = True
+        self.root.destroy()
+
+    def show_debug_started(self) -> None:
+        if self.is_closed:
+            return
+        self.status_var.set(STATUS_RUNNING)
+        self.root.update()
 
     def select_env(self, index: int) -> None:
         if self.current_listener is not None:
@@ -82,13 +117,23 @@ class RobotWindow:
         self.current_listener = self.on_env_change
         self.envs[self.selected_index].add_listener(self.current_listener)
 
-        for tab_index, button in enumerate(self.tab_buttons):
-            button.configure(
-                relief=tk.SUNKEN if tab_index == index else tk.RAISED,
-                state=tk.DISABLED if tab_index == index else tk.NORMAL,
-            )
+        self.configure_tab_buttons()
 
         self.draw_field()
+
+    def configure_tab_buttons(self) -> None:
+        for tab_index, button in enumerate(self.tab_buttons):
+            state = (
+                tk.DISABLED
+                if self.debug_mode or tab_index == self.selected_index
+                else tk.NORMAL
+            )
+            button.configure(
+                relief=tk.SUNKEN
+                if tab_index == self.selected_index
+                else tk.RAISED,
+                state=state,
+            )
 
     def reset(self) -> None:
         for env in self.envs:
@@ -97,9 +142,14 @@ class RobotWindow:
         self.select_env(self.selected_index)
 
     def run_all(self) -> None:
-        self.run_button.configure(state=tk.DISABLED)
-        self.reset_button.configure(state=tk.DISABLED)
-        self.status_var.set("Выполнение...")
+        if self.run_env is None:
+            raise RuntimeError("run_env is required outside debug mode")
+
+        if self.run_button is not None:
+            self.run_button.configure(state=tk.DISABLED)
+        if self.reset_button is not None:
+            self.reset_button.configure(state=tk.DISABLED)
+        self.status_var.set(STATUS_RUNNING)
         self.root.update()
 
         try:
@@ -115,14 +165,47 @@ class RobotWindow:
 
             self.status_var.set("Решение верное для всех обстановок")
         finally:
-            self.run_button.configure(state=tk.NORMAL)
-            self.reset_button.configure(state=tk.NORMAL)
+            if self.run_button is not None:
+                self.run_button.configure(state=tk.NORMAL)
+            if self.reset_button is not None:
+                self.reset_button.configure(state=tk.NORMAL)
 
     def on_env_change(self) -> None:
+        if self.is_closed:
+            return
+        try:
+            self.draw_field()
+            if self.debug_mode:
+                self.root.update()
+            else:
+                self.root.update_idletasks()
+        except tk.TclError:
+            self.is_closed = True
+
+    def show_debug_result(self, env_number: int, result: RunResult) -> None:
+        if self.is_closed:
+            return
         self.draw_field()
+        if result.success:
+            self.status_var.set(f"Обстановка {env_number}: {result.message}")
+        else:
+            self.status_var.set(
+                f"Ошибка на обстановке {env_number}: {result.message}"
+            )
+        self.root.update_idletasks()
+
+    def show_robot_error(self, message: str) -> None:
+        if self.is_closed:
+            return
+        self.status_var.set(
+            f"Ошибка на обстановке {self.selected_index + 1}: {message}"
+        )
         self.root.update_idletasks()
 
     def draw_field(self) -> None:
+        if self.is_closed:
+            return
+
         env = self.envs[self.selected_index]
         half_wall_width = self.wall_width // 2
         width = env.width * self.cell_size + self.wall_width
