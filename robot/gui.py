@@ -251,30 +251,35 @@ class RobotWindow:
     def draw_home(self, env: RobotEnv) -> None:
         row = env.final_row
         col = env.final_col
-        center_x = col * self.cell_size + self.cell_size / 2
-        center_y = row * self.cell_size + self.cell_size / 2
-        size = self.cell_size * 0.42
-        roof_y = center_y - size * 0.45
-        wall_top = center_y - size * 0.05
-        wall_bottom = center_y + size * 0.45
-        left = center_x - size * 0.42
-        right = center_x + size * 0.42
+        half_wall_width = self.wall_width // 2
+        half_cell_size = self.cell_size // 2
+        x = col * self.cell_size + half_cell_size + half_wall_width
+        y = row * self.cell_size + half_cell_size + half_wall_width
+        size = half_cell_size - half_wall_width - 1
+        scale = size / 24
 
+        def point(svg_x: float, svg_y: float) -> tuple[float, float]:
+            return x + svg_x * scale, y + svg_y * scale
+
+        points = [
+            point(12, 2),
+            point(1, 12),
+            point(4, 12),
+            point(4, 20),
+            point(5, 21),
+            point(9, 21),
+            point(10, 20),
+            point(10, 14),
+            point(14, 14),
+            point(14, 20),
+            point(15, 21),
+            point(19, 21),
+            point(20, 20),
+            point(20, 12),
+            point(23, 12),
+        ]
         self.canvas.create_polygon(
-            center_x,
-            roof_y,
-            right,
-            wall_top,
-            left,
-            wall_top,
-            fill=self.home_color,
-            outline=self.home_color,
-        )
-        self.canvas.create_rectangle(
-            left + size * 0.12,
-            wall_top,
-            right - size * 0.12,
-            wall_bottom,
+            points,
             fill=self.home_color,
             outline=self.home_color,
         )
