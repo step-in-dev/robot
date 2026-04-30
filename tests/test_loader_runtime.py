@@ -200,13 +200,14 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.gui.RobotWindow", FakeDebugWindow):
+                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
 
-                    def run_solution():
-                        runtime.task("debug", 2)
-                        runtime.move_right()
+                        def run_solution():
+                            runtime.task("debug", 2)
+                            runtime.move_right()
 
-                    run_solution()
+                        run_solution()
 
         window = FakeDebugWindow.instances[0]
         self.assertTrue(window.debug_mode)
@@ -215,6 +216,53 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(window.envs[0].robot.col, 0)
         self.assertEqual(window.envs[1].robot.col, 1)
         self.assertEqual(window.result[0], 2)
+        self.assertTrue(window.result[1].success)
+        self.assertTrue(window.run_until_closed_called)
+
+    def test_task_without_environment_number_uses_first_env_under_debugger(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.write_task(
+                temp_dir,
+                "debug",
+                [
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    },
+                    {
+                        "width": 3,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    },
+                ],
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
+
+                        def run_solution():
+                            runtime.task("debug")
+                            runtime.move_right()
+
+                        run_solution()
+
+        window = FakeDebugWindow.instances[0]
+        self.assertTrue(window.debug_mode)
+        self.assertTrue(window.shown)
+        self.assertEqual(window.initial_index, 0)
+        self.assertEqual(window.envs[0].robot.col, 1)
+        self.assertEqual(window.envs[1].robot.col, 0)
+        self.assertEqual(window.result[0], 1)
         self.assertTrue(window.result[1].success)
         self.assertTrue(window.run_until_closed_called)
 
@@ -244,10 +292,11 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                for env_number in ("2", True, 0, 3):
-                    with self.subTest(env_number=env_number):
-                        with self.assertRaises(RobotError):
-                            runtime.task("debug", env_number)
+                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                    for env_number in ("2", True, 0, 3):
+                        with self.subTest(env_number=env_number):
+                            with self.assertRaises(RobotError):
+                                runtime.task("debug", env_number)
 
         self.assertEqual(FakeDebugWindow.instances, [])
 
@@ -269,14 +318,15 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.gui.RobotWindow", FakeDebugWindow):
+                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
 
-                    def run_solution():
-                        runtime.task("debug", 1)
-                        runtime.move_right()
+                        def run_solution():
+                            runtime.task("debug", 1)
+                            runtime.move_right()
 
-                    with self.assertRaises(RobotPathError):
-                        run_solution()
+                        with self.assertRaises(RobotPathError):
+                            run_solution()
 
         window = FakeDebugWindow.instances[0]
         self.assertEqual(

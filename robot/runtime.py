@@ -56,8 +56,9 @@ def task(task_id: str, env_number: int | None = None) -> None:
     if _debug_session is not None:
         raise RobotError("Only one task() call is supported in debug mode")
 
-    if env_number is not None:
-        _start_debug_task(task_id, env_number, sys._getframe(1))
+    if _is_under_debugger():
+        effective_env_number = 1 if env_number is None else env_number
+        _start_debug_task(task_id, effective_env_number, sys._getframe(1))
         return
 
     script_path = _detect_student_script()
@@ -78,6 +79,29 @@ def task(task_id: str, env_number: int | None = None) -> None:
     window.run()
     raise SystemExit(0)
 
+def _is_under_debugger() -> bool:
+    # pdb, ipdb, many trace-based debuggers
+    if sys.gettrace() is not None:
+        return True
+
+    # VS Code / debugpy
+    try:
+        import debugpy
+        if debugpy.is_client_connected():
+            return True
+    except Exception:
+        pass
+
+    # PyCharm / pydevd
+    try:
+        import pydevd
+        get_dbg = getattr(pydevd, "GetGlobalDebugger", None) or getattr(pydevd, "get_global_debugger", None)
+        if callable(get_dbg) and get_dbg() is not None:
+            return True
+    except Exception:
+        pass
+
+    return False
 
 def _start_debug_task(
     task_id: str,
