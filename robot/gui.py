@@ -22,6 +22,22 @@ def calculate_canvas_size(
     )
 
 
+def calculate_field_offset(
+    canvas_width: int,
+    canvas_height: int,
+    env: RobotEnv,
+    cell_size: int,
+    wall_width: int,
+) -> tuple[int, int]:
+    """Pixel offset to center env's field inside a canvas for the largest env."""
+    field_width = env.width * cell_size + wall_width
+    field_height = env.height * cell_size + wall_width
+    return (
+        (canvas_width - field_width) // 2,
+        (canvas_height - field_height) // 2,
+    )
+
+
 class RobotWindow:
     def __init__(
         self,
@@ -48,6 +64,7 @@ class RobotWindow:
         self.home_color = "#a93b20"
         self.pollution_color = "#404C51"
         self.print_color = "#712903"
+        self.cell_background_color = "#ffffff"
         self.wall_width = 4
         self.cell_size = 80
 
@@ -76,7 +93,7 @@ class RobotWindow:
         )
         self.canvas = tk.Canvas(
             self.root,
-            bg="#ffffff",
+            bg=self.root.cget("bg"),
             highlightthickness=0,
             width=self.canvas_width,
             height=self.canvas_height,
@@ -244,6 +261,7 @@ class RobotWindow:
 
         self.canvas.delete("all")
 
+        self.draw_cell_field_background(env, half_wall_width)
         self.draw_painted_cells(env, half_wall_width)
         self.draw_cells_to_paint(env)
         self.draw_grid(env, half_wall_width)
@@ -253,6 +271,25 @@ class RobotWindow:
         self.draw_home(env)
         self.draw_pollution(env)
         self.draw_print_values(env)
+
+        offset_x, offset_y = calculate_field_offset(
+            self.canvas_width,
+            self.canvas_height,
+            env,
+            self.cell_size,
+            self.wall_width,
+        )
+        self.canvas.move("all", offset_x, offset_y)
+
+    def draw_cell_field_background(self, env: RobotEnv, half_wall_width: int) -> None:
+        self.canvas.create_rectangle(
+            half_wall_width,
+            half_wall_width,
+            half_wall_width + env.width * self.cell_size,
+            half_wall_width + env.height * self.cell_size,
+            fill=self.cell_background_color,
+            outline="",
+        )
 
     def draw_painted_cells(self, env: RobotEnv, half_wall_width: int) -> None:
         for cell in env.extract_painted_cells():
