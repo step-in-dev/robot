@@ -3,6 +3,7 @@ import unittest
 from robot.gui import (
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
+    MIN_CANVAS_WIDTH,
     calculate_canvas_size,
     calculate_cell_size,
     calculate_field_offset,
@@ -72,6 +73,24 @@ class CalculateCanvasSizeTest(unittest.TestCase):
         ]
         self.assertEqual(calculate_canvas_size(envs, 80, 4), (404, 244))
 
+    def test_small_environment_uses_minimum_canvas_width(self) -> None:
+        envs = [
+            make_env(
+                {
+                    "width": 1,
+                    "height": 1,
+                    "startRow": 0,
+                    "startCol": 0,
+                    "finalRow": 0,
+                    "finalCol": 0,
+                }
+            )
+        ]
+        self.assertEqual(
+            calculate_canvas_size(envs, 80, 4),
+            (MIN_CANVAS_WIDTH, 84),
+        )
+
     def test_single_environment(self) -> None:
         envs = [
             make_env(
@@ -85,7 +104,7 @@ class CalculateCanvasSizeTest(unittest.TestCase):
                 }
             )
         ]
-        self.assertEqual(calculate_canvas_size(envs, 80, 4), (164, 84))
+        self.assertEqual(calculate_canvas_size(envs, 80, 4), (MIN_CANVAS_WIDTH, 84))
 
 
 class CalculateFieldOffsetTest(unittest.TestCase):

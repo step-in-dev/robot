@@ -13,6 +13,7 @@ DEFAULT_CELL_SIZE = 80
 COMPACT_CELL_SIZE = 60
 COMPACT_CELL_MAX_WIDTH = 8
 COMPACT_CELL_MAX_HEIGHT = 6
+MIN_CANVAS_WIDTH = 350
 
 
 def calculate_cell_size(envs: list[RobotEnv]) -> int:
@@ -33,8 +34,9 @@ def calculate_canvas_size(
     """Pixel size of the canvas needed to show the largest environment in envs."""
     max_width = max(env.width for env in envs)
     max_height = max(env.height for env in envs)
+    calculated_width = max_width * cell_size + wall_width
     return (
-        max_width * cell_size + wall_width,
+        max(calculated_width, MIN_CANVAS_WIDTH),
         max_height * cell_size + wall_width,
     )
 
