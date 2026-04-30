@@ -20,12 +20,14 @@ class FakeDebugWindow:
         run_env,
         initial_index=0,
         debug_mode=False,
+        todo_text="",
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
         self.initial_index = initial_index
         self.debug_mode = debug_mode
+        self.todo_text = todo_text
         self.shown = False
         self.result = None
         self.robot_error = None
@@ -66,7 +68,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                                 "finalCol": 1,
                             }
                         ],
-                        "todoText": "Дойди до конца",
+                        "todoText": "Reach the end",
                     }
                 ),
                 encoding="utf-8",
@@ -79,7 +81,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(len(envs), 1)
         self.assertEqual(envs[0].width, 2)
         self.assertEqual(envs[0].final_col, 1)
-        self.assertEqual(task.todo_text, "Дойди до конца")
+        self.assertEqual(task.todo_text, "Reach the end")
 
     def test_load_task_definition_without_todo_text(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -297,6 +299,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                         "finalCol": 1,
                     },
                 ],
+                todo_text="Reach the end",
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
@@ -312,6 +315,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         window = FakeDebugWindow.instances[0]
         self.assertTrue(window.debug_mode)
         self.assertTrue(window.shown)
+        self.assertEqual(window.todo_text, "Reach the end")
         self.assertEqual(window.initial_index, 1)
         self.assertEqual(window.envs[0].robot.col, 0)
         self.assertEqual(window.envs[1].robot.col, 1)
@@ -431,7 +435,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         window = FakeDebugWindow.instances[0]
         self.assertEqual(
             window.robot_error,
-            "робот уперся в стену или границу поля",
+            runtime.ROBOT_PATH_COLLISION_USER_MESSAGE,
         )
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)

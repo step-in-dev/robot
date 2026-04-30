@@ -63,12 +63,14 @@ class RobotWindow:
         run_env: Callable[[RobotEnv], RunResult] | None,
         initial_index: int = 0,
         debug_mode: bool = False,
+        todo_text: str = "",
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
         self.selected_index = initial_index
         self.debug_mode = debug_mode
+        self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
 
@@ -91,8 +93,31 @@ class RobotWindow:
         self.root.lift()
         self.root.attributes("-topmost", True)
 
+        self.canvas_width, self.canvas_height = calculate_canvas_size(
+            self.envs, self.cell_size, self.wall_width
+        )
+
+        self.todo_label: tk.Label | None = None
+        if self.todo_text:
+            self.todo_label = tk.Label(
+                self.root,
+                text=f"Задание: {self.todo_text}",
+                anchor=tk.W,
+                justify=tk.LEFT,
+                wraplength=max(self.canvas_width, 320),
+                bg="#e8eef5",
+                fg="#2563a8",
+                padx=8,
+                pady=6,
+                bd=1,
+                relief=tk.SOLID,
+                highlightthickness=0,
+            )
+            self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
+
+        tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
         self.tab_frame = tk.Frame(self.root)
-        self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
+        self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady)
 
         self.tab_buttons: list[tk.Button] = []
         for index in range(len(envs)):
@@ -104,10 +129,6 @@ class RobotWindow:
             )
             button.pack(side=tk.LEFT)
             self.tab_buttons.append(button)
-
-        self.canvas_width, self.canvas_height = calculate_canvas_size(
-            self.envs, self.cell_size, self.wall_width
-        )
         self.canvas = tk.Canvas(
             self.root,
             bg=self.root.cget("bg"),

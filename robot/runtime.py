@@ -8,12 +8,14 @@ from pathlib import Path
 from types import FrameType
 from typing import Any, Literal
 
-from .loader import load_task
+from .loader import load_task_definition
 from .model import RobotEnv, RobotError, RobotPathError
 
 
 RunStatus = Literal["success", "wrong", "crashed", "error"]
 DEFAULT_COMMAND_DELAY_SECONDS = 0.2
+
+ROBOT_PATH_COLLISION_USER_MESSAGE = "робот уперся в стену или границу поля"
 
 _active_env: RobotEnv | None = None
 _expected_task_id: str | None = None
@@ -62,7 +64,8 @@ def task(task_id: str, env_number: int | None = None) -> None:
         return
 
     script_path = _detect_student_script()
-    envs = load_task(task_id)
+    task_definition = load_task_definition(task_id)
+    envs = task_definition.envs
 
     from .gui import RobotWindow
 
@@ -75,6 +78,7 @@ def task(task_id: str, env_number: int | None = None) -> None:
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
         ),
+        todo_text=task_definition.todo_text,
     )
     window.run()
     raise SystemExit(0)
@@ -113,7 +117,8 @@ def _start_debug_task(
     if type(env_number) is not int:
         raise RobotError("Environment number must be an integer")
 
-    envs = load_task(task_id)
+    task_definition = load_task_definition(task_id)
+    envs = task_definition.envs
     if env_number < 1 or env_number > len(envs):
         raise RobotError(
             f"Environment number must be between 1 and {len(envs)}"
@@ -131,6 +136,7 @@ def _start_debug_task(
         run_env=None,
         initial_index=selected_index,
         debug_mode=True,
+        todo_text=task_definition.todo_text,
     )
     _debug_session = DebugSession(
         task_id=task_id,
@@ -174,7 +180,7 @@ def run_solution_on_env(
         print(details, file=sys.stderr)
         return RunResult(
             status="crashed",
-            message="робот уперся в стену или границу поля",
+            message=ROBOT_PATH_COLLISION_USER_MESSAGE,
             details=details,
         )
     except SystemExit as exc:
@@ -278,7 +284,7 @@ def _run_mutating_robot_command(command) -> None:
     try:
         command()
     except RobotPathError:
-        _mark_debug_robot_error("робот уперся в стену или границу поля")
+        _mark_debug_robot_error(ROBOT_PATH_COLLISION_USER_MESSAGE)
         raise
 
 
