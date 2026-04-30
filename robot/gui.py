@@ -103,17 +103,17 @@ class RobotWindow:
         if self.todo_text:
             self.todo_label = tk.Label(
                 self.root,
-                text=f"Задание: {self.todo_text}",
+                text=f"{self.todo_text}",
                 anchor=tk.W,
                 justify=tk.LEFT,
                 wraplength=max(self.canvas_width, 320),
-                bg="#e8eef5",
-                fg="#2563a8",
+                bg="#fdf9d3",
+                fg="#000000",
                 padx=8,
                 pady=6,
                 bd=1,
                 relief=tk.SOLID,
-                highlightthickness=0,
+                highlightthickness=0
             )
             self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
