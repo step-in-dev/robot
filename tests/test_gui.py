@@ -1,11 +1,49 @@
 import unittest
 
-from robot.gui import calculate_canvas_size, calculate_field_offset
+from robot.gui import (
+    COMPACT_CELL_SIZE,
+    DEFAULT_CELL_SIZE,
+    calculate_canvas_size,
+    calculate_cell_size,
+    calculate_field_offset,
+)
 from robot.model import RobotEnv, RobotEnvDto
 
 
 def make_env(data: dict) -> RobotEnv:
     return RobotEnv(RobotEnvDto.from_dict(data))
+
+
+def minimal_env_dict(width: int, height: int) -> dict:
+    return {
+        "width": width,
+        "height": height,
+        "startRow": 0,
+        "startCol": 0,
+        "finalRow": 0,
+        "finalCol": 0,
+    }
+
+
+class CalculateCellSizeTest(unittest.TestCase):
+    def test_default_when_width_8_and_height_6(self) -> None:
+        envs = [make_env(minimal_env_dict(8, 6))]
+        self.assertEqual(calculate_cell_size(envs), DEFAULT_CELL_SIZE)
+
+    def test_compact_when_width_greater_than_8(self) -> None:
+        envs = [make_env(minimal_env_dict(9, 1))]
+        self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
+
+    def test_compact_when_height_greater_than_6(self) -> None:
+        envs = [make_env(minimal_env_dict(1, 7))]
+        self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
+
+    def test_maxima_across_multiple_envs_use_compact(self) -> None:
+        envs = [
+            make_env(minimal_env_dict(9, 1)),
+            make_env(minimal_env_dict(1, 7)),
+        ]
+        self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
 
 
 class CalculateCanvasSizeTest(unittest.TestCase):

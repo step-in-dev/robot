@@ -9,6 +9,23 @@ from .runtime import RunResult
 
 STATUS_RUNNING = "Выполнение..."
 
+DEFAULT_CELL_SIZE = 80
+COMPACT_CELL_SIZE = 60
+COMPACT_CELL_MAX_WIDTH = 8
+COMPACT_CELL_MAX_HEIGHT = 6
+
+
+def calculate_cell_size(envs: list[RobotEnv]) -> int:
+    """Pixel side length for cells; compact when any env exceeds width/height thresholds."""
+    max_width = max(env.width for env in envs)
+    max_height = max(env.height for env in envs)
+    if (
+        max_width > COMPACT_CELL_MAX_WIDTH
+        or max_height > COMPACT_CELL_MAX_HEIGHT
+    ):
+        return COMPACT_CELL_SIZE
+    return DEFAULT_CELL_SIZE
+
 
 def calculate_canvas_size(
     envs: list[RobotEnv], cell_size: int, wall_width: int
@@ -66,7 +83,7 @@ class RobotWindow:
         self.print_color = "#712903"
         self.cell_background_color = "#ffffff"
         self.wall_width = 4
-        self.cell_size = 80
+        self.cell_size = calculate_cell_size(self.envs)
 
         self.root = tk.Tk()
         self.root.title(f"Robot: {task_id}")
