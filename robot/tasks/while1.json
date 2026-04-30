@@ -1,5 +1,5 @@
 {
-  "environments": [
+  "envDtos": [
     {
       "width": 5,
       "height": 1,

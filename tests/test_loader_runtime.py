@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 import robot.runtime as runtime
-from robot.loader import load_task
+from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto, RobotError, RobotPathError
 from robot.runtime import run_solution_on_env
 
@@ -50,9 +50,112 @@ class LoaderRuntimeTest(unittest.TestCase):
         runtime._clear_debug_session()
         FakeDebugWindow.instances = []
 
-    def test_loader_reads_web_environment_format(self):
+    def test_loader_reads_env_dtos_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "line.json"
+            task_file.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 2,
+                                "height": 1,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 0,
+                                "finalCol": 1,
+                            }
+                        ],
+                        "todoText": "Дойди до конца",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                envs = load_task("line")
+                task = load_task_definition("line")
+
+        self.assertEqual(len(envs), 1)
+        self.assertEqual(envs[0].width, 2)
+        self.assertEqual(envs[0].final_col, 1)
+        self.assertEqual(task.todo_text, "Дойди до конца")
+
+    def test_load_task_definition_without_todo_text(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "minimal.json"
+            task_file.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 1,
+                                "height": 1,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 0,
+                                "finalCol": 0,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                task = load_task_definition("minimal")
+
+        self.assertEqual(task.todo_text, "")
+        self.assertEqual(len(task.envs), 1)
+
+    def test_load_task_definition_empty_or_invalid_todo_text_normalized(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base_path = Path(temp_dir)
+
+            (base_path / "empty.json").write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 1,
+                                "height": 1,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 0,
+                                "finalCol": 0,
+                            }
+                        ],
+                        "todoText": "",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (base_path / "bad_type.json").write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 1,
+                                "height": 1,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 0,
+                                "finalCol": 0,
+                            }
+                        ],
+                        "todoText": 123,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                self.assertEqual(load_task_definition("empty").todo_text, "")
+                self.assertEqual(load_task_definition("bad_type").todo_text, "")
+
+    def test_loader_rejects_legacy_environments_format(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "legacy.json"
             task_file.write_text(
                 json.dumps(
                     {
@@ -72,11 +175,8 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                envs = load_task("line")
-
-        self.assertEqual(len(envs), 1)
-        self.assertEqual(envs[0].width, 2)
-        self.assertEqual(envs[0].final_col, 1)
+                with self.assertRaises(TaskLoadError):
+                    load_task("legacy")
 
     def test_runtime_executes_student_file_in_clean_robot_context(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -336,10 +436,13 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)
 
-    def write_task(self, temp_dir, task_id, environments):
+    def write_task(self, temp_dir, task_id, env_dtos, todo_text=None):
         task_file = Path(temp_dir) / f"{task_id}.json"
+        payload = {"envDtos": env_dtos}
+        if todo_text is not None:
+            payload["todoText"] = todo_text
         task_file.write_text(
-            json.dumps({"environments": environments}),
+            json.dumps(payload),
             encoding="utf-8",
         )
 
