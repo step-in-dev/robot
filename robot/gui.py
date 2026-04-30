@@ -10,6 +10,18 @@ from .runtime import RunResult
 STATUS_RUNNING = "Выполнение..."
 
 
+def calculate_canvas_size(
+    envs: list[RobotEnv], cell_size: int, wall_width: int
+) -> tuple[int, int]:
+    """Pixel size of the canvas needed to show the largest environment in envs."""
+    max_width = max(env.width for env in envs)
+    max_height = max(env.height for env in envs)
+    return (
+        max_width * cell_size + wall_width,
+        max_height * cell_size + wall_width,
+    )
+
+
 class RobotWindow:
     def __init__(
         self,
@@ -26,6 +38,18 @@ class RobotWindow:
         self.debug_mode = debug_mode
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
+
+        self.grid_color = "#428bca"
+        self.wall_color = "#428bca"
+        self.robot_color = "#428bca"
+        self.robot_outline = "#ffffff"
+        self.cell_to_paint_color = "#f0ad4e"
+        self.cell_to_paint_when_painted_color = "#ffffff"
+        self.home_color = "#a93b20"
+        self.pollution_color = "#404C51"
+        self.print_color = "#712903"
+        self.wall_width = 4
+        self.cell_size = 80
 
         self.root = tk.Tk()
         self.root.title(f"Robot: {task_id}")
@@ -47,7 +71,16 @@ class RobotWindow:
             button.pack(side=tk.LEFT)
             self.tab_buttons.append(button)
 
-        self.canvas = tk.Canvas(self.root, bg="#ffffff", highlightthickness=0)
+        self.canvas_width, self.canvas_height = calculate_canvas_size(
+            self.envs, self.cell_size, self.wall_width
+        )
+        self.canvas = tk.Canvas(
+            self.root,
+            bg="#ffffff",
+            highlightthickness=0,
+            width=self.canvas_width,
+            height=self.canvas_height,
+        )
         self.canvas.pack(padx=6, pady=6)
 
         self.controls = tk.Frame(self.root)
@@ -74,19 +107,17 @@ class RobotWindow:
         )
         self.status_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(12, 0))
 
-        self.grid_color = "#428bca"
-        self.wall_color = "#428bca"
-        self.robot_color = "#428bca"
-        self.robot_outline = "#ffffff"
-        self.cell_to_paint_color = "#f0ad4e"
-        self.cell_to_paint_when_painted_color = "#ffffff"
-        self.home_color = "#a93b20"
-        self.pollution_color = "#404C51"
-        self.print_color = "#712903"
-        self.wall_width = 4
-        self.cell_size = 80
-
         self.select_env(initial_index)
+        self.lock_window_size()
+
+    def lock_window_size(self) -> None:
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        self.root.geometry(f"{width}x{height}")
+        self.root.resizable(False, False)
+        self.root.minsize(width, height)
+        self.root.maxsize(width, height)
 
     def run(self) -> None:
         self.root.mainloop()
@@ -210,10 +241,7 @@ class RobotWindow:
 
         env = self.envs[self.selected_index]
         half_wall_width = self.wall_width // 2
-        width = env.width * self.cell_size + self.wall_width
-        height = env.height * self.cell_size + self.wall_width
 
-        self.canvas.configure(width=width, height=height)
         self.canvas.delete("all")
 
         self.draw_painted_cells(env, half_wall_width)
