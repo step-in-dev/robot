@@ -8,11 +8,13 @@ from .runtime import RunResult
 
 
 STATUS_RUNNING = "Выполнение..."
+ACTION_BUTTON_RUN = "Выполнить"
+ACTION_BUTTON_RESTORE = "Восстановить"
 
 DEFAULT_CELL_SIZE = 80
 COMPACT_CELL_SIZE = 60
-COMPACT_CELL_MAX_WIDTH = 8
-COMPACT_CELL_MAX_HEIGHT = 6
+COMPACT_CELL_MAX_WIDTH = 7
+COMPACT_CELL_MAX_HEIGHT = 5
 MIN_CANVAS_WIDTH = 450
 
 
@@ -147,9 +149,12 @@ class RobotWindow:
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
         self.action_button: tk.Button | None = None
+        self._pending_restore_enable_after_id: str | None = None
         if not debug_mode:
             self.action_button = tk.Button(
-                self.controls, text="Выполнить", command=self.run_all
+                self.controls,
+                text=ACTION_BUTTON_RUN,
+                command=self.run_all,
             )
             self.action_button.pack(side=tk.LEFT)
 
@@ -186,6 +191,7 @@ class RobotWindow:
     def close(self) -> None:
         if self.is_closed:
             return
+        self._cancel_pending_restore_enable_after()
         self.is_closed = True
         self.root.destroy()
 
@@ -222,17 +228,47 @@ class RobotWindow:
             )
 
     def _set_action_to_run(self) -> None:
+        self._cancel_pending_restore_enable_after()
         if self.action_button is None:
             return
         self.action_button.configure(
-            text="Выполнить", command=self.run_all, state=tk.NORMAL
+            text=ACTION_BUTTON_RUN,
+            command=self.run_all,
+            state=tk.NORMAL,
         )
 
-    def _set_action_to_restore(self) -> None:
+    def _cancel_pending_restore_enable_after(self) -> None:
+        if self._pending_restore_enable_after_id is None:
+            return
+        pending = self._pending_restore_enable_after_id
+        self._pending_restore_enable_after_id = None
+        try:
+            self.root.after_cancel(pending)
+        except tk.TclError:
+            pass
+
+    def _enable_action_button_if_current(self) -> None:
+        self._pending_restore_enable_after_id = None
+        if self.action_button is None or self.is_closed:
+            return
+        if self.action_button.cget("text") != ACTION_BUTTON_RESTORE:
+            return
+        if self.action_button.cget("state") != tk.DISABLED:
+            return
+        self.action_button.configure(state=tk.NORMAL)
+
+    def _set_action_to_restore_after_idle(self) -> None:
+        """Show Restore while disabled so queued clicks drain before the button is clickable."""
+        self._cancel_pending_restore_enable_after()
         if self.action_button is None:
             return
         self.action_button.configure(
-            text="Восстановить", command=self.restore, state=tk.NORMAL
+            text=ACTION_BUTTON_RESTORE,
+            command=self.restore,
+            state=tk.DISABLED,
+        )
+        self._pending_restore_enable_after_id = self.root.after_idle(
+            self._enable_action_button_if_current
         )
 
     def _disable_action_button(self) -> None:
@@ -251,11 +287,11 @@ class RobotWindow:
         if self.run_env is None:
             raise RuntimeError("run_env is required outside debug mode")
 
-        self._disable_action_button()
-        self.status_var.set(STATUS_RUNNING)
-        self.root.update()
-
         try:
+            self._disable_action_button()
+            self.status_var.set(STATUS_RUNNING)
+            self.root.update_idletasks()
+
             for index, env in enumerate(self.envs):
                 self.select_env(index)
                 result = self.run_env(env)
@@ -268,7 +304,7 @@ class RobotWindow:
 
             self.status_var.set("Решение верное для всех обстановок")
         finally:
-            self._set_action_to_restore()
+            self._set_action_to_restore_after_idle()
 
     def on_env_change(self) -> None:
         if self.is_closed:

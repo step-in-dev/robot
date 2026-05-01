@@ -43,7 +43,7 @@ def minimal_env_dict(width: int, height: int) -> dict:
 
 class CalculateCellSizeTest(unittest.TestCase):
     def test_default_when_width_8_and_height_6(self) -> None:
-        envs = [make_env(minimal_env_dict(8, 6))]
+        envs = [make_env(minimal_env_dict(7, 5))]
         self.assertEqual(calculate_cell_size(envs), DEFAULT_CELL_SIZE)
 
     def test_compact_when_width_greater_than_8(self) -> None:
@@ -86,7 +86,7 @@ class CalculateCanvasSizeTest(unittest.TestCase):
                 }
             ),
         ]
-        self.assertEqual(calculate_canvas_size(envs, 80, 4), (404, 244))
+        self.assertEqual(calculate_canvas_size(envs, 80, 4), (450, 244))
 
     def test_small_environment_uses_minimum_canvas_width(self) -> None:
         envs = [
@@ -260,6 +260,34 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertIsNotNone(window.action_button)
             window.run_all()
             self.assertEqual(window.action_button.cget("text"), "Восстановить")
+        finally:
+            window.close()
+
+    def test_queued_invokes_during_run_do_not_restore_then_rerun(self) -> None:
+        """Queued button invokes while disabled must not restore then start run_all."""
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        run_count = 0
+
+        window = RobotWindow("test_queued_invoke", envs, None, initial_index=0)
+        try:
+            self.assertIsNotNone(window.action_button)
+            btn = window.action_button
+
+            def run_env(_env: RobotEnv) -> RunResult:
+                nonlocal run_count
+                run_count += 1
+                window.root.after(0, btn.invoke)
+                window.root.after(0, btn.invoke)
+                return RunResult(status="success", message="ok")
+
+            window.run_env = run_env
+            window.run_all()
+            self.assertEqual(run_count, 1)
+            self.assertEqual(btn.cget("text"), "Восстановить")
+            window.root.update()
+            self.assertEqual(run_count, 1)
+            self.assertEqual(btn.cget("text"), "Восстановить")
+            self.assertEqual(btn.cget("state"), tk.NORMAL)
         finally:
             window.close()
 
