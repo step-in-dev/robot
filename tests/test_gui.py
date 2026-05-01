@@ -3,6 +3,8 @@ import unittest
 import tkinter as tk
 
 from robot.gui import (
+    ACTION_BUTTON_RESTORE,
+    ACTION_BUTTON_RUN,
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
@@ -236,17 +238,17 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         window = RobotWindow("test_task", envs, run_env, initial_index=1)
         try:
             self.assertIsNotNone(window.action_button)
-            self.assertEqual(window.action_button.cget("text"), "Выполнить")
+            self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
 
             window.run_all()
             self.assertEqual(window.selected_index, 1)
-            self.assertEqual(window.action_button.cget("text"), "Восстановить")
+            self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
             self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
             self.assertEqual((envs[1].robot.row, envs[1].robot.col), (0, 1))
 
             window.restore()
             self.assertEqual(window.selected_index, 0)
-            self.assertEqual(window.action_button.cget("text"), "Выполнить")
+            self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
             for env in envs:
                 self.assertEqual((env.robot.row, env.robot.col), (0, 0))
         finally:
@@ -262,7 +264,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         try:
             self.assertIsNotNone(window.action_button)
             window.run_all()
-            self.assertEqual(window.action_button.cget("text"), "Восстановить")
+            self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
         finally:
             window.close()
 
@@ -286,11 +288,138 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.run_env = run_env
             window.run_all()
             self.assertEqual(run_count, 1)
-            self.assertEqual(btn.cget("text"), "Восстановить")
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
             window.root.update()
             self.assertEqual(run_count, 1)
-            self.assertEqual(btn.cget("text"), "Восстановить")
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
             self.assertEqual(btn.cget("state"), tk.NORMAL)
+        finally:
+            window.close()
+
+    def test_enter_from_canvas_runs_then_restores(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base))]
+        run_calls = 0
+
+        def run_env(env: RobotEnv) -> RunResult:
+            nonlocal run_calls
+            run_calls += 1
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("enter_canvas", envs, run_env, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+            window.canvas.focus_set()
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(run_calls, 1)
+            self.assertEqual(window.selected_index, 0)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+            window.root.update()
+            self.assertEqual(btn.cget("state"), tk.NORMAL)
+            window.canvas.event_generate("<KeyRelease-Return>", when="tail")
+            window.root.update()
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(window.selected_index, 0)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RUN)
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
+        finally:
+            window.close()
+
+    def test_start_run_via_enter_with_two_queued_enters_during_run(self) -> None:
+        """Start run with Enter; two Enter pairs queued during run must not restore+rerun."""
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        run_count = 0
+
+        window = RobotWindow("enter_start_two_queued", envs, None, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+            window.canvas.focus_set()
+
+            def run_env(env: RobotEnv) -> RunResult:
+                nonlocal run_count
+                run_count += 1
+                env.robot.move_right()
+
+                def enqueue_two_enters() -> None:
+                    for _ in range(2):
+                        window.canvas.event_generate("<Return>", when="tail")
+                        window.canvas.event_generate(
+                            "<KeyRelease-Return>", when="tail"
+                        )
+
+                window.root.after(0, enqueue_two_enters)
+                return RunResult(status="success", message="ok")
+
+            window.run_env = run_env
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(run_count, 1)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
+            window.root.update()
+            self.assertEqual(run_count, 1)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
+            self.assertEqual(btn.cget("state"), tk.NORMAL)
+            window.canvas.event_generate("<KeyRelease-Return>", when="tail")
+            window.root.update()
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RUN)
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
+        finally:
+            window.close()
+
+    def test_enter_does_not_invoke_when_restore_button_disabled(self) -> None:
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("enter_while_disabled", envs, run_env, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+            window.canvas.focus_set()
+            window.run_all()
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+            self.assertEqual(btn.cget("state"), tk.DISABLED)
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(
+                (envs[0].robot.row, envs[0].robot.col),
+                (0, 1),
+                "Enter must not restore while button is still disabled",
+            )
+            self.assertEqual(btn.cget("state"), tk.NORMAL)
+        finally:
+            window.close()
+
+    def test_kp_enter_from_canvas_runs(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        run_calls = 0
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            nonlocal run_calls
+            run_calls += 1
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("kp_enter_canvas", envs, run_env, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+            window.canvas.focus_set()
+            window.canvas.event_generate("<KP_Enter>", when="tail")
+            window.root.update()
+            self.assertEqual(run_calls, 1)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
         finally:
             window.close()
 

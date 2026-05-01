@@ -11,8 +11,8 @@ STATUS_RUNNING = "Выполнение..."
 STATUS_READY = "Робот: Готов"
 STATUS_WRONG = "Задание не выполнено"
 STATUS_ALL_CORRECT = "Все верно"
-ACTION_BUTTON_RUN = "Выполнить"
-ACTION_BUTTON_RESTORE = "Восстановить"
+ACTION_BUTTON_RUN = "Выполнить [Enter]"
+ACTION_BUTTON_RESTORE = "Восстановить [Enter]"
 
 DEFAULT_CELL_SIZE = 80
 COMPACT_CELL_SIZE = 60
@@ -80,6 +80,8 @@ class RobotWindow:
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
+        self._ignore_action_enter_until_idle = False
+        self._is_run_all_active = False
 
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"
@@ -160,6 +162,12 @@ class RobotWindow:
                 command=self.run_all,
             )
             self.action_button.pack(side=tk.LEFT)
+            self.root.bind("<Return>", self._handle_action_enter_key)
+            self.root.bind("<KP_Enter>", self._handle_action_enter_key)
+            self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
+            self.root.bind(
+                "<KeyRelease-KP_Enter>", self._handle_action_enter_release
+            )
 
         initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
         self.status_var = tk.StringVar(value=initial_status)
@@ -215,6 +223,35 @@ class RobotWindow:
         self.configure_tab_buttons()
 
         self.draw_field()
+
+    def _handle_action_enter_key(self, _event: tk.Event) -> str | None:
+        """Invoke the main action button like a mouse click when Enter is pressed."""
+        if self.action_button is None:
+            return None
+        if self._ignore_action_enter_until_idle:
+            return "break"
+        if self.action_button.cget("state") != tk.NORMAL:
+            self._ignore_action_enter_until_idle = True
+            return "break"
+        self._ignore_action_enter_until_idle = True
+        self.action_button.invoke()
+        return "break"
+
+    def _handle_action_enter_release(self, _event: tk.Event) -> str | None:
+        if self.action_button is None:
+            return None
+        if self._ignore_action_enter_until_idle:
+            self.root.after_idle(self._deferred_clear_enter_ignore)
+            return "break"
+        return None
+
+    def _deferred_clear_enter_ignore(self) -> None:
+        if self.is_closed:
+            return
+        if self._is_run_all_active:
+            self.root.after_idle(self._deferred_clear_enter_ignore)
+            return
+        self._ignore_action_enter_until_idle = False
 
     def configure_tab_buttons(self) -> None:
         for tab_index, button in enumerate(self.tab_buttons):
@@ -290,6 +327,7 @@ class RobotWindow:
         if self.run_env is None:
             raise RuntimeError("run_env is required outside debug mode")
 
+        self._is_run_all_active = True
         try:
             self._disable_action_button()
             self.status_var.set(STATUS_RUNNING)
@@ -308,7 +346,10 @@ class RobotWindow:
 
             self.status_var.set(STATUS_ALL_CORRECT)
         finally:
-            self._set_action_to_restore_after_idle()
+            try:
+                self._set_action_to_restore_after_idle()
+            finally:
+                self._is_run_all_active = False
 
     def on_env_change(self) -> None:
         if self.is_closed:
