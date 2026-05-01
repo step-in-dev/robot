@@ -111,9 +111,11 @@ class RobotWindow:
                 fg="#000000",
                 padx=8,
                 pady=6,
-                bd=1,
-                relief=tk.SOLID,
-                highlightthickness=0
+                bd=0,
+                relief=tk.FLAT,
+                highlightthickness=1,
+                highlightbackground="#999999",
+                highlightcolor="#999999",
             )
             self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
