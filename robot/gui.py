@@ -119,20 +119,21 @@ class RobotWindow:
             )
             self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
-        tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
-        self.tab_frame = tk.Frame(self.root)
-        self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady)
-
+        self.tab_frame: tk.Frame | None = None
         self.tab_buttons: list[tk.Button] = []
-        for index in range(len(envs)):
-            button = tk.Button(
-                self.tab_frame,
-                text=str(index + 1),
-                command=lambda index=index: self.select_env(index),
-                width=4,
-            )
-            button.pack(side=tk.LEFT)
-            self.tab_buttons.append(button)
+        if len(envs) > 1:
+            tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
+            self.tab_frame = tk.Frame(self.root)
+            self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady)
+            for index in range(len(envs)):
+                button = tk.Button(
+                    self.tab_frame,
+                    text=str(index + 1),
+                    command=lambda index=index: self.select_env(index),
+                    width=4,
+                )
+                button.pack(side=tk.LEFT)
+                self.tab_buttons.append(button)
         self.canvas = tk.Canvas(
             self.root,
             bg=self.root.cget("bg"),
