@@ -2,13 +2,17 @@ import unittest
 
 import tkinter as tk
 
-from robot.gui import (
+from robot.gui_layout import (
+    calculate_canvas_size,
+    calculate_cell_size,
+    calculate_field_offset,
+)
+from robot.gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
-    RobotWindow,
     STATUS_ALL_CORRECT,
     STATUS_READY,
     STATUS_WRONG,
@@ -16,12 +20,10 @@ from robot.gui import (
     STATUS_BG_NEUTRAL,
     STATUS_BG_SUCCESS,
     TODO_TEXT_BORDER,
-    calculate_canvas_size,
-    calculate_cell_size,
-    calculate_field_offset,
 )
+from robot.gui import RobotWindow
 from robot.model import RobotEnv, RobotEnvDto
-from robot.runtime import RunResult
+from robot.results import RunResult
 
 
 def _tkinter_display_works() -> bool:

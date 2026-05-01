@@ -253,7 +253,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            with patch("robot.runtime.time.sleep") as sleep:
+            with patch("robot.commands.time.sleep") as sleep:
                 result = run_solution_on_env(
                     script,
                     "delay",

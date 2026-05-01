@@ -3,77 +3,31 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Callable
 
-from .model import Cell, RobotEnv
-from .runtime import RunResult
-
-
-STATUS_RUNNING = "Выполнение..."
-STATUS_READY = "Робот: Готов"
-STATUS_WRONG = "Задание не выполнено"
-STATUS_ALL_CORRECT = "Все верно"
-ACTION_BUTTON_RUN = "Выполнить [Enter]"
-ACTION_BUTTON_RESTORE = "Восстановить [Enter]"
-
-# todoText panel and status row share border color; backgrounds match task UX states.
-TODO_TEXT_BG = "#fdf9d3"
-TODO_TEXT_BORDER = "#999999"
-STATUS_BG_NEUTRAL = "#def1fb"  # ready, running, wrong (no runtime error)
-STATUS_BG_ERROR = "#fde7e9"
-STATUS_BG_SUCCESS = "#dff6dd"
-
-STATUS_TEXT_PAD_X = 8
-STATUS_TEXT_PAD_Y = 5
-STATUS_CANVAS_MIN_HEIGHT = 20
-STATUS_CANVAS_WIDGET_HEIGHT = STATUS_CANVAS_MIN_HEIGHT + STATUS_TEXT_PAD_Y * 2
-STATUS_HATCH_SPACING = 18
-STATUS_HATCH_WIDTH = 6
-
-DEFAULT_CELL_SIZE = 80
-COMPACT_CELL_SIZE = 60
-COMPACT_CELL_MAX_WIDTH = 7
-COMPACT_CELL_MAX_HEIGHT = 5
-MIN_CANVAS_WIDTH = 450
-
-
-def calculate_cell_size(envs: list[RobotEnv]) -> int:
-    """Pixel side length for cells; compact when any env exceeds width/height thresholds."""
-    max_width = max(env.width for env in envs)
-    max_height = max(env.height for env in envs)
-    if (
-        max_width > COMPACT_CELL_MAX_WIDTH
-        or max_height > COMPACT_CELL_MAX_HEIGHT
-    ):
-        return COMPACT_CELL_SIZE
-    return DEFAULT_CELL_SIZE
-
-
-def calculate_canvas_size(
-    envs: list[RobotEnv], cell_size: int, wall_width: int
-) -> tuple[int, int]:
-    """Pixel size of the canvas needed to show the largest environment in envs."""
-    max_width = max(env.width for env in envs)
-    max_height = max(env.height for env in envs)
-    calculated_width = max_width * cell_size + wall_width
-    return (
-        max(calculated_width, MIN_CANVAS_WIDTH),
-        max_height * cell_size + wall_width,
-    )
-
-
-def calculate_field_offset(
-    canvas_width: int,
-    canvas_height: int,
-    env: RobotEnv,
-    cell_size: int,
-    wall_width: int,
-) -> tuple[int, int]:
-    """Pixel offset to center env's field inside a canvas for the largest env."""
-    field_width = env.width * cell_size + wall_width
-    field_height = env.height * cell_size + wall_width
-    return (
-        (canvas_width - field_width) // 2,
-        (canvas_height - field_height) // 2,
-    )
+from .field_renderer import FieldColors, FieldRenderer
+from .gui_layout import (
+    calculate_canvas_size,
+    calculate_cell_size,
+    calculate_field_offset,
+)
+from .gui_theme import (
+    ACTION_BUTTON_RESTORE,
+    ACTION_BUTTON_RUN,
+    COMPACT_CELL_SIZE,
+    DEFAULT_CELL_SIZE,
+    MIN_CANVAS_WIDTH,
+    STATUS_ALL_CORRECT,
+    STATUS_BG_ERROR,
+    STATUS_BG_NEUTRAL,
+    STATUS_BG_SUCCESS,
+    STATUS_READY,
+    STATUS_RUNNING,
+    STATUS_WRONG,
+    TODO_TEXT_BG,
+    TODO_TEXT_BORDER,
+)
+from .model import RobotEnv
+from .results import RunResult
+from .status_strip import StatusStrip
 
 
 class RobotWindow:
@@ -164,6 +118,10 @@ class RobotWindow:
         )
         self.canvas.pack(padx=6, pady=6)
 
+        self._field_renderer = FieldRenderer(
+            self.canvas, self.cell_size, self.wall_width
+        )
+
         self.controls = tk.Frame(self.root)
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 2))
 
@@ -184,23 +142,17 @@ class RobotWindow:
             )
 
         initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
-        self.status_var = tk.StringVar(value=initial_status)
-        self.status_frame = tk.Frame(self.root, bg=STATUS_BG_NEUTRAL)
-        self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
-        self._status_background = STATUS_BG_NEUTRAL
-        self._status_hatched = False
-        self.status_canvas = tk.Canvas(
-            self.status_frame,
-            height=STATUS_CANVAS_WIDGET_HEIGHT,
-            highlightthickness=1,
-            highlightbackground=TODO_TEXT_BORDER,
-            highlightcolor=TODO_TEXT_BORDER,
-            bd=0,
-            relief=tk.FLAT,
+        self._status_strip = StatusStrip(
+            self.root,
+            get_canvas_width=lambda: self.canvas_width,
+            is_closed=lambda: self.is_closed,
+            initial_text=initial_status,
+            initial_bg=STATUS_BG_NEUTRAL,
         )
-        self.status_canvas.pack(side=tk.TOP, fill=tk.X)
-        self.status_canvas.bind("<Configure>", self._handle_status_canvas_configure)
-        self._set_status(initial_status, STATUS_BG_NEUTRAL)
+        self.status_var = self._status_strip.status_var
+        self.status_frame = self._status_strip.status_frame
+        self.status_canvas = self._status_strip.status_canvas
+        self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
         self.select_env(initial_index)
         self.lock_window_size()
@@ -214,54 +166,16 @@ class RobotWindow:
         self.root.minsize(width, height)
         self.root.maxsize(width, height)
 
+    @property
+    def _status_background(self) -> str:
+        return self._status_strip.background
+
+    @property
+    def _status_hatched(self) -> bool:
+        return self._status_strip.hatched
+
     def _set_status(self, text: str, background: str, *, hatched: bool = False) -> None:
-        if self.is_closed:
-            return
-        self.status_var.set(text)
-        self.status_frame.configure(bg=background)
-        self._status_background = background
-        self._status_hatched = hatched
-        self._draw_status(background, hatched=hatched)
-
-    def _handle_status_canvas_configure(self, _event: tk.Event) -> None:
-        if self.is_closed:
-            return
-        try:
-            self._draw_status(self._status_background, hatched=self._status_hatched)
-        except tk.TclError:
-            pass
-
-    def _draw_status(self, background: str, *, hatched: bool) -> None:
-        """Paint status row: solid fill, or white + diagonal hatch in `background`."""
-        cw = self.status_canvas.winfo_width()
-        ch = self.status_canvas.winfo_height()
-        width = max(cw, self.canvas_width, 1)
-        height = max(ch, STATUS_CANVAS_WIDGET_HEIGHT, 1)
-
-        self.status_canvas.delete("all")
-
-        fill = "#ffffff" if hatched else background
-        self.status_canvas.configure(bg=fill)
-        self.status_canvas.create_rectangle(0, 0, width, height, fill=fill, outline="")
-
-        if hatched:
-            for x in range(-height, width + height, STATUS_HATCH_SPACING):
-                self.status_canvas.create_line(
-                    x,
-                    height,
-                    x + height,
-                    0,
-                    fill=background,
-                    width=STATUS_HATCH_WIDTH,
-                )
-
-        self.status_canvas.create_text(
-            STATUS_TEXT_PAD_X,
-            height // 2,
-            text=self.status_var.get(),
-            anchor=tk.W,
-            fill="#000000",
-        )
+        self._status_strip.set_status(text, background, hatched=hatched)
 
     def run(self) -> None:
         self.root.mainloop()
@@ -465,210 +379,39 @@ class RobotWindow:
             return
 
         env = self.envs[self.selected_index]
-        half_wall_width = self.wall_width // 2
-
-        self.canvas.delete("all")
-
-        self.draw_cell_field_background(env, half_wall_width)
-        self.draw_painted_cells(env, half_wall_width)
-        self.draw_cells_to_paint(env)
-        self.draw_grid(env, half_wall_width)
-        self.draw_outline(env, half_wall_width)
-        self.draw_walls(env, half_wall_width)
-        self.draw_robot(env)
-        self.draw_home(env)
-        self.draw_pollution(env)
-        self.draw_print_values(env)
-
-        offset_x, offset_y = calculate_field_offset(
-            self.canvas_width,
-            self.canvas_height,
-            env,
-            self.cell_size,
-            self.wall_width,
+        self._field_renderer.set_dimensions(self.cell_size, self.wall_width)
+        colors = FieldColors(
+            grid_color=self.grid_color,
+            wall_color=self.wall_color,
+            robot_color=self.robot_color,
+            robot_outline=self.robot_outline,
+            cell_to_paint_color=self.cell_to_paint_color,
+            cell_to_paint_when_painted_color=self.cell_to_paint_when_painted_color,
+            home_color=self.home_color,
+            pollution_color=self.pollution_color,
+            print_color=self.print_color,
+            cell_background_color=self.cell_background_color,
         )
-        self.canvas.move("all", offset_x, offset_y)
-
-    def draw_cell_field_background(self, env: RobotEnv, half_wall_width: int) -> None:
-        self.canvas.create_rectangle(
-            half_wall_width,
-            half_wall_width,
-            half_wall_width + env.width * self.cell_size,
-            half_wall_width + env.height * self.cell_size,
-            fill=self.cell_background_color,
-            outline="",
+        self._field_renderer.draw_field(
+            env, self.canvas_width, self.canvas_height, colors
         )
 
-    def draw_painted_cells(self, env: RobotEnv, half_wall_width: int) -> None:
-        for cell in env.extract_painted_cells():
-            x = cell.c * self.cell_size + half_wall_width
-            y = cell.r * self.cell_size + half_wall_width
-            self.canvas.create_rectangle(
-                x,
-                y,
-                x + self.cell_size,
-                y + self.cell_size,
-                fill=self.cell_to_paint_color,
-                outline="",
-            )
 
-    def draw_cells_to_paint(self, env: RobotEnv) -> None:
-        marker_size = self.wall_width * 2
-        offset = self.wall_width * 2
-        for cell in env.cells_to_paint:
-            x = cell.c * self.cell_size + offset
-            y = cell.r * self.cell_size + offset
-            color = (
-                self.cell_to_paint_when_painted_color
-                if env.is_painted(cell)
-                else self.cell_to_paint_color
-            )
-            self.canvas.create_rectangle(
-                x,
-                y,
-                x + marker_size,
-                y + marker_size,
-                fill=color,
-                outline="",
-            )
-
-    def draw_grid(self, env: RobotEnv, half_wall_width: int) -> None:
-        for row in range(1, env.height):
-            y = half_wall_width + row * self.cell_size
-            self.canvas.create_line(
-                half_wall_width,
-                y,
-                half_wall_width + env.width * self.cell_size - 1,
-                y,
-                fill=self.grid_color,
-                width=1,
-                dash=(2, 1),
-            )
-
-        for col in range(1, env.width):
-            x = half_wall_width + col * self.cell_size
-            self.canvas.create_line(
-                x,
-                half_wall_width,
-                x,
-                half_wall_width + env.height * self.cell_size - 1,
-                fill=self.grid_color,
-                width=1,
-                dash=(2, 1),
-            )
-
-    def draw_outline(self, env: RobotEnv, half_wall_width: int) -> None:
-        self.canvas.create_rectangle(
-            half_wall_width,
-            half_wall_width,
-            half_wall_width + env.width * self.cell_size,
-            half_wall_width + env.height * self.cell_size,
-            outline=self.wall_color,
-            width=self.wall_width,
-        )
-
-    def draw_walls(self, env: RobotEnv, half_wall_width: int) -> None:
-        for first, second in env.walls:
-            if first.r == second.r:
-                x = (
-                    min(first.c, second.c) + 1
-                ) * self.cell_size + half_wall_width
-                y1 = first.r * self.cell_size + half_wall_width
-                y2 = (first.r + 1) * self.cell_size + half_wall_width
-                self.canvas.create_line(
-                    x, y1, x, y2, fill=self.wall_color, width=self.wall_width
-                )
-            else:
-                y = (
-                    min(first.r, second.r) + 1
-                ) * self.cell_size + half_wall_width
-                x1 = first.c * self.cell_size + half_wall_width
-                x2 = (first.c + 1) * self.cell_size + half_wall_width
-                self.canvas.create_line(
-                    x1, y, x2, y, fill=self.wall_color, width=self.wall_width
-                )
-
-    def draw_robot(self, env: RobotEnv) -> None:
-        row = env.robot.row
-        col = env.robot.col
-        half_wall_width = self.wall_width // 2
-        padding = self.cell_size * 0.27
-        x1 = half_wall_width + col * self.cell_size + padding
-        y1 = half_wall_width + row * self.cell_size + padding
-        x2 = half_wall_width + (col + 1) * self.cell_size - padding
-        y2 = half_wall_width + (row + 1) * self.cell_size - padding
-        self.canvas.create_rectangle(
-            x1,
-            y1,
-            x2,
-            y2,
-            fill=self.robot_color,
-            outline=self.robot_outline,
-            width=2,
-        )
-
-    def draw_home(self, env: RobotEnv) -> None:
-        row = env.final_row
-        col = env.final_col
-        half_wall_width = self.wall_width // 2
-        half_cell_size = self.cell_size // 2
-        x = col * self.cell_size + half_cell_size + half_wall_width
-        y = row * self.cell_size + half_cell_size + half_wall_width
-        size = half_cell_size - half_wall_width - 1
-        scale = size / 24
-
-        def point(svg_x: float, svg_y: float) -> tuple[float, float]:
-            return x + svg_x * scale, y + svg_y * scale
-
-        points = [
-            point(12, 2),
-            point(1, 12),
-            point(4, 12),
-            point(4, 20),
-            point(5, 21),
-            point(9, 21),
-            point(10, 20),
-            point(10, 14),
-            point(14, 14),
-            point(14, 20),
-            point(15, 21),
-            point(19, 21),
-            point(20, 20),
-            point(20, 12),
-            point(23, 12),
-        ]
-        self.canvas.create_polygon(
-            points,
-            fill=self.home_color,
-            outline=self.home_color,
-        )
-
-    def draw_pollution(self, env: RobotEnv) -> None:
-        for cell in env.polluted_cells:
-            self.draw_centered_text(
-                cell,
-                str(cell.value),
-                self.pollution_color,
-                font_size=int(self.cell_size * 0.28),
-            )
-
-    def draw_print_values(self, env: RobotEnv) -> None:
-        for cell in env.printed_cells:
-            self.draw_centered_text(
-                cell,
-                str(cell.value),
-                self.print_color,
-                font_size=int(self.cell_size * 0.28),
-            )
-
-    def draw_centered_text(
-        self, cell: Cell, text: str, color: str, font_size: int
-    ) -> None:
-        half_wall_width = self.wall_width // 2
-        self.canvas.create_text(
-            half_wall_width + cell.c * self.cell_size + self.cell_size / 2,
-            half_wall_width + cell.r * self.cell_size + self.cell_size / 2,
-            text=text,
-            fill=color,
-            font=("Arial", font_size, "bold"),
-        )
+__all__ = [
+    "RobotWindow",
+    "ACTION_BUTTON_RESTORE",
+    "ACTION_BUTTON_RUN",
+    "COMPACT_CELL_SIZE",
+    "DEFAULT_CELL_SIZE",
+    "MIN_CANVAS_WIDTH",
+    "STATUS_ALL_CORRECT",
+    "STATUS_READY",
+    "STATUS_WRONG",
+    "STATUS_BG_ERROR",
+    "STATUS_BG_NEUTRAL",
+    "STATUS_BG_SUCCESS",
+    "TODO_TEXT_BORDER",
+    "calculate_canvas_size",
+    "calculate_cell_size",
+    "calculate_field_offset",
+]
