@@ -230,7 +230,7 @@ class RobotWindow:
             return None
         if self._ignore_action_enter_until_idle:
             return "break"
-        if self.action_button.cget("state") != tk.NORMAL:
+        if self.action_button.cget("state") == tk.DISABLED:
             self._ignore_action_enter_until_idle = True
             return "break"
         self._ignore_action_enter_until_idle = True

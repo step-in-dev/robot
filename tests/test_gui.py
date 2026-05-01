@@ -329,6 +329,31 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         finally:
             window.close()
 
+    def test_enter_from_canvas_when_action_button_in_active_state(self) -> None:
+        """Hover makes tk.Button state 'active'; Enter must still run like normal."""
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        run_calls = 0
+
+        def run_env(env: RobotEnv) -> RunResult:
+            nonlocal run_calls
+            run_calls += 1
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("enter_when_button_active", envs, run_env, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+            btn.configure(state=tk.ACTIVE)
+            self.assertEqual(btn.cget("state"), tk.ACTIVE)
+            window.canvas.focus_set()
+            window.canvas.event_generate("<Return>", when="tail")
+            window.root.update()
+            self.assertEqual(run_calls, 1)
+            self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+        finally:
+            window.close()
+
     def test_start_run_via_enter_with_two_queued_enters_during_run(self) -> None:
         """Start run with Enter; two Enter pairs queued during run must not restore+rerun."""
         envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
