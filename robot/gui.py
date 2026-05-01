@@ -21,6 +21,13 @@ STATUS_BG_NEUTRAL = "#def1fb"  # ready, running, wrong (no runtime error)
 STATUS_BG_ERROR = "#fde7e9"
 STATUS_BG_SUCCESS = "#dff6dd"
 
+STATUS_TEXT_PAD_X = 8
+STATUS_TEXT_PAD_Y = 5
+STATUS_CANVAS_MIN_HEIGHT = 20
+STATUS_CANVAS_WIDGET_HEIGHT = STATUS_CANVAS_MIN_HEIGHT + STATUS_TEXT_PAD_Y * 2
+STATUS_HATCH_SPACING = 18
+STATUS_HATCH_WIDTH = 6
+
 DEFAULT_CELL_SIZE = 80
 COMPACT_CELL_SIZE = 60
 COMPACT_CELL_MAX_WIDTH = 7
@@ -180,21 +187,19 @@ class RobotWindow:
         self.status_var = tk.StringVar(value=initial_status)
         self.status_frame = tk.Frame(self.root, bg=STATUS_BG_NEUTRAL)
         self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
-        self.status_label = tk.Label(
+        self._status_background = STATUS_BG_NEUTRAL
+        self._status_hatched = False
+        self.status_canvas = tk.Canvas(
             self.status_frame,
-            textvariable=self.status_var,
-            anchor=tk.W,
-            bg=STATUS_BG_NEUTRAL,
-            fg="#000000",
-            padx=8,
-            pady=6,
-            bd=0,
-            relief=tk.FLAT,
+            height=STATUS_CANVAS_WIDGET_HEIGHT,
             highlightthickness=1,
             highlightbackground=TODO_TEXT_BORDER,
             highlightcolor=TODO_TEXT_BORDER,
+            bd=0,
+            relief=tk.FLAT,
         )
-        self.status_label.pack(side=tk.TOP, fill=tk.X)
+        self.status_canvas.pack(side=tk.TOP, fill=tk.X)
+        self.status_canvas.bind("<Configure>", self._handle_status_canvas_configure)
         self._set_status(initial_status, STATUS_BG_NEUTRAL)
 
         self.select_env(initial_index)
@@ -209,12 +214,54 @@ class RobotWindow:
         self.root.minsize(width, height)
         self.root.maxsize(width, height)
 
-    def _set_status(self, text: str, background: str) -> None:
+    def _set_status(self, text: str, background: str, *, hatched: bool = False) -> None:
         if self.is_closed:
             return
         self.status_var.set(text)
         self.status_frame.configure(bg=background)
-        self.status_label.configure(bg=background)
+        self._status_background = background
+        self._status_hatched = hatched
+        self._draw_status(background, hatched=hatched)
+
+    def _handle_status_canvas_configure(self, _event: tk.Event) -> None:
+        if self.is_closed:
+            return
+        try:
+            self._draw_status(self._status_background, hatched=self._status_hatched)
+        except tk.TclError:
+            pass
+
+    def _draw_status(self, background: str, *, hatched: bool) -> None:
+        """Paint status row: solid fill, or white + diagonal hatch in `background`."""
+        cw = self.status_canvas.winfo_width()
+        ch = self.status_canvas.winfo_height()
+        width = max(cw, self.canvas_width, 1)
+        height = max(ch, STATUS_CANVAS_WIDGET_HEIGHT, 1)
+
+        self.status_canvas.delete("all")
+
+        fill = "#ffffff" if hatched else background
+        self.status_canvas.configure(bg=fill)
+        self.status_canvas.create_rectangle(0, 0, width, height, fill=fill, outline="")
+
+        if hatched:
+            for x in range(-height, width + height, STATUS_HATCH_SPACING):
+                self.status_canvas.create_line(
+                    x,
+                    height,
+                    x + height,
+                    0,
+                    fill=background,
+                    width=STATUS_HATCH_WIDTH,
+                )
+
+        self.status_canvas.create_text(
+            STATUS_TEXT_PAD_X,
+            height // 2,
+            text=self.status_var.get(),
+            anchor=tk.W,
+            fill="#000000",
+        )
 
     def run(self) -> None:
         self.root.mainloop()
@@ -397,7 +444,9 @@ class RobotWindow:
         self.draw_field()
         if result.success:
             self._set_status(
-                f"Обстановка {env_number}: {result.message}", STATUS_BG_SUCCESS
+                f"Обстановка {env_number}: {result.message}",
+                STATUS_BG_SUCCESS,
+                hatched=True,
             )
         elif result.status == "wrong":
             self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
