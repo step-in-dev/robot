@@ -454,6 +454,26 @@ class RobotWindowActionButtonTest(unittest.TestCase):
     "tkinter display not available (headless / no DISPLAY)",
 )
 class RobotWindowStatusLabelTest(unittest.TestCase):
+    def test_status_row_is_below_controls_and_full_width(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_layout", envs, run_env, initial_index=0)
+        try:
+            self.assertNotEqual(window.status_label.master, window.controls)
+            self.assertEqual(window.status_label.master, window.status_frame)
+            slaves = window.root.pack_slaves()
+            self.assertGreater(
+                slaves.index(window.status_frame),
+                slaves.index(window.controls),
+            )
+            self.assertEqual(window.status_frame.pack_info().get("fill"), "x")
+            self.assertEqual(window.status_label.pack_info().get("fill"), "x")
+        finally:
+            window.close()
+
     def test_initial_status_is_robot_ready(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
 

@@ -151,7 +151,7 @@ class RobotWindow:
         self.canvas.pack(padx=6, pady=6)
 
         self.controls = tk.Frame(self.root)
-        self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
+        self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 2))
 
         self.action_button: tk.Button | None = None
         self._pending_restore_enable_after_id: str | None = None
@@ -171,10 +171,12 @@ class RobotWindow:
 
         initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
         self.status_var = tk.StringVar(value=initial_status)
+        self.status_frame = tk.Frame(self.root)
+        self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
         self.status_label = tk.Label(
-            self.controls, textvariable=self.status_var, anchor=tk.W
+            self.status_frame, textvariable=self.status_var, anchor=tk.W
         )
-        self.status_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(12, 0))
+        self.status_label.pack(side=tk.TOP, fill=tk.X)
 
         self.select_env(initial_index)
         self.lock_window_size()
