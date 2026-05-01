@@ -5,7 +5,7 @@ import time
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from types import FrameType
+from types import FrameType, TracebackType
 from typing import Any, Literal
 
 from .loader import load_task_definition
@@ -22,6 +22,39 @@ _expected_task_id: str | None = None
 _is_executing_solution = False
 _active_command_delay_seconds = 0.0
 _debug_session: DebugSession | None = None
+
+
+def _student_frame_lineno(script_path: Path, tb: TracebackType | None) -> int | None:
+    """Innermost lineno in *student* script (closest to the exception in that file)."""
+    if tb is None:
+        return None
+    try:
+        resolved_script = script_path.resolve()
+    except OSError:
+        return None
+    for frame_summary in reversed(traceback.extract_tb(tb)):
+        try:
+            frame_path = Path(frame_summary.filename).resolve()
+        except OSError:
+            continue
+        if frame_path == resolved_script:
+            return frame_summary.lineno
+    return None
+
+
+def _message_with_line(
+    script_path: Path,
+    tb: TracebackType | None,
+    message: str,
+) -> str:
+    lineno = _student_frame_lineno(script_path, tb)
+    if lineno is None:
+        return message
+    return f"Строка {lineno}: {message}"
+
+
+def _exception_message(exc: BaseException) -> str:
+    return f"{type(exc).__name__}: {exc}"
 
 
 @dataclass(frozen=True)
@@ -42,7 +75,13 @@ class DebugSession:
     env: RobotEnv
     window: Any
     caller_frame: FrameType
+    script_path: Path
     previous_profile: Any = None
+    previous_trace: Any = None
+    caller_f_trace_before_robot: Any = None
+    caller_local_trace: Any = None
+    debug_global_trace_installed: bool = False
+    debug_trace_installed: bool = False
     has_robot_error: bool = False
     is_finalized: bool = False
 
@@ -138,12 +177,15 @@ def _start_debug_task(
         debug_mode=True,
         todo_text=task_definition.todo_text,
     )
+    script_path = Path(caller_frame.f_code.co_filename).resolve()
+
     _debug_session = DebugSession(
         task_id=task_id,
         env_number=env_number,
         env=env,
         window=window,
         caller_frame=caller_frame,
+        script_path=script_path,
     )
     _active_env = env
     _install_debug_finalizer()
@@ -175,12 +217,14 @@ def run_solution_on_env(
         source = script_path.read_text(encoding="utf-8")
         code = compile(source, str(script_path), "exec")
         exec(code, namespace)
-    except RobotPathError:
+    except RobotPathError as exc:
         details = traceback.format_exc()
         print(details, file=sys.stderr)
         return RunResult(
             status="crashed",
-            message=ROBOT_PATH_COLLISION_USER_MESSAGE,
+            message=_message_with_line(
+                script_path, exc.__traceback__, ROBOT_PATH_COLLISION_USER_MESSAGE
+            ),
             details=details,
         )
     except SystemExit as exc:
@@ -189,17 +233,19 @@ def run_solution_on_env(
             return _check_final_state(env)
         details = traceback.format_exc()
         print(details, file=sys.stderr)
+        base_message = f"программа завершилась с кодом {code}"
         return RunResult(
             status="error",
-            message=f"программа завершилась с кодом {code}",
+            message=_message_with_line(script_path, exc.__traceback__, base_message),
             details=details,
         )
     except Exception as exc:
         details = traceback.format_exc()
         print(details, file=sys.stderr)
+        base_message = f"{type(exc).__name__}: {exc}"
         return RunResult(
             status="error",
-            message=f"{type(exc).__name__}: {exc}",
+            message=_message_with_line(script_path, exc.__traceback__, base_message),
             details=details,
         )
     finally:
@@ -284,7 +330,22 @@ def _run_mutating_robot_command(command) -> None:
     try:
         command()
     except RobotPathError:
-        _mark_debug_robot_error(ROBOT_PATH_COLLISION_USER_MESSAGE)
+        session = _debug_session
+        if session is not None:
+            lineno = None
+            try:
+                student_frame = sys._getframe(2)
+                student_file = Path(student_frame.f_code.co_filename).resolve()
+                script_file = session.script_path.resolve()
+                if student_file == script_file:
+                    lineno = student_frame.f_lineno
+            except (ValueError, OSError):
+                lineno = None
+            if lineno is not None:
+                msg = f"Строка {lineno}: {ROBOT_PATH_COLLISION_USER_MESSAGE}"
+            else:
+                msg = ROBOT_PATH_COLLISION_USER_MESSAGE
+            _mark_debug_robot_error(msg)
         raise
 
 
@@ -307,6 +368,51 @@ def _check_final_state(env: RobotEnv) -> RunResult:
     return RunResult(status="wrong", message="обстановка решена неверно")
 
 
+def _debug_exception_status_message(exc: BaseException) -> str | None:
+    """Status text for uncaught exception in debug caller frame; None if skip."""
+    if isinstance(exc, RobotPathError):
+        return None
+    if isinstance(exc, SystemExit):
+        code = exc.code if exc.code is not None else 0
+        if code == 0:
+            return None
+        return f"программа завершилась с кодом {code}"
+    if isinstance(exc, KeyboardInterrupt):
+        return None
+    if isinstance(exc, Exception):
+        return _exception_message(exc)
+    return None
+
+
+def _debug_global_trace_enabler(frame, event, arg):
+    """Enable tracing machinery when no debugger trace was present; caller_frame uses _debug_caller_frame_trace."""
+    return _debug_global_trace_enabler
+
+
+def _debug_caller_frame_trace(frame, event, arg):
+    """Local trace on session.caller_frame: chains IDE/Thonny local trace, then Robot status."""
+    session = _debug_session
+    if session is None:
+        return _debug_caller_frame_trace
+
+    nxt = session.caller_local_trace
+    if nxt is not None:
+        try:
+            chain_result = nxt(frame, event, arg)
+            if chain_result is not None:
+                session.caller_local_trace = chain_result
+        except Exception:
+            pass
+
+    if event == "exception":
+        _, exc, _ = arg
+        msg = _debug_exception_status_message(exc)
+        if msg is not None:
+            _mark_debug_robot_error(msg)
+
+    return _debug_caller_frame_trace
+
+
 def _install_debug_finalizer() -> None:
     session = _debug_session
     if session is None:
@@ -314,6 +420,19 @@ def _install_debug_finalizer() -> None:
 
     session.previous_profile = sys.getprofile()
     sys.setprofile(_debug_profile)
+    session.previous_trace = sys.gettrace()
+    session.caller_f_trace_before_robot = session.caller_frame.f_trace
+    session.caller_local_trace = session.caller_frame.f_trace
+
+    if session.previous_trace is None:
+        sys.settrace(_debug_global_trace_enabler)
+        session.debug_global_trace_installed = True
+    else:
+        session.debug_global_trace_installed = False
+
+    # sys.settrace() does not hook frames already on the stack; caller must be wired explicitly.
+    session.caller_frame.f_trace = _debug_caller_frame_trace
+    session.debug_trace_installed = True
 
 
 def _debug_profile(frame, event, arg) -> None:
@@ -335,7 +454,7 @@ def _finalize_debug_session() -> None:
         return
 
     session.is_finalized = True
-    _restore_debug_profile(session)
+    _restore_debug_hooks(session)
     try:
         if not session.has_robot_error:
             result = _check_final_state(session.env)
@@ -359,17 +478,29 @@ def _clear_debug_session() -> None:
     global _active_env, _debug_session
 
     if _debug_session is not None:
-        _restore_debug_profile(_debug_session)
+        _restore_debug_hooks(_debug_session)
 
     _active_env = None
     _debug_session = None
     _active_command_delay_seconds = 0.0
 
 
-def _restore_debug_profile(session: DebugSession) -> None:
+def _restore_debug_hooks(session: DebugSession) -> None:
     if sys.getprofile() is _debug_profile:
         sys.setprofile(session.previous_profile)
     session.previous_profile = None
+    if session.debug_trace_installed:
+        try:
+            session.caller_frame.f_trace = session.caller_f_trace_before_robot
+        except (RuntimeError, AttributeError):
+            pass
+        session.caller_f_trace_before_robot = None
+        session.caller_local_trace = None
+        if session.debug_global_trace_installed:
+            sys.settrace(session.previous_trace)
+            session.debug_global_trace_installed = False
+        session.previous_trace = None
+        session.debug_trace_installed = False
 
 
 def _detect_student_script() -> Path:

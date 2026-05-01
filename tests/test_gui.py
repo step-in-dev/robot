@@ -572,7 +572,7 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
         finally:
             window.close()
 
-    def test_error_shows_only_message_text(self) -> None:
+    def test_error_shows_run_result_message_text(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
         err_msg = "текст ошибки"
 

@@ -1,6 +1,9 @@
 import json
+import re
+import sys
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import call, patch
 
@@ -45,6 +48,20 @@ class FakeDebugWindow:
 
     def run_until_closed(self):
         self.run_until_closed_called = True
+
+
+@contextmanager
+def _installed_debugger_global_trace():
+    """Simulate an IDE: tracing only runs if sys.settrace is non-None (local f_trace alone is not enough)."""
+    def ide_global(frame, event, arg):
+        return ide_global
+
+    old = sys.gettrace()
+    sys.settrace(ide_global)
+    try:
+        yield
+    finally:
+        sys.settrace(old)
 
 
 class LoaderRuntimeTest(unittest.TestCase):
@@ -276,6 +293,66 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
 
+    def test_runtime_error_message_includes_student_line_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import *\n"
+                "task('divtask')\n"
+                "1/0\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(script, "divtask", env)
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("ZeroDivisionError", result.message)
+        self.assertRegex(result.message, r"^Строка 3: ZeroDivisionError:")
+
+    def test_runtime_robot_path_collision_message_includes_student_line_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import *\n"
+                "task('walltask')\n"
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(script, "walltask", env)
+
+        self.assertEqual(result.status, "crashed")
+        self.assertRegex(
+            result.message,
+            r"^Строка 3: "
+            + re.escape(runtime.ROBOT_PATH_COLLISION_USER_MESSAGE)
+            + r"$",
+        )
+
     def test_task_with_environment_number_continues_in_selected_env(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             self.write_task(
@@ -303,7 +380,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                with _installed_debugger_global_trace():
                     with patch("robot.gui.RobotWindow", FakeDebugWindow):
 
                         def run_solution():
@@ -351,7 +428,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                with _installed_debugger_global_trace():
                     with patch("robot.gui.RobotWindow", FakeDebugWindow):
 
                         def run_solution():
@@ -396,7 +473,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                with _installed_debugger_global_trace():
                     for env_number in ("2", True, 0, 3):
                         with self.subTest(env_number=env_number):
                             with self.assertRaises(RobotError):
@@ -422,12 +499,14 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with patch("robot.runtime.sys.gettrace", return_value=lambda *_: None):
+                with _installed_debugger_global_trace():
                     with patch("robot.gui.RobotWindow", FakeDebugWindow):
 
                         def run_solution():
                             runtime.task("debug", 1)
                             runtime.move_right()
+
+                        expected_line = run_solution.__code__.co_firstlineno + 2
 
                         with self.assertRaises(RobotPathError):
                             run_solution()
@@ -435,8 +514,115 @@ class LoaderRuntimeTest(unittest.TestCase):
         window = FakeDebugWindow.instances[0]
         self.assertEqual(
             window.robot_error,
-            runtime.ROBOT_PATH_COLLISION_USER_MESSAGE,
+            f"Строка {expected_line}: {runtime.ROBOT_PATH_COLLISION_USER_MESSAGE}",
         )
+        self.assertIsNone(window.result)
+        self.assertTrue(window.run_until_closed_called)
+
+    def test_debug_python_runtime_error_shows_message_without_line(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.write_task(
+                temp_dir,
+                "debug",
+                [
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                ],
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with _installed_debugger_global_trace():
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
+
+                        def run_solution():
+                            runtime.task("debug", 1)
+                            1 / 0
+
+                        with self.assertRaises(ZeroDivisionError):
+                            run_solution()
+
+        window = FakeDebugWindow.instances[0]
+        self.assertEqual(window.robot_error, "ZeroDivisionError: division by zero")
+        self.assertIsNone(window.result)
+        self.assertTrue(window.run_until_closed_called)
+
+    def test_debug_thonny_style_local_tracer_is_chained_for_runtime_errors(self):
+        """Simulate Thonny (local f_trace); Robot status must still see ZeroDivisionError."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.write_task(
+                temp_dir,
+                "debug",
+                [
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                ],
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with _installed_debugger_global_trace():
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
+                        local_calls = []
+
+                        def fake_thonny_local_trace(frame, event, arg):
+                            local_calls.append((event, arg))
+                            return fake_thonny_local_trace
+
+                        def run_solution():
+                            sys._getframe(0).f_trace = fake_thonny_local_trace
+                            runtime.task("debug", 1)
+                            1 / 0
+
+                        with self.assertRaises(ZeroDivisionError):
+                            run_solution()
+
+        window = FakeDebugWindow.instances[0]
+        self.assertEqual(window.robot_error, "ZeroDivisionError: division by zero")
+        exception_events = [e for e, _ in local_calls if e == "exception"]
+        self.assertGreater(len(exception_events), 0)
+
+    def test_debug_system_exit_shows_code_message(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.write_task(
+                temp_dir,
+                "debug",
+                [
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                ],
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with _installed_debugger_global_trace():
+                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
+
+                        def run_solution():
+                            runtime.task("debug", 1)
+                            raise SystemExit(7)
+
+                        with self.assertRaises(SystemExit) as ctx:
+                            run_solution()
+
+        self.assertEqual(ctx.exception.code, 7)
+        window = FakeDebugWindow.instances[0]
+        self.assertEqual(window.robot_error, "программа завершилась с кодом 7")
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)
 
