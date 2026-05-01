@@ -358,7 +358,7 @@ class RobotWindow:
         self.draw_field()
         if result.success:
             self._set_status(
-                f"Обстановка {env_number}: {result.message}",
+                f"{STATUS_ALL_CORRECT}. При отладке тестируется только одна обстановка",
                 STATUS_BG_SUCCESS,
                 hatched=True,
             )

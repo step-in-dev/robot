@@ -617,11 +617,11 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         window = RobotWindow("debug_success", envs, None, initial_index=0, debug_mode=True)
         try:
             window.show_debug_result(
-                1, RunResult(status="success", message="решение верное")
+                1, RunResult(status="success", message="Решение верное")
             )
             window.root.update_idletasks()
             self.assertEqual(
-                window.status_var.get(), "Обстановка 1: решение верное"
+                window.status_var.get(), f"{STATUS_ALL_CORRECT}. При отладке тестируется только одна обстановка"
             )
             self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
             self.assertTrue(window._status_hatched)

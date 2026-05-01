@@ -21,5 +21,5 @@ class RunResult:
 
 def check_final_state(env: RobotEnv) -> RunResult:
     if env.is_in_final_state():
-        return RunResult(status="success", message="решение верное")
-    return RunResult(status="wrong", message="обстановка решена неверно")
+        return RunResult(status="success", message="")
+    return RunResult(status="wrong", message="")
