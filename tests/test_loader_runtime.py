@@ -519,7 +519,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)
 
-    def test_debug_python_runtime_error_shows_message_without_line(self):
+    def test_debug_python_runtime_error_shows_message_with_line(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             self.write_task(
                 temp_dir,
@@ -544,11 +544,16 @@ class LoaderRuntimeTest(unittest.TestCase):
                             runtime.task("debug", 1)
                             1 / 0
 
+                        expected_line = run_solution.__code__.co_firstlineno + 2
+
                         with self.assertRaises(ZeroDivisionError):
                             run_solution()
 
         window = FakeDebugWindow.instances[0]
-        self.assertEqual(window.robot_error, "ZeroDivisionError: division by zero")
+        self.assertEqual(
+            window.robot_error,
+            f"Строка {expected_line}: ZeroDivisionError: division by zero",
+        )
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)
 
@@ -584,11 +589,16 @@ class LoaderRuntimeTest(unittest.TestCase):
                             runtime.task("debug", 1)
                             1 / 0
 
+                        expected_line = run_solution.__code__.co_firstlineno + 3
+
                         with self.assertRaises(ZeroDivisionError):
                             run_solution()
 
         window = FakeDebugWindow.instances[0]
-        self.assertEqual(window.robot_error, "ZeroDivisionError: division by zero")
+        self.assertEqual(
+            window.robot_error,
+            f"Строка {expected_line}: ZeroDivisionError: division by zero",
+        )
         exception_events = [e for e, _ in local_calls if e == "exception"]
         self.assertGreater(len(exception_events), 0)
 
@@ -617,12 +627,17 @@ class LoaderRuntimeTest(unittest.TestCase):
                             runtime.task("debug", 1)
                             raise SystemExit(7)
 
+                        expected_line = run_solution.__code__.co_firstlineno + 2
+
                         with self.assertRaises(SystemExit) as ctx:
                             run_solution()
 
         self.assertEqual(ctx.exception.code, 7)
         window = FakeDebugWindow.instances[0]
-        self.assertEqual(window.robot_error, "программа завершилась с кодом 7")
+        self.assertEqual(
+            window.robot_error,
+            f"Строка {expected_line}: программа завершилась с кодом 7",
+        )
         self.assertIsNone(window.result)
         self.assertTrue(window.run_until_closed_called)
 

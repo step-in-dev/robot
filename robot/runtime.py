@@ -405,10 +405,10 @@ def _debug_caller_frame_trace(frame, event, arg):
             pass
 
     if event == "exception":
-        _, exc, _ = arg
+        _, exc, tb = arg
         msg = _debug_exception_status_message(exc)
         if msg is not None:
-            _mark_debug_robot_error(msg)
+            _mark_debug_robot_error(_message_with_line(session.script_path, tb, msg))
 
     return _debug_caller_frame_trace
 
