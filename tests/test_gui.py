@@ -12,6 +12,10 @@ from robot.gui import (
     STATUS_ALL_CORRECT,
     STATUS_READY,
     STATUS_WRONG,
+    STATUS_BG_ERROR,
+    STATUS_BG_NEUTRAL,
+    STATUS_BG_SUCCESS,
+    TODO_TEXT_BORDER,
     calculate_canvas_size,
     calculate_cell_size,
     calculate_field_offset,
@@ -454,6 +458,37 @@ class RobotWindowActionButtonTest(unittest.TestCase):
     "tkinter display not available (headless / no DISPLAY)",
 )
 class RobotWindowStatusLabelTest(unittest.TestCase):
+    def test_status_row_has_border_like_todo_panel(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_border", envs, run_env, initial_index=0)
+        try:
+            self.assertEqual(window.status_label.cget("highlightthickness"), 1)
+            self.assertEqual(
+                window.status_label.cget("highlightbackground"), TODO_TEXT_BORDER
+            )
+            self.assertEqual(
+                window.status_label.cget("highlightcolor"), TODO_TEXT_BORDER
+            )
+        finally:
+            window.close()
+
+    def test_initial_status_background_is_neutral(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_bg_init", envs, run_env, initial_index=0)
+        try:
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
+        finally:
+            window.close()
+
     def test_status_row_is_below_controls_and_full_width(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
 
@@ -500,6 +535,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
             window.restore()
             self.assertEqual(window.status_var.get(), STATUS_READY)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
         finally:
             window.close()
 
@@ -515,6 +552,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_SUCCESS)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_SUCCESS)
         finally:
             window.close()
 
@@ -528,6 +567,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_WRONG)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
         finally:
             window.close()
 
@@ -542,6 +583,24 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), err_msg)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_ERROR)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_ERROR)
+        finally:
+            window.close()
+
+    def test_crashed_uses_error_background(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        msg = "Робот уперся в стену"
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="crashed", message=msg)
+
+        window = RobotWindow("status_crashed", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), msg)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_ERROR)
+            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_ERROR)
         finally:
             window.close()
 

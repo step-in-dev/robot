@@ -14,6 +14,13 @@ STATUS_ALL_CORRECT = "Все верно"
 ACTION_BUTTON_RUN = "Выполнить [Enter]"
 ACTION_BUTTON_RESTORE = "Восстановить [Enter]"
 
+# todoText panel and status row share border color; backgrounds match task UX states.
+TODO_TEXT_BG = "#fdf9d3"
+TODO_TEXT_BORDER = "#999999"
+STATUS_BG_NEUTRAL = "#def1fb"  # ready, running, wrong (no runtime error)
+STATUS_BG_ERROR = "#fde7e9"
+STATUS_BG_SUCCESS = "#dff6dd"
+
 DEFAULT_CELL_SIZE = 80
 COMPACT_CELL_SIZE = 60
 COMPACT_CELL_MAX_WIDTH = 7
@@ -114,15 +121,15 @@ class RobotWindow:
                 anchor=tk.W,
                 justify=tk.LEFT,
                 wraplength=max(self.canvas_width, 320),
-                bg="#fdf9d3",
+                bg=TODO_TEXT_BG,
                 fg="#000000",
                 padx=8,
                 pady=6,
                 bd=0,
                 relief=tk.FLAT,
                 highlightthickness=1,
-                highlightbackground="#999999",
-                highlightcolor="#999999",
+                highlightbackground=TODO_TEXT_BORDER,
+                highlightcolor=TODO_TEXT_BORDER,
             )
             self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
@@ -171,12 +178,24 @@ class RobotWindow:
 
         initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
         self.status_var = tk.StringVar(value=initial_status)
-        self.status_frame = tk.Frame(self.root)
+        self.status_frame = tk.Frame(self.root, bg=STATUS_BG_NEUTRAL)
         self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
         self.status_label = tk.Label(
-            self.status_frame, textvariable=self.status_var, anchor=tk.W
+            self.status_frame,
+            textvariable=self.status_var,
+            anchor=tk.W,
+            bg=STATUS_BG_NEUTRAL,
+            fg="#000000",
+            padx=8,
+            pady=6,
+            bd=0,
+            relief=tk.FLAT,
+            highlightthickness=1,
+            highlightbackground=TODO_TEXT_BORDER,
+            highlightcolor=TODO_TEXT_BORDER,
         )
         self.status_label.pack(side=tk.TOP, fill=tk.X)
+        self._set_status(initial_status, STATUS_BG_NEUTRAL)
 
         self.select_env(initial_index)
         self.lock_window_size()
@@ -189,6 +208,13 @@ class RobotWindow:
         self.root.resizable(False, False)
         self.root.minsize(width, height)
         self.root.maxsize(width, height)
+
+    def _set_status(self, text: str, background: str) -> None:
+        if self.is_closed:
+            return
+        self.status_var.set(text)
+        self.status_frame.configure(bg=background)
+        self.status_label.configure(bg=background)
 
     def run(self) -> None:
         self.root.mainloop()
@@ -211,7 +237,7 @@ class RobotWindow:
     def show_debug_started(self) -> None:
         if self.is_closed:
             return
-        self.status_var.set(STATUS_RUNNING)
+        self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
         self.root.update()
 
     def select_env(self, index: int) -> None:
@@ -321,7 +347,7 @@ class RobotWindow:
     def restore(self) -> None:
         for env in self.envs:
             env.reset()
-        self.status_var.set(STATUS_READY)
+        self._set_status(STATUS_READY, STATUS_BG_NEUTRAL)
         self.select_env(0)
         self._set_action_to_run()
 
@@ -332,7 +358,7 @@ class RobotWindow:
         self._is_run_all_active = True
         try:
             self._disable_action_button()
-            self.status_var.set(STATUS_RUNNING)
+            self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
             self.root.update_idletasks()
 
             for index, env in enumerate(self.envs):
@@ -341,12 +367,12 @@ class RobotWindow:
                 self.draw_field()
                 if not result.success:
                     if result.status == "wrong":
-                        self.status_var.set(STATUS_WRONG)
+                        self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
                     else:
-                        self.status_var.set(result.message)
+                        self._set_status(result.message, STATUS_BG_ERROR)
                     return
 
-            self.status_var.set(STATUS_ALL_CORRECT)
+            self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
         finally:
             try:
                 self._set_action_to_restore_after_idle()
@@ -370,17 +396,19 @@ class RobotWindow:
             return
         self.draw_field()
         if result.success:
-            self.status_var.set(f"Обстановка {env_number}: {result.message}")
+            self._set_status(
+                f"Обстановка {env_number}: {result.message}", STATUS_BG_SUCCESS
+            )
         elif result.status == "wrong":
-            self.status_var.set(STATUS_WRONG)
+            self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
         else:
-            self.status_var.set(result.message)
+            self._set_status(result.message, STATUS_BG_ERROR)
         self.root.update_idletasks()
 
     def show_robot_error(self, message: str) -> None:
         if self.is_closed:
             return
-        self.status_var.set(message)
+        self._set_status(message, STATUS_BG_ERROR)
         self.root.update_idletasks()
 
     def draw_field(self) -> None:
