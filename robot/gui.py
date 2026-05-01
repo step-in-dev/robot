@@ -146,19 +146,12 @@ class RobotWindow:
         self.controls = tk.Frame(self.root)
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
-        self.run_button: tk.Button | None = None
+        self.action_button: tk.Button | None = None
         if not debug_mode:
-            self.run_button = tk.Button(
-                self.controls, text="Запустить", command=self.run_all
+            self.action_button = tk.Button(
+                self.controls, text="Выполнить", command=self.run_all
             )
-            self.run_button.pack(side=tk.LEFT)
-
-        self.reset_button: tk.Button | None = None
-        if not debug_mode:
-            self.reset_button = tk.Button(
-                self.controls, text="Сброс", command=self.reset
-            )
-            self.reset_button.pack(side=tk.LEFT, padx=(6, 0))
+            self.action_button.pack(side=tk.LEFT)
 
         initial_status = STATUS_RUNNING if debug_mode else "Готово"
         self.status_var = tk.StringVar(value=initial_status)
@@ -228,20 +221,37 @@ class RobotWindow:
                 state=state,
             )
 
-    def reset(self) -> None:
+    def _set_action_to_run(self) -> None:
+        if self.action_button is None:
+            return
+        self.action_button.configure(
+            text="Выполнить", command=self.run_all, state=tk.NORMAL
+        )
+
+    def _set_action_to_restore(self) -> None:
+        if self.action_button is None:
+            return
+        self.action_button.configure(
+            text="Восстановить", command=self.restore, state=tk.NORMAL
+        )
+
+    def _disable_action_button(self) -> None:
+        if self.action_button is None:
+            return
+        self.action_button.configure(state=tk.DISABLED)
+
+    def restore(self) -> None:
         for env in self.envs:
             env.reset()
         self.status_var.set("Готово")
-        self.select_env(self.selected_index)
+        self.select_env(0)
+        self._set_action_to_run()
 
     def run_all(self) -> None:
         if self.run_env is None:
             raise RuntimeError("run_env is required outside debug mode")
 
-        if self.run_button is not None:
-            self.run_button.configure(state=tk.DISABLED)
-        if self.reset_button is not None:
-            self.reset_button.configure(state=tk.DISABLED)
+        self._disable_action_button()
         self.status_var.set(STATUS_RUNNING)
         self.root.update()
 
@@ -258,10 +268,7 @@ class RobotWindow:
 
             self.status_var.set("Решение верное для всех обстановок")
         finally:
-            if self.run_button is not None:
-                self.run_button.configure(state=tk.NORMAL)
-            if self.reset_button is not None:
-                self.reset_button.configure(state=tk.NORMAL)
+            self._set_action_to_restore()
 
     def on_env_change(self) -> None:
         if self.is_closed:

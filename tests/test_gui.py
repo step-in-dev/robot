@@ -1,14 +1,29 @@
 import unittest
 
+import tkinter as tk
+
 from robot.gui import (
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
+    RobotWindow,
     calculate_canvas_size,
     calculate_cell_size,
     calculate_field_offset,
 )
 from robot.model import RobotEnv, RobotEnvDto
+from robot.runtime import RunResult
+
+
+def _tkinter_display_works() -> bool:
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        root.update_idletasks()
+        root.destroy()
+        return True
+    except tk.TclError:
+        return False
 
 
 def make_env(data: dict) -> RobotEnv:
@@ -200,6 +215,53 @@ class CalculateFieldOffsetTest(unittest.TestCase):
             calculate_field_offset(canvas_w, canvas_h, env, 80, 4),
             (40, 80),
         )
+
+
+@unittest.skipUnless(
+    _tkinter_display_works(),
+    "tkinter display not available (headless / no DISPLAY)",
+)
+class RobotWindowActionButtonTest(unittest.TestCase):
+    def test_run_then_restore_button_and_first_env(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("test_task", envs, run_env, initial_index=1)
+        try:
+            self.assertIsNotNone(window.action_button)
+            self.assertEqual(window.action_button.cget("text"), "Выполнить")
+
+            window.run_all()
+            self.assertEqual(window.selected_index, 1)
+            self.assertEqual(window.action_button.cget("text"), "Восстановить")
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
+            self.assertEqual((envs[1].robot.row, envs[1].robot.col), (0, 1))
+
+            window.restore()
+            self.assertEqual(window.selected_index, 0)
+            self.assertEqual(window.action_button.cget("text"), "Выполнить")
+            for env in envs:
+                self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        finally:
+            window.close()
+
+    def test_failed_run_still_shows_restore(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="wrong", message="неверно")
+
+        window = RobotWindow("test_task2", envs, run_env, initial_index=0)
+        try:
+            self.assertIsNotNone(window.action_button)
+            window.run_all()
+            self.assertEqual(window.action_button.cget("text"), "Восстановить")
+        finally:
+            window.close()
 
 
 if __name__ == "__main__":
