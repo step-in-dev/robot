@@ -15,7 +15,7 @@ from .model import RobotEnv, RobotError, RobotPathError
 RunStatus = Literal["success", "wrong", "crashed", "error"]
 DEFAULT_COMMAND_DELAY_SECONDS = 0.2
 
-ROBOT_PATH_COLLISION_USER_MESSAGE = "робот уперся в стену или границу поля"
+ROBOT_PATH_COLLISION_USER_MESSAGE = "Робот уперся в стену"
 
 _active_env: RobotEnv | None = None
 _expected_task_id: str | None = None
@@ -199,7 +199,7 @@ def run_solution_on_env(
         print(details, file=sys.stderr)
         return RunResult(
             status="error",
-            message=f"ошибка Python: {type(exc).__name__}: {exc}",
+            message=f"{type(exc).__name__}: {exc}",
             details=details,
         )
     finally:

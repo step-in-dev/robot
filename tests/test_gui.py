@@ -7,6 +7,9 @@ from robot.gui import (
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
     RobotWindow,
+    STATUS_ALL_CORRECT,
+    STATUS_READY,
+    STATUS_WRONG,
     calculate_canvas_size,
     calculate_cell_size,
     calculate_field_offset,
@@ -288,6 +291,83 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertEqual(run_count, 1)
             self.assertEqual(btn.cget("text"), "Восстановить")
             self.assertEqual(btn.cget("state"), tk.NORMAL)
+        finally:
+            window.close()
+
+
+@unittest.skipUnless(
+    _tkinter_display_works(),
+    "tkinter display not available (headless / no DISPLAY)",
+)
+class RobotWindowStatusLabelTest(unittest.TestCase):
+    def test_initial_status_is_robot_ready(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_init", envs, run_env, initial_index=0)
+        try:
+            self.assertEqual(window.status_var.get(), STATUS_READY)
+        finally:
+            window.close()
+
+    def test_restore_sets_robot_ready(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_restore", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
+            window.restore()
+            self.assertEqual(window.status_var.get(), STATUS_READY)
+        finally:
+            window.close()
+
+    def test_successful_run_all_shows_all_correct(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("status_success", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
+        finally:
+            window.close()
+
+    def test_wrong_solution_shows_task_not_done(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="wrong", message="неверно")
+
+        window = RobotWindow("status_wrong", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), STATUS_WRONG)
+        finally:
+            window.close()
+
+    def test_error_shows_only_message_text(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        err_msg = "текст ошибки"
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="error", message=err_msg)
+
+        window = RobotWindow("status_error", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), err_msg)
         finally:
             window.close()
 

@@ -8,6 +8,9 @@ from .runtime import RunResult
 
 
 STATUS_RUNNING = "Выполнение..."
+STATUS_READY = "Робот: Готов"
+STATUS_WRONG = "Задание не выполнено"
+STATUS_ALL_CORRECT = "Все верно"
 ACTION_BUTTON_RUN = "Выполнить"
 ACTION_BUTTON_RESTORE = "Восстановить"
 
@@ -158,7 +161,7 @@ class RobotWindow:
             )
             self.action_button.pack(side=tk.LEFT)
 
-        initial_status = STATUS_RUNNING if debug_mode else "Готово"
+        initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
         self.status_var = tk.StringVar(value=initial_status)
         self.status_label = tk.Label(
             self.controls, textvariable=self.status_var, anchor=tk.W
@@ -279,7 +282,7 @@ class RobotWindow:
     def restore(self) -> None:
         for env in self.envs:
             env.reset()
-        self.status_var.set("Готово")
+        self.status_var.set(STATUS_READY)
         self.select_env(0)
         self._set_action_to_run()
 
@@ -297,12 +300,13 @@ class RobotWindow:
                 result = self.run_env(env)
                 self.draw_field()
                 if not result.success:
-                    self.status_var.set(
-                        f"Ошибка на обстановке {index + 1}: {result.message}"
-                    )
+                    if result.status == "wrong":
+                        self.status_var.set(STATUS_WRONG)
+                    else:
+                        self.status_var.set(result.message)
                     return
 
-            self.status_var.set("Решение верное для всех обстановок")
+            self.status_var.set(STATUS_ALL_CORRECT)
         finally:
             self._set_action_to_restore_after_idle()
 
@@ -324,18 +328,16 @@ class RobotWindow:
         self.draw_field()
         if result.success:
             self.status_var.set(f"Обстановка {env_number}: {result.message}")
+        elif result.status == "wrong":
+            self.status_var.set(STATUS_WRONG)
         else:
-            self.status_var.set(
-                f"Ошибка на обстановке {env_number}: {result.message}"
-            )
+            self.status_var.set(result.message)
         self.root.update_idletasks()
 
     def show_robot_error(self, message: str) -> None:
         if self.is_closed:
             return
-        self.status_var.set(
-            f"Ошибка на обстановке {self.selected_index + 1}: {message}"
-        )
+        self.status_var.set(message)
         self.root.update_idletasks()
 
     def draw_field(self) -> None:
