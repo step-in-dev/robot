@@ -26,6 +26,6 @@ The target audience is school students who are learning introductory programming
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
 - `robot/executor.py` compiles and runs student scripts against an environment and maps exceptions to `RunResult`.
 - `robot/runtime.py` is a thin facade: `task()`, compatibility re-exports, and script discovery; it wires loader, GUI, and executor.
-- `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` draws the status row.
+- `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Label`).
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).

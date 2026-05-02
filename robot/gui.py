@@ -141,14 +141,13 @@ class RobotWindow:
         initial_status = STATUS_READY
         self._status_strip = StatusStrip(
             self.root,
-            get_canvas_width=lambda: self.canvas_width,
             is_closed=lambda: self.is_closed,
             initial_text=initial_status,
             initial_bg=STATUS_BG_NEUTRAL,
         )
         self.status_var = self._status_strip.status_var
         self.status_frame = self._status_strip.status_frame
-        self.status_canvas = self._status_strip.status_canvas
+        self.status_label = self._status_strip.status_label
         self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
         self.select_env(initial_index)
@@ -167,12 +166,8 @@ class RobotWindow:
     def _status_background(self) -> str:
         return self._status_strip.background
 
-    @property
-    def _status_hatched(self) -> bool:
-        return self._status_strip.hatched
-
-    def _set_status(self, text: str, background: str, *, hatched: bool = False) -> None:
-        self._status_strip.set_status(text, background, hatched=hatched)
+    def _set_status(self, text: str, background: str) -> None:
+        self._status_strip.set_status(text, background)
 
     def run(self) -> None:
         self.root.mainloop()
