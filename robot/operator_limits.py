@@ -15,7 +15,7 @@ COUNTED_OPERATOR_NAMES = frozenset(
 )
 
 OPERATORS_LIMIT_MESSAGE_TEMPLATE = (
-    "Использовано {actual} команд робота, разрешено не более {limit}"
+    "Использовано команд Робота: {actual}. Разрешено не более {limit}"
 )
 
 

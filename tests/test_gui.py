@@ -589,7 +589,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
 
     def test_wrong_solution_with_message_shows_custom_text(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        custom = "Использовано 2 команд робота, разрешено не более 1"
+        custom = "Использовано команд Робота: 2. Разрешено не более 1"
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message=custom)
