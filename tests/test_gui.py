@@ -468,7 +468,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
     _tkinter_display_works(),
     "tkinter display not available (headless / no DISPLAY)",
 )
-class RobotWindowStatusLabelTest(unittest.TestCase):
+class RobotWindowStatusCanvasTest(unittest.TestCase):
     def test_status_row_has_border_like_todo_panel(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
 
@@ -477,12 +477,12 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
 
         window = RobotWindow("status_border", envs, run_env, initial_index=0)
         try:
-            self.assertEqual(int(window.status_label.cget("highlightthickness")), 1)
+            self.assertEqual(int(window.status_canvas.cget("highlightthickness")), 1)
             self.assertEqual(
-                window.status_label.cget("highlightbackground"), TODO_TEXT_BORDER
+                window.status_canvas.cget("highlightbackground"), TODO_TEXT_BORDER
             )
             self.assertEqual(
-                window.status_label.cget("highlightcolor"), TODO_TEXT_BORDER
+                window.status_canvas.cget("highlightcolor"), TODO_TEXT_BORDER
             )
         finally:
             window.close()
@@ -496,8 +496,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
         window = RobotWindow("status_bg_init", envs, run_env, initial_index=0)
         try:
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
             self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -509,15 +509,15 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
 
         window = RobotWindow("status_layout", envs, run_env, initial_index=0)
         try:
-            self.assertNotEqual(window.status_label.master, window.controls)
-            self.assertEqual(window.status_label.master, window.status_frame)
+            self.assertNotEqual(window.status_canvas.master, window.controls)
+            self.assertEqual(window.status_canvas.master, window.status_frame)
             slaves = window.root.pack_slaves()
             self.assertGreater(
                 slaves.index(window.status_frame),
                 slaves.index(window.controls),
             )
             self.assertEqual(window.status_frame.pack_info().get("fill"), "x")
-            self.assertEqual(window.status_label.pack_info().get("fill"), "x")
+            self.assertEqual(window.status_canvas.pack_info().get("fill"), "x")
         finally:
             window.close()
 
@@ -548,8 +548,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             window.restore()
             self.assertEqual(window.status_var.get(), STATUS_READY)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
             self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -566,8 +566,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_SUCCESS)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_SUCCESS)
             self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -582,8 +582,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_WRONG)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_NEUTRAL)
             self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -599,8 +599,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.status_var.get(), err_msg)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_ERROR)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_ERROR)
             self.assertEqual(window._status_background, STATUS_BG_ERROR)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -616,8 +616,8 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.status_var.get(), msg)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_ERROR)
-            self.assertEqual(window.status_label.cget("bg"), STATUS_BG_ERROR)
             self.assertEqual(window._status_background, STATUS_BG_ERROR)
+            self.assertFalse(window._status_hatched)
         finally:
             window.close()
 
@@ -781,6 +781,39 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 self.assertEqual(
                     window.status_var.get(),
                     "Строка 2: move_right()",
+                )
+            finally:
+                window.close()
+
+    def test_successful_step_shows_hatched_status(self) -> None:
+        """Step-by-step success uses hatched green status (unlike run_all)."""
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base))]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "step_ok.py"
+            script.write_text(
+                "from robot import move_right; move_right()\n",
+                encoding="utf-8",
+            )
+            window = RobotWindow(
+                "step_hatch",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+            )
+            try:
+                window.step_once()
+                self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
+                self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
+                self.assertTrue(window._status_hatched)
+                self.assertNotIn(
+                    window.step_button,
+                    window.controls.pack_slaves(),
                 )
             finally:
                 window.close()
