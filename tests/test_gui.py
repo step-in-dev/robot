@@ -575,12 +575,48 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
 
         def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="wrong", message="неверно")
+            return RunResult(status="wrong", message="")
 
         window = RobotWindow("status_wrong", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_WRONG)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+            self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+            self.assertFalse(window._status_hatched)
+        finally:
+            window.close()
+
+    def test_wrong_solution_with_message_shows_custom_text(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        custom = "Использовано 2 команд робота, разрешено не более 1"
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="wrong", message=custom)
+
+        window = RobotWindow("status_wrong_msg", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertEqual(window.status_var.get(), custom)
+            self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+            self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+            self.assertFalse(window._status_hatched)
+        finally:
+            window.close()
+
+    def test_finish_step_run_wrong_with_message_shows_custom_text(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        custom = "лимит операторов: сообщение"
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("finish_step_wrong_msg", envs, run_env, initial_index=0)
+        try:
+            window._finish_step_run(
+                RunResult(status="wrong", message=custom)
+            )
+            self.assertEqual(window.status_var.get(), custom)
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
             self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
             self.assertFalse(window._status_hatched)

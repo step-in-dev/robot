@@ -44,11 +44,13 @@ class RobotWindow:
         initial_index: int = 0,
         todo_text: str = "",
         script_path: Path | None = None,
+        operators_limit: int | None = None,
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
         self.script_path = script_path
+        self.operators_limit = operators_limit
         self.selected_index = initial_index
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
@@ -210,6 +212,12 @@ class RobotWindow:
         )
         self.root.update_idletasks()
 
+    def _show_failed_result(self, result: RunResult) -> None:
+        if result.status == "wrong":
+            self._set_status(result.message or STATUS_WRONG, STATUS_BG_NEUTRAL)
+        else:
+            self._set_status(result.message, STATUS_BG_ERROR)
+
     def _finish_step_run(self, result: RunResult) -> None:
         self._step_tabs_locked = False
         self._step_session = None
@@ -228,10 +236,7 @@ class RobotWindow:
         if self.step_button is not None:
             self.step_button.configure(state=tk.DISABLED)
         if not result.success:
-            if result.status == "wrong":
-                self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
-            else:
-                self._set_status(result.message, STATUS_BG_ERROR)
+            self._show_failed_result(result)
         else:
             env_label = self.selected_index + 1
             self._set_status(
@@ -262,6 +267,7 @@ class RobotWindow:
                 show_line=self._show_step_line,
                 wait_for_next_step=self._wait_for_next_step_impl,
                 command_delay_seconds=0.0,
+                operators_limit=self.operators_limit,
             )
             self._step_tabs_locked = True
             self.configure_tab_buttons()
@@ -435,10 +441,7 @@ class RobotWindow:
                 result = self.run_env(env)
                 self.draw_field()
                 if not result.success:
-                    if result.status == "wrong":
-                        self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
-                    else:
-                        self._set_status(result.message, STATUS_BG_ERROR)
+                    self._show_failed_result(result)
                     return
 
             self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)

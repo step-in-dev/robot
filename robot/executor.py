@@ -8,6 +8,7 @@ from types import TracebackType
 from typing import Callable
 
 from .model import RobotEnv, RobotPathError
+from .operator_limits import check_operators_limit
 from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
 
@@ -51,8 +52,16 @@ def _message_with_line(
     script_path: Path,
     tb: TracebackType | None,
     message: str,
+    exc: BaseException | None = None,
 ) -> str:
     lineno = _student_frame_lineno(script_path, tb)
+    if lineno is None and isinstance(exc, SyntaxError):
+        if exc.lineno is not None and exc.filename:
+            try:
+                if Path(exc.filename).resolve() == script_path.resolve():
+                    lineno = exc.lineno
+            except OSError:
+                lineno = None
     if lineno is None:
         return message
     return f"Строка {lineno}: {message}"
@@ -70,7 +79,7 @@ def _handle_student_system_exit(
     base_message = f"программа завершилась с кодом {code}"
     return RunResult(
         status="error",
-        message=_message_with_line(script_path, exc.__traceback__, base_message),
+        message=_message_with_line(script_path, exc.__traceback__, base_message, exc),
         details=details,
     )
 
@@ -82,7 +91,10 @@ def _map_exec_exception(script_path: Path, env: RobotEnv, exc: BaseException) ->
         return RunResult(
             status="crashed",
             message=_message_with_line(
-                script_path, exc.__traceback__, ROBOT_PATH_COLLISION_USER_MESSAGE
+                script_path,
+                exc.__traceback__,
+                ROBOT_PATH_COLLISION_USER_MESSAGE,
+                exc,
             ),
             details=details,
         )
@@ -93,7 +105,7 @@ def _map_exec_exception(script_path: Path, env: RobotEnv, exc: BaseException) ->
     base_message = f"{type(exc).__name__}: {exc}"
     return RunResult(
         status="error",
-        message=_message_with_line(script_path, exc.__traceback__, base_message),
+        message=_message_with_line(script_path, exc.__traceback__, base_message, exc),
         details=details,
     )
 
@@ -110,6 +122,7 @@ class StepExecutionSession:
         show_line: Callable[[StudentLine], None],
         wait_for_next_step: Callable[[], None],
         command_delay_seconds: float = 0.0,
+        operators_limit: int | None = None,
     ) -> None:
         self._script_path = script_path
         try:
@@ -121,6 +134,7 @@ class StepExecutionSession:
         self._show_line = show_line
         self._wait_for_next_step = wait_for_next_step
         self._command_delay_seconds = command_delay_seconds
+        self._operators_limit = operators_limit
         self._steps_allowed = 0
         self._cancelled = False
         self.is_started = False
@@ -182,37 +196,53 @@ class StepExecutionSession:
         previous_delay = begin_solution_run(
             self.env, self._task_id, self._command_delay_seconds
         )
-        old_trace = sys.gettrace()
-        source = self._script_path.read_text(encoding="utf-8")
-        self._source_lines = source.splitlines()
-        code = compile(source, str(self._script_path), "exec")
-        outcome: RunResult | None = None
         try:
-            sys.settrace(self._trace)
             try:
-                exec(code, self.namespace)
-            except StepExecutionCancelled:
-                outcome = RunResult(
-                    status="error",
-                    message="Выполнение прервано",
-                    details="",
+                source = self._script_path.read_text(encoding="utf-8")
+                self._source_lines = source.splitlines()
+                violation = check_operators_limit(
+                    source,
+                    self._operators_limit,
+                    filename=str(self._script_path),
                 )
-            except RobotPathError as exc:  # NOSONAR — map to RunResult like run_solution_on_env
-                outcome = _map_exec_exception(self._script_path, self.env, exc)
-            except SystemExit as exc:
-                outcome = _handle_student_system_exit(
-                    exc, self.env, self._script_path
-                )
-            except Exception as exc:
-                outcome = _map_exec_exception(self._script_path, self.env, exc)
-        finally:
-            sys.settrace(old_trace)
-            end_solution_run(previous_delay)
+                if violation is not None:
+                    self.is_finished = True
+                    return RunResult(status="wrong", message=violation.message)
 
-        self.is_finished = True
-        if outcome is not None:
-            return outcome
-        return check_final_state(self.env)
+                code = compile(source, str(self._script_path), "exec")
+            except Exception as exc:
+                self.is_finished = True
+                return _map_exec_exception(self._script_path, self.env, exc)
+
+            outcome: RunResult | None = None
+            old_trace = sys.gettrace()
+            try:
+                sys.settrace(self._trace)
+                try:
+                    exec(code, self.namespace)
+                except StepExecutionCancelled:
+                    outcome = RunResult(
+                        status="error",
+                        message="Выполнение прервано",
+                        details="",
+                    )
+                except RobotPathError as exc:  # NOSONAR — map to RunResult like run_solution_on_env
+                    outcome = _map_exec_exception(self._script_path, self.env, exc)
+                except SystemExit as exc:  # NOSONAR — student code may call sys.exit
+                    outcome = _handle_student_system_exit(
+                        exc, self.env, self._script_path
+                    )
+                except Exception as exc:
+                    outcome = _map_exec_exception(self._script_path, self.env, exc)
+            finally:
+                sys.settrace(old_trace)
+
+            self.is_finished = True
+            if outcome is not None:
+                return outcome
+            return check_final_state(self.env)
+        finally:
+            end_solution_run(previous_delay)
 
 
 def run_solution_on_env(
@@ -220,6 +250,7 @@ def run_solution_on_env(
     task_id: str,
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
+    operators_limit: int | None = None,
 ) -> RunResult:
     env.reset()
     previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
@@ -231,6 +262,13 @@ def run_solution_on_env(
 
     try:
         source = script_path.read_text(encoding="utf-8")
+        violation = check_operators_limit(
+            source,
+            operators_limit,
+            filename=str(script_path),
+        )
+        if violation is not None:
+            return RunResult(status="wrong", message=violation.message)
         code = compile(source, str(script_path), "exec")
         exec(code, namespace)
     except RobotPathError as exc:

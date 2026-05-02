@@ -20,6 +20,7 @@ class TaskLoadError(Exception):
 class RobotTask:
     envs: list[RobotEnv]
     todo_text: str
+    operators_limit: int | None = None
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
@@ -37,12 +38,17 @@ def load_task_definition(task_id: str) -> RobotTask:
         raise TaskLoadError(f"Invalid JSON in task file: {task_path}") from exc
 
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
+    operators_limit = parse_operators_limit(data, task_path)
     environments = [
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
     if not environments:
         raise TaskLoadError(f"Task file has no environments in envDtos: {task_path}")
-    return RobotTask(envs=environments, todo_text=todo_text)
+    return RobotTask(
+        envs=environments,
+        todo_text=todo_text,
+        operators_limit=operators_limit,
+    )
 
 
 def find_task_file(task_id: str) -> Path:
@@ -87,3 +93,14 @@ def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
         result.append(item)
 
     return result, todo_text
+
+
+def parse_operators_limit(data: dict, task_path: Path) -> int | None:
+    if "operatorsLimit" not in data:
+        return None
+    value = data["operatorsLimit"]
+    if type(value) is not int or value < 0:
+        raise TaskLoadError(
+            f"operatorsLimit must be a non-negative integer: {task_path}"
+        )
+    return value
