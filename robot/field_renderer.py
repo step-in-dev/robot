@@ -1,11 +1,37 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import tkinter as tk
+import tkinter.font as tkfont
 
 from .gui_layout import calculate_field_offset
-from .model import Cell, RobotEnv
+from .model import RobotEnv, ValuedCell
+
+# Tkinter Arial bold renders larger than browser canvas at the same nominal size;
+# use a slightly larger divisor than the web (2.8) so labels stay readable but not oversized.
+TEXT_FONT_DIVISOR = 3.6
+MIN_TEXT_FONT_SIZE = 10
+PRINT_LINE_GAP_RATIO = 0.50
+
+
+def cell_text_font_size(cell_size: int) -> int:
+    """Pixel-ish font size for pollution / print text (tuned for tkinter vs web canvas)."""
+    return max(MIN_TEXT_FONT_SIZE, math.ceil(cell_size / TEXT_FONT_DIVISOR))
+
+
+def print_line_gap(font_size: int) -> int:
+    """Extra vertical space between expected and printed number lines."""
+    return max(2, math.ceil(font_size * PRINT_LINE_GAP_RATIO))
+
+
+def format_printable_value(value: int) -> str:
+    """Same rules as web `getPrintableValue`: floor, truncate to two chars + '..' outside (-100, 100)."""
+    res = str(math.floor(value))
+    if value > -100 and value < 100:
+        return res
+    return res[:2] + ".."
 
 
 @dataclass
@@ -33,6 +59,13 @@ class FieldRenderer:
     def set_dimensions(self, cell_size: int, wall_width: int) -> None:
         self.cell_size = cell_size
         self.wall_width = wall_width
+
+    def _text_font(self, font_size: int) -> tkfont.Font:
+        return tkfont.Font(family="Arial", size=font_size, weight="bold")
+
+    def _measure_text_width(self, text: str, font_size: int) -> int:
+        font = self._text_font(font_size)
+        return int(font.measure(text))
 
     def draw_field(
         self,
@@ -228,31 +261,68 @@ class FieldRenderer:
         )
 
     def _draw_pollution(self, env: RobotEnv, pollution_color: str) -> None:
+        half_wall_width = self.wall_width // 2
+        font_size = cell_text_font_size(self.cell_size)
         for cell in env.polluted_cells:
-            self._draw_centered_text(
-                cell,
-                str(cell.value),
-                pollution_color,
-                font_size=int(self.cell_size * 0.28),
+            text = format_printable_value(cell.value)
+            x = cell.c * self.cell_size + self.wall_width + half_wall_width
+            y = (cell.r + 1) * self.cell_size - half_wall_width
+            self.canvas.create_text(
+                x,
+                y,
+                text=text,
+                fill=pollution_color,
+                font=("Arial", font_size, "bold"),
+                anchor="sw",
             )
 
     def _draw_print_values(self, env: RobotEnv, print_color: str) -> None:
-        for cell in env.printed_cells:
-            self._draw_centered_text(
+        font_size = cell_text_font_size(self.cell_size)
+
+        for cell in env.cells_to_print:
+            self._draw_print_line(
                 cell,
-                str(cell.value),
                 print_color,
-                font_size=int(self.cell_size * 0.28),
+                font_size,
+                line_index=0,
             )
 
-    def _draw_centered_text(
-        self, cell: Cell, text: str, color: str, font_size: int
+        for cell in env.printed_cells:
+            self._draw_print_line(
+                cell,
+                print_color,
+                font_size,
+                line_index=1,
+            )
+
+    def _draw_print_line(
+        self,
+        cell: ValuedCell,
+        print_color: str,
+        font_size: int,
+        *,
+        line_index: int,
     ) -> None:
         half_wall_width = self.wall_width // 2
+        text = format_printable_value(cell.value)
+        text_width = self._measure_text_width(text, font_size)
+        x_left = (cell.c + 1) * self.cell_size - half_wall_width - text_width
+        # Expected line: top of cell content. Printed line: below first line + gap.
+        if line_index == 0:
+            y_top = cell.r * self.cell_size + half_wall_width
+        else:
+            gap = print_line_gap(font_size)
+            y_top = (
+                cell.r * self.cell_size
+                + font_size
+                + gap
+                + half_wall_width
+            )
         self.canvas.create_text(
-            half_wall_width + cell.c * self.cell_size + self.cell_size / 2,
-            half_wall_width + cell.r * self.cell_size + self.cell_size / 2,
+            x_left,
+            y_top,
             text=text,
-            fill=color,
+            fill=print_color,
             font=("Arial", font_size, "bold"),
+            anchor="nw",
         )
