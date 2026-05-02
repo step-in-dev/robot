@@ -62,10 +62,12 @@ def task(task_id: str) -> None:
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
             operators_limit=task_definition.operators_limit,
+            min_used_user_functions=task_definition.min_used_user_functions,
         ),
         todo_text=task_definition.todo_text,
         script_path=script_path,
         operators_limit=task_definition.operators_limit,
+        min_used_user_functions=task_definition.min_used_user_functions,
     )
     window.run()
     raise SystemExit(0)

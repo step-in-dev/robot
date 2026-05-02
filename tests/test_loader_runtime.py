@@ -13,7 +13,10 @@ import robot.runtime as runtime
 from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto
 from robot.executor import StepExecutionSession, run_solution_on_env
-from robot.operator_limits import OPERATORS_LIMIT_MESSAGE_TEMPLATE
+from robot.operator_limits import (
+    MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
+    OPERATORS_LIMIT_MESSAGE_TEMPLATE,
+)
 
 
 class LoaderRuntimeTest(unittest.TestCase):
@@ -48,6 +51,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(envs[0].final_col, 1)
         self.assertEqual(task.todo_text, "Reach the end")
         self.assertIsNone(task.operators_limit)
+        self.assertIsNone(task.min_used_user_functions)
 
     def test_load_task_definition_reads_operators_limit(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -75,6 +79,33 @@ class LoaderRuntimeTest(unittest.TestCase):
                 task = load_task_definition("lim")
 
         self.assertEqual(task.operators_limit, 5)
+
+    def test_load_task_definition_reads_min_used_user_functions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "uf.json"
+            task_file.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 1,
+                                "height": 1,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 0,
+                                "finalCol": 0,
+                            }
+                        ],
+                        "minUsedUserFunctions": 2,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                task = load_task_definition("uf")
+
+        self.assertEqual(task.min_used_user_functions, 2)
 
     def test_load_task_definition_rejects_invalid_operators_limit(self) -> None:
         base_env = {
@@ -108,6 +139,44 @@ class LoaderRuntimeTest(unittest.TestCase):
                     with self.assertRaises(TaskLoadError):
                         load_task_definition(name)
 
+    def test_load_task_definition_rejects_invalid_min_used_user_functions(
+        self,
+    ) -> None:
+        base_env = {
+            "width": 1,
+            "height": 1,
+            "startRow": 0,
+            "startCol": 0,
+            "finalRow": 0,
+            "finalCol": 0,
+        }
+        invalid_cases = {
+            "neg": -1,
+            "string": "3",
+            "bool": True,
+            "float": 1.5,
+            "object": {},
+            "array": [],
+            "null": None,
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base_path = Path(temp_dir)
+            for name, value in invalid_cases.items():
+                (base_path / f"uf_{name}.json").write_text(
+                    json.dumps(
+                        {
+                            "envDtos": [base_env],
+                            "minUsedUserFunctions": value,
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                for name in invalid_cases:
+                    with self.assertRaises(TaskLoadError):
+                        load_task_definition(f"uf_{name}")
+
     def test_load_task_definition_without_todo_text(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "minimal.json"
@@ -135,6 +204,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(task.todo_text, "")
         self.assertEqual(len(task.envs), 1)
         self.assertIsNone(task.operators_limit)
+        self.assertIsNone(task.min_used_user_functions)
 
     def test_load_task_definition_empty_or_invalid_todo_text_normalized(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -375,6 +445,144 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 3))
 
+    def test_runtime_min_used_user_functions_exceeded_returns_wrong_without_running(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "uf1",
+                env,
+                min_used_user_functions=1,
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE.format(
+                actual=0,
+                required=1,
+            ),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_runtime_min_used_user_functions_rejects_empty_called_function(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "def helper():\n"
+                "    x = 1\n"
+                "\n"
+                "helper()\n"
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "uf1",
+                env,
+                min_used_user_functions=1,
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_runtime_min_used_user_functions_allows_defined_and_called_function(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import move_right\n\n"
+                "def step():\n"
+                "    move_right()\n"
+                "\n"
+                "step()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "uf1",
+                env,
+                min_used_user_functions=1,
+            )
+
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
+
+    def test_runtime_min_used_user_functions_none_allows_plain_solution(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import move_right\nmove_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(script, "uf1", env)
+
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
+
     def test_step_session_operators_limit_exceeded_before_exec(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "two_moves.py"
@@ -410,6 +618,49 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(
             result.message,
             OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_step_session_min_used_user_functions_exceeded_before_exec(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "one_move.py"
+            script.write_text(
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=lambda: None,
+                command_delay_seconds=0.0,
+                min_used_user_functions=1,
+            )
+            result = session.start()
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE.format(
+                actual=0,
+                required=1,
+            ),
         )
         self.assertEqual((env.robot.row, env.robot.col), (0, 0))
 
@@ -809,6 +1060,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 ],
                 todo_text="Note",
                 operators_limit=42,
+                min_used_user_functions=7,
             )
 
             fake_main = types.ModuleType("fake_main")
@@ -834,6 +1086,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["task_id"], "trace_task")
         self.assertEqual(kw["todo_text"], "Note")
         self.assertEqual(kw["operators_limit"], 42)
+        self.assertEqual(kw["min_used_user_functions"], 7)
         self.assertIsNotNone(kw["run_env"])
         self.assertTrue(callable(kw["run_env"]))
         self.assertEqual(kw["script_path"], Path(script).resolve())
@@ -845,6 +1098,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         env_dtos,
         todo_text=None,
         operators_limit=None,
+        min_used_user_functions=None,
     ):
         task_file = Path(temp_dir) / f"{task_id}.json"
         payload = {"envDtos": env_dtos}
@@ -852,6 +1106,8 @@ class LoaderRuntimeTest(unittest.TestCase):
             payload["todoText"] = todo_text
         if operators_limit is not None:
             payload["operatorsLimit"] = operators_limit
+        if min_used_user_functions is not None:
+            payload["minUsedUserFunctions"] = min_used_user_functions
         task_file.write_text(
             json.dumps(payload),
             encoding="utf-8",

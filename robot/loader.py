@@ -21,6 +21,7 @@ class RobotTask:
     envs: list[RobotEnv]
     todo_text: str
     operators_limit: int | None = None
+    min_used_user_functions: int | None = None
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
@@ -39,6 +40,7 @@ def load_task_definition(task_id: str) -> RobotTask:
 
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
     operators_limit = parse_operators_limit(data, task_path)
+    min_used_user_functions = parse_min_used_user_functions(data, task_path)
     environments = [
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
@@ -48,6 +50,7 @@ def load_task_definition(task_id: str) -> RobotTask:
         envs=environments,
         todo_text=todo_text,
         operators_limit=operators_limit,
+        min_used_user_functions=min_used_user_functions,
     )
 
 
@@ -102,5 +105,16 @@ def parse_operators_limit(data: dict, task_path: Path) -> int | None:
     if type(value) is not int or value < 0:
         raise TaskLoadError(
             f"operatorsLimit must be a non-negative integer: {task_path}"
+        )
+    return value
+
+
+def parse_min_used_user_functions(data: dict, task_path: Path) -> int | None:
+    if "minUsedUserFunctions" not in data:
+        return None
+    value = data["minUsedUserFunctions"]
+    if type(value) is not int or value < 0:
+        raise TaskLoadError(
+            f"minUsedUserFunctions must be a non-negative integer: {task_path}"
         )
     return value

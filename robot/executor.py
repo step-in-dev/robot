@@ -8,7 +8,10 @@ from types import TracebackType
 from typing import Callable
 
 from .model import RobotEnv, RobotPathError
-from .operator_limits import check_operators_limit
+from .operator_limits import (
+    check_min_used_user_functions,
+    check_operators_limit,
+)
 from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
 
@@ -123,6 +126,7 @@ class StepExecutionSession:
         wait_for_next_step: Callable[[], None],
         command_delay_seconds: float = 0.0,
         operators_limit: int | None = None,
+        min_used_user_functions: int | None = None,
     ) -> None:
         self._script_path = script_path
         try:
@@ -135,6 +139,7 @@ class StepExecutionSession:
         self._wait_for_next_step = wait_for_next_step
         self._command_delay_seconds = command_delay_seconds
         self._operators_limit = operators_limit
+        self._min_used_user_functions = min_used_user_functions
         self._steps_allowed = 0
         self._cancelled = False
         self.is_started = False
@@ -209,6 +214,15 @@ class StepExecutionSession:
                     self.is_finished = True
                     return RunResult(status="wrong", message=violation.message)
 
+                uf_violation = check_min_used_user_functions(
+                    source,
+                    self._min_used_user_functions,
+                    filename=str(self._script_path),
+                )
+                if uf_violation is not None:
+                    self.is_finished = True
+                    return RunResult(status="wrong", message=uf_violation.message)
+
                 code = compile(source, str(self._script_path), "exec")
             except Exception as exc:
                 self.is_finished = True
@@ -251,6 +265,7 @@ def run_solution_on_env(
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
     operators_limit: int | None = None,
+    min_used_user_functions: int | None = None,
 ) -> RunResult:
     env.reset()
     previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
@@ -269,6 +284,13 @@ def run_solution_on_env(
         )
         if violation is not None:
             return RunResult(status="wrong", message=violation.message)
+        uf_violation = check_min_used_user_functions(
+            source,
+            min_used_user_functions,
+            filename=str(script_path),
+        )
+        if uf_violation is not None:
+            return RunResult(status="wrong", message=uf_violation.message)
         code = compile(source, str(script_path), "exec")
         exec(code, namespace)
     except RobotPathError as exc:
