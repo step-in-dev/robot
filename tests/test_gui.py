@@ -4,7 +4,7 @@ from pathlib import Path
 
 import tkinter as tk
 
-from robot.executor import StudentLine
+from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
 
 from robot.gui_layout import (
     calculate_canvas_size,
@@ -606,7 +606,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
 
     def test_crashed_uses_error_background(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        msg = "Робот уперся в стену"
+        msg = ROBOT_PATH_COLLISION_USER_MESSAGE
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="crashed", message=msg)

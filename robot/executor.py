@@ -13,7 +13,7 @@ from .runtime_state import begin_solution_run, end_solution_run
 
 DEFAULT_COMMAND_DELAY_SECONDS = 0.1
 
-ROBOT_PATH_COLLISION_USER_MESSAGE = "Робот уперся в стену"
+ROBOT_PATH_COLLISION_USER_MESSAGE = "Попытка пройти сквозь стену"
 
 
 class StepExecutionCancelled(BaseException):  # NOSONAR — must not inherit Exception (caught below)
