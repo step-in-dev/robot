@@ -233,7 +233,12 @@ class RobotWindow:
             else:
                 self._set_status(result.message, STATUS_BG_ERROR)
         else:
-            self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS, hatched=True)
+            env_label = self.selected_index + 1
+            self._set_status(
+                f"{STATUS_ALL_CORRECT} для обстановки {env_label}",
+                STATUS_BG_SUCCESS,
+                hatched=True,
+            )
         self.draw_field()
         self._set_action_to_restore_after_idle()
 

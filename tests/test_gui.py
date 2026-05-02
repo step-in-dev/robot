@@ -808,7 +808,10 @@ class RobotWindowStepButtonTest(unittest.TestCase):
             )
             try:
                 window.step_once()
-                self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
+                self.assertEqual(
+                    window.status_var.get(),
+                    f"{STATUS_ALL_CORRECT} для обстановки 1",
+                )
                 self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
                 self.assertTrue(window._status_hatched)
                 self.assertNotIn(
