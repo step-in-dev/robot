@@ -5,7 +5,11 @@ import tkinter as tk
 from pathlib import Path
 from typing import Callable
 
-from .executor import StepExecutionSession, StudentLine
+from .executor import (
+    EXECUTION_CANCELLED_MESSAGE,
+    StepExecutionSession,
+    StudentLine,
+)
 
 from .field_renderer import FieldColors, FieldRenderer
 from .gui_layout import (
@@ -13,6 +17,7 @@ from .gui_layout import (
     calculate_cell_size,
     calculate_field_offset,
 )
+from .i18n import t
 from .gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
@@ -77,7 +82,7 @@ class RobotWindow:
 
         self.root = tk.Tk()
         self._step_release_token = 0
-        self.root.title(f"Robot: {task_id}")
+        self.root.title(t("window.title", task_id=task_id))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.lift()
         self.root.attributes("-topmost", True)
@@ -209,7 +214,7 @@ class RobotWindow:
         if self.is_closed:
             return
         self._set_status(
-            f"Строка {line.lineno}: {line.text}",
+            t("step.line", lineno=line.lineno, text=line.text),
             STATUS_BG_NEUTRAL,
         )
         self.root.update_idletasks()
@@ -227,7 +232,8 @@ class RobotWindow:
             return
         self.configure_tab_buttons()
         interrupted = (
-            result.status == "error" and result.message == "Выполнение прервано"
+            result.status == "error"
+            and result.message == EXECUTION_CANCELLED_MESSAGE
         )
         if interrupted:
             if self.action_button is not None:
@@ -242,7 +248,7 @@ class RobotWindow:
         else:
             env_label = self.selected_index + 1
             self._set_status(
-                f"{STATUS_ALL_CORRECT} для обстановки {env_label}",
+                t("step.success_for_env", env_label=env_label),
                 STATUS_BG_SUCCESS,
                 hatched=True,
             )

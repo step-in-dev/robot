@@ -7,6 +7,7 @@ from pathlib import Path
 from types import TracebackType
 from typing import Callable
 
+from .i18n import t
 from .model import RobotEnv, RobotPathError
 from .operator_limits import (
     check_min_used_user_functions,
@@ -17,7 +18,8 @@ from .runtime_state import begin_solution_run, end_solution_run
 
 DEFAULT_COMMAND_DELAY_SECONDS = 0.1
 
-ROBOT_PATH_COLLISION_USER_MESSAGE = "Попытка пройти сквозь стену"
+ROBOT_PATH_COLLISION_USER_MESSAGE = t("error.path_collision")
+EXECUTION_CANCELLED_MESSAGE = t("error.execution_cancelled")
 
 
 class StepExecutionCancelled(BaseException):  # NOSONAR — must not inherit Exception (caught below)
@@ -67,7 +69,7 @@ def _message_with_line(
                 lineno = None
     if lineno is None:
         return message
-    return f"Строка {lineno}: {message}"
+    return t("line.with_message", lineno=lineno, message=message)
 
 
 def _handle_student_system_exit(
@@ -79,7 +81,7 @@ def _handle_student_system_exit(
         return check_final_state(env)
     details = traceback.format_exc()
     print(details, file=sys.stderr)
-    base_message = f"программа завершилась с кодом {code}"
+    base_message = t("error.system_exit", code=code)
     return RunResult(
         status="error",
         message=_message_with_line(script_path, exc.__traceback__, base_message, exc),
@@ -237,7 +239,7 @@ class StepExecutionSession:
                 except StepExecutionCancelled:
                     outcome = RunResult(
                         status="error",
-                        message="Выполнение прервано",
+                        message=EXECUTION_CANCELLED_MESSAGE,
                         details="",
                     )
                 except RobotPathError as exc:  # NOSONAR — map to RunResult like run_solution_on_env

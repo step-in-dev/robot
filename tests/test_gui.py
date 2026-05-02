@@ -5,7 +5,7 @@ from pathlib import Path
 import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
-
+from robot.gui import RobotWindow
 from robot.gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -26,8 +26,9 @@ from robot.gui_theme import (
     STATUS_BG_SUCCESS,
     TODO_TEXT_BORDER,
 )
-from robot.gui import RobotWindow
+from robot.i18n import t
 from robot.model import RobotEnv, RobotEnvDto
+from robot.operator_limits import OPERATORS_LIMIT_MESSAGE_TEMPLATE
 from robot.results import RunResult
 
 
@@ -272,7 +273,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
 
         def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="wrong", message="неверно")
+            return RunResult(status="wrong", message="wrong")
 
         window = RobotWindow("test_task2", envs, run_env, initial_index=0)
         try:
@@ -589,7 +590,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
 
     def test_wrong_solution_with_message_shows_custom_text(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        custom = "Использовано команд Робота: 2. Разрешено не более 1"
+        custom = OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1)
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message=custom)
@@ -750,7 +751,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 self.assertNotIn(
                     window.step_button,
                     window.controls.pack_slaves(),
-                    "Шаг must be hidden after run_all completes",
+                    "Step button must be hidden after run_all completes",
                 )
             finally:
                 window.close()
@@ -816,7 +817,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window._show_step_line(StudentLine(2, "move_right()"))
                 self.assertEqual(
                     window.status_var.get(),
-                    "Строка 2: move_right()",
+                    t("step.line", lineno=2, text="move_right()"),
                 )
             finally:
                 window.close()
@@ -846,7 +847,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.step_once()
                 self.assertEqual(
                     window.status_var.get(),
-                    f"{STATUS_ALL_CORRECT} для обстановки 1",
+                    t("step.success_for_env", env_label=1),
                 )
                 self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
                 self.assertTrue(window._status_hatched)

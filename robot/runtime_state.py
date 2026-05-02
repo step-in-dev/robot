@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .i18n import t
 from .model import Robot, RobotEnv, RobotError
 
 _active_env: RobotEnv | None = None
@@ -48,7 +49,7 @@ def active_robot() -> Robot:
     env = _active_env
     if env is None:
         raise RobotError(
-            "Robot commands can be used only after task() starts a solution run"
+            t("runtime_state.error.commands_after_task")
         )
     return env.robot
 

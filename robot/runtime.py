@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from .i18n import t
 from .runtime_state import (
     expected_task_id,
     is_executing_solution,
@@ -43,7 +44,7 @@ def task(task_id: str) -> None:
         eid = expected_task_id()
         if eid is not None and task_id != eid:
             raise RobotError(
-                f"Expected task '{eid}', got '{task_id}'"
+                t("runtime.error.expected_task", expected=eid, got=task_id)
             )
         return
 
@@ -77,7 +78,7 @@ def _detect_student_script() -> Path:
     main_module = sys.modules.get("__main__")
     script = getattr(main_module, "__file__", None)
     if not script:
-        raise RobotError("task() must be called from a Python file")
+        raise RobotError(t("runtime.error.task_from_file"))
     return Path(script).resolve()
 
 

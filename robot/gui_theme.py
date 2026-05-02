@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-STATUS_RUNNING = "Выполнение..."
-STATUS_READY = "Робот: Готов"
-STATUS_WRONG = "Задание не выполнено"
-STATUS_ALL_CORRECT = "Все верно"
-ACTION_BUTTON_RUN = "Выполнить [Enter]"
-ACTION_BUTTON_RESTORE = "Восстановить [Enter]"
-ACTION_BUTTON_STEP = "Шаг"
+from .i18n import t
+
+STATUS_RUNNING = t("status.running")
+STATUS_READY = t("status.ready")
+STATUS_WRONG = t("status.wrong")
+STATUS_ALL_CORRECT = t("status.all_correct")
+ACTION_BUTTON_RUN = t("button.run")
+ACTION_BUTTON_RESTORE = t("button.restore")
+ACTION_BUTTON_STEP = t("button.step")
 
 # todoText panel and status row share border color; backgrounds match task UX states.
 TODO_TEXT_BG = "#fdf9d3"

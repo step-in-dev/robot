@@ -10,9 +10,14 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 import robot.runtime as runtime
+from robot.executor import (
+    EXECUTION_CANCELLED_MESSAGE,
+    StepExecutionSession,
+    run_solution_on_env,
+)
+from robot.i18n import t
 from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto
-from robot.executor import StepExecutionSession, run_solution_on_env
 from robot.operator_limits import (
     MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
@@ -699,7 +704,8 @@ class LoaderRuntimeTest(unittest.TestCase):
 
         self.assertEqual(result.status, "error")
         self.assertIn("SyntaxError", result.message)
-        self.assertRegex(result.message, r"^Строка 1: SyntaxError:")
+        head = t("line.with_message", lineno=1, message="")
+        self.assertRegex(result.message, "^" + re.escape(head) + r"SyntaxError:")
 
     def test_runtime_error_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -727,7 +733,8 @@ class LoaderRuntimeTest(unittest.TestCase):
 
         self.assertEqual(result.status, "error")
         self.assertIn("ZeroDivisionError", result.message)
-        self.assertRegex(result.message, r"^Строка 3: ZeroDivisionError:")
+        head = t("line.with_message", lineno=3, message="")
+        self.assertRegex(result.message, "^" + re.escape(head) + r"ZeroDivisionError:")
 
     def test_runtime_printn_rejects_non_integer_with_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -755,8 +762,9 @@ class LoaderRuntimeTest(unittest.TestCase):
 
         self.assertEqual(result.status, "error")
         self.assertIn("RobotError", result.message)
-        self.assertIn("printn() accepts only integers", result.message)
-        self.assertRegex(result.message, r"^Строка 3: RobotError:")
+        self.assertIn(t("model.error.printn_integers"), result.message)
+        head = t("line.with_message", lineno=3, message="")
+        self.assertRegex(result.message, "^" + re.escape(head) + r"RobotError:")
 
     def test_runtime_robot_path_collision_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -783,12 +791,12 @@ class LoaderRuntimeTest(unittest.TestCase):
             result = run_solution_on_env(script, "walltask", env)
 
         self.assertEqual(result.status, "crashed")
-        self.assertRegex(
-            result.message,
-            r"^Строка 3: "
-            + re.escape(runtime.ROBOT_PATH_COLLISION_USER_MESSAGE)
-            + r"$",
+        expected = t(
+            "line.with_message",
+            lineno=3,
+            message=str(runtime.ROBOT_PATH_COLLISION_USER_MESSAGE),
         )
+        self.assertEqual(result.message, expected)
 
     def test_step_session_runs_assignments_line_by_line(self) -> None:
         """Each student-file line waits until allow_one_step + handshake release."""
@@ -973,7 +981,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             self.assertEqual(len(result_holder), 1)
             result = result_holder[0]
             self.assertEqual(result.status, "error")
-            self.assertEqual(result.message, "Выполнение прервано")
+            self.assertEqual(result.message, EXECUTION_CANCELLED_MESSAGE)
 
     def test_step_session_runtime_error_includes_line(self) -> None:
         sync: queue.Queue[object] = queue.Queue()
@@ -1028,7 +1036,10 @@ class LoaderRuntimeTest(unittest.TestCase):
             self.assertFalse(thread.is_alive())
             result = result_holder[0]
             self.assertEqual(result.status, "error")
-            self.assertRegex(result.message, r"^Строка 2: ZeroDivisionError:")
+            head = t("line.with_message", lineno=2, message="")
+            self.assertRegex(
+                result.message, "^" + re.escape(head) + r"ZeroDivisionError:"
+            )
 
     def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
         """IDE-style sys.settrace must not switch task() to a separate execution branch."""

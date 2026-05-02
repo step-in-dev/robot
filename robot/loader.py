@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .i18n import t
 from .model import RobotEnv, RobotEnvDto
 
 
@@ -34,9 +35,13 @@ def load_task_definition(task_id: str) -> RobotTask:
         with task_path.open("r", encoding="utf-8") as stream:
             data = json.load(stream)
     except OSError as exc:
-        raise TaskLoadError(f"Cannot read task file: {task_path}") from exc
+        raise TaskLoadError(
+            t("loader.cannot_read_task_file", task_path=task_path)
+        ) from exc
     except json.JSONDecodeError as exc:
-        raise TaskLoadError(f"Invalid JSON in task file: {task_path}") from exc
+        raise TaskLoadError(
+            t("loader.invalid_json", task_path=task_path)
+        ) from exc
 
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
     operators_limit = parse_operators_limit(data, task_path)
@@ -45,7 +50,7 @@ def load_task_definition(task_id: str) -> RobotTask:
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
     if not environments:
-        raise TaskLoadError(f"Task file has no environments in envDtos: {task_path}")
+        raise TaskLoadError(t("loader.no_environments", task_path=task_path))
     return RobotTask(
         envs=environments,
         todo_text=todo_text,
@@ -69,19 +74,21 @@ def find_task_file(task_id: str) -> Path:
             return candidate
 
     searched = ", ".join(str(candidate) for candidate in candidates)
-    raise TaskLoadError(f"Task '{task_id}' was not found. Searched: {searched}")
+    raise TaskLoadError(
+        t("loader.task_not_found", task_id=task_id, searched=searched)
+    )
 
 
 def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
     if not isinstance(data, dict):
         raise TaskLoadError(
-            f"Task file must be a JSON object with an 'envDtos' array: {task_path}"
+            t("loader.must_be_object_with_env_dtos", task_path=task_path)
         )
 
     env_dtos = data.get("envDtos")
     if not isinstance(env_dtos, list):
         raise TaskLoadError(
-            f"Task file must contain an 'envDtos' array: {task_path}"
+            t("loader.must_contain_env_dtos_array", task_path=task_path)
         )
 
     raw_todo = data.get("todoText", "")
@@ -91,7 +98,7 @@ def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
     for index, item in enumerate(env_dtos):
         if not isinstance(item, dict):
             raise TaskLoadError(
-                f"envDtos[{index}] must be an object: {task_path}"
+                t("loader.env_dtos_index_must_be_object", index=index, task_path=task_path)
             )
         result.append(item)
 
@@ -104,7 +111,7 @@ def parse_operators_limit(data: dict, task_path: Path) -> int | None:
     value = data["operatorsLimit"]
     if type(value) is not int or value < 0:
         raise TaskLoadError(
-            f"operatorsLimit must be a non-negative integer: {task_path}"
+            t("loader.operators_limit_invalid", task_path=task_path)
         )
     return value
 
@@ -115,6 +122,6 @@ def parse_min_used_user_functions(data: dict, task_path: Path) -> int | None:
     value = data["minUsedUserFunctions"]
     if type(value) is not int or value < 0:
         raise TaskLoadError(
-            f"minUsedUserFunctions must be a non-negative integer: {task_path}"
+            t("loader.min_user_functions_invalid", task_path=task_path)
         )
     return value

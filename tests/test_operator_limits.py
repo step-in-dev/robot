@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 from robot.operator_limits import (
     MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
@@ -207,6 +208,25 @@ class CheckMinUsedUserFunctionsTest(unittest.TestCase):
                 required=1,
             ),
         )
+
+
+class OperatorLimitsRussianLocaleTest(unittest.TestCase):
+    """Russian strings via ``t()`` when ``ROBOT_LANGUAGE`` is set."""
+
+    def tearDown(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+
+    def test_operator_limit_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.operators", actual=3, limit=2),
+                "Использовано команд Робота: 3. Разрешено не более 2",
+            )
 
 
 if __name__ == "__main__":

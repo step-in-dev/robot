@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, Literal, TypeVar
 
+from .i18n import t
+
 
 Direction = Literal["up", "down", "left", "right"]
 CellType = TypeVar("CellType", bound="Cell")
@@ -72,9 +74,11 @@ class RobotEnvDto:
                 ],
             )
         except KeyError as exc:
-            raise ValueError(f"Missing environment field: {exc.args[0]}") from exc
+            raise ValueError(
+                t("model.error.missing_env_field", field=exc.args[0])
+            ) from exc
         except (TypeError, ValueError) as exc:
-            raise ValueError("Invalid robot environment format") from exc
+            raise ValueError(t("model.error.invalid_env_format")) from exc
 
         return dto.normalized()
 
@@ -290,7 +294,7 @@ class Robot:
         elif direction == "down":
             self.move_down()
         else:
-            raise RobotError(f"Unknown direction: {direction}")
+            raise RobotError(t("model.error.unknown_direction", direction=direction))
 
     def paint(self) -> None:
         self._env.paint(Cell(self._row, self._col))
@@ -308,7 +312,7 @@ class Robot:
             return self._is_there_way_to(self._row - 1, self._col)
         if direction == "down":
             return self._is_there_way_to(self._row + 1, self._col)
-        raise RobotError(f"Unknown direction: {direction}")
+        raise RobotError(t("model.error.unknown_direction", direction=direction))
 
     def is_free_from(self, direction: Direction) -> bool:
         return not self.is_wall_from(direction)
@@ -318,7 +322,7 @@ class Robot:
 
     def print_number(self, value: object) -> None:
         if type(value) is not int:
-            raise RobotError("printn() accepts only integers")
+            raise RobotError(t("model.error.printn_integers"))
         self._env.print_number(ValuedCell(self._row, self._col, value))
         self._change_listener()
 

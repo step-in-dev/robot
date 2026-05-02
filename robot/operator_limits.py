@@ -4,6 +4,8 @@ import ast
 from collections import deque
 from dataclasses import dataclass
 
+from .i18n import t
+
 DEFAULT_STUDENT_FILENAME = "<student>"
 
 COUNTED_OPERATOR_NAMES = frozenset(
@@ -17,9 +19,7 @@ COUNTED_OPERATOR_NAMES = frozenset(
     }
 )
 
-OPERATORS_LIMIT_MESSAGE_TEMPLATE = (
-    "Использовано команд Робота: {actual}. Разрешено не более {limit}"
-)
+OPERATORS_LIMIT_MESSAGE_TEMPLATE = t("limit.operators")
 
 _SKIP_NESTED_SCOPE_TYPES = (
     ast.FunctionDef,
@@ -88,9 +88,7 @@ def check_operators_limit(
     return OperatorsLimitViolation(actual=actual, limit=operators_limit)
 
 
-MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE = (
-    "Использовано пользовательских функций: {actual}. Требуется не менее {required}"
-)
+MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE = t("limit.user_functions")
 
 
 def _body_contains_robot_operator_excluding_nested_defs(body: list[ast.stmt]) -> bool:
