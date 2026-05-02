@@ -9,7 +9,7 @@ from .model import RobotEnv, RobotPathError
 from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
 
-DEFAULT_COMMAND_DELAY_SECONDS = 0.2
+DEFAULT_COMMAND_DELAY_SECONDS = 0.1
 
 ROBOT_PATH_COLLISION_USER_MESSAGE = "Робот уперся в стену"
 
