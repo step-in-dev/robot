@@ -1,6 +1,10 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 import tkinter as tk
+
+from robot.executor import StudentLine
 
 from robot.gui_layout import (
     calculate_canvas_size,
@@ -10,6 +14,7 @@ from robot.gui_layout import (
 from robot.gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
+    ACTION_BUTTON_STEP,
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
@@ -611,6 +616,148 @@ class RobotWindowStatusLabelTest(unittest.TestCase):
             self.assertEqual(window._status_background, STATUS_BG_ERROR)
         finally:
             window.close()
+
+
+@unittest.skipUnless(
+    _tkinter_display_works(),
+    "tkinter display not available (headless / no DISPLAY)",
+)
+class RobotWindowStepButtonTest(unittest.TestCase):
+    def test_step_button_is_right_of_run_with_script_path(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "sol.py"
+            script.write_text("#\n", encoding="utf-8")
+            window = RobotWindow(
+                "step_layout",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+            )
+            try:
+                slaves = list(window.controls.pack_slaves())
+                self.assertEqual(slaves[0], window.action_button)
+                self.assertEqual(slaves[1], window.step_button)
+                self.assertEqual(window.step_button.cget("text"), ACTION_BUTTON_STEP)
+                self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+            finally:
+                window.close()
+
+    def test_step_button_disabled_without_script_path(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("no_script", envs, run_env, initial_index=0)
+        try:
+            self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+        finally:
+            window.close()
+
+    def test_enter_does_not_invoke_step_button(self) -> None:
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        step_calls = 0
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "s2.py"
+            script.write_text("#\n", encoding="utf-8")
+            window = RobotWindow(
+                "enter_no_step",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+            )
+            try:
+
+                def count_step() -> None:
+                    nonlocal step_calls
+                    step_calls += 1
+
+                window.step_button.configure(command=count_step)
+                window.canvas.focus_set()
+                window.canvas.event_generate("<Return>", when="tail")
+                window.root.update()
+                self.assertEqual(step_calls, 0)
+            finally:
+                window.close()
+
+    def test_run_all_disables_step_button_while_running(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "s3.py"
+            script.write_text("#\n", encoding="utf-8")
+            window = RobotWindow("run_disables_step", envs, None, script_path=script)
+            try:
+
+                def run_env(_env: RobotEnv) -> RunResult:
+                    self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+                    return RunResult(status="success", message="ok")
+
+                window.run_env = run_env
+                window.run_all()
+                self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+            finally:
+                window.close()
+
+    def test_restore_re_enables_step_with_script_path(self) -> None:
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "s4.py"
+            script.write_text("#\n", encoding="utf-8")
+            window = RobotWindow(
+                "restore_step",
+                envs,
+                run_env,
+                script_path=script,
+            )
+            try:
+                window.run_all()
+                window.step_button.configure(state=tk.DISABLED)
+                window.restore()
+                self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+            finally:
+                window.close()
+
+    def test_show_step_line_status_format(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "s5.py"
+            script.write_text("#\n", encoding="utf-8")
+            window = RobotWindow(
+                "step_status_fmt",
+                envs,
+                run_env,
+                script_path=script,
+            )
+            try:
+                window._show_step_line(StudentLine(2, "move_right()"))
+                self.assertEqual(
+                    window.status_var.get(),
+                    "Строка 2: move_right()",
+                )
+            finally:
+                window.close()
 
 
 if __name__ == "__main__":

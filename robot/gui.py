@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import time
 import tkinter as tk
+from pathlib import Path
 from typing import Callable
+
+from .executor import StepExecutionSession, StudentLine
 
 from .field_renderer import FieldColors, FieldRenderer
 from .gui_layout import (
@@ -12,6 +16,7 @@ from .gui_layout import (
 from .gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
+    ACTION_BUTTON_STEP,
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
@@ -38,16 +43,20 @@ class RobotWindow:
         run_env: Callable[[RobotEnv], RunResult] | None,
         initial_index: int = 0,
         todo_text: str = "",
+        script_path: Path | None = None,
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
+        self.script_path = script_path
         self.selected_index = initial_index
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
         self._ignore_action_enter_until_idle = False
         self._is_run_all_active = False
+        self._step_session: StepExecutionSession | None = None
+        self._step_tabs_locked = False
 
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"
@@ -63,6 +72,7 @@ class RobotWindow:
         self.cell_size = calculate_cell_size(self.envs)
 
         self.root = tk.Tk()
+        self._step_release_token = 0
         self.root.title(f"Robot: {task_id}")
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.lift()
@@ -131,6 +141,14 @@ class RobotWindow:
             command=self.run_all,
         )
         self.action_button.pack(side=tk.LEFT)
+        self.step_button = tk.Button(
+            self.controls,
+            text=ACTION_BUTTON_STEP,
+            command=self.step_once,
+        )
+        self.step_button.pack(side=tk.LEFT, padx=(4, 0))
+        if self.script_path is None:
+            self.step_button.configure(state=tk.DISABLED)
         self.root.bind("<Return>", self._handle_action_enter_key)
         self.root.bind("<KP_Enter>", self._handle_action_enter_key)
         self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
@@ -169,12 +187,85 @@ class RobotWindow:
     def _set_status(self, text: str, background: str) -> None:
         self._status_strip.set_status(text, background)
 
+    def _wait_for_next_step_impl(self) -> None:
+        start_token = self._step_release_token
+        while self._step_release_token == start_token and not self.is_closed:
+            self.root.update_idletasks()
+            self.root.update()
+            time.sleep(0.001)
+
+    def _show_step_line(self, line: StudentLine) -> None:
+        self._set_status(
+            f"Строка {line.lineno}: {line.text}",
+            STATUS_BG_NEUTRAL,
+        )
+        self.root.update_idletasks()
+
+    def _finish_step_run(self, result: RunResult) -> None:
+        self._step_tabs_locked = False
+        self.configure_tab_buttons()
+        interrupted = (
+            result.status == "error" and result.message == "Выполнение прервано"
+        )
+        self._step_session = None
+        if interrupted:
+            if self.action_button is not None:
+                self.action_button.configure(state=tk.NORMAL)
+            if self.step_button is not None and self.script_path is not None:
+                self.step_button.configure(state=tk.NORMAL)
+            return
+        if self.step_button is not None:
+            self.step_button.configure(state=tk.DISABLED)
+        if not result.success:
+            if result.status == "wrong":
+                self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
+            else:
+                self._set_status(result.message, STATUS_BG_ERROR)
+        else:
+            self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
+        self.draw_field()
+        self._set_action_to_restore_after_idle()
+
+    def _cancel_step_wake_only(self) -> None:
+        if self._step_session is None:
+            return
+        if not self._step_session.is_started or self._step_session.is_finished:
+            return
+        self._step_session.cancel()
+        self._step_release_token += 1
+
+    def step_once(self) -> None:
+        if self.is_closed or self.script_path is None or self._is_run_all_active:
+            return
+        if self._step_session is None:
+            env = self.envs[self.selected_index]
+            self._step_session = StepExecutionSession(
+                self.script_path,
+                self.task_id,
+                env,
+                show_line=self._show_step_line,
+                wait_for_next_step=self._wait_for_next_step_impl,
+                command_delay_seconds=0.0,
+            )
+            self._step_tabs_locked = True
+            self.configure_tab_buttons()
+            if self.action_button is not None:
+                self.action_button.configure(state=tk.DISABLED)
+
+        self._step_session.allow_one_step()
+        self._step_release_token += 1
+
+        if not self._step_session.is_started:
+            result = self._step_session.start()
+            self._finish_step_run(result)
+
     def run(self) -> None:
         self.root.mainloop()
 
     def close(self) -> None:
         if self.is_closed:
             return
+        self._cancel_step_wake_only()
         self._cancel_pending_restore_enable_after()
         self.is_closed = True
         self.root.destroy()
@@ -222,7 +313,10 @@ class RobotWindow:
 
     def configure_tab_buttons(self) -> None:
         for tab_index, button in enumerate(self.tab_buttons):
-            state = tk.DISABLED if tab_index == self.selected_index else tk.NORMAL
+            if self._step_tabs_locked:
+                state = tk.DISABLED
+            else:
+                state = tk.DISABLED if tab_index == self.selected_index else tk.NORMAL
             button.configure(
                 relief=tk.SUNKEN
                 if tab_index == self.selected_index
@@ -239,6 +333,8 @@ class RobotWindow:
             command=self.run_all,
             state=tk.NORMAL,
         )
+        if self.step_button is not None and self.script_path is not None:
+            self.step_button.configure(state=tk.NORMAL)
 
     def _cancel_pending_restore_enable_after(self) -> None:
         if self._pending_restore_enable_after_id is None:
@@ -280,6 +376,7 @@ class RobotWindow:
         self.action_button.configure(state=tk.DISABLED)
 
     def restore(self) -> None:
+        self._cancel_step_wake_only()
         for env in self.envs:
             env.reset()
         self._set_status(STATUS_READY, STATUS_BG_NEUTRAL)
@@ -292,6 +389,8 @@ class RobotWindow:
 
         self._is_run_all_active = True
         try:
+            if self.step_button is not None:
+                self.step_button.configure(state=tk.DISABLED)
             self._disable_action_button()
             self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
             self.root.update_idletasks()
@@ -313,6 +412,8 @@ class RobotWindow:
                 self._set_action_to_restore_after_idle()
             finally:
                 self._is_run_all_active = False
+                if self.step_button is not None and self.script_path is not None:
+                    self.step_button.configure(state=tk.NORMAL)
 
     def on_env_change(self) -> None:
         if self.is_closed:
@@ -350,6 +451,7 @@ __all__ = [
     "RobotWindow",
     "ACTION_BUTTON_RESTORE",
     "ACTION_BUTTON_RUN",
+    "ACTION_BUTTON_STEP",
     "COMPACT_CELL_SIZE",
     "DEFAULT_CELL_SIZE",
     "MIN_CANVAS_WIDTH",

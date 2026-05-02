@@ -1,7 +1,9 @@
 import json
+import queue
 import re
 import sys
 import tempfile
+import threading
 import types
 import unittest
 from pathlib import Path
@@ -10,7 +12,7 @@ from unittest.mock import call, patch
 import robot.runtime as runtime
 from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto
-from robot.runtime import run_solution_on_env
+from robot.executor import StepExecutionSession, run_solution_on_env
 
 
 class LoaderRuntimeTest(unittest.TestCase):
@@ -327,6 +329,245 @@ class LoaderRuntimeTest(unittest.TestCase):
             + r"$",
         )
 
+    def test_step_session_runs_assignments_line_by_line(self) -> None:
+        """Each student-file line waits until allow_one_step + handshake release."""
+        sync: queue.Queue[object] = queue.Queue()
+        captured: list[tuple[int, str]] = []
+
+        def show_line(line) -> None:
+            captured.append((line.lineno, line.text))
+
+        def wait_next() -> None:
+            sync.put("wait")
+            sync.get(timeout=5)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "step_assign.py"
+            script.write_text(
+                "a = 0\n"
+                "a = 1\n"
+                "a = 2\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=show_line,
+                wait_for_next_step=wait_next,
+                command_delay_seconds=0.0,
+            )
+            result_holder: list = []
+
+            def runner() -> None:
+                result_holder.append(session.start())
+
+            session.allow_one_step()
+            thread = threading.Thread(target=runner)
+            thread.start()
+            while thread.is_alive():
+                try:
+                    sync.get(timeout=0.5)
+                except queue.Empty:
+                    continue
+                session.allow_one_step()
+                sync.put(1)
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(len(result_holder), 1)
+            result = result_holder[0]
+            self.assertTrue(result.success)
+            self.assertEqual(session.namespace.get("a"), 2)
+            self.assertEqual(
+                captured,
+                [
+                    (1, "a = 0"),
+                    (2, "a = 1"),
+                    (3, "a = 2"),
+                ],
+            )
+
+    def test_step_session_enters_student_function_body(self) -> None:
+        sync: queue.Queue[object] = queue.Queue()
+        captured: list[tuple[int, str]] = []
+
+        def show_line(line) -> None:
+            captured.append((line.lineno, line.text))
+
+        def wait_next() -> None:
+            sync.put("wait")
+            sync.get(timeout=5)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "step_fn.py"
+            script.write_text(
+                "def go():\n"
+                "    return 7\n"
+                "y = go()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=show_line,
+                wait_for_next_step=wait_next,
+                command_delay_seconds=0.0,
+            )
+            result_holder: list = []
+
+            def runner() -> None:
+                result_holder.append(session.start())
+
+            session.allow_one_step()
+            thread = threading.Thread(target=runner)
+            thread.start()
+            while thread.is_alive():
+                try:
+                    sync.get(timeout=0.5)
+                except queue.Empty:
+                    continue
+                session.allow_one_step()
+                sync.put(1)
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+            self.assertTrue(result_holder[0].success)
+            self.assertEqual(session.namespace.get("y"), 7)
+            self.assertIn((1, "def go():"), captured)
+            self.assertIn((2, "return 7"), captured)
+            self.assertIn((3, "y = go()"), captured)
+
+    def test_step_session_cancel_during_wait(self) -> None:
+        sync: queue.Queue[object] = queue.Queue()
+        blocked = threading.Event()
+
+        def wait_next() -> None:
+            blocked.set()
+            sync.get(timeout=5)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "step_slow.py"
+            script.write_text(
+                "a = 1\n"
+                "a = 2\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=wait_next,
+                command_delay_seconds=0.0,
+            )
+            result_holder: list = []
+
+            def runner() -> None:
+                result_holder.append(session.start())
+
+            session.allow_one_step()
+            thread = threading.Thread(target=runner)
+            thread.start()
+            self.assertTrue(blocked.wait(timeout=5))
+            session.cancel()
+            sync.put(1)
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(len(result_holder), 1)
+            result = result_holder[0]
+            self.assertEqual(result.status, "error")
+            self.assertEqual(result.message, "Выполнение прервано")
+
+    def test_step_session_runtime_error_includes_line(self) -> None:
+        sync: queue.Queue[object] = queue.Queue()
+
+        def wait_next() -> None:
+            sync.put("wait")
+            sync.get(timeout=5)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "step_err.py"
+            script.write_text(
+                "a = 1\n"
+                "1 / 0\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=wait_next,
+                command_delay_seconds=0.0,
+            )
+            result_holder: list = []
+
+            def runner() -> None:
+                result_holder.append(session.start())
+
+            session.allow_one_step()
+            thread = threading.Thread(target=runner)
+            thread.start()
+            while thread.is_alive():
+                try:
+                    sync.get(timeout=0.5)
+                except queue.Empty:
+                    continue
+                session.allow_one_step()
+                sync.put(1)
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive())
+            result = result_holder[0]
+            self.assertEqual(result.status, "error")
+            self.assertRegex(result.message, r"^Строка 2: ZeroDivisionError:")
 
     def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
         """IDE-style sys.settrace must not switch task() to a separate execution branch."""
@@ -383,6 +624,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["todo_text"], "Note")
         self.assertIsNotNone(kw["run_env"])
         self.assertTrue(callable(kw["run_env"]))
+        self.assertEqual(kw["script_path"], Path(script).resolve())
+        self.assertEqual(kw["script_path"], Path(script).resolve())
 
     def write_task(self, temp_dir, task_id, env_dtos, todo_text=None):
         task_file = Path(temp_dir) / f"{task_id}.json"

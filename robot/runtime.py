@@ -29,6 +29,8 @@ from .commands import (
 from .executor import (
     DEFAULT_COMMAND_DELAY_SECONDS,
     ROBOT_PATH_COLLISION_USER_MESSAGE,
+    StepExecutionSession,
+    StudentLine,
     run_solution_on_env,
 )
 from .loader import load_task_definition
@@ -61,6 +63,7 @@ def task(task_id: str) -> None:
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
         ),
         todo_text=task_definition.todo_text,
+        script_path=script_path,
     )
     window.run()
     raise SystemExit(0)
@@ -98,4 +101,6 @@ __all__ = [
     "run_solution_on_env",
     "DEFAULT_COMMAND_DELAY_SECONDS",
     "ROBOT_PATH_COLLISION_USER_MESSAGE",
+    "StepExecutionSession",
+    "StudentLine",
 ]

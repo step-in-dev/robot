@@ -24,6 +24,8 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
             runtime.ROBOT_PATH_COLLISION_USER_MESSAGE,
             executor.ROBOT_PATH_COLLISION_USER_MESSAGE,
         )
+        self.assertIs(runtime.StepExecutionSession, executor.StepExecutionSession)
+        self.assertIs(runtime.StudentLine, executor.StudentLine)
 
     def test_gui_reexports_layout_and_theme(self) -> None:
         from robot import gui
@@ -34,4 +36,5 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
         self.assertIs(gui.calculate_canvas_size, gui_layout.calculate_canvas_size)
         self.assertIs(gui.calculate_field_offset, gui_layout.calculate_field_offset)
         self.assertIs(gui.STATUS_READY, gui_theme.STATUS_READY)
+        self.assertIs(gui.ACTION_BUTTON_STEP, gui_theme.ACTION_BUTTON_STEP)
         self.assertIs(gui.DEFAULT_CELL_SIZE, gui_theme.DEFAULT_CELL_SIZE)

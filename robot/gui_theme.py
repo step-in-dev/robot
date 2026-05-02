@@ -6,6 +6,7 @@ STATUS_WRONG = "Задание не выполнено"
 STATUS_ALL_CORRECT = "Все верно"
 ACTION_BUTTON_RUN = "Выполнить [Enter]"
 ACTION_BUTTON_RESTORE = "Восстановить [Enter]"
+ACTION_BUTTON_STEP = "Шаг"
 
 # todoText panel and status row share border color; backgrounds match task UX states.
 TODO_TEXT_BG = "#fdf9d3"
