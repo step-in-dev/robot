@@ -321,6 +321,35 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertIn("ZeroDivisionError", result.message)
         self.assertRegex(result.message, r"^Строка 3: ZeroDivisionError:")
 
+    def test_runtime_printn_rejects_non_integer_with_line_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import *\n"
+                "task('printntest')\n"
+                "printn(1.2)\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 1,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 0,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(script, "printntest", env)
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("RobotError", result.message)
+        self.assertIn("printn() accepts only integers", result.message)
+        self.assertRegex(result.message, r"^Строка 3: RobotError:")
+
     def test_runtime_robot_path_collision_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"

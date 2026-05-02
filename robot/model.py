@@ -316,8 +316,10 @@ class Robot:
     def get_pollution_level(self) -> int:
         return self._env.get_pollution_level(Cell(self._row, self._col))
 
-    def print_number(self, value: int) -> None:
-        self._env.print_number(ValuedCell(self._row, self._col, int(value)))
+    def print_number(self, value: object) -> None:
+        if type(value) is not int:
+            raise RobotError("printn() accepts only integers")
+        self._env.print_number(ValuedCell(self._row, self._col, value))
         self._change_listener()
 
     def _create_wall_hash_table(self) -> set[tuple[Cell, Cell]]:

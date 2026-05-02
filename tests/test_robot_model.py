@@ -1,6 +1,6 @@
 import unittest
 
-from robot.model import RobotEnv, RobotEnvDto, RobotPathError
+from robot.model import RobotEnv, RobotEnvDto, RobotError, RobotPathError
 
 
 def make_env(data):
@@ -102,6 +102,37 @@ class RobotModelTest(unittest.TestCase):
 
         env.robot.print_number(7)
         self.assertTrue(env.is_in_final_state())
+
+    def test_print_number_accepts_only_integers(self):
+        env = make_env(
+            {
+                "width": 1,
+                "height": 1,
+                "startRow": 0,
+                "startCol": 0,
+                "finalRow": 0,
+                "finalCol": 0,
+                "cellsToPrint": [{"r": 0, "c": 0, "value": 7}],
+            }
+        )
+
+        env.robot.print_number(7)
+        self.assertTrue(env.is_in_final_state())
+
+        env.reset()
+        with self.assertRaises(RobotError):
+            env.robot.print_number(1.2)
+        self.assertEqual(len(env.printed_cells), 0)
+
+        env.reset()
+        with self.assertRaises(RobotError):
+            env.robot.print_number("7")
+        self.assertEqual(len(env.printed_cells), 0)
+
+        env.reset()
+        with self.assertRaises(RobotError):
+            env.robot.print_number(True)
+        self.assertEqual(len(env.printed_cells), 0)
 
     def test_normalization_matches_sidwebui_rules(self):
         dto = RobotEnvDto.from_dict(
