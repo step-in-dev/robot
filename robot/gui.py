@@ -195,6 +195,8 @@ class RobotWindow:
             time.sleep(0.001)
 
     def _show_step_line(self, line: StudentLine) -> None:
+        if self.is_closed:
+            return
         self._set_status(
             f"Строка {line.lineno}: {line.text}",
             STATUS_BG_NEUTRAL,
@@ -203,11 +205,13 @@ class RobotWindow:
 
     def _finish_step_run(self, result: RunResult) -> None:
         self._step_tabs_locked = False
+        self._step_session = None
+        if self.is_closed:
+            return
         self.configure_tab_buttons()
         interrupted = (
             result.status == "error" and result.message == "Выполнение прервано"
         )
-        self._step_session = None
         if interrupted:
             if self.action_button is not None:
                 self.action_button.configure(state=tk.NORMAL)
@@ -312,6 +316,8 @@ class RobotWindow:
         self._ignore_action_enter_until_idle = False
 
     def configure_tab_buttons(self) -> None:
+        if self.is_closed:
+            return
         for tab_index, button in enumerate(self.tab_buttons):
             if self._step_tabs_locked:
                 state = tk.DISABLED

@@ -759,6 +759,32 @@ class RobotWindowStepButtonTest(unittest.TestCase):
             finally:
                 window.close()
 
+    def test_close_during_step_wait_does_not_raise_tcl_error(self) -> None:
+        """Closing while waiting for the next step must not configure destroyed widgets."""
+        base = {**minimal_env_dict(1, 1), "finalCol": 0}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "multi_line.py"
+            script.write_text("a = 1\nb = 2\n", encoding="utf-8")
+            window = RobotWindow(
+                "close_during_step",
+                envs,
+                None,
+                script_path=script,
+            )
+            try:
+
+                def close_window() -> None:
+                    window.close()
+
+                window._wait_for_next_step_impl = close_window
+                window.step_once()
+                self.assertTrue(window.is_closed)
+                self.assertIsNone(window._step_session)
+            finally:
+                window.close()
+
 
 if __name__ == "__main__":
     unittest.main()
