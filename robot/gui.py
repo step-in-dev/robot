@@ -330,6 +330,23 @@ class RobotWindow:
                 state=state,
             )
 
+    def _show_step_button_in_controls(self) -> None:
+        """Pack the step button to the right of the main action button and set enabled state."""
+        if self.step_button is None:
+            return
+        if self.step_button not in self.controls.pack_slaves():
+            self.step_button.pack(side=tk.LEFT, padx=(4, 0))
+        if self.script_path is not None:
+            self.step_button.configure(state=tk.NORMAL)
+        else:
+            self.step_button.configure(state=tk.DISABLED)
+
+    def _hide_step_button_from_controls(self) -> None:
+        """Hide the step button while the UI is in post-run restore mode."""
+        if self.step_button is None:
+            return
+        self.step_button.pack_forget()
+
     def _set_action_to_run(self) -> None:
         self._cancel_pending_restore_enable_after()
         if self.action_button is None:
@@ -339,8 +356,7 @@ class RobotWindow:
             command=self.run_all,
             state=tk.NORMAL,
         )
-        if self.step_button is not None and self.script_path is not None:
-            self.step_button.configure(state=tk.NORMAL)
+        self._show_step_button_in_controls()
 
     def _cancel_pending_restore_enable_after(self) -> None:
         if self._pending_restore_enable_after_id is None:
@@ -372,6 +388,7 @@ class RobotWindow:
             command=self.restore,
             state=tk.DISABLED,
         )
+        self._hide_step_button_from_controls()
         self._pending_restore_enable_after_id = self.root.after_idle(
             self._enable_action_button_if_current
         )
@@ -418,8 +435,6 @@ class RobotWindow:
                 self._set_action_to_restore_after_idle()
             finally:
                 self._is_run_all_active = False
-                if self.step_button is not None and self.script_path is not None:
-                    self.step_button.configure(state=tk.NORMAL)
 
     def on_env_change(self) -> None:
         if self.is_closed:

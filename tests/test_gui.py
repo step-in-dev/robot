@@ -254,12 +254,15 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.selected_index, 1)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
+            self.assertNotIn(window.step_button, window.controls.pack_slaves())
             self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
             self.assertEqual((envs[1].robot.row, envs[1].robot.col), (0, 1))
 
             window.restore()
             self.assertEqual(window.selected_index, 0)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
+            self.assertIn(window.step_button, window.controls.pack_slaves())
+            self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
             for env in envs:
                 self.assertEqual((env.robot.row, env.robot.col), (0, 0))
         finally:
@@ -276,6 +279,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertIsNotNone(window.action_button)
             window.run_all()
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
+            self.assertNotIn(window.step_button, window.controls.pack_slaves())
         finally:
             window.close()
 
@@ -707,7 +711,11 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
                 window.run_env = run_env
                 window.run_all()
-                self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+                self.assertNotIn(
+                    window.step_button,
+                    window.controls.pack_slaves(),
+                    "Шаг must be hidden after run_all completes",
+                )
             finally:
                 window.close()
 
@@ -729,11 +737,29 @@ class RobotWindowStepButtonTest(unittest.TestCase):
             )
             try:
                 window.run_all()
+                self.assertNotIn(window.step_button, window.controls.pack_slaves())
                 window.step_button.configure(state=tk.DISABLED)
                 window.restore()
+                self.assertIn(window.step_button, window.controls.pack_slaves())
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
             finally:
                 window.close()
+
+    def test_run_all_hides_step_without_script_restore_shows_disabled(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("hide_step_no_script", envs, run_env, initial_index=0)
+        try:
+            window.run_all()
+            self.assertNotIn(window.step_button, window.controls.pack_slaves())
+            window.restore()
+            self.assertIn(window.step_button, window.controls.pack_slaves())
+            self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+        finally:
+            window.close()
 
     def test_show_step_line_status_format(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
