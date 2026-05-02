@@ -9,11 +9,23 @@ import tkinter.font as tkfont
 from .gui_layout import calculate_field_offset
 from .model import RobotEnv, ValuedCell
 
-# Tkinter Arial bold renders larger than browser canvas at the same nominal size;
-# use a slightly larger divisor than the web (2.8) so labels stay readable but not oversized.
 TEXT_FONT_DIVISOR = 3.6
 MIN_TEXT_FONT_SIZE = 10
 PRINT_LINE_GAP_RATIO = 0.50
+
+# Mimic browser canvas strokeText before fillText (white halo around digits).
+TEXT_OUTLINE_COLOR = "#ffffff"
+TEXT_OUTLINE_OFFSET = 1
+_TEXT_OUTLINE_OFFSETS: tuple[tuple[int, int], ...] = (
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (-1, 0),
+    (1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+)
 
 
 def cell_text_font_size(cell_size: int) -> int:
@@ -61,11 +73,39 @@ class FieldRenderer:
         self.wall_width = wall_width
 
     def _text_font(self, font_size: int) -> tkfont.Font:
-        return tkfont.Font(family="Arial", size=font_size, weight="bold")
+        return tkfont.Font(family="Arial", size=font_size)
 
     def _measure_text_width(self, text: str, font_size: int) -> int:
         font = self._text_font(font_size)
         return int(font.measure(text))
+
+    def _draw_outlined_text(
+        self,
+        x: float,
+        y: float,
+        text: str,
+        fill: str,
+        font_size: int,
+        anchor: str,
+    ) -> None:
+        font = ("Arial", font_size,)
+        for dx, dy in _TEXT_OUTLINE_OFFSETS:
+            self.canvas.create_text(
+                x + dx * TEXT_OUTLINE_OFFSET,
+                y + dy * TEXT_OUTLINE_OFFSET,
+                text=text,
+                fill=TEXT_OUTLINE_COLOR,
+                font=font,
+                anchor=anchor,
+            )
+        self.canvas.create_text(
+            x,
+            y,
+            text=text,
+            fill=fill,
+            font=font,
+            anchor=anchor,
+        )
 
     def draw_field(
         self,
@@ -267,12 +307,12 @@ class FieldRenderer:
             text = format_printable_value(cell.value)
             x = cell.c * self.cell_size + self.wall_width + half_wall_width
             y = (cell.r + 1) * self.cell_size - half_wall_width
-            self.canvas.create_text(
+            self._draw_outlined_text(
                 x,
                 y,
                 text=text,
                 fill=pollution_color,
-                font=("Arial", font_size, "bold"),
+                font_size=font_size,
                 anchor="sw",
             )
 
@@ -318,11 +358,11 @@ class FieldRenderer:
                 + gap
                 + half_wall_width
             )
-        self.canvas.create_text(
+        self._draw_outlined_text(
             x_left,
             y_top,
             text=text,
             fill=print_color,
-            font=("Arial", font_size, "bold"),
+            font_size=font_size,
             anchor="nw",
         )

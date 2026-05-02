@@ -3,9 +3,12 @@ import unittest
 import tkinter as tk
 import tkinter.font as tkfont
 
+from robot import field_renderer as field_renderer_mod
 from robot.field_renderer import (
     FieldColors,
     FieldRenderer,
+    TEXT_OUTLINE_COLOR,
+    TEXT_OUTLINE_OFFSET,
     cell_text_font_size,
     format_printable_value,
     print_line_gap,
@@ -43,6 +46,23 @@ def _collect_text_items(canvas: tk.Canvas) -> list[dict[str, object]]:
             }
         )
     return out
+
+
+def _outline_text_at(
+    items: list[dict[str, object]],
+    *,
+    text: str,
+    anchor: str,
+    ox: float,
+    oy: float,
+) -> bool:
+    for t in items:
+        if t["text"] != text or t["anchor"] != anchor:
+            continue
+        cx, cy = t["coords"]  # type: ignore[misc]
+        if abs(float(cx) - ox) < 0.001 and abs(float(cy) - oy) < 0.001:
+            return True
+    return False
 
 
 class FormatPrintableValueTest(unittest.TestCase):
@@ -123,10 +143,17 @@ class FieldRendererTextPlacementTest(unittest.TestCase):
         )
 
         texts = _collect_text_items(canvas)
-        self.assertEqual(len(texts), 3)
+        colored = [
+            t
+            for t in texts
+            if t["fill"] in ("#404C51", "#712903")
+        ]
+        outlines = [t for t in texts if t["fill"] == TEXT_OUTLINE_COLOR]
+        self.assertEqual(len(colored), 3)
+        self.assertEqual(len(outlines), 3 * len(field_renderer_mod._TEXT_OUTLINE_OFFSETS))
 
-        pollution = next(t for t in texts if t["fill"] == "#404C51")
-        prints = [t for t in texts if t["fill"] == "#712903"]
+        pollution = next(t for t in colored if t["fill"] == "#404C51")
+        prints = [t for t in colored if t["fill"] == "#712903"]
         self.assertEqual(len(prints), 2)
 
         self.assertEqual(pollution["text"], "7")
@@ -152,6 +179,32 @@ class FieldRendererTextPlacementTest(unittest.TestCase):
         right_edge = (0 + 1) * cell_size - half
         for xr in x_rights:
             self.assertAlmostEqual(xr, right_edge, delta=0.001)
+
+        for dx, dy in field_renderer_mod._TEXT_OUTLINE_OFFSETS:
+            self.assertTrue(
+                _outline_text_at(
+                    outlines,
+                    text="7",
+                    anchor="sw",
+                    ox=float(px) + dx * TEXT_OUTLINE_OFFSET,
+                    oy=float(py) + dy * TEXT_OUTLINE_OFFSET,
+                ),
+                msg=f"missing outline for pollution at offset ({dx}, {dy})",
+            )
+
+        for t in prints:
+            pxp, pyp = t["coords"]  # type: ignore[misc]
+            for dx, dy in field_renderer_mod._TEXT_OUTLINE_OFFSETS:
+                self.assertTrue(
+                    _outline_text_at(
+                        outlines,
+                        text="42",
+                        anchor="nw",
+                        ox=float(pxp) + dx * TEXT_OUTLINE_OFFSET,
+                        oy=float(pyp) + dy * TEXT_OUTLINE_OFFSET,
+                    ),
+                    msg=f"missing outline for print at offset ({dx}, {dy})",
+                )
 
 
 def _text_width(text: str, font_size: int) -> float:
