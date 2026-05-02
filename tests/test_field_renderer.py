@@ -86,8 +86,8 @@ class CellTextFontSizeTest(unittest.TestCase):
 
 class PrintLineGapTest(unittest.TestCase):
     def test_gap_scales_with_font(self) -> None:
-        self.assertEqual(print_line_gap(25), 13)
-        self.assertEqual(print_line_gap(10), 5)
+        self.assertEqual(print_line_gap(25), 5)
+        self.assertEqual(print_line_gap(10), 2)
 
 
 @unittest.skipUnless(

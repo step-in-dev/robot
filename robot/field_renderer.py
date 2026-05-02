@@ -11,7 +11,7 @@ from .model import RobotEnv, ValuedCell
 
 TEXT_FONT_DIVISOR = 3.6
 MIN_TEXT_FONT_SIZE = 10
-PRINT_LINE_GAP_RATIO = 0.50
+PRINT_LINE_GAP_RATIO = 0.20
 
 # Mimic browser canvas strokeText before fillText (white halo around digits).
 TEXT_OUTLINE_COLOR = "#ffffff"
