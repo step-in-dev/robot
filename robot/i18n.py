@@ -9,7 +9,27 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
 
-SUPPORTED_LANGUAGES = ("en", "ru")
+SUPPORTED_LANGUAGES = (
+    "en",
+    "ru",
+    "zh",
+    "hi",
+    "es",
+    "fr",
+    "ar",
+    "bn",
+    "pt",
+    "ur",
+    "uk",
+    "pl",
+    "be",
+    "ja",
+    "ko",
+    "de",
+    "it",
+    "nl",
+)
+_SUPPORTED_SET = frozenset(SUPPORTED_LANGUAGES)
 DEFAULT_LANGUAGE = "en"
 LANGUAGE_ENV_VAR = "ROBOT_LANGUAGE"
 
@@ -17,7 +37,7 @@ _LOCALES_DIR = Path(__file__).resolve().parent / "locales"
 
 
 def normalize_language(value: str | None) -> str | None:
-    """Map locale strings to ``en`` or ``ru``; unsupported returns ``None``."""
+    """Map locale strings to a supported language code; unsupported returns ``None``."""
     if value is None:
         return None
     raw = value.strip()
@@ -31,10 +51,8 @@ def normalize_language(value: str | None) -> str | None:
     norm = base.replace("-", "_")
     parts = norm.split("_")
     primary = (parts[0] or "").lower()
-    if primary == "en":
-        return "en"
-    if primary == "ru":
-        return "ru"
+    if primary in _SUPPORTED_SET:
+        return primary
     return None
 
 
