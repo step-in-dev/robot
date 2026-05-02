@@ -2,73 +2,18 @@ import json
 import re
 import sys
 import tempfile
+import types
 import unittest
-from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import call, patch
 
 import robot.runtime as runtime
 from robot.loader import TaskLoadError, load_task, load_task_definition
-from robot.model import RobotEnv, RobotEnvDto, RobotError, RobotPathError
+from robot.model import RobotEnv, RobotEnvDto
 from robot.runtime import run_solution_on_env
 
 
-class FakeDebugWindow:
-    instances = []
-
-    def __init__(
-        self,
-        task_id,
-        envs,
-        run_env,
-        initial_index=0,
-        debug_mode=False,
-        todo_text="",
-    ):
-        self.task_id = task_id
-        self.envs = envs
-        self.run_env = run_env
-        self.initial_index = initial_index
-        self.debug_mode = debug_mode
-        self.todo_text = todo_text
-        self.shown = False
-        self.result = None
-        self.robot_error = None
-        self.run_until_closed_called = False
-        FakeDebugWindow.instances.append(self)
-
-    def show_debug_started(self):
-        self.shown = True
-
-    def show_debug_result(self, env_number, result):
-        self.result = (env_number, result)
-
-    def show_robot_error(self, message):
-        self.robot_error = message
-
-    def run_until_closed(self):
-        self.run_until_closed_called = True
-
-
-@contextmanager
-def _installed_debugger_global_trace():
-    """Simulate an IDE: tracing only runs if sys.settrace is non-None (local f_trace alone is not enough)."""
-    def ide_global(frame, event, arg):
-        return ide_global
-
-    old = sys.gettrace()
-    sys.settrace(ide_global)
-    try:
-        yield
-    finally:
-        sys.settrace(old)
-
-
 class LoaderRuntimeTest(unittest.TestCase):
-    def tearDown(self):
-        runtime._clear_debug_session()
-        FakeDebugWindow.instances = []
-
     def test_loader_reads_env_dtos_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "line.json"
@@ -382,139 +327,25 @@ class LoaderRuntimeTest(unittest.TestCase):
             + r"$",
         )
 
-    def test_task_with_environment_number_continues_in_selected_env(self):
+
+    def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
+        """IDE-style sys.settrace must not switch task() to a separate execution branch."""
+        captured: list[dict[str, object]] = []
+
+        class CaptureRobotWindow:
+            def __init__(self, **kwargs):
+                captured.append(kwargs)
+
+            def run(self) -> None:
+                """Skip Tk mainloop while exercising task() wiring."""
+                pass
+
         with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "student.py"
+            script.write_text("# student\n", encoding="utf-8")
             self.write_task(
                 temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    },
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    },
-                ],
-                todo_text="Reach the end",
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
-
-                        def run_solution():
-                            runtime.task("debug", 2)
-                            runtime.move_right()
-
-                        run_solution()
-
-        window = FakeDebugWindow.instances[0]
-        self.assertTrue(window.debug_mode)
-        self.assertTrue(window.shown)
-        self.assertEqual(window.todo_text, "Reach the end")
-        self.assertEqual(window.initial_index, 1)
-        self.assertEqual(window.envs[0].robot.col, 0)
-        self.assertEqual(window.envs[1].robot.col, 1)
-        self.assertEqual(window.result[0], 2)
-        self.assertTrue(window.result[1].success)
-        self.assertTrue(window.run_until_closed_called)
-
-    def test_task_without_environment_number_uses_first_env_under_debugger(
-        self,
-    ):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    },
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    },
-                ],
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
-
-                        def run_solution():
-                            runtime.task("debug")
-                            runtime.move_right()
-
-                        run_solution()
-
-        window = FakeDebugWindow.instances[0]
-        self.assertTrue(window.debug_mode)
-        self.assertTrue(window.shown)
-        self.assertEqual(window.initial_index, 0)
-        self.assertEqual(window.envs[0].robot.col, 1)
-        self.assertEqual(window.envs[1].robot.col, 0)
-        self.assertEqual(window.result[0], 1)
-        self.assertTrue(window.result[1].success)
-        self.assertTrue(window.run_until_closed_called)
-
-    def test_task_environment_number_must_be_valid_int(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    },
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    },
-                ],
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    for env_number in ("2", True, 0, 3):
-                        with self.subTest(env_number=env_number):
-                            with self.assertRaises(RobotError):
-                                runtime.task("debug", env_number)
-
-        self.assertEqual(FakeDebugWindow.instances, [])
-
-    def test_robot_path_error_updates_debug_window_and_propagates(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
+                "trace_task",
                 [
                     {
                         "width": 1,
@@ -525,150 +356,33 @@ class LoaderRuntimeTest(unittest.TestCase):
                         "finalCol": 0,
                     }
                 ],
+                todo_text="Note",
             )
 
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
+            fake_main = types.ModuleType("fake_main")
+            fake_main.__file__ = str(script)
 
-                        def run_solution():
-                            runtime.task("debug", 1)
-                            runtime.move_right()
+            def ide_global(frame, event, arg):
+                return ide_global
 
-                        expected_line = run_solution.__code__.co_firstlineno + 2
+            old_trace = sys.gettrace()
+            sys.settrace(ide_global)
+            try:
+                with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                    with patch.dict(sys.modules, {"__main__": fake_main}):
+                        with patch("robot.gui.RobotWindow", CaptureRobotWindow):
+                            with self.assertRaises(SystemExit) as ctx:
+                                runtime.task("trace_task")
+            finally:
+                sys.settrace(old_trace)
 
-                        with self.assertRaises(RobotPathError):
-                            run_solution()
-
-        window = FakeDebugWindow.instances[0]
-        self.assertEqual(
-            window.robot_error,
-            f"Строка {expected_line}: {runtime.ROBOT_PATH_COLLISION_USER_MESSAGE}",
-        )
-        self.assertIsNone(window.result)
-        self.assertTrue(window.run_until_closed_called)
-
-    def test_debug_python_runtime_error_shows_message_with_line(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                ],
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
-
-                        def run_solution():
-                            runtime.task("debug", 1)
-                            1 / 0
-
-                        expected_line = run_solution.__code__.co_firstlineno + 2
-
-                        with self.assertRaises(ZeroDivisionError):
-                            run_solution()
-
-        window = FakeDebugWindow.instances[0]
-        self.assertEqual(
-            window.robot_error,
-            f"Строка {expected_line}: ZeroDivisionError: division by zero",
-        )
-        self.assertIsNone(window.result)
-        self.assertTrue(window.run_until_closed_called)
-
-    def test_debug_thonny_style_local_tracer_is_chained_for_runtime_errors(self):
-        """Simulate Thonny (local f_trace); Robot status must still see ZeroDivisionError."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                ],
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
-                        local_calls = []
-
-                        def fake_thonny_local_trace(frame, event, arg):
-                            local_calls.append((event, arg))
-                            return fake_thonny_local_trace
-
-                        def run_solution():
-                            sys._getframe(0).f_trace = fake_thonny_local_trace
-                            runtime.task("debug", 1)
-                            1 / 0
-
-                        expected_line = run_solution.__code__.co_firstlineno + 3
-
-                        with self.assertRaises(ZeroDivisionError):
-                            run_solution()
-
-        window = FakeDebugWindow.instances[0]
-        self.assertEqual(
-            window.robot_error,
-            f"Строка {expected_line}: ZeroDivisionError: division by zero",
-        )
-        exception_events = [e for e, _ in local_calls if e == "exception"]
-        self.assertGreater(len(exception_events), 0)
-
-    def test_debug_system_exit_shows_code_message(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            self.write_task(
-                temp_dir,
-                "debug",
-                [
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                ],
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with _installed_debugger_global_trace():
-                    with patch("robot.gui.RobotWindow", FakeDebugWindow):
-
-                        def run_solution():
-                            runtime.task("debug", 1)
-                            raise SystemExit(7)
-
-                        expected_line = run_solution.__code__.co_firstlineno + 2
-
-                        with self.assertRaises(SystemExit) as ctx:
-                            run_solution()
-
-        self.assertEqual(ctx.exception.code, 7)
-        window = FakeDebugWindow.instances[0]
-        self.assertEqual(
-            window.robot_error,
-            f"Строка {expected_line}: программа завершилась с кодом 7",
-        )
-        self.assertIsNone(window.result)
-        self.assertTrue(window.run_until_closed_called)
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertEqual(len(captured), 1)
+        kw = captured[0]
+        self.assertEqual(kw["task_id"], "trace_task")
+        self.assertEqual(kw["todo_text"], "Note")
+        self.assertIsNotNone(kw["run_env"])
+        self.assertTrue(callable(kw["run_env"]))
 
     def write_task(self, temp_dir, task_id, env_dtos, todo_text=None):
         task_file = Path(temp_dir) / f"{task_id}.json"

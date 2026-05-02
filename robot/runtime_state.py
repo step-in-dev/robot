@@ -1,8 +1,6 @@
-"""Mutable execution state shared across executor, commands, and debug runtime."""
+"""Mutable execution state shared across executor and robot commands."""
 
 from __future__ import annotations
-
-from typing import Any
 
 from .model import Robot, RobotEnv, RobotError
 
@@ -10,7 +8,6 @@ _active_env: RobotEnv | None = None
 _expected_task_id: str | None = None
 _is_executing_solution = False
 _active_command_delay_seconds = 0.0
-_debug_session: Any = None
 
 
 def begin_solution_run(
@@ -58,22 +55,3 @@ def active_robot() -> Robot:
 
 def command_delay_seconds() -> float:
     return _active_command_delay_seconds
-
-
-def get_debug_session() -> Any:
-    return _debug_session
-
-
-def assign_debug_session(session: Any) -> None:
-    """Attach active debug session and its environment (``session.env``)."""
-    global _debug_session, _active_env
-    _debug_session = session
-    _active_env = session.env
-
-
-def clear_debug_session_state() -> None:
-    """Clear debug session pointer, active env, and command delay (after hook restore)."""
-    global _active_env, _debug_session, _active_command_delay_seconds
-    _active_env = None
-    _debug_session = None
-    _active_command_delay_seconds = 0.0

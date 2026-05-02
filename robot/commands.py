@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import sys
 import time
-from pathlib import Path
 
-from .executor import ROBOT_PATH_COLLISION_USER_MESSAGE
-from .model import RobotPathError
-from .runtime_state import active_robot, command_delay_seconds, get_debug_session
+from .runtime_state import active_robot, command_delay_seconds
 
 
 def _delay_before_command() -> None:
@@ -21,28 +17,7 @@ def _robot():
 
 def _run_mutating_robot_command(command) -> None:
     _delay_before_command()
-    try:
-        command()
-    except RobotPathError:
-        session = get_debug_session()
-        if session is not None:
-            lineno = None
-            try:
-                student_frame = sys._getframe(2)
-                student_file = Path(student_frame.f_code.co_filename).resolve()
-                script_file = session.script_path.resolve()
-                if student_file == script_file:
-                    lineno = student_frame.f_lineno
-            except (ValueError, OSError):
-                lineno = None
-            if lineno is not None:
-                msg = f"Строка {lineno}: {ROBOT_PATH_COLLISION_USER_MESSAGE}"
-            else:
-                msg = ROBOT_PATH_COLLISION_USER_MESSAGE
-            from .debug_runtime import _mark_debug_robot_error
-
-            _mark_debug_robot_error(msg)
-        raise
+    command()
 
 
 def move_right() -> None:

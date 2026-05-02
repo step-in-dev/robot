@@ -612,49 +612,6 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         finally:
             window.close()
 
-    def test_debug_success_uses_hatched_status(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        window = RobotWindow("debug_success", envs, None, initial_index=0, debug_mode=True)
-        try:
-            window.show_debug_result(
-                1, RunResult(status="success", message="Решение верное")
-            )
-            window.root.update_idletasks()
-            self.assertEqual(
-                window.status_var.get(), f"{STATUS_ALL_CORRECT}. При отладке тестируется только одна обстановка"
-            )
-            self.assertEqual(window._status_background, STATUS_BG_SUCCESS)
-            self.assertTrue(window._status_hatched)
-        finally:
-            window.close()
-
-    def test_debug_wrong_is_not_hatched(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        window = RobotWindow("debug_wrong", envs, None, initial_index=0, debug_mode=True)
-        try:
-            window.show_debug_result(1, RunResult(status="wrong", message="неверно"))
-            window.root.update_idletasks()
-            self.assertEqual(window.status_var.get(), STATUS_WRONG)
-            self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
-            self.assertFalse(window._status_hatched)
-        finally:
-            window.close()
-
-    def test_debug_error_is_not_hatched(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
-        err_msg = "ошибка выполнения"
-        window = RobotWindow("debug_err", envs, None, initial_index=0, debug_mode=True)
-        try:
-            window.show_debug_result(
-                1, RunResult(status="error", message=err_msg)
-            )
-            window.root.update_idletasks()
-            self.assertEqual(window.status_var.get(), err_msg)
-            self.assertEqual(window._status_background, STATUS_BG_ERROR)
-            self.assertFalse(window._status_hatched)
-        finally:
-            window.close()
-
 
 if __name__ == "__main__":
     unittest.main()

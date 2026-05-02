@@ -22,11 +22,10 @@ The target audience is school students who are learning introductory programming
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
 - `robot/loader.py` loads task definitions from JSON files (`envDtos` array and optional `todoText`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
 - `robot/results.py` defines run outcome types (`RunResult`, `RunStatus`) and final-state checking.
-- `robot/runtime_state.py` holds shared mutable execution state (active environment, debug session, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, `get_debug_session`, …) so executor/commands/debug code avoid ad-hoc global access.
+- `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so executor and commands avoid ad-hoc global access.
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
 - `robot/executor.py` compiles and runs student scripts against an environment and maps exceptions to `RunResult`.
-- `robot/debug_runtime.py` implements debugger-aware `task()` behavior (trace/profile hooks, debug window coordination).
-- `robot/runtime.py` is a thin facade: `task()`, compatibility re-exports, and script discovery; it wires loader, GUI, executor, and debug paths.
+- `robot/runtime.py` is a thin facade: `task()`, compatibility re-exports, and script discovery; it wires loader, GUI, and executor.
 - `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` draws the status row.
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).

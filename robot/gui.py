@@ -37,14 +37,12 @@ class RobotWindow:
         envs: list[RobotEnv],
         run_env: Callable[[RobotEnv], RunResult] | None,
         initial_index: int = 0,
-        debug_mode: bool = False,
         todo_text: str = "",
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
         self.selected_index = initial_index
-        self.debug_mode = debug_mode
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
@@ -127,21 +125,20 @@ class RobotWindow:
 
         self.action_button: tk.Button | None = None
         self._pending_restore_enable_after_id: str | None = None
-        if not debug_mode:
-            self.action_button = tk.Button(
-                self.controls,
-                text=ACTION_BUTTON_RUN,
-                command=self.run_all,
-            )
-            self.action_button.pack(side=tk.LEFT)
-            self.root.bind("<Return>", self._handle_action_enter_key)
-            self.root.bind("<KP_Enter>", self._handle_action_enter_key)
-            self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
-            self.root.bind(
-                "<KeyRelease-KP_Enter>", self._handle_action_enter_release
-            )
+        self.action_button = tk.Button(
+            self.controls,
+            text=ACTION_BUTTON_RUN,
+            command=self.run_all,
+        )
+        self.action_button.pack(side=tk.LEFT)
+        self.root.bind("<Return>", self._handle_action_enter_key)
+        self.root.bind("<KP_Enter>", self._handle_action_enter_key)
+        self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
+        self.root.bind(
+            "<KeyRelease-KP_Enter>", self._handle_action_enter_release
+        )
 
-        initial_status = STATUS_RUNNING if debug_mode else STATUS_READY
+        initial_status = STATUS_READY
         self._status_strip = StatusStrip(
             self.root,
             get_canvas_width=lambda: self.canvas_width,
@@ -180,26 +177,12 @@ class RobotWindow:
     def run(self) -> None:
         self.root.mainloop()
 
-    def run_until_closed(self) -> None:
-        if self.is_closed:
-            return
-        try:
-            self.root.mainloop()
-        except tk.TclError:
-            self.is_closed = True
-
     def close(self) -> None:
         if self.is_closed:
             return
         self._cancel_pending_restore_enable_after()
         self.is_closed = True
         self.root.destroy()
-
-    def show_debug_started(self) -> None:
-        if self.is_closed:
-            return
-        self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
-        self.root.update()
 
     def select_env(self, index: int) -> None:
         if self.current_listener is not None:
@@ -244,11 +227,7 @@ class RobotWindow:
 
     def configure_tab_buttons(self) -> None:
         for tab_index, button in enumerate(self.tab_buttons):
-            state = (
-                tk.DISABLED
-                if self.debug_mode or tab_index == self.selected_index
-                else tk.NORMAL
-            )
+            state = tk.DISABLED if tab_index == self.selected_index else tk.NORMAL
             button.configure(
                 relief=tk.SUNKEN
                 if tab_index == self.selected_index
@@ -314,7 +293,7 @@ class RobotWindow:
 
     def run_all(self) -> None:
         if self.run_env is None:
-            raise RuntimeError("run_env is required outside debug mode")
+            raise RuntimeError("run_env is required")
 
         self._is_run_all_active = True
         try:
@@ -345,34 +324,9 @@ class RobotWindow:
             return
         try:
             self.draw_field()
-            if self.debug_mode:
-                self.root.update()
-            else:
-                self.root.update_idletasks()
+            self.root.update_idletasks()
         except tk.TclError:
             self.is_closed = True
-
-    def show_debug_result(self, env_number: int, result: RunResult) -> None:
-        if self.is_closed:
-            return
-        self.draw_field()
-        if result.success:
-            self._set_status(
-                f"{STATUS_ALL_CORRECT}. При отладке тестируется только одна обстановка",
-                STATUS_BG_SUCCESS,
-                hatched=True,
-            )
-        elif result.status == "wrong":
-            self._set_status(STATUS_WRONG, STATUS_BG_NEUTRAL)
-        else:
-            self._set_status(result.message, STATUS_BG_ERROR)
-        self.root.update_idletasks()
-
-    def show_robot_error(self, message: str) -> None:
-        if self.is_closed:
-            return
-        self._set_status(message, STATUS_BG_ERROR)
-        self.root.update_idletasks()
 
     def draw_field(self) -> None:
         if self.is_closed:

@@ -5,7 +5,6 @@ from pathlib import Path
 
 from .runtime_state import (
     expected_task_id,
-    get_debug_session,
     is_executing_solution,
 )
 from .commands import (
@@ -27,12 +26,6 @@ from .commands import (
     pol,
     printn,
 )
-from .debug_runtime import (
-    DebugSession,
-    _clear_debug_session,
-    _is_under_debugger,
-    _start_debug_task,
-)
 from .executor import (
     DEFAULT_COMMAND_DELAY_SECONDS,
     ROBOT_PATH_COLLISION_USER_MESSAGE,
@@ -43,21 +36,13 @@ from .model import RobotError
 from .results import RunResult, RunStatus
 
 
-def task(task_id: str, env_number: int | None = None) -> None:
+def task(task_id: str) -> None:
     if is_executing_solution():
         eid = expected_task_id()
         if eid is not None and task_id != eid:
             raise RobotError(
                 f"Expected task '{eid}', got '{task_id}'"
             )
-        return
-
-    if get_debug_session() is not None:
-        raise RobotError("Only one task() call is supported in debug mode")
-
-    if _is_under_debugger():
-        effective_env_number = 1 if env_number is None else env_number
-        _start_debug_task(task_id, effective_env_number, sys._getframe(1))
         return
 
     script_path = _detect_student_script()
@@ -113,6 +98,4 @@ __all__ = [
     "run_solution_on_env",
     "DEFAULT_COMMAND_DELAY_SECONDS",
     "ROBOT_PATH_COLLISION_USER_MESSAGE",
-    "DebugSession",
-    "_clear_debug_session",
 ]
