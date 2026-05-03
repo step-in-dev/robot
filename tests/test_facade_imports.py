@@ -37,4 +37,5 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
         self.assertIs(gui.calculate_field_offset, gui_layout.calculate_field_offset)
         self.assertIs(gui.STATUS_READY, gui_theme.STATUS_READY)
         self.assertIs(gui.ACTION_BUTTON_STEP, gui_theme.ACTION_BUTTON_STEP)
+        self.assertIs(gui.ACTION_BUTTON_HELP, gui_theme.ACTION_BUTTON_HELP)
         self.assertIs(gui.DEFAULT_CELL_SIZE, gui_theme.DEFAULT_CELL_SIZE)

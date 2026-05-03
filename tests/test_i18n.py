@@ -47,6 +47,12 @@ class I18nTest(unittest.TestCase):
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
             self.assertEqual(i18n.t("status.ready"), "Робот: Готов")
 
+    def test_button_help_en_and_ru(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            self.assertEqual(i18n.t("button.help"), "Help")
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            self.assertEqual(i18n.t("button.help"), "Справка")
+
     def test_t_german_and_chinese_smoke(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False):
             self.assertEqual(i18n.t("status.ready"), "Roboter: Bereit")

@@ -11,6 +11,7 @@ from .executor import (
     StudentLine,
 )
 
+from .command_help import iter_command_help_lines
 from .field_renderer import FieldColors, FieldRenderer
 from .gui_layout import (
     calculate_canvas_size,
@@ -19,6 +20,7 @@ from .gui_layout import (
 )
 from .i18n import t
 from .gui_theme import (
+    ACTION_BUTTON_HELP,
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
     ACTION_BUTTON_STEP,
@@ -66,6 +68,8 @@ class RobotWindow:
         self._is_run_all_active = False
         self._step_session: StepExecutionSession | None = None
         self._step_tabs_locked = False
+        self._help_window: tk.Toplevel | None = None
+        self._help_window_close_handler: Callable[[], None] | None = None
 
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"
@@ -158,6 +162,12 @@ class RobotWindow:
         self.step_button.pack(side=tk.LEFT, padx=(4, 0))
         if self.script_path is None:
             self.step_button.configure(state=tk.DISABLED)
+        self.help_button = tk.Button(
+            self.controls,
+            text=ACTION_BUTTON_HELP,
+            command=self.show_help,
+        )
+        self.help_button.pack(side=tk.LEFT, padx=(4, 0))
         self.root.bind("<Return>", self._handle_action_enter_key)
         self.root.bind("<KP_Enter>", self._handle_action_enter_key)
         self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
@@ -298,6 +308,13 @@ class RobotWindow:
             return
         self._cancel_step_wake_only()
         self._cancel_pending_restore_enable_after()
+        if self._help_window is not None:
+            try:
+                self._help_window.destroy()
+            except tk.TclError:
+                pass
+            self._help_window = None
+            self._help_window_close_handler = None
         self.is_closed = True
         self.root.destroy()
 
@@ -357,16 +374,75 @@ class RobotWindow:
                 state=state,
             )
 
+    def _focus_help_window(self, win: tk.Toplevel) -> None:
+        """Raise and focus the help dialog (main window may be ``-topmost``)."""
+        win.lift()
+        win.focus_set()
+
     def _show_step_button_in_controls(self) -> None:
         """Pack the step button to the right of the main action button and set enabled state."""
         if self.step_button is None:
             return
         if self.step_button not in self.controls.pack_slaves():
-            self.step_button.pack(side=tk.LEFT, padx=(4, 0))
+            self.step_button.pack(
+                side=tk.LEFT,
+                padx=(4, 0),
+                before=self.help_button,
+            )
         if self.script_path is not None:
             self.step_button.configure(state=tk.NORMAL)
         else:
             self.step_button.configure(state=tk.DISABLED)
+
+    def show_help(self) -> None:
+        """Open or focus a window listing Robot commands and short localized descriptions."""
+        if self.is_closed:
+            return
+        if self._help_window is not None:
+            try:
+                if self._help_window.winfo_exists():
+                    self._focus_help_window(self._help_window)
+                    return
+            except tk.TclError:
+                pass
+            self._help_window = None
+
+        help_win = tk.Toplevel(self.root)
+        self._help_window = help_win
+        help_win.title(t("help.title"))
+        help_win.transient(self.root)
+
+        def _clear_help_ref() -> None:
+            try:
+                help_win.destroy()
+            except tk.TclError:
+                pass
+            self._help_window = None
+            self._help_window_close_handler = None
+
+        self._help_window_close_handler = _clear_help_ref
+        help_win.protocol("WM_DELETE_WINDOW", self._help_window_close_handler)
+
+        frame = tk.Frame(help_win, padx=10, pady=10)
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        text = tk.Text(
+            frame,
+            wrap=tk.WORD,
+            width=72,
+            height=24,
+            relief=tk.FLAT,
+            highlightthickness=0,
+        )
+        scroll = tk.Scrollbar(frame, command=text.yview)
+        text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
+        text.insert(tk.END, body)
+        text.configure(state=tk.DISABLED)
+        self._focus_help_window(help_win)
 
     def _hide_step_button_from_controls(self) -> None:
         """Hide the step button while the UI is in post-run restore mode."""
@@ -494,6 +570,7 @@ class RobotWindow:
 
 __all__ = [
     "RobotWindow",
+    "ACTION_BUTTON_HELP",
     "ACTION_BUTTON_RESTORE",
     "ACTION_BUTTON_RUN",
     "ACTION_BUTTON_STEP",

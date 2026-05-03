@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import tkinter as tk
 
@@ -12,6 +13,7 @@ from robot.gui_layout import (
     calculate_field_offset,
 )
 from robot.gui_theme import (
+    ACTION_BUTTON_HELP,
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
     ACTION_BUTTON_STEP,
@@ -41,6 +43,27 @@ def _tkinter_display_works() -> bool:
         return True
     except tk.TclError:
         return False
+
+
+def _help_toplevel_children(root: tk.Misc) -> list[tk.Toplevel]:
+    return [w for w in root.winfo_children() if isinstance(w, tk.Toplevel)]
+
+
+def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
+    for child in parent.winfo_children():
+        if isinstance(child, tk.Text):
+            return child
+        nested = _find_first_text_widget(child)
+        if nested is not None:
+            return nested
+    return None
+
+
+def _help_window_body_text(help_top: tk.Toplevel) -> str:
+    widget = _find_first_text_widget(help_top)
+    if widget is None:
+        return ""
+    return widget.get("1.0", tk.END)
 
 
 def make_env(data: dict) -> RobotEnv:
@@ -684,8 +707,11 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 slaves = list(window.controls.pack_slaves())
                 self.assertEqual(slaves[0], window.action_button)
                 self.assertEqual(slaves[1], window.step_button)
+                self.assertEqual(slaves[2], window.help_button)
                 self.assertEqual(window.step_button.cget("text"), ACTION_BUTTON_STEP)
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+                self.assertEqual(window.help_button.cget("text"), ACTION_BUTTON_HELP)
+                self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
             finally:
                 window.close()
 
@@ -698,6 +724,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         window = RobotWindow("no_script", envs, run_env, initial_index=0)
         try:
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+            self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
         finally:
             window.close()
 
@@ -753,6 +780,8 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                     window.controls.pack_slaves(),
                     "Step button must be hidden after run_all completes",
                 )
+                self.assertIn(window.help_button, window.controls.pack_slaves())
+                self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
             finally:
                 window.close()
 
@@ -779,6 +808,11 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.restore()
                 self.assertIn(window.step_button, window.controls.pack_slaves())
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+                slaves = list(window.controls.pack_slaves())
+                self.assertEqual(
+                    slaves,
+                    [window.action_button, window.step_button, window.help_button],
+                )
             finally:
                 window.close()
 
@@ -883,6 +917,94 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 self.assertIsNone(window._step_session)
             finally:
                 window.close()
+
+
+@unittest.skipUnless(
+    _tkinter_display_works(),
+    "tkinter display not available (headless / no DISPLAY)",
+)
+class RobotWindowHelpTest(unittest.TestCase):
+    def tearDown(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_help_opens_toplevel_with_expected_title_and_body(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("help_win", envs, run_env, initial_index=0)
+        try:
+            window.show_help()
+            window.root.update()
+            tops = _help_toplevel_children(window.root)
+            self.assertEqual(len(tops), 1)
+            self.assertEqual(tops[0].title(), t("help.title"))
+            body = _help_window_body_text(tops[0])
+            self.assertIn("move_right()", body)
+            self.assertIn(t("help.command.move_right"), body)
+        finally:
+            window.close()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_help_second_open_lifts_same_window(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("help_reuse", envs, run_env, initial_index=0)
+        try:
+            window.show_help()
+            window.root.update()
+            first = _help_toplevel_children(window.root)[0]
+            window.show_help()
+            window.root.update()
+            tops = _help_toplevel_children(window.root)
+            self.assertEqual(len(tops), 1)
+            self.assertIs(tops[0], first)
+        finally:
+            window.close()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_help_reopens_after_wm_delete_window_handler(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("help_reopen", envs, run_env, initial_index=0)
+        try:
+            window.show_help()
+            window.root.update()
+            first = window._help_window
+            self.assertIsNotNone(first)
+            self.assertIsNotNone(window._help_window_close_handler)
+            window._help_window_close_handler()
+            window.root.update()
+            self.assertIsNone(window._help_window)
+            self.assertIsNone(window._help_window_close_handler)
+
+            window.show_help()
+            window.root.update()
+            second = window._help_window
+            self.assertIsNotNone(second)
+            self.assertIsNot(first, second)
+            self.assertEqual(len(_help_toplevel_children(window.root)), 1)
+        finally:
+            window.close()
 
 
 if __name__ == "__main__":

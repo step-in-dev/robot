@@ -9,6 +9,7 @@ STATUS_ALL_CORRECT = t("status.all_correct")
 ACTION_BUTTON_RUN = t("button.run")
 ACTION_BUTTON_RESTORE = t("button.restore")
 ACTION_BUTTON_STEP = t("button.step")
+ACTION_BUTTON_HELP = t("button.help")
 
 # todoText panel and status row share border color; backgrounds match task UX states.
 TODO_TEXT_BG = "#fdf9d3"
