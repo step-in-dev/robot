@@ -17,6 +17,10 @@ The target audience is school students who are learning introductory programming
 - JSON task files for grid environments and validation data.
 - Built-in `unittest` tests for model, loader, and runtime behavior.
 
+## Documentation
+
+- `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
+
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
