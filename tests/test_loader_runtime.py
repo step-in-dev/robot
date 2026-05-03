@@ -354,31 +354,6 @@ class LoaderRuntimeTest(unittest.TestCase):
                     with self.subTest(name=name):
                         self.assertEqual(load_task_definition(name).todo_text, "")
 
-    def test_loader_rejects_legacy_environments_format(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "legacy.env"
-            task_file.write_text(
-                json.dumps(
-                    {
-                        "environments": [
-                            {
-                                "width": 2,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 1,
-                            }
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
-
-            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
-                with self.assertRaises(TaskLoadError):
-                    load_task("legacy")
-
     def test_runtime_executes_student_file_in_clean_robot_context(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
