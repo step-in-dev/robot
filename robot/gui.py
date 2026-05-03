@@ -146,16 +146,21 @@ class RobotWindow:
         self.controls = tk.Frame(self.root)
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 2))
 
+        self.controls_right = tk.Frame(self.controls)
+        self.controls_right.pack(side=tk.RIGHT)
+        self.controls_left = tk.Frame(self.controls)
+        self.controls_left.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
         self.action_button: tk.Button | None = None
         self._pending_restore_enable_after_id: str | None = None
         self.action_button = tk.Button(
-            self.controls,
+            self.controls_left,
             text=ACTION_BUTTON_RUN,
             command=self.run_all,
         )
         self.action_button.pack(side=tk.LEFT)
         self.step_button = tk.Button(
-            self.controls,
+            self.controls_left,
             text=ACTION_BUTTON_STEP,
             command=self.step_once,
         )
@@ -163,11 +168,11 @@ class RobotWindow:
         if self.script_path is None:
             self.step_button.configure(state=tk.DISABLED)
         self.help_button = tk.Button(
-            self.controls,
+            self.controls_right,
             text=ACTION_BUTTON_HELP,
             command=self.show_help,
         )
-        self.help_button.pack(side=tk.LEFT, padx=(4, 0))
+        self.help_button.pack(side=tk.RIGHT)
         self.root.bind("<Return>", self._handle_action_enter_key)
         self.root.bind("<KP_Enter>", self._handle_action_enter_key)
         self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
@@ -384,12 +389,8 @@ class RobotWindow:
         """Pack the step button to the right of the main action button and set enabled state."""
         if self.step_button is None:
             return
-        if self.step_button not in self.controls.pack_slaves():
-            self.step_button.pack(
-                side=tk.LEFT,
-                padx=(4, 0),
-                before=self.help_button,
-            )
+        if self.step_button not in self.controls_left.pack_slaves():
+            self.step_button.pack(side=tk.LEFT, padx=(4, 0))
         if self.script_path is not None:
             self.step_button.configure(state=tk.NORMAL)
         else:

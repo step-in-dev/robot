@@ -278,14 +278,14 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.run_all()
             self.assertEqual(window.selected_index, 1)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
-            self.assertNotIn(window.step_button, window.controls.pack_slaves())
+            self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
             self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
             self.assertEqual((envs[1].robot.row, envs[1].robot.col), (0, 1))
 
             window.restore()
             self.assertEqual(window.selected_index, 0)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
-            self.assertIn(window.step_button, window.controls.pack_slaves())
+            self.assertIn(window.step_button, window.controls_left.pack_slaves())
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
             for env in envs:
                 self.assertEqual((env.robot.row, env.robot.col), (0, 0))
@@ -303,7 +303,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertIsNotNone(window.action_button)
             window.run_all()
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
-            self.assertNotIn(window.step_button, window.controls.pack_slaves())
+            self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
         finally:
             window.close()
 
@@ -735,10 +735,11 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 script_path=script,
             )
             try:
-                slaves = list(window.controls.pack_slaves())
-                self.assertEqual(slaves[0], window.action_button)
-                self.assertEqual(slaves[1], window.step_button)
-                self.assertEqual(slaves[2], window.help_button)
+                left_slaves = list(window.controls_left.pack_slaves())
+                self.assertEqual(left_slaves[0], window.action_button)
+                self.assertEqual(left_slaves[1], window.step_button)
+                self.assertIs(window.help_button.master, window.controls_right)
+                self.assertIn(window.help_button, window.controls_right.pack_slaves())
                 self.assertEqual(window.step_button.cget("text"), ACTION_BUTTON_STEP)
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
                 self.assertEqual(window.help_button.cget("text"), ACTION_BUTTON_HELP)
@@ -814,10 +815,10 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.run_all()
                 self.assertNotIn(
                     window.step_button,
-                    window.controls.pack_slaves(),
+                    window.controls_left.pack_slaves(),
                     "Step button must be hidden after run_all completes",
                 )
-                self.assertIn(window.help_button, window.controls.pack_slaves())
+                self.assertIn(window.help_button, window.controls_right.pack_slaves())
                 self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
             finally:
                 window.close()
@@ -840,15 +841,20 @@ class RobotWindowStepButtonTest(unittest.TestCase):
             )
             try:
                 window.run_all()
-                self.assertNotIn(window.step_button, window.controls.pack_slaves())
+                self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
                 window.step_button.configure(state=tk.DISABLED)
                 window.restore()
-                self.assertIn(window.step_button, window.controls.pack_slaves())
+                self.assertIn(window.step_button, window.controls_left.pack_slaves())
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
-                slaves = list(window.controls.pack_slaves())
                 self.assertEqual(
-                    slaves,
-                    [window.action_button, window.step_button, window.help_button],
+                    list(window.controls_left.pack_slaves()),
+                    [window.action_button, window.step_button],
+                )
+                self.assertIs(window.help_button.master, window.controls_right)
+                self.assertIn(window.help_button, window.controls_right.pack_slaves())
+                self.assertEqual(
+                    set(window.controls.pack_slaves()),
+                    {window.controls_left, window.controls_right},
                 )
             finally:
                 window.close()
@@ -862,9 +868,9 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         window = RobotWindow("hide_step_no_script", envs, run_env, initial_index=0)
         try:
             window.run_all()
-            self.assertNotIn(window.step_button, window.controls.pack_slaves())
+            self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
             window.restore()
-            self.assertIn(window.step_button, window.controls.pack_slaves())
+            self.assertIn(window.step_button, window.controls_left.pack_slaves())
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
         finally:
             window.close()
@@ -924,7 +930,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 self.assertTrue(window._status_hatched)
                 self.assertNotIn(
                     window.step_button,
-                    window.controls.pack_slaves(),
+                    window.controls_left.pack_slaves(),
                 )
             finally:
                 window.close()
@@ -957,7 +963,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                     self.assertIsNotNone(btn)
                     self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
                     self.assertEqual(btn.cget("state"), tk.NORMAL)
-                    self.assertIn(window.step_button, window.controls.pack_slaves())
+                    self.assertIn(window.step_button, window.controls_left.pack_slaves())
                     self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
                     self.assertIsNotNone(window._step_session)
                     window._step_session.allow_one_step()
@@ -1000,7 +1006,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.step_once()
                 self.assertIsNone(window._step_session)
                 self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
-                self.assertIn(window.step_button, window.controls.pack_slaves())
+                self.assertIn(window.step_button, window.controls_left.pack_slaves())
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
                 self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
             finally:
