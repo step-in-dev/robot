@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .i18n import t
+from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
 from .model import RobotEnv, RobotEnvDto
 
 
@@ -92,7 +92,7 @@ def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
         )
 
     raw_todo = data.get("todoText", "")
-    todo_text = raw_todo if isinstance(raw_todo, str) else ""
+    todo_text = resolve_todo_text(raw_todo)
 
     result: list[dict] = []
     for index, item in enumerate(env_dtos):
@@ -103,6 +103,37 @@ def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
         result.append(item)
 
     return result, todo_text
+
+
+def resolve_todo_text(raw: Any) -> str:
+    """Return task condition text: plain string, or localized map resolved to UI language.
+
+    If ``raw`` is a string, it is returned as-is (legacy format).
+    If ``raw`` is a dict mapping locale keys to strings, pick the value for
+    :func:`detect_language`, then fall back to :data:`DEFAULT_LANGUAGE` (``en``),
+    then ``""``. Only string keys and string values contribute; keys are
+    normalized with :func:`normalize_language` (e.g. ``ru_RU`` → ``ru``).
+    Any other type yields ``""``.
+    """
+    if isinstance(raw, str):
+        return raw
+    if not isinstance(raw, dict):
+        return ""
+    by_lang: dict[str, str] = {}
+    for key, value in raw.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            continue
+        norm = normalize_language(key)
+        if norm is not None:
+            by_lang[norm] = value
+    if not by_lang:
+        return ""
+    ui = detect_language()
+    if ui in by_lang:
+        return by_lang[ui]
+    if DEFAULT_LANGUAGE in by_lang:
+        return by_lang[DEFAULT_LANGUAGE]
+    return ""
 
 
 def parse_operators_limit(data: dict, task_path: Path) -> int | None:

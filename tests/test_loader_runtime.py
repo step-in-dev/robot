@@ -25,6 +25,18 @@ from robot.operator_limits import (
 
 
 class LoaderRuntimeTest(unittest.TestCase):
+    @staticmethod
+    def _minimal_env_dto() -> dict[str, int]:
+        """Single-cell environment used by several loader tests."""
+        return {
+            "width": 1,
+            "height": 1,
+            "startRow": 0,
+            "startCol": 0,
+            "finalRow": 0,
+            "finalCol": 0,
+        }
+
     def test_loader_reads_env_dtos_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "line.json"
@@ -255,6 +267,92 @@ class LoaderRuntimeTest(unittest.TestCase):
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
                 self.assertEqual(load_task_definition("empty").todo_text, "")
                 self.assertEqual(load_task_definition("bad_type").todo_text, "")
+
+    def test_load_task_definition_localized_todo_text_resolves_by_language(self) -> None:
+        base_env = self._minimal_env_dto()
+        cases: list[tuple[str, str, dict[str, str], str]] = [
+            (
+                "loc_ru",
+                "ru",
+                {"en": "Reach the end", "ru": "Дойди до конца"},
+                "Дойди до конца",
+            ),
+            (
+                "loc_fallback",
+                "ru",
+                {"en": "English line", "de": "Deutsch"},
+                "English line",
+            ),
+            (
+                "loc_no_en",
+                "en",
+                {"ru": "Только русский"},
+                "",
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for task_id, _lang, todo, _expected in cases:
+                (Path(temp_dir) / f"{task_id}.json").write_text(
+                    json.dumps({"envDtos": [base_env], "todoText": todo}),
+                    encoding="utf-8",
+                )
+            for task_id, lang, _todo, expected in cases:
+                with self.subTest(task_id=task_id, lang=lang):
+                    with patch.dict(
+                        "os.environ",
+                        {
+                            "ROBOT_TASKS_DIR": temp_dir,
+                            "ROBOT_LANGUAGE": lang,
+                        },
+                        clear=False,
+                    ):
+                        task = load_task_definition(task_id)
+                    self.assertEqual(task.todo_text, expected)
+
+    def test_load_task_definition_localized_todo_text_regional_keys(self) -> None:
+        base_env = self._minimal_env_dto()
+        todo = {"ru_RU.UTF-8": "Из ru_RU", "en-GB": "From en-GB"}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            (Path(temp_dir) / "loc_reg.json").write_text(
+                json.dumps({"envDtos": [base_env], "todoText": todo}),
+                encoding="utf-8",
+            )
+            with patch.dict(
+                "os.environ",
+                {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "ru"},
+                clear=False,
+            ):
+                task_ru = load_task_definition("loc_reg")
+            with patch.dict(
+                "os.environ",
+                {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "en"},
+                clear=False,
+            ):
+                task_en = load_task_definition("loc_reg")
+        self.assertEqual(task_ru.todo_text, "Из ru_RU")
+        self.assertEqual(task_en.todo_text, "From en-GB")
+
+    def test_load_task_definition_localized_todo_text_empty_or_invalid_map(self) -> None:
+        base_env = self._minimal_env_dto()
+        cases = [
+            ("loc_empty", {}),
+            ("loc_unsup", {"eo": "not supported"}),
+            ("loc_bad_vals", {"en": 1, "ru": None}),
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for name, todo in cases:
+                (Path(temp_dir) / f"{name}.json").write_text(
+                    json.dumps({"envDtos": [base_env], "todoText": todo}),
+                    encoding="utf-8",
+                )
+            with patch.dict(
+                "os.environ",
+                {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "en"},
+                clear=False,
+            ):
+                for name, _ in cases:
+                    with self.subTest(name=name):
+                        self.assertEqual(load_task_definition(name).todo_text, "")
 
     def test_loader_rejects_legacy_environments_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1042,7 +1140,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             )
 
     def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
-        """IDE-style sys.settrace must not switch task() to a separate execution branch."""
+        """IDE trace must not switch task(); localized todoText resolves before RobotWindow."""
         captured: list[dict[str, object]] = []
 
         class CaptureRobotWindow:
@@ -1059,17 +1157,8 @@ class LoaderRuntimeTest(unittest.TestCase):
             self.write_task(
                 temp_dir,
                 "trace_task",
-                [
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                ],
-                todo_text="Note",
+                [self._minimal_env_dto()],
+                todo_text={"en": "Note", "ru": "Записка"},
                 operators_limit=42,
                 min_used_user_functions=7,
             )
@@ -1083,7 +1172,11 @@ class LoaderRuntimeTest(unittest.TestCase):
             old_trace = sys.gettrace()
             sys.settrace(ide_global)
             try:
-                with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with patch.dict(
+                    "os.environ",
+                    {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "ru"},
+                    clear=False,
+                ):
                     with patch.dict(sys.modules, {"__main__": fake_main}):
                         with patch("robot.gui.RobotWindow", CaptureRobotWindow):
                             with self.assertRaises(SystemExit) as ctx:
@@ -1095,7 +1188,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(len(captured), 1)
         kw = captured[0]
         self.assertEqual(kw["task_id"], "trace_task")
-        self.assertEqual(kw["todo_text"], "Note")
+        self.assertEqual(kw["todo_text"], "Записка")
         self.assertEqual(kw["operators_limit"], 42)
         self.assertEqual(kw["min_used_user_functions"], 7)
         self.assertIsNotNone(kw["run_env"])
