@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "現在のマスが塗られていれば True を返します。",
   "help.command.is_cell_not_painted": "現在のマスが塗られていなければ True を返します。",
   "help.command.pol": "現在のマスの汚染レベルを返します。",
-  "help.command.printn": "現在のマスに整数を表示します。"
+  "help.command.printn": "現在のマスに整数を表示します。",
+  "help.command.field": "課題ファイルを読まずに指定サイズのグリッドを開きます。ロボットは左上から、目標は右下です。",
+  "runtime.error.field_integers": "field() の幅と高さは整数である必要があります",
+  "runtime.error.field_width_range": "field() の幅は 1 以上 20 以下である必要があります",
+  "runtime.error.field_height_range": "field() の高さは 1 以上 15 以下である必要があります"
 }

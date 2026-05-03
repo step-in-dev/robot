@@ -1069,6 +1069,8 @@ class RobotWindowHelpTest(unittest.TestCase):
             body = _help_window_body_text(tops[0])
             self.assertIn("move_right()", body)
             self.assertIn(t("help.command.move_right"), body)
+            self.assertIn("field(width=8, height=6)", body)
+            self.assertIn(t("help.command.field"), body)
         finally:
             window.close()
 

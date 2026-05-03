@@ -9,6 +9,7 @@ from .i18n import t
 # (i18n key suffix under help.command.*, display signature)
 COMMAND_HELP_SPECS: tuple[tuple[str, str], ...] = (
     ("task", "task(task_id)"),
+    ("field", "field(width=8, height=6)"),
     ("move_right", "move_right()"),
     ("move_left", "move_left()"),
     ("move_up", "move_up()"),

@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "Devuelve True si la celda actual está pintada.",
   "help.command.is_cell_not_painted": "Devuelve True si la celda actual no está pintada.",
   "help.command.pol": "Devuelve el valor de contaminación de la celda actual.",
-  "help.command.printn": "Muestra un entero en la celda actual."
+  "help.command.printn": "Muestra un entero en la celda actual.",
+  "help.command.field": "Abre una cuadrícula del tamaño indicado sin archivo de tarea. Robot arriba a la izquierda; meta abajo a la derecha.",
+  "runtime.error.field_integers": "field() ancho y alto deben ser enteros",
+  "runtime.error.field_width_range": "field() el ancho debe estar entre 1 y 20",
+  "runtime.error.field_height_range": "field() la altura debe estar entre 1 y 15"
 }

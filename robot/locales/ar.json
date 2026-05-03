@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "يعيد True إذا كانت الخلية الحالية ملونة.",
   "help.command.is_cell_not_painted": "يعيد True إذا كانت الخلية الحالية غير ملونة.",
   "help.command.pol": "يعيد مستوى التلوث في الخلية الحالية.",
-  "help.command.printn": "يعرض عدداً صحيحاً في الخلية الحالية."
+  "help.command.printn": "يعرض عدداً صحيحاً في الخلية الحالية.",
+  "help.command.field": "يفتح شبكة بالحجم المعين دون تحميل ملف مهمة. الروبوت يبدأ أعلى اليسار؛ الهدف أسفل اليمين.",
+  "runtime.error.field_integers": "field() يجب أن يكون العرض والارتفاع أعدادًا صحيحة",
+  "runtime.error.field_width_range": "field() يجب أن يكون العرض بين 1 و 20",
+  "runtime.error.field_height_range": "field() يجب أن يكون الارتفاع بين 1 و 15"
 }

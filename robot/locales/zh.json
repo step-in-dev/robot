@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "若当前格子已着色则返回 True。",
   "help.command.is_cell_not_painted": "若当前格子未着色则返回 True。",
   "help.command.pol": "返回当前格子的污染值。",
-  "help.command.printn": "在当前格子中显示整数。"
+  "help.command.printn": "在当前格子中显示整数。",
+  "help.command.field": "在不加载任务文件的情况下打开指定大小的网格。机器人从左上角出发，目标为右下角。",
+  "runtime.error.field_integers": "field() 的宽度和高度必须是整数",
+  "runtime.error.field_width_range": "field() 宽度必须在 1 到 20 之间",
+  "runtime.error.field_height_range": "field() 高度必须在 1 到 15 之间"
 }

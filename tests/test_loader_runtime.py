@@ -1,3 +1,4 @@
+import contextlib
 import json
 import queue
 import re
@@ -15,9 +16,9 @@ from robot.executor import (
     StepExecutionSession,
     run_solution_on_env,
 )
-from robot.i18n import t
+from robot.i18n import clear_translation_cache, t
 from robot.loader import TaskLoadError, load_task, load_task_definition
-from robot.model import RobotEnv, RobotEnvDto
+from robot.model import RobotEnv, RobotEnvDto, RobotError
 from robot.operator_limits import (
     MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
@@ -36,6 +37,25 @@ class LoaderRuntimeTest(unittest.TestCase):
             "finalRow": 0,
             "finalCol": 0,
         }
+
+    @staticmethod
+    def _make_capture_robot_window_cls(captured: list) -> type:
+        class CaptureRobotWindow:
+            def __init__(self, **kwargs):
+                captured.append(kwargs)
+
+            def run(self) -> None:
+                pass  # Skip Tk mainloop in unit tests
+
+        return CaptureRobotWindow
+
+    @staticmethod
+    @contextlib.contextmanager
+    def _patched_main_as_script(script: Path):
+        fake_main = types.ModuleType("fake_main")
+        fake_main.__file__ = str(script)
+        with patch.dict(sys.modules, {"__main__": fake_main}):
+            yield
 
     def test_loader_reads_env_dtos_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1169,6 +1189,196 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertIsNotNone(kw["run_env"])
         self.assertTrue(callable(kw["run_env"]))
         self.assertEqual(kw["script_path"], Path(script).resolve())
+
+    def test_field_wires_robot_window_and_sys_exit(self) -> None:
+        captured: list[dict[str, object]] = []
+        Capture = self._make_capture_robot_window_cls(captured)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "student_field.py"
+            script.write_text("# student field\n", encoding="utf-8")
+            with self._patched_main_as_script(script), patch(
+                "robot.gui.RobotWindow", Capture
+            ):
+                with self.assertRaises(SystemExit) as ctx:
+                    runtime.field(7, 5)
+
+        self.assertEqual(ctx.exception.code, 0)
+        self.assertEqual(len(captured), 1)
+        kw = captured[0]
+        self.assertEqual(kw["task_id"], "field(7, 5)")
+        self.assertEqual(kw["todo_text"], "")
+        self.assertIsNone(kw["operators_limit"])
+        self.assertIsNone(kw["min_used_user_functions"])
+        envs = kw["envs"]
+        self.assertEqual(len(envs), 1)
+        env = envs[0]
+        self.assertEqual(env.width, 7)
+        self.assertEqual(env.height, 5)
+        self.assertEqual(env.start_row, 0)
+        self.assertEqual(env.start_col, 0)
+        self.assertEqual(env.final_row, 4)
+        self.assertEqual(env.final_col, 6)
+        self.assertEqual(kw["script_path"], Path(script).resolve())
+
+    def test_field_defaults_eight_by_six(self) -> None:
+        captured: list[dict[str, object]] = []
+        Capture = self._make_capture_robot_window_cls(captured)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "def_field.py"
+            script.write_text("#\n", encoding="utf-8")
+            with self._patched_main_as_script(script), patch(
+                "robot.gui.RobotWindow", Capture
+            ):
+                with self.assertRaises(SystemExit):
+                    runtime.field()
+
+        env = captured[0]["envs"][0]
+        self.assertEqual(env.width, 8)
+        self.assertEqual(env.height, 6)
+
+    def test_field_positional_width_only(self) -> None:
+        captured: list[dict[str, object]] = []
+        Capture = self._make_capture_robot_window_cls(captured)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "w10.py"
+            script.write_text("#\n", encoding="utf-8")
+            with self._patched_main_as_script(script), patch(
+                "robot.gui.RobotWindow", Capture
+            ):
+                with self.assertRaises(SystemExit):
+                    runtime.field(10)
+
+        env = captured[0]["envs"][0]
+        self.assertEqual(env.width, 10)
+        self.assertEqual(env.height, 6)
+
+    def test_field_keyword_height_only(self) -> None:
+        captured: list[dict[str, object]] = []
+        Capture = self._make_capture_robot_window_cls(captured)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "h7.py"
+            script.write_text("#\n", encoding="utf-8")
+            with self._patched_main_as_script(script), patch(
+                "robot.gui.RobotWindow", Capture
+            ):
+                with self.assertRaises(SystemExit):
+                    runtime.field(height=7)
+
+        env = captured[0]["envs"][0]
+        self.assertEqual(env.width, 8)
+        self.assertEqual(env.height, 7)
+
+    def test_field_rejects_non_integers(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "bad.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(1.5, 6)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_integers"))
+
+    def test_field_rejects_width_out_of_range(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "badw.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(0, 6)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_width_range"))
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "badw2.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(21, 6)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_width_range"))
+
+    def test_field_rejects_height_out_of_range(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "badh.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(8, 0)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_height_range"))
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "badh2.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(8, 16)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_height_range"))
+
+    def test_field_noop_during_solution_run(self) -> None:
+        one = RobotEnv(
+            RobotEnvDto.from_dict(
+                {
+                    "width": 1,
+                    "height": 1,
+                    "startRow": 0,
+                    "startCol": 0,
+                    "finalRow": 0,
+                    "finalCol": 0,
+                }
+            )
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "sol.py"
+            script.write_text(
+                "from robot import field\n"
+                "field(9, 9)\n",
+                encoding="utf-8",
+            )
+            result = run_solution_on_env(
+                script,
+                "dummy_task",
+                one,
+                command_delay_seconds=0.0,
+            )
+        self.assertEqual(result.status, "success")
+
+    def test_field_validates_before_noop_in_solution_run(self) -> None:
+        one = RobotEnv(
+            RobotEnvDto.from_dict(
+                {
+                    "width": 1,
+                    "height": 1,
+                    "startRow": 0,
+                    "startCol": 0,
+                    "finalRow": 0,
+                    "finalCol": 0,
+                }
+            )
+        )
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "bad_sol.py"
+                script.write_text(
+                    "from robot import field\n"
+                    "field(2.0, 3)\n",
+                    encoding="utf-8",
+                )
+                result = run_solution_on_env(
+                    script,
+                    "dummy_task",
+                    one,
+                    command_delay_seconds=0.0,
+                )
+        self.assertEqual(result.status, "error")
+        self.assertIn(t("runtime.error.field_integers"), result.message)
 
     def write_task(
         self,

@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "वर्तमान सेल रंगा हो तो True लौटाता है।",
   "help.command.is_cell_not_painted": "वर्तमान सेल रंगा न हो तो True लौटाता है।",
   "help.command.pol": "वर्तमान सेल का प्रदूषण मान लौटाता है।",
-  "help.command.printn": "वर्तमान सेल में पूर्णांक दिखाता है।"
+  "help.command.printn": "वर्तमान सेल में पूर्णांक दिखाता है।",
+  "help.command.field": "कार्य फ़ाइल लोड किए बिना दिए गए आकार का ग्रिड खोलता है। रोबोट ऊपर-बाएँ; लक्ष्य नीचे-दाएँ।",
+  "runtime.error.field_integers": "field() चौड़ाई और ऊँचाई पूर्णांक होनी चाहिए",
+  "runtime.error.field_width_range": "field() चौड़ाई 1 से 20 के बीच होनी चाहिए",
+  "runtime.error.field_height_range": "field() ऊँचाई 1 से 15 के बीच होनी चाहिए"
 }

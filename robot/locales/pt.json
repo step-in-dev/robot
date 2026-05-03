@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "Retorna True se a célula atual estiver pintada.",
   "help.command.is_cell_not_painted": "Retorna True se a célula atual não estiver pintada.",
   "help.command.pol": "Retorna o nível de poluição da célula atual.",
-  "help.command.printn": "Exibe um inteiro na célula atual."
+  "help.command.printn": "Exibe um inteiro na célula atual.",
+  "help.command.field": "Abre uma grade do tamanho indicado sem carregar arquivo de tarefa. Robô no canto superior esquerdo; meta no inferior direito.",
+  "runtime.error.field_integers": "field() largura e altura devem ser inteiros",
+  "runtime.error.field_width_range": "field() a largura deve estar entre 1 e 20",
+  "runtime.error.field_height_range": "field() a altura deve estar entre 1 e 15"
 }

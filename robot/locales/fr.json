@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "Renvoie True si la case actuelle est peinte.",
   "help.command.is_cell_not_painted": "Renvoie True si la case actuelle n'est pas peinte.",
   "help.command.pol": "Renvoie le niveau de pollution de la case actuelle.",
-  "help.command.printn": "Affiche un entier dans la case actuelle."
+  "help.command.printn": "Affiche un entier dans la case actuelle.",
+  "help.command.field": "Ouvre une grille de taille donnée sans charger de fichier de tâche. Robot en haut à gauche, objectif en bas à droite.",
+  "runtime.error.field_integers": "field() : la largeur et la hauteur doivent être des entiers",
+  "runtime.error.field_width_range": "field() : la largeur doit être entre 1 et 20",
+  "runtime.error.field_height_range": "field() : la hauteur doit être entre 1 et 15"
 }

@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "Повертає True, якщо поточна клітина пофарбована.",
   "help.command.is_cell_not_painted": "Повертає True, якщо поточна клітина не пофарбована.",
   "help.command.pol": "Повертає рівень забруднення поточної клітини.",
-  "help.command.printn": "Виводить ціле число в поточній клітині."
+  "help.command.printn": "Виводить ціле число в поточній клітині.",
+  "help.command.field": "Відкриває поле заданого розміру без файлу завдання. Робот у лівому верхньому куті; ціль — правий нижній.",
+  "runtime.error.field_integers": "field() ширина та висота мають бути цілими числами",
+  "runtime.error.field_width_range": "field() ширина має бути від 1 до 20",
+  "runtime.error.field_height_range": "field() висота має бути від 1 до 15"
 }

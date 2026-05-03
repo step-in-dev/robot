@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "Geeft True als de huidige cel geverfd is.",
   "help.command.is_cell_not_painted": "Geeft True als de huidige cel niet geverfd is.",
   "help.command.pol": "Geeft de vervuilingswaarde van de huidige cel.",
-  "help.command.printn": "Toont een geheel getal in de huidige cel."
+  "help.command.printn": "Toont een geheel getal in de huidige cel.",
+  "help.command.field": "Opent een raster van de gegeven grootte zonder opdrachtbestand te laden. Robot linksboven; doel rechtsonder.",
+  "runtime.error.field_integers": "field() breedte en hoogte moeten gehele getallen zijn",
+  "runtime.error.field_width_range": "field() breedte moet tussen 1 en 20 liggen",
+  "runtime.error.field_height_range": "field() hoogte moet tussen 1 en 15 liggen"
 }

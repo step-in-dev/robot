@@ -51,5 +51,9 @@
   "help.command.is_cell_painted": "اگر موجودہ خانہ رنگا ہوا ہو تو True واپس کرتا ہے۔",
   "help.command.is_cell_not_painted": "اگر موجودہ خانہ رنگا ہوا نہ ہو تو True واپس کرتا ہے۔",
   "help.command.pol": "موجودہ خانے کی آلودگی کی سطح واپس کرتا ہے۔",
-  "help.command.printn": "موجودہ خانے میں ایک عدد صحیح دکھاتا ہے۔"
+  "help.command.printn": "موجودہ خانے میں ایک عدد صحیح دکھاتا ہے۔",
+  "help.command.field": "ٹاسک فائل لوڈ کیے بغیر دیے گئے سائز کا گرِڈ کھولتا ہے۔ روبوٹ اوپر بائیں؛ ہدف نیچے دائیں۔",
+  "runtime.error.field_integers": "field() چوڑائی اور اونچائی مکمل اعداد ہونی چاہئیں",
+  "runtime.error.field_width_range": "field() چوڑائی 1 سے 20 کے درمیان ہونی چاہیے",
+  "runtime.error.field_height_range": "field() اونچائی 1 سے 15 کے درمیان ہونی چاہیے"
 }

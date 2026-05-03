@@ -1,4 +1,5 @@
 from .runtime import (
+    field,
     is_cell_not_painted,
     is_cell_painted,
     is_free_down,
@@ -20,6 +21,7 @@ from .runtime import (
 )
 
 __all__ = [
+    "field",
     "move_right",
     "move_left",
     "move_up",

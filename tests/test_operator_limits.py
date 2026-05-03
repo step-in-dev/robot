@@ -29,9 +29,10 @@ class CountRobotOperatorsTest(unittest.TestCase):
         src = "for _ in range(10):\n    move_right()\n"
         self.assertEqual(count_robot_operators(src), 1)
 
-    def test_ignores_probes_pol_task(self) -> None:
+    def test_counts_only_move_paint_printn_among_other_calls(self) -> None:
         src = (
             "task('x')\n"
+            "field(8, 6)\n"
             "if is_free_right():\n"
             "    move_right()\n"
             "pol()\n"
