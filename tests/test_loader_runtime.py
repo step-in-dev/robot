@@ -39,7 +39,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
     def test_loader_reads_env_dtos_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "line.json"
+            task_file = Path(temp_dir) / "line.env"
             task_file.write_text(
                 json.dumps(
                     {
@@ -72,7 +72,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
     def test_load_task_definition_reads_operators_limit(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "lim.json"
+            task_file = Path(temp_dir) / "lim.env"
             task_file.write_text(
                 json.dumps(
                     {
@@ -99,7 +99,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
     def test_load_task_definition_reads_min_used_user_functions(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "uf.json"
+            task_file = Path(temp_dir) / "uf.env"
             task_file.write_text(
                 json.dumps(
                     {
@@ -144,7 +144,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             base_path = Path(temp_dir)
             for name, limit_value in invalid_cases.items():
-                (base_path / f"{name}.json").write_text(
+                (base_path / f"{name}.env").write_text(
                     json.dumps(
                         {"envDtos": [base_env], "operatorsLimit": limit_value}
                     ),
@@ -179,7 +179,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             base_path = Path(temp_dir)
             for name, value in invalid_cases.items():
-                (base_path / f"uf_{name}.json").write_text(
+                (base_path / f"uf_{name}.env").write_text(
                     json.dumps(
                         {
                             "envDtos": [base_env],
@@ -196,7 +196,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
     def test_load_task_definition_without_todo_text(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "minimal.json"
+            task_file = Path(temp_dir) / "minimal.env"
             task_file.write_text(
                 json.dumps(
                     {
@@ -227,7 +227,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             base_path = Path(temp_dir)
 
-            (base_path / "empty.json").write_text(
+            (base_path / "empty.env").write_text(
                 json.dumps(
                     {
                         "envDtos": [
@@ -245,7 +245,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            (base_path / "bad_type.json").write_text(
+            (base_path / "bad_type.env").write_text(
                 json.dumps(
                     {
                         "envDtos": [
@@ -292,7 +292,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         ]
         with tempfile.TemporaryDirectory() as temp_dir:
             for task_id, _lang, todo, _expected in cases:
-                (Path(temp_dir) / f"{task_id}.json").write_text(
+                (Path(temp_dir) / f"{task_id}.env").write_text(
                     json.dumps({"envDtos": [base_env], "todoText": todo}),
                     encoding="utf-8",
                 )
@@ -313,7 +313,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         base_env = self._minimal_env_dto()
         todo = {"ru_RU.UTF-8": "Из ru_RU", "en-GB": "From en-GB"}
         with tempfile.TemporaryDirectory() as temp_dir:
-            (Path(temp_dir) / "loc_reg.json").write_text(
+            (Path(temp_dir) / "loc_reg.env").write_text(
                 json.dumps({"envDtos": [base_env], "todoText": todo}),
                 encoding="utf-8",
             )
@@ -341,7 +341,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         ]
         with tempfile.TemporaryDirectory() as temp_dir:
             for name, todo in cases:
-                (Path(temp_dir) / f"{name}.json").write_text(
+                (Path(temp_dir) / f"{name}.env").write_text(
                     json.dumps({"envDtos": [base_env], "todoText": todo}),
                     encoding="utf-8",
                 )
@@ -356,7 +356,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
     def test_loader_rejects_legacy_environments_format(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            task_file = Path(temp_dir) / "legacy.json"
+            task_file = Path(temp_dir) / "legacy.env"
             task_file.write_text(
                 json.dumps(
                     {
@@ -1204,7 +1204,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         operators_limit=None,
         min_used_user_functions=None,
     ):
-        task_file = Path(temp_dir) / f"{task_id}.json"
+        task_file = Path(temp_dir) / f"{task_id}.env"
         payload = {"envDtos": env_dtos}
         if todo_text is not None:
             payload["todoText"] = todo_text

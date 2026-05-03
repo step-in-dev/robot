@@ -11,6 +11,7 @@ from .model import RobotEnv, RobotEnvDto
 
 
 TASKS_DIR_ENV = "ROBOT_TASKS_DIR"
+TASK_FILE_EXTENSION = ".env"
 
 
 class TaskLoadError(Exception):
@@ -60,7 +61,11 @@ def load_task_definition(task_id: str) -> RobotTask:
 
 
 def find_task_file(task_id: str) -> Path:
-    task_name = task_id if task_id.endswith(".json") else f"{task_id}.json"
+    task_name = (
+        task_id
+        if task_id.endswith(TASK_FILE_EXTENSION)
+        else f"{task_id}{TASK_FILE_EXTENSION}"
+    )
     candidates = []
 
     external_dir = os.environ.get(TASKS_DIR_ENV)
