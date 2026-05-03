@@ -307,6 +307,37 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         finally:
             window.close()
 
+    def test_run_all_shows_restore_disabled_while_running(self) -> None:
+        """Restore label appears immediately; disabled Restore ignores invokes during run."""
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+
+        window = RobotWindow("restore_while_run", envs, None, initial_index=0)
+        try:
+            btn = window.action_button
+            self.assertIsNotNone(btn)
+
+            def run_env(env: RobotEnv) -> RunResult:
+                self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+                self.assertEqual(btn.cget("state"), tk.DISABLED)
+                idx_before = window.selected_index
+                btn.invoke()
+                window.root.update()
+                self.assertEqual(
+                    window.selected_index,
+                    idx_before,
+                    "Disabled Restore must not reset env selection mid-run",
+                )
+                env.robot.move_right()
+                return RunResult(status="success", message="ok")
+
+            window.run_env = run_env
+            window.run_all()
+            self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 1))
+            window.root.update()
+            self.assertEqual(btn.cget("state"), tk.NORMAL)
+        finally:
+            window.close()
+
     def test_queued_invokes_during_run_do_not_restore_then_rerun(self) -> None:
         """Queued button invokes while disabled must not restore then start run_all."""
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
@@ -771,6 +802,12 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
                 def run_env(_env: RobotEnv) -> RunResult:
                     self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+                    self.assertEqual(
+                        window.action_button.cget("text"), ACTION_BUTTON_RESTORE
+                    )
+                    self.assertEqual(
+                        window.action_button.cget("state"), tk.DISABLED
+                    )
                     return RunResult(status="success", message="ok")
 
                 window.run_env = run_env
@@ -889,6 +926,83 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                     window.step_button,
                     window.controls.pack_slaves(),
                 )
+            finally:
+                window.close()
+
+    def test_first_step_shows_restore_enabled_and_keeps_step_visible(self) -> None:
+        """After starting step debug, Restore is active while waiting for the next line."""
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base))]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "two_lines.py"
+            script.write_text(
+                "from robot import move_right\nmove_right()\n",
+                encoding="utf-8",
+            )
+            window = RobotWindow(
+                "step_restore_visible",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+            )
+            try:
+
+                def wait_assert_then_unblock() -> None:
+                    btn = window.action_button
+                    self.assertIsNotNone(btn)
+                    self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
+                    self.assertEqual(btn.cget("state"), tk.NORMAL)
+                    self.assertIn(window.step_button, window.controls.pack_slaves())
+                    self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+                    self.assertIsNotNone(window._step_session)
+                    window._step_session.allow_one_step()
+                    window._step_release_token += 1
+
+                window._wait_for_next_step_impl = wait_assert_then_unblock
+                window.step_once()
+            finally:
+                window.close()
+
+    def test_restore_during_step_wait_resets_field(self) -> None:
+        """Restore while paused between steps cancels stepping and resets the grid."""
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base))]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "step_then_move.py"
+            script.write_text(
+                "from robot import move_right\nmove_right()\n",
+                encoding="utf-8",
+            )
+            window = RobotWindow(
+                "restore_mid_step",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+            )
+            try:
+                saved_wait = window._wait_for_next_step_impl
+
+                def wait_schedule_restore() -> None:
+                    window.root.after(0, window.restore)
+                    saved_wait()
+
+                window._wait_for_next_step_impl = wait_schedule_restore
+                window.step_once()
+                self.assertIsNone(window._step_session)
+                self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
+                self.assertIn(window.step_button, window.controls.pack_slaves())
+                self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
+                self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
             finally:
                 window.close()
 

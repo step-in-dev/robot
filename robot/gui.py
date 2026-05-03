@@ -263,7 +263,9 @@ class RobotWindow:
                 hatched=True,
             )
         self.draw_field()
-        self._set_action_to_restore_after_idle()
+        self._set_action_to_restore(
+            disabled=True, hide_step=True, enable_after_idle=True
+        )
 
     def _cancel_step_wake_only(self) -> None:
         if self._step_session is None:
@@ -290,8 +292,7 @@ class RobotWindow:
             )
             self._step_tabs_locked = True
             self.configure_tab_buttons()
-            if self.action_button is not None:
-                self.action_button.configure(state=tk.DISABLED)
+            self._set_action_to_restore(disabled=False, hide_step=False)
 
         self._step_session.allow_one_step()
         self._step_release_token += 1
@@ -481,25 +482,28 @@ class RobotWindow:
             return
         self.action_button.configure(state=tk.NORMAL)
 
-    def _set_action_to_restore_after_idle(self) -> None:
-        """Show Restore while disabled so queued clicks drain before the button is clickable."""
+    def _set_action_to_restore(
+        self,
+        *,
+        disabled: bool,
+        hide_step: bool,
+        enable_after_idle: bool = False,
+    ) -> None:
+        """Main button becomes Restore; optionally hide Step and defer enabling after idle."""
         self._cancel_pending_restore_enable_after()
         if self.action_button is None:
             return
         self.action_button.configure(
             text=ACTION_BUTTON_RESTORE,
             command=self.restore,
-            state=tk.DISABLED,
+            state=tk.DISABLED if disabled else tk.NORMAL,
         )
-        self._hide_step_button_from_controls()
-        self._pending_restore_enable_after_id = self.root.after_idle(
-            self._enable_action_button_if_current
-        )
-
-    def _disable_action_button(self) -> None:
-        if self.action_button is None:
-            return
-        self.action_button.configure(state=tk.DISABLED)
+        if hide_step:
+            self._hide_step_button_from_controls()
+        if enable_after_idle:
+            self._pending_restore_enable_after_id = self.root.after_idle(
+                self._enable_action_button_if_current
+            )
 
     def restore(self) -> None:
         self._cancel_step_wake_only()
@@ -517,7 +521,7 @@ class RobotWindow:
         try:
             if self.step_button is not None:
                 self.step_button.configure(state=tk.DISABLED)
-            self._disable_action_button()
+            self._set_action_to_restore(disabled=True, hide_step=False)
             self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
             self.root.update_idletasks()
 
@@ -532,7 +536,9 @@ class RobotWindow:
             self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
         finally:
             try:
-                self._set_action_to_restore_after_idle()
+                self._set_action_to_restore(
+                    disabled=True, hide_step=True, enable_after_idle=True
+                )
             finally:
                 self._is_run_all_active = False
 
