@@ -518,6 +518,21 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         finally:
             window.close()
 
+    def test_escape_from_canvas_closes_window(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("escape_canvas", envs, run_env, initial_index=0)
+        try:
+            window.canvas.focus_set()
+            window.canvas.event_generate("<Escape>", when="tail")
+            window.root.update()
+            self.assertTrue(window.is_closed)
+        finally:
+            window.close()
+
 
 @unittest.skipUnless(
     _tkinter_display_works(),
@@ -1071,6 +1086,35 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertIn(t("help.command.move_right"), body)
             self.assertIn("field(width=8, height=6)", body)
             self.assertIn(t("help.command.field"), body)
+        finally:
+            window.close()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_help_escape_dismisses_help_but_not_main(self) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("help_escape", envs, run_env, initial_index=0)
+        try:
+            window.show_help()
+            window.root.update()
+            tops = _help_toplevel_children(window.root)
+            self.assertEqual(len(tops), 1)
+            help_top = tops[0]
+            text = _find_first_text_widget(help_top)
+            self.assertIsNotNone(text)
+            text.focus_set()
+            text.event_generate("<Escape>", when="tail")
+            window.root.update()
+            self.assertIsNone(window._help_window)
+            self.assertIsNone(window._help_window_close_handler)
+            self.assertFalse(window.is_closed)
+            self.assertEqual(window.root.winfo_exists(), 1)
         finally:
             window.close()
 

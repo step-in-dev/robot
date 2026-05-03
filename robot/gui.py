@@ -41,6 +41,8 @@ from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip
 
+_ESCAPE_BINDING = "<Escape>"
+
 
 class RobotWindow:
     def __init__(
@@ -179,6 +181,7 @@ class RobotWindow:
         self.root.bind(
             "<KeyRelease-KP_Enter>", self._handle_action_enter_release
         )
+        self.root.bind(_ESCAPE_BINDING, self._handle_escape_close)
 
         initial_status = STATUS_READY
         self._status_strip = StatusStrip(
@@ -357,6 +360,11 @@ class RobotWindow:
             return "break"
         return None
 
+    def _handle_escape_close(self, _event: tk.Event) -> str | None:
+        """Close the robot window like the window manager close button."""
+        self.close()
+        return "break"
+
     def _deferred_clear_enter_ignore(self) -> None:
         if self.is_closed:
             return
@@ -424,6 +432,12 @@ class RobotWindow:
 
         self._help_window_close_handler = _clear_help_ref
         help_win.protocol("WM_DELETE_WINDOW", self._help_window_close_handler)
+
+        def _handle_help_escape(_event: tk.Event) -> str | None:
+            _clear_help_ref()
+            return "break"
+
+        help_win.bind(_ESCAPE_BINDING, _handle_help_escape)
 
         frame = tk.Frame(help_win, padx=10, pady=10)
         frame.pack(fill=tk.BOTH, expand=True)
