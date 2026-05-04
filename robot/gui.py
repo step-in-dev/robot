@@ -159,6 +159,7 @@ class RobotWindow:
             self.controls_left,
             text=ACTION_BUTTON_RUN,
             command=self.run_all,
+            width=max(len(ACTION_BUTTON_RUN), len(ACTION_BUTTON_RESTORE)),
         )
         self.action_button.pack(side=tk.LEFT)
         self.step_button = tk.Button(
