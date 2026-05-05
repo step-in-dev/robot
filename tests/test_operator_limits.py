@@ -4,12 +4,12 @@ import unittest
 from unittest.mock import patch
 
 from robot.operator_limits import (
-    MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
+    CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
-    check_min_used_user_functions,
+    check_custom_function_call_count,
     check_operators_limit,
     count_robot_operators,
-    count_used_user_functions_with_robot_commands,
+    count_custom_function_calls_with_robot_commands,
 )
 
 
@@ -64,15 +64,15 @@ class CheckOperatorsLimitTest(unittest.TestCase):
         )
 
 
-class CountUsedUserFunctionsTest(unittest.TestCase):
-    def test_counts_function_with_call_and_robot_command(self) -> None:
+class CountCustomFunctionCallsTest(unittest.TestCase):
+    def test_counts_qualifying_module_level_call(self) -> None:
         src = (
             "def step():\n"
             "    move_right()\n"
             "\n"
             "step()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 1)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 1)
 
     def test_declared_but_not_called_not_counted(self) -> None:
         src = (
@@ -81,7 +81,7 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "\n"
             "move_right()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_called_without_robot_command_not_counted(self) -> None:
         src = (
@@ -91,9 +91,9 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "helper()\n"
             "move_right()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
-    def test_robot_outside_function_does_not_count_function(self) -> None:
+    def test_robot_outside_function_does_not_make_call_qualify(self) -> None:
         src = (
             "def helper():\n"
             "    pass\n"
@@ -101,9 +101,9 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "helper()\n"
             "move_right()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
-    def test_two_distinct_functions(self) -> None:
+    def test_two_distinct_qualifying_calls(self) -> None:
         src = (
             "def a():\n"
             "    move_right()\n"
@@ -114,11 +114,21 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "a()\n"
             "b()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 2)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 2)
+
+    def test_two_calls_to_same_function_count_twice(self) -> None:
+        src = (
+            "def step():\n"
+            "    move_right()\n"
+            "\n"
+            "step()\n"
+            "step()\n"
+        )
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 2)
 
     def test_builtin_call_not_counted_without_def(self) -> None:
         src = "len([])\nmove_right()\n"
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_nested_def_robot_does_not_satisfy_outer(self) -> None:
         src = (
@@ -129,7 +139,7 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "\n"
             "outer()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_robot_only_inside_lambda_does_not_satisfy_outer(self) -> None:
         src = (
@@ -138,7 +148,7 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "\n"
             "outer()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_self_recursive_not_called_from_module_not_counted(self) -> None:
         src = (
@@ -146,7 +156,7 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "    move_right()\n"
             "    step()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_called_only_from_unused_function_not_counted(self) -> None:
         src = (
@@ -156,7 +166,7 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "def unused():\n"
             "    step()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 0)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 0)
 
     def test_transitive_call_from_reachable_function_counts_inner(self) -> None:
         src = (
@@ -168,9 +178,9 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "\n"
             "go()\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 1)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 1)
 
-    def test_recursive_called_from_module_does_not_loop(self) -> None:
+    def test_recursive_called_from_module_counts_each_call_site_once(self) -> None:
         src = (
             "def rec(n):\n"
             "    if n:\n"
@@ -179,22 +189,22 @@ class CountUsedUserFunctionsTest(unittest.TestCase):
             "\n"
             "rec(1)\n"
         )
-        self.assertEqual(count_used_user_functions_with_robot_commands(src), 1)
+        self.assertEqual(count_custom_function_calls_with_robot_commands(src), 2)
 
 
-class CheckMinUsedUserFunctionsTest(unittest.TestCase):
+class CheckCustomFunctionCallCountTest(unittest.TestCase):
     def test_none_skips(self) -> None:
         self.assertIsNone(
-            check_min_used_user_functions("def f():\n    pass\nf()", None)
+            check_custom_function_call_count("def f():\n    pass\nf()", None)
         )
 
     def test_zero_always_passes(self) -> None:
         self.assertIsNone(
-            check_min_used_user_functions("move_right()", 0)
+            check_custom_function_call_count("move_right()", 0)
         )
 
     def test_violation_message(self) -> None:
-        v = check_min_used_user_functions(
+        v = check_custom_function_call_count(
             "move_right()",
             1,
         )
@@ -204,7 +214,7 @@ class CheckMinUsedUserFunctionsTest(unittest.TestCase):
         self.assertEqual(v.required, 1)
         self.assertEqual(
             v.message,
-            MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE.format(
+            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
                 actual=0,
                 required=1,
             ),
@@ -227,6 +237,16 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             self.assertEqual(
                 i18n.t("limit.operators", actual=3, limit=2),
                 "Использовано команд Робота: 3. Разрешено не более 2",
+            )
+
+    def test_custom_function_call_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.custom_function_calls", actual=3, required=2),
+                "Вызовов пользовательских функций: 3. Требуется не менее 2",
             )
 
 

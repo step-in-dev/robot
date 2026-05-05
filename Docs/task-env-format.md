@@ -18,7 +18,7 @@ Each task file must contain a JSON object with the following fields:
 - `envDtos` (required): array of environment definitions. The task is invalid if this field is missing, is not an array, or resolves to an empty environment list.
 - `todoText` (optional): task description shown in the UI.
 - `operatorsLimit` (optional): non-negative integer limit for the number of written operators in the student solution.
-- `minUsedUserFunctions` (optional): non-negative integer requirement for the number of user-defined functions that must be both declared and called.
+- `customFunctionCallCount` (optional): non-negative integer requirement for the number of qualifying calls to user-defined functions.
 
 ## `todoText`
 
@@ -35,6 +35,22 @@ When a localized object is used, the loader:
 4. Uses an empty string if no suitable value is found.
 
 Non-string values inside the localization object are ignored.
+
+## `customFunctionCallCount`
+
+`customFunctionCallCount` is checked statically from the student source code before execution.
+
+A call counts only when all of the following are true:
+
+1. The target is a top-level user-defined function from the same solution.
+2. That function is reachable from module-level calls under the same AST rules used by the checker.
+3. The function body contains Robot commands such as `move_right()`, `move_left()`, `move_up()`, `move_down()`, `paint()`, or `printn()`.
+4. The counted call itself is outside nested scopes that the checker ignores, such as nested `def`, `class`, or `lambda`.
+
+Examples:
+
+- `customFunctionCallCount: 2` is satisfied by one user-defined function called twice.
+- `customFunctionCallCount: 2` is also satisfied by two different qualifying user-defined functions called once each.
 
 ## `envDtos` Entry Format
 
@@ -135,6 +151,6 @@ Wall segment:
     "ru": "Закрась и выведи нужные клетки"
   },
   "operatorsLimit": 10,
-  "minUsedUserFunctions": 1
+  "customFunctionCallCount": 1
 }
 ```

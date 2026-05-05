@@ -23,7 +23,7 @@ class RobotTask:
     envs: list[RobotEnv]
     todo_text: str
     operators_limit: int | None = None
-    min_used_user_functions: int | None = None
+    custom_function_call_count: int | None = None
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
@@ -46,7 +46,7 @@ def load_task_definition(task_id: str) -> RobotTask:
 
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
     operators_limit = parse_operators_limit(data, task_path)
-    min_used_user_functions = parse_min_used_user_functions(data, task_path)
+    custom_function_call_count = parse_custom_function_call_count(data, task_path)
     environments = [
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
@@ -56,7 +56,7 @@ def load_task_definition(task_id: str) -> RobotTask:
         envs=environments,
         todo_text=todo_text,
         operators_limit=operators_limit,
-        min_used_user_functions=min_used_user_functions,
+        custom_function_call_count=custom_function_call_count,
     )
 
 
@@ -152,12 +152,12 @@ def parse_operators_limit(data: dict, task_path: Path) -> int | None:
     return value
 
 
-def parse_min_used_user_functions(data: dict, task_path: Path) -> int | None:
-    if "minUsedUserFunctions" not in data:
+def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
+    if "customFunctionCallCount" not in data:
         return None
-    value = data["minUsedUserFunctions"]
+    value = data["customFunctionCallCount"]
     if type(value) is not int or value < 0:
         raise TaskLoadError(
-            t("loader.min_user_functions_invalid", task_path=task_path)
+            t("loader.custom_function_call_count_invalid", task_path=task_path)
         )
     return value

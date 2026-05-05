@@ -20,7 +20,7 @@ from robot.i18n import clear_translation_cache, t
 from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto, RobotError
 from robot.operator_limits import (
-    MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE,
+    CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
 )
 
@@ -88,7 +88,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(envs[0].final_col, 1)
         self.assertEqual(task.todo_text, "Reach the end")
         self.assertIsNone(task.operators_limit)
-        self.assertIsNone(task.min_used_user_functions)
+        self.assertIsNone(task.custom_function_call_count)
 
     def test_load_task_definition_reads_operators_limit(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -117,7 +117,7 @@ class LoaderRuntimeTest(unittest.TestCase):
 
         self.assertEqual(task.operators_limit, 5)
 
-    def test_load_task_definition_reads_min_used_user_functions(self) -> None:
+    def test_load_task_definition_reads_custom_function_call_count(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "uf.env"
             task_file.write_text(
@@ -133,7 +133,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                                 "finalCol": 0,
                             }
                         ],
-                        "minUsedUserFunctions": 2,
+                        "customFunctionCallCount": 2,
                     }
                 ),
                 encoding="utf-8",
@@ -142,7 +142,7 @@ class LoaderRuntimeTest(unittest.TestCase):
             with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
                 task = load_task_definition("uf")
 
-        self.assertEqual(task.min_used_user_functions, 2)
+        self.assertEqual(task.custom_function_call_count, 2)
 
     def test_load_task_definition_rejects_invalid_operators_limit(self) -> None:
         base_env = {
@@ -176,7 +176,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                     with self.assertRaises(TaskLoadError):
                         load_task_definition(name)
 
-    def test_load_task_definition_rejects_invalid_min_used_user_functions(
+    def test_load_task_definition_rejects_invalid_custom_function_call_count(
         self,
     ) -> None:
         base_env = {
@@ -203,7 +203,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                     json.dumps(
                         {
                             "envDtos": [base_env],
-                            "minUsedUserFunctions": value,
+                            "customFunctionCallCount": value,
                         }
                     ),
                     encoding="utf-8",
@@ -241,7 +241,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(task.todo_text, "")
         self.assertEqual(len(task.envs), 1)
         self.assertIsNone(task.operators_limit)
-        self.assertIsNone(task.min_used_user_functions)
+        self.assertIsNone(task.custom_function_call_count)
 
     def test_load_task_definition_empty_or_invalid_todo_text_normalized(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -543,7 +543,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 3))
 
-    def test_runtime_min_used_user_functions_exceeded_returns_wrong_without_running(
+    def test_runtime_custom_function_call_count_exceeded_returns_wrong_without_running(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -569,21 +569,21 @@ class LoaderRuntimeTest(unittest.TestCase):
                 script,
                 "uf1",
                 env,
-                min_used_user_functions=1,
+                custom_function_call_count=1,
             )
 
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
         self.assertEqual(
             result.message,
-            MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE.format(
+            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
                 actual=0,
                 required=1,
             ),
         )
         self.assertEqual((env.robot.row, env.robot.col), (0, 0))
 
-    def test_runtime_min_used_user_functions_rejects_empty_called_function(
+    def test_runtime_custom_function_call_count_rejects_empty_called_function(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -613,14 +613,14 @@ class LoaderRuntimeTest(unittest.TestCase):
                 script,
                 "uf1",
                 env,
-                min_used_user_functions=1,
+                custom_function_call_count=1,
             )
 
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
         self.assertEqual((env.robot.row, env.robot.col), (0, 0))
 
-    def test_runtime_min_used_user_functions_allows_defined_and_called_function(
+    def test_runtime_custom_function_call_count_allows_defined_and_called_function(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -650,13 +650,94 @@ class LoaderRuntimeTest(unittest.TestCase):
                 script,
                 "uf1",
                 env,
-                min_used_user_functions=1,
+                custom_function_call_count=1,
             )
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_min_used_user_functions_none_allows_plain_solution(self) -> None:
+    def test_runtime_custom_function_call_count_requires_two_calls_not_one(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import move_right\n\n"
+                "def step():\n"
+                "    move_right()\n"
+                "\n"
+                "step()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "uf2",
+                env,
+                custom_function_call_count=2,
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
+                actual=1,
+                required=2,
+            ),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_runtime_custom_function_call_count_allows_two_calls_to_same_function(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import move_right\n\n"
+                "def step():\n"
+                "    move_right()\n"
+                "\n"
+                "step()\n"
+                "step()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 3,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 2,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "uf2",
+                env,
+                custom_function_call_count=2,
+            )
+
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
+
+    def test_runtime_custom_function_call_count_none_allows_plain_solution(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
@@ -719,7 +800,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         )
         self.assertEqual((env.robot.row, env.robot.col), (0, 0))
 
-    def test_step_session_min_used_user_functions_exceeded_before_exec(
+    def test_step_session_custom_function_call_count_exceeded_before_exec(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -747,7 +828,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                min_used_user_functions=1,
+                custom_function_call_count=1,
             )
             result = session.start()
 
@@ -755,7 +836,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(result.status, "wrong")
         self.assertEqual(
             result.message,
-            MIN_USED_USER_FUNCTIONS_MESSAGE_TEMPLATE.format(
+            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
                 actual=0,
                 required=1,
             ),
@@ -1155,7 +1236,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 [self._minimal_env_dto()],
                 todo_text={"en": "Note", "ru": "Записка"},
                 operators_limit=42,
-                min_used_user_functions=7,
+                custom_function_call_count=7,
             )
 
             fake_main = types.ModuleType("fake_main")
@@ -1185,7 +1266,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["task_id"], "trace_task")
         self.assertEqual(kw["todo_text"], "Записка")
         self.assertEqual(kw["operators_limit"], 42)
-        self.assertEqual(kw["min_used_user_functions"], 7)
+        self.assertEqual(kw["custom_function_call_count"], 7)
         self.assertIsNotNone(kw["run_env"])
         self.assertTrue(callable(kw["run_env"]))
         self.assertEqual(kw["script_path"], Path(script).resolve())
@@ -1209,7 +1290,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["task_id"], "field(7, 5)")
         self.assertEqual(kw["todo_text"], "")
         self.assertIsNone(kw["operators_limit"])
-        self.assertIsNone(kw["min_used_user_functions"])
+        self.assertIsNone(kw["custom_function_call_count"])
         envs = kw["envs"]
         self.assertEqual(len(envs), 1)
         env = envs[0]
@@ -1387,7 +1468,7 @@ class LoaderRuntimeTest(unittest.TestCase):
         env_dtos,
         todo_text=None,
         operators_limit=None,
-        min_used_user_functions=None,
+        custom_function_call_count=None,
     ):
         task_file = Path(temp_dir) / f"{task_id}.env"
         payload = {"envDtos": env_dtos}
@@ -1395,8 +1476,8 @@ class LoaderRuntimeTest(unittest.TestCase):
             payload["todoText"] = todo_text
         if operators_limit is not None:
             payload["operatorsLimit"] = operators_limit
-        if min_used_user_functions is not None:
-            payload["minUsedUserFunctions"] = min_used_user_functions
+        if custom_function_call_count is not None:
+            payload["customFunctionCallCount"] = custom_function_call_count
         task_file.write_text(
             json.dumps(payload),
             encoding="utf-8",

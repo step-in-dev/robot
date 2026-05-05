@@ -53,7 +53,7 @@ def _launch_student_robot_window(
     envs: list[RobotEnv],
     todo_text: str,
     operators_limit: int | None,
-    min_used_user_functions: int | None,
+    custom_function_call_count: int | None,
 ) -> None:
     """Open the GUI and run the student script against *envs*; never returns normally."""
     script_path = _detect_student_script()
@@ -68,12 +68,12 @@ def _launch_student_robot_window(
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
             operators_limit=operators_limit,
-            min_used_user_functions=min_used_user_functions,
+            custom_function_call_count=custom_function_call_count,
         ),
         todo_text=todo_text,
         script_path=script_path,
         operators_limit=operators_limit,
-        min_used_user_functions=min_used_user_functions,
+        custom_function_call_count=custom_function_call_count,
     )
     window.run()
     raise SystemExit(0)
@@ -94,7 +94,7 @@ def task(task_id: str) -> None:
         envs=task_definition.envs,
         todo_text=task_definition.todo_text,
         operators_limit=task_definition.operators_limit,
-        min_used_user_functions=task_definition.min_used_user_functions,
+        custom_function_call_count=task_definition.custom_function_call_count,
     )
 
 
@@ -135,7 +135,7 @@ def field(width: int = 8, height: int = 6) -> None:
         envs=_synthetic_field_envs(width_i, height_i),
         todo_text="",
         operators_limit=None,
-        min_used_user_functions=None,
+        custom_function_call_count=None,
     )
 
 

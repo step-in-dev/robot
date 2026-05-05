@@ -54,14 +54,14 @@ class RobotWindow:
         todo_text: str = "",
         script_path: Path | None = None,
         operators_limit: int | None = None,
-        min_used_user_functions: int | None = None,
+        custom_function_call_count: int | None = None,
     ):
         self.task_id = task_id
         self.envs = envs
         self.run_env = run_env
         self.script_path = script_path
         self.operators_limit = operators_limit
-        self.min_used_user_functions = min_used_user_functions
+        self.custom_function_call_count = custom_function_call_count
         self.selected_index = initial_index
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
@@ -297,7 +297,7 @@ class RobotWindow:
                 wait_for_next_step=self._wait_for_next_step_impl,
                 command_delay_seconds=0.0,
                 operators_limit=self.operators_limit,
-                min_used_user_functions=self.min_used_user_functions,
+                custom_function_call_count=self.custom_function_call_count,
             )
             self._step_tabs_locked = True
             self.configure_tab_buttons()
