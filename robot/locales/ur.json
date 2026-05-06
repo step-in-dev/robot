@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "ماحول کا فیلڈ غائب: {field}",
   "model.error.invalid_env_format": "غلط روبوٹ ماحول کی شکل",
   "runtime.error.expected_task": "متوقع کام '{expected}'، ملا '{got}'",
-  "runtime.error.task_from_file": "task() کو پائتھون فائل سے بلانا ضروری ہے",
+  "runtime.error.task_from_file": "کام کا حل ایک فائل میں محفوظ ہونا چاہیے",
   "runtime_state.error.commands_after_task": "روبوٹ کمانڈز صرف اس وقت استعمال ہو سکتی ہیں جب task() حل چلا دے",
   "loader.cannot_read_task_file": "کام کی فائل نہیں پڑھی جا سکی: {task_path}",
   "loader.invalid_json": "کام کی فائل میں غلط JSON: {task_path}",

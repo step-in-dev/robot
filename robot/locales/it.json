@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Campo ambiente mancante: {field}",
   "model.error.invalid_env_format": "Formato ambiente robot non valido",
   "runtime.error.expected_task": "Atteso il compito '{expected}', ottenuto '{got}'",
-  "runtime.error.task_from_file": "task() deve essere chiamato da un file Python",
+  "runtime.error.task_from_file": "La soluzione del compito deve essere salvata in un file",
   "runtime_state.error.commands_after_task": "I comandi robot si possono usare solo dopo che task() avvia l'esecuzione della soluzione",
   "loader.cannot_read_task_file": "Impossibile leggere il file del compito: {task_path}",
   "loader.invalid_json": "JSON non valido nel file del compito: {task_path}",

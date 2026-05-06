@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Campo de ambiente ausente: {field}",
   "model.error.invalid_env_format": "Formato de ambiente do robô inválido",
   "runtime.error.expected_task": "Esperada a tarefa '{expected}', obtida '{got}'",
-  "runtime.error.task_from_file": "task() deve ser chamado a partir de um arquivo Python",
+  "runtime.error.task_from_file": "A solução da tarefa deve ser salva em um arquivo",
   "runtime_state.error.commands_after_task": "Os comandos do robô só podem ser usados depois que task() iniciar uma execução da solução",
   "loader.cannot_read_task_file": "Não é possível ler o arquivo da tarefa: {task_path}",
   "loader.invalid_json": "JSON inválido no arquivo da tarefa: {task_path}",

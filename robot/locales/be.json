@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Адсутнічае поле абстаноўкі: {field}",
   "model.error.invalid_env_format": "Няслушны фармат абстаноўкі робата",
   "runtime.error.expected_task": "Чакалася заданне «{expected}», атрымана «{got}»",
-  "runtime.error.task_from_file": "task() трэба выклікаць з файла Python",
+  "runtime.error.task_from_file": "Рашэнне задання павінна быць захавана ў файле",
   "runtime_state.error.commands_after_task": "Каманды Робата можна выкарыстоўваць толькі пасля таго, як task() запусціць выкананне рашэння",
   "loader.cannot_read_task_file": "Не ўдалося прачытаць файл задання: {task_path}",
   "loader.invalid_json": "Няслушны JSON у файле задання: {task_path}",

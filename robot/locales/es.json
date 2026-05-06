@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Falta el campo del entorno: {field}",
   "model.error.invalid_env_format": "Formato de entorno del robot no válido",
   "runtime.error.expected_task": "Se esperaba la tarea '{expected}', se obtuvo '{got}'",
-  "runtime.error.task_from_file": "task() debe llamarse desde un archivo Python",
+  "runtime.error.task_from_file": "La solución de la tarea debe guardarse en un archivo",
   "runtime_state.error.commands_after_task": "Los comandos del robot solo pueden usarse después de que task() inicie una ejecución de solución",
   "loader.cannot_read_task_file": "No se puede leer el archivo de tarea: {task_path}",
   "loader.invalid_json": "JSON no válido en el archivo de tarea: {task_path}",

@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Omgevingsveld ontbreekt: {field}",
   "model.error.invalid_env_format": "Ongeldig robotomgevingsformaat",
   "runtime.error.expected_task": "Verwachte taak '{expected}', gekregen '{got}'",
-  "runtime.error.task_from_file": "task() moet vanuit een Python-bestand worden aangeroepen",
+  "runtime.error.task_from_file": "De oplossing van de taak moet in een bestand zijn opgeslagen",
   "runtime_state.error.commands_after_task": "Robotcommando's kunnen alleen worden gebruikt nadat task() een oplossing start",
   "loader.cannot_read_task_file": "Kan taakbestand niet lezen: {task_path}",
   "loader.invalid_json": "Ongeldige JSON in taakbestand: {task_path}",

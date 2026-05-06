@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Umgebungsfeld fehlt: {field}",
   "model.error.invalid_env_format": "Ungültiges Roboterumgebungsformat",
   "runtime.error.expected_task": "Erwartete Aufgabe '{expected}', erhalten '{got}'",
-  "runtime.error.task_from_file": "task() muss aus einer Python-Datei aufgerufen werden",
+  "runtime.error.task_from_file": "Die Lösung der Aufgabe muss in einer Datei gespeichert sein",
   "runtime_state.error.commands_after_task": "Roboterbefehle können erst nach Start einer Lösung durch task() verwendet werden",
   "loader.cannot_read_task_file": "Aufgabendatei kann nicht gelesen werden: {task_path}",
   "loader.invalid_json": "Ungültiges JSON in der Aufgabendatei: {task_path}",

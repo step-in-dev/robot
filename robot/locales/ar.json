@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "حقل البيئة مفقود: {field}",
   "model.error.invalid_env_format": "تنسيق بيئة الروبوت غير صالح",
   "runtime.error.expected_task": "المهمة المتوقعة '{expected}'، تم الحصول على '{got}'",
-  "runtime.error.task_from_file": "يجب استدعاء task() من ملف بايثون",
+  "runtime.error.task_from_file": "يجب حفظ حل المهمة في ملف",
   "runtime_state.error.commands_after_task": "لا يمكن استخدام أوامر الروبوت إلا بعد أن يبدأ task() تشغيل الحل",
   "loader.cannot_read_task_file": "تعذّر قراءة ملف المهمة: {task_path}",
   "loader.invalid_json": "JSON غير صالح في ملف المهمة: {task_path}",

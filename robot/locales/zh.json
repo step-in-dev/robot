@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "缺少环境字段：{field}",
   "model.error.invalid_env_format": "无效的机器人环境格式",
   "runtime.error.expected_task": "期望任务“{expected}”，实际为“{got}”",
-  "runtime.error.task_from_file": "必须从 Python 文件中调用 task()",
+  "runtime.error.task_from_file": "任务解答必须保存到文件中",
   "runtime_state.error.commands_after_task": "仅在 task() 启动求解运行后才能使用机器人命令",
   "loader.cannot_read_task_file": "无法读取任务文件：{task_path}",
   "loader.invalid_json": "任务文件中的 JSON 无效：{task_path}",

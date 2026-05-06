@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "परिवेश फ़ील्ड ग़ायब: {field}",
   "model.error.invalid_env_format": "अमान्य रोबोट परिवेश प्रारूप",
   "runtime.error.expected_task": "अपेक्षित कार्य '{expected}', मिला '{got}'",
-  "runtime.error.task_from_file": "task() को Python फ़ाइल से ही कॉल करना होगा",
+  "runtime.error.task_from_file": "कार्य का समाधान एक फ़ाइल में सहेजा होना चाहिए",
   "runtime_state.error.commands_after_task": "रोबोट आदेश केवल तभी उपयोग हो सकते हैं जब task() समाधान चालू करे",
   "loader.cannot_read_task_file": "कार्य फ़ाइल नहीं पढ़ सके: {task_path}",
   "loader.invalid_json": "कार्य फ़ाइल में अमान्य JSON: {task_path}",

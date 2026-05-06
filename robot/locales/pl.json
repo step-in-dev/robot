@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Brak pola środowiska: {field}",
   "model.error.invalid_env_format": "Nieprawidłowy format środowiska robota",
   "runtime.error.expected_task": "Oczekiwano zadania „{expected}”, otrzymano „{got}”",
-  "runtime.error.task_from_file": "task() musi być wywołane z pliku Python",
+  "runtime.error.task_from_file": "Rozwiązanie zadania musi być zapisane w pliku",
   "runtime_state.error.commands_after_task": "Polecenia robota można używać dopiero po uruchomieniu rozwiązania przez task()",
   "loader.cannot_read_task_file": "Nie można odczytać pliku zadania: {task_path}",
   "loader.invalid_json": "Nieprawidłowy JSON w pliku zadania: {task_path}",

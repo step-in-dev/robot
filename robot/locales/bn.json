@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "পরিবেশ ক্ষেত্র অনুপস্থিত: {field}",
   "model.error.invalid_env_format": "অবৈধ রোবট পরিবেশ বিন্যাস",
   "runtime.error.expected_task": "প্রত্যাশিত কাজ '{expected}', পাওয়া '{got}'",
-  "runtime.error.task_from_file": "task() অবশ্যই একটি পাইথন ফাইল থেকে কল করতে হবে",
+  "runtime.error.task_from_file": "কাজের সমাধান একটি ফাইলে সংরক্ষিত থাকতে হবে",
   "runtime_state.error.commands_after_task": "task() সমাধান চালু করার পরেই রোবট কমান্ড ব্যবহার করা যাবে",
   "loader.cannot_read_task_file": "কাজের ফাইল পড়া যায়নি: {task_path}",
   "loader.invalid_json": "কাজের ফাইলে অবৈধ JSON: {task_path}",

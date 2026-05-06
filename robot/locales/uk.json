@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Відсутнє поле обстановки: {field}",
   "model.error.invalid_env_format": "Невірний формат обстановки робота",
   "runtime.error.expected_task": "Очікувалося завдання «{expected}», отримано «{got}»",
-  "runtime.error.task_from_file": "task() потрібно викликати з файлу Python",
+  "runtime.error.task_from_file": "Розв’язок завдання має бути збережений у файлі",
   "runtime_state.error.commands_after_task": "Команди Робота можна використовувати лише після того, як task() запустить виконання розв’язку",
   "loader.cannot_read_task_file": "Не вдалося прочитати файл завдання: {task_path}",
   "loader.invalid_json": "Некоректний JSON у файлі завдання: {task_path}",

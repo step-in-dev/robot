@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Отсутствует поле обстановки: {field}",
   "model.error.invalid_env_format": "Неверный формат обстановки робота",
   "runtime.error.expected_task": "Ожидалось задание '{expected}', получено '{got}'",
-  "runtime.error.task_from_file": "task() нужно вызывать из файла Python",
+  "runtime.error.task_from_file": "Решение задачи должно быть сохранено в файл",
   "runtime_state.error.commands_after_task": "Команды Робота можно использовать только после того, как task() запустил выполнение решения",
   "loader.cannot_read_task_file": "Не удалось прочитать файл задания: {task_path}",
   "loader.invalid_json": "Некорректный JSON в файле задания: {task_path}",

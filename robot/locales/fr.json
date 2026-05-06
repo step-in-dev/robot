@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Champ d'environnement manquant : {field}",
   "model.error.invalid_env_format": "Format d'environnement robot invalide",
   "runtime.error.expected_task": "Tâche attendue « {expected} », obtenue « {got} »",
-  "runtime.error.task_from_file": "task() doit être appelé depuis un fichier Python",
+  "runtime.error.task_from_file": "La solution de la tâche doit être enregistrée dans un fichier",
   "runtime_state.error.commands_after_task": "Les commandes robot ne peuvent être utilisées qu'après le démarrage d'une exécution par task()",
   "loader.cannot_read_task_file": "Impossible de lire le fichier de tâche : {task_path}",
   "loader.invalid_json": "JSON invalide dans le fichier de tâche : {task_path}",

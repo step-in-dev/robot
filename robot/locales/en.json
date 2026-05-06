@@ -20,7 +20,7 @@
   "model.error.missing_env_field": "Missing environment field: {field}",
   "model.error.invalid_env_format": "Invalid robot environment format",
   "runtime.error.expected_task": "Expected task '{expected}', got '{got}'",
-  "runtime.error.task_from_file": "task() must be called from a Python file",
+  "runtime.error.task_from_file": "The task solution must be saved to a file",
   "runtime_state.error.commands_after_task": "Robot commands can be used only after task() starts a solution run",
   "loader.cannot_read_task_file": "Cannot read task file: {task_path}",
   "loader.invalid_json": "Invalid JSON in task file: {task_path}",
