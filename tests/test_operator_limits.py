@@ -337,7 +337,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.required_keywords", keywords="for, def"),
-                "В решении должны использоваться ключевые слова Python: for, def",
+                "В решении требуются слова: for, def",
             )
 
     def test_banned_keywords_message_russian_via_t(self) -> None:
@@ -347,7 +347,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.banned_keywords", keywords="while"),
-                "В решении запрещены ключевые слова Python: while",
+                "В решении запрещены слова: while",
             )
 
 
