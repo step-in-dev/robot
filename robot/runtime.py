@@ -54,6 +54,8 @@ def _launch_student_robot_window(
     todo_text: str,
     operators_limit: int | None,
     custom_function_call_count: int | None,
+    required_keywords: tuple[str, ...] | None,
+    banned_keywords: tuple[str, ...] | None,
 ) -> None:
     """Open the GUI and run the student script against *envs*; never returns normally."""
     script_path = _detect_student_script()
@@ -69,11 +71,15 @@ def _launch_student_robot_window(
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
             operators_limit=operators_limit,
             custom_function_call_count=custom_function_call_count,
+            required_keywords=required_keywords,
+            banned_keywords=banned_keywords,
         ),
         todo_text=todo_text,
         script_path=script_path,
         operators_limit=operators_limit,
         custom_function_call_count=custom_function_call_count,
+        required_keywords=required_keywords,
+        banned_keywords=banned_keywords,
     )
     window.run()
     raise SystemExit(0)
@@ -95,6 +101,8 @@ def task(task_id: str) -> None:
         todo_text=task_definition.todo_text,
         operators_limit=task_definition.operators_limit,
         custom_function_call_count=task_definition.custom_function_call_count,
+        required_keywords=task_definition.required_keywords,
+        banned_keywords=task_definition.banned_keywords,
     )
 
 
@@ -136,6 +144,8 @@ def field(width: int = 8, height: int = 6) -> None:
         todo_text="",
         operators_limit=None,
         custom_function_call_count=None,
+        required_keywords=None,
+        banned_keywords=None,
     )
 
 

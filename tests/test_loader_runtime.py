@@ -20,8 +20,10 @@ from robot.i18n import clear_translation_cache, t
 from robot.loader import TaskLoadError, load_task, load_task_definition
 from robot.model import RobotEnv, RobotEnvDto, RobotError
 from robot.operator_limits import (
+    BANNED_KEYWORDS_MESSAGE_TEMPLATE,
     CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
+    REQUIRED_KEYWORDS_MESSAGE_TEMPLATE,
 )
 
 
@@ -89,6 +91,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(task.todo_text, "Reach the end")
         self.assertIsNone(task.operators_limit)
         self.assertIsNone(task.custom_function_call_count)
+        self.assertIsNone(task.required_keywords)
+        self.assertIsNone(task.banned_keywords)
 
     def test_load_task_definition_reads_operators_limit(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -143,6 +147,26 @@ class LoaderRuntimeTest(unittest.TestCase):
                 task = load_task_definition("uf")
 
         self.assertEqual(task.custom_function_call_count, 2)
+
+    def test_load_task_definition_reads_keyword_constraints(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "kw.env"
+            task_file.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [self._minimal_env_dto()],
+                        "requiredKeywords": "for, def, for",
+                        "bannedKeywords": "while, if",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                task = load_task_definition("kw")
+
+        self.assertEqual(task.required_keywords, ("def", "for"))
+        self.assertEqual(task.banned_keywords, ("if", "while"))
 
     def test_load_task_definition_rejects_invalid_operators_limit(self) -> None:
         base_env = {
@@ -214,6 +238,34 @@ class LoaderRuntimeTest(unittest.TestCase):
                     with self.assertRaises(TaskLoadError):
                         load_task_definition(f"uf_{name}")
 
+    def test_load_task_definition_rejects_invalid_keyword_lists(self) -> None:
+        invalid_cases = {
+            "required_not_string": {"requiredKeywords": ["for"]},
+            "banned_not_string": {"bannedKeywords": ["while"]},
+            "required_unknown": {"requiredKeywords": "for,not_a_keyword"},
+            "banned_unknown": {"bannedKeywords": "while,helper"},
+            "required_soft_keyword": {"requiredKeywords": "match"},
+            "banned_soft_keyword": {"bannedKeywords": "case"},
+            "overlap": {
+                "requiredKeywords": "for,def",
+                "bannedKeywords": "def,while",
+            },
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base_path = Path(temp_dir)
+            for name, extra_fields in invalid_cases.items():
+                payload = {"envDtos": [self._minimal_env_dto()]}
+                payload.update(extra_fields)
+                (base_path / f"{name}.env").write_text(
+                    json.dumps(payload),
+                    encoding="utf-8",
+                )
+
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                for name in invalid_cases:
+                    with self.assertRaises(TaskLoadError):
+                        load_task_definition(name)
+
     def test_load_task_definition_without_todo_text(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             task_file = Path(temp_dir) / "minimal.env"
@@ -242,6 +294,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(len(task.envs), 1)
         self.assertIsNone(task.operators_limit)
         self.assertIsNone(task.custom_function_call_count)
+        self.assertIsNone(task.required_keywords)
+        self.assertIsNone(task.banned_keywords)
 
     def test_load_task_definition_empty_or_invalid_todo_text_normalized(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -762,6 +816,81 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
+    def test_runtime_required_keywords_missing_returns_wrong_without_running(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "kw_required",
+                env,
+                required_keywords=("for", "if"),
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for, if"),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_runtime_banned_keywords_used_returns_wrong_without_running(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "for _ in range(1):\n"
+                "    move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(
+                script,
+                "kw_banned",
+                env,
+                banned_keywords=("for",),
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
     def test_step_session_operators_limit_exceeded_before_exec(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "two_moves.py"
@@ -797,6 +926,83 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(
             result.message,
             OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_step_session_required_keywords_missing_before_exec(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "plain_move.py"
+            script.write_text(
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=lambda: None,
+                command_delay_seconds=0.0,
+                required_keywords=("for",),
+            )
+            result = session.start()
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
+        )
+        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+
+    def test_step_session_banned_keywords_used_before_exec(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "forbidden_for.py"
+            script.write_text(
+                "for _ in range(1):\n"
+                "    move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=lambda: None,
+                command_delay_seconds=0.0,
+                banned_keywords=("for",),
+            )
+            result = session.start()
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.status, "wrong")
+        self.assertEqual(
+            result.message,
+            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
         )
         self.assertEqual((env.robot.row, env.robot.col), (0, 0))
 
@@ -1237,6 +1443,8 @@ class LoaderRuntimeTest(unittest.TestCase):
                 todo_text={"en": "Note", "ru": "Записка"},
                 operators_limit=42,
                 custom_function_call_count=7,
+                required_keywords="for,def",
+                banned_keywords="while",
             )
 
             fake_main = types.ModuleType("fake_main")
@@ -1267,6 +1475,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["todo_text"], "Записка")
         self.assertEqual(kw["operators_limit"], 42)
         self.assertEqual(kw["custom_function_call_count"], 7)
+        self.assertEqual(kw["required_keywords"], ("def", "for"))
+        self.assertEqual(kw["banned_keywords"], ("while",))
         self.assertIsNotNone(kw["run_env"])
         self.assertTrue(callable(kw["run_env"]))
         self.assertEqual(kw["script_path"], Path(script).resolve())
@@ -1291,6 +1501,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertEqual(kw["todo_text"], "")
         self.assertIsNone(kw["operators_limit"])
         self.assertIsNone(kw["custom_function_call_count"])
+        self.assertIsNone(kw["required_keywords"])
+        self.assertIsNone(kw["banned_keywords"])
         envs = kw["envs"]
         self.assertEqual(len(envs), 1)
         env = envs[0]
@@ -1361,7 +1573,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 script.write_text("#\n", encoding="utf-8")
                 with self._patched_main_as_script(script):
                     with self.assertRaises(RobotError) as ctx:
-                        runtime.field(1.5, 6)
+                        getattr(runtime, "field")(1.5, 6)
             self.assertEqual(str(ctx.exception), t("runtime.error.field_integers"))
 
     def test_field_rejects_width_out_of_range(self) -> None:
@@ -1469,6 +1681,8 @@ class LoaderRuntimeTest(unittest.TestCase):
         todo_text=None,
         operators_limit=None,
         custom_function_call_count=None,
+        required_keywords=None,
+        banned_keywords=None,
     ):
         task_file = Path(temp_dir) / f"{task_id}.env"
         payload = {"envDtos": env_dtos}
@@ -1478,6 +1692,10 @@ class LoaderRuntimeTest(unittest.TestCase):
             payload["operatorsLimit"] = operators_limit
         if custom_function_call_count is not None:
             payload["customFunctionCallCount"] = custom_function_call_count
+        if required_keywords is not None:
+            payload["requiredKeywords"] = required_keywords
+        if banned_keywords is not None:
+            payload["bannedKeywords"] = banned_keywords
         task_file.write_text(
             json.dumps(payload),
             encoding="utf-8",

@@ -10,8 +10,10 @@ from typing import Callable
 from .i18n import t
 from .model import RobotEnv, RobotPathError
 from .operator_limits import (
+    check_banned_keywords,
     check_custom_function_call_count,
     check_operators_limit,
+    check_required_keywords,
 )
 from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
@@ -115,6 +117,50 @@ def _map_exec_exception(script_path: Path, env: RobotEnv, exc: BaseException) ->
     )
 
 
+def _preflight_violation_message(
+    source: str,
+    *,
+    filename: str,
+    operators_limit: int | None,
+    custom_function_call_count: int | None,
+    required_keywords: tuple[str, ...] | None,
+    banned_keywords: tuple[str, ...] | None,
+) -> str | None:
+    violation = check_operators_limit(
+        source,
+        operators_limit,
+        filename=filename,
+    )
+    if violation is not None:
+        return violation.message
+
+    custom_function_call_count_violation = check_custom_function_call_count(
+        source,
+        custom_function_call_count,
+        filename=filename,
+    )
+    if custom_function_call_count_violation is not None:
+        return custom_function_call_count_violation.message
+
+    required_keywords_violation = check_required_keywords(
+        source,
+        required_keywords,
+        filename=filename,
+    )
+    if required_keywords_violation is not None:
+        return required_keywords_violation.message
+
+    banned_keywords_violation = check_banned_keywords(
+        source,
+        banned_keywords,
+        filename=filename,
+    )
+    if banned_keywords_violation is not None:
+        return banned_keywords_violation.message
+
+    return None
+
+
 class StepExecutionSession:
     """Single exec() of the student script with sys.settrace pauses between lines."""
 
@@ -129,6 +175,8 @@ class StepExecutionSession:
         command_delay_seconds: float = 0.0,
         operators_limit: int | None = None,
         custom_function_call_count: int | None = None,
+        required_keywords: tuple[str, ...] | None = None,
+        banned_keywords: tuple[str, ...] | None = None,
     ) -> None:
         self._script_path = script_path
         try:
@@ -142,6 +190,8 @@ class StepExecutionSession:
         self._command_delay_seconds = command_delay_seconds
         self._operators_limit = operators_limit
         self._custom_function_call_count = custom_function_call_count
+        self._required_keywords = required_keywords
+        self._banned_keywords = banned_keywords
         self._steps_allowed = 0
         self._cancelled = False
         self.is_started = False
@@ -207,28 +257,17 @@ class StepExecutionSession:
             try:
                 source = self._script_path.read_text(encoding="utf-8")
                 self._source_lines = source.splitlines()
-                violation = check_operators_limit(
+                violation_message = _preflight_violation_message(
                     source,
-                    self._operators_limit,
                     filename=str(self._script_path),
+                    operators_limit=self._operators_limit,
+                    custom_function_call_count=self._custom_function_call_count,
+                    required_keywords=self._required_keywords,
+                    banned_keywords=self._banned_keywords,
                 )
-                if violation is not None:
+                if violation_message is not None:
                     self.is_finished = True
-                    return RunResult(status="wrong", message=violation.message)
-
-                custom_function_call_count_violation = (
-                    check_custom_function_call_count(
-                    source,
-                    self._custom_function_call_count,
-                    filename=str(self._script_path),
-                )
-                )
-                if custom_function_call_count_violation is not None:
-                    self.is_finished = True
-                    return RunResult(
-                        status="wrong",
-                        message=custom_function_call_count_violation.message,
-                    )
+                    return RunResult(status="wrong", message=violation_message)
 
                 code = compile(source, str(self._script_path), "exec")
             except Exception as exc:
@@ -273,6 +312,8 @@ def run_solution_on_env(
     command_delay_seconds: float = 0.0,
     operators_limit: int | None = None,
     custom_function_call_count: int | None = None,
+    required_keywords: tuple[str, ...] | None = None,
+    banned_keywords: tuple[str, ...] | None = None,
 ) -> RunResult:
     env.reset()
     previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
@@ -284,23 +325,16 @@ def run_solution_on_env(
 
     try:
         source = script_path.read_text(encoding="utf-8")
-        violation = check_operators_limit(
+        violation_message = _preflight_violation_message(
             source,
-            operators_limit,
             filename=str(script_path),
+            operators_limit=operators_limit,
+            custom_function_call_count=custom_function_call_count,
+            required_keywords=required_keywords,
+            banned_keywords=banned_keywords,
         )
-        if violation is not None:
-            return RunResult(status="wrong", message=violation.message)
-        custom_function_call_count_violation = check_custom_function_call_count(
-            source,
-            custom_function_call_count,
-            filename=str(script_path),
-        )
-        if custom_function_call_count_violation is not None:
-            return RunResult(
-                status="wrong",
-                message=custom_function_call_count_violation.message,
-            )
+        if violation_message is not None:
+            return RunResult(status="wrong", message=violation_message)
         code = compile(source, str(script_path), "exec")
         exec(code, namespace)
     except RobotPathError as exc:

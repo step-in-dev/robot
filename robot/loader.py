@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import keyword
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +13,7 @@ from .model import RobotEnv, RobotEnvDto
 
 TASKS_DIR_ENV = "ROBOT_TASKS_DIR"
 TASK_FILE_EXTENSION = ".env"
+PYTHON_KEYWORDS = frozenset(keyword.kwlist)
 
 
 class TaskLoadError(Exception):
@@ -24,6 +26,8 @@ class RobotTask:
     todo_text: str
     operators_limit: int | None = None
     custom_function_call_count: int | None = None
+    required_keywords: tuple[str, ...] | None = None
+    banned_keywords: tuple[str, ...] | None = None
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
@@ -47,6 +51,19 @@ def load_task_definition(task_id: str) -> RobotTask:
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
     operators_limit = parse_operators_limit(data, task_path)
     custom_function_call_count = parse_custom_function_call_count(data, task_path)
+    required_keywords = parse_keyword_list(
+        data,
+        task_path,
+        field_name="requiredKeywords",
+        invalid_message_key="loader.required_keywords_invalid",
+    )
+    banned_keywords = parse_keyword_list(
+        data,
+        task_path,
+        field_name="bannedKeywords",
+        invalid_message_key="loader.banned_keywords_invalid",
+    )
+    validate_keyword_lists(required_keywords, banned_keywords, task_path)
     environments = [
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
@@ -57,6 +74,8 @@ def load_task_definition(task_id: str) -> RobotTask:
         todo_text=todo_text,
         operators_limit=operators_limit,
         custom_function_call_count=custom_function_call_count,
+        required_keywords=required_keywords,
+        banned_keywords=banned_keywords,
     )
 
 
@@ -161,3 +180,52 @@ def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
             t("loader.custom_function_call_count_invalid", task_path=task_path)
         )
     return value
+
+
+def parse_keyword_list(
+    data: dict,
+    task_path: Path,
+    *,
+    field_name: str,
+    invalid_message_key: str,
+) -> tuple[str, ...] | None:
+    if field_name not in data:
+        return None
+
+    value = data[field_name]
+    if not isinstance(value, str):
+        raise TaskLoadError(t(invalid_message_key, task_path=task_path))
+
+    keywords = tuple(sorted({part.strip() for part in value.split(",") if part.strip()}))
+    invalid_keywords = tuple(
+        keyword_name for keyword_name in keywords if keyword_name not in PYTHON_KEYWORDS
+    )
+    if invalid_keywords:
+        raise TaskLoadError(
+            t(
+                "loader.keyword_list_unknown_keywords",
+                field_name=field_name,
+                keywords=", ".join(invalid_keywords),
+                task_path=task_path,
+            )
+        )
+    return keywords
+
+
+def validate_keyword_lists(
+    required_keywords: tuple[str, ...] | None,
+    banned_keywords: tuple[str, ...] | None,
+    task_path: Path,
+) -> None:
+    if not required_keywords or not banned_keywords:
+        return
+
+    overlap = tuple(sorted(set(required_keywords) & set(banned_keywords)))
+    if overlap:
+        raise TaskLoadError(
+            t(
+                "loader.keyword_lists_conflict",
+                keywords=", ".join(overlap),
+                task_path=task_path,
+            )
+        )

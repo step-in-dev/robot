@@ -19,6 +19,8 @@ Each task file must contain a JSON object with the following fields:
 - `todoText` (optional): task description shown in the UI.
 - `operatorsLimit` (optional): non-negative integer limit for the number of written operators in the student solution.
 - `customFunctionCallCount` (optional): non-negative integer requirement for the number of qualifying calls to user-defined functions.
+- `requiredKeywords` (optional): comma-separated list of Python keywords that must appear in the student solution as real Python keywords.
+- `bannedKeywords` (optional): comma-separated list of Python keywords that must not appear in the student solution as real Python keywords.
 
 ## `todoText`
 
@@ -51,6 +53,25 @@ Examples:
 
 - `customFunctionCallCount: 2` is satisfied by one user-defined function called twice.
 - `customFunctionCallCount: 2` is also satisfied by two different qualifying user-defined functions called once each.
+
+## `requiredKeywords` and `bannedKeywords`
+
+Both fields are checked statically from the student source code before execution.
+
+- The value format is a comma-separated string such as `"for,def"` or `"while, if"`.
+- Spaces around items are ignored.
+- Empty items are ignored.
+- Each item must be a real Python keyword supported by the current Python version.
+- Only regular hard keywords are accepted. Soft keywords such as `match` and `case` are intentionally rejected by the loader and do not count during source-code checks.
+- The checker uses Python tokenization, so keywords inside comments or string literals do not count.
+
+If the same keyword is listed in both `requiredKeywords` and `bannedKeywords`, task loading fails with an error.
+
+Examples:
+
+- `requiredKeywords: "for,def"` requires the solution to use both `for` and `def`.
+- `bannedKeywords: "while"` rejects any solution that uses `while`.
+- `requiredKeywords: "for"` is satisfied by `for _ in range(3): ...`, but not by a comment like `# for`.
 
 ## `envDtos` Entry Format
 
@@ -151,6 +172,8 @@ Wall segment:
     "ru": "Закрась и выведи нужные клетки"
   },
   "operatorsLimit": 10,
-  "customFunctionCallCount": 1
+  "customFunctionCallCount": 1,
+  "requiredKeywords": "for,def",
+  "bannedKeywords": "while"
 }
 ```

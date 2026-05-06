@@ -55,5 +55,11 @@
   "help.command.field": "Öffnet ein Übungsfeld der gewählten Größe ohne Aufgabendatei. Roboter oben links, Ziel unten rechts.",
   "runtime.error.field_integers": "field() Breite und Höhe müssen Ganzzahlen sein",
   "runtime.error.field_width_range": "field() Breite muss zwischen 1 und 20 liegen",
-  "runtime.error.field_height_range": "field() Höhe muss zwischen 1 und 15 liegen"
+  "runtime.error.field_height_range": "field() Höhe muss zwischen 1 und 15 liegen",
+  "limit.required_keywords": "In der Lösung müssen folgende Python-Schlüsselwörter verwendet werden: {keywords}",
+  "limit.banned_keywords": "In der Lösung sind folgende Python-Schlüsselwörter verboten: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords muss eine durch Kommas getrennte Zeichenkette mit Python-Schlüsselwörtern sein: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords muss eine durch Kommas getrennte Zeichenkette mit Python-Schlüsselwörtern sein: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name} enthält unbekannte Python-Schlüsselwörter: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords und bannedKeywords überschneiden sich: {keywords}: {task_path}"
 }

@@ -55,5 +55,11 @@
   "help.command.field": "টাস্ক ফাইল ছাড়াই নির্দিষ্ট আকারের গ্রিড খোলে। রোবট উপরের বামে; লক্ষ্য নিচের ডানে।",
   "runtime.error.field_integers": "field() প্রস্থ ও উচ্চতা পূর্ণসংখ্যা হতে হবে",
   "runtime.error.field_width_range": "field() প্রস্থ 1 থেকে 20 এর মধ্যে হতে হবে",
-  "runtime.error.field_height_range": "field() উচ্চতা 1 থেকে 15 এর মধ্যে হতে হবে"
+  "runtime.error.field_height_range": "field() উচ্চতা 1 থেকে 15 এর মধ্যে হতে হবে",
+  "limit.required_keywords": "সমাধানে Python-এর কীওয়ার্ড ব্যবহার করতে হবে: {keywords}",
+  "limit.banned_keywords": "সমাধানে Python-এর কীওয়ার্ড নিষিদ্ধ: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords Python-এর কীওয়ার্ডের কমা-আলাদা স্ট্রিং হতে হবে: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords Python-এর কীওয়ার্ডের কমা-আলাদা স্ট্রিং হতে হবে: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name}-এ অজানা Python কীওয়ার্ড আছে: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords এবং bannedKeywords একে অপরের সাথে ওভারল্যাপ করে: {keywords}: {task_path}"
 }

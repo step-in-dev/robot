@@ -55,5 +55,11 @@
   "help.command.field": "과제 파일 없이 지정한 크기의 격자를 엽니다. 로봇은 왼쪽 위, 목표는 오른쪽 아래입니다.",
   "runtime.error.field_integers": "field() 너비와 높이는 정수여야 합니다",
   "runtime.error.field_width_range": "field() 너비는 1 이상 20 이하여야 합니다",
-  "runtime.error.field_height_range": "field() 높이는 1 이상 15 이하여야 합니다"
+  "runtime.error.field_height_range": "field() 높이는 1 이상 15 이하여야 합니다",
+  "limit.required_keywords": "해결 코드에는 다음 Python 키워드를 사용해야 합니다: {keywords}",
+  "limit.banned_keywords": "해결 코드에는 다음 Python 키워드를 사용할 수 없습니다: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords는 쉼표로 구분된 Python 키워드 문자열이어야 합니다: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords는 쉼표로 구분된 Python 키워드 문자열이어야 합니다: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name}에 알 수 없는 Python 키워드가 있습니다: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords와 bannedKeywords가 겹칩니다: {keywords}: {task_path}"
 }

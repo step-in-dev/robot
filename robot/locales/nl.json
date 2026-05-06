@@ -55,5 +55,11 @@
   "help.command.field": "Opent een raster van de gegeven grootte zonder opdrachtbestand te laden. Robot linksboven; doel rechtsonder.",
   "runtime.error.field_integers": "field() breedte en hoogte moeten gehele getallen zijn",
   "runtime.error.field_width_range": "field() breedte moet tussen 1 en 20 liggen",
-  "runtime.error.field_height_range": "field() hoogte moet tussen 1 en 15 liggen"
+  "runtime.error.field_height_range": "field() hoogte moet tussen 1 en 15 liggen",
+  "limit.required_keywords": "In de oplossing moeten Python-sleutelwoorden worden gebruikt: {keywords}",
+  "limit.banned_keywords": "In de oplossing zijn Python-sleutelwoorden verboden: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords moet een door komma's gescheiden tekenreeks met Python-sleutelwoorden zijn: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords moet een door komma's gescheiden tekenreeks met Python-sleutelwoorden zijn: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name} bevat onbekende Python-sleutelwoorden: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords en bannedKeywords overlappen: {keywords}: {task_path}"
 }

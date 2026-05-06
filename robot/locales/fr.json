@@ -55,5 +55,11 @@
   "help.command.field": "Ouvre une grille de taille donnée sans charger de fichier de tâche. Robot en haut à gauche, objectif en bas à droite.",
   "runtime.error.field_integers": "field() : la largeur et la hauteur doivent être des entiers",
   "runtime.error.field_width_range": "field() : la largeur doit être entre 1 et 20",
-  "runtime.error.field_height_range": "field() : la hauteur doit être entre 1 et 15"
+  "runtime.error.field_height_range": "field() : la hauteur doit être entre 1 et 15",
+  "limit.required_keywords": "La solution doit utiliser les mots-clés Python : {keywords}",
+  "limit.banned_keywords": "Les mots-clés Python suivants sont interdits dans la solution : {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords doit être une chaîne contenant des mots-clés Python séparés par des virgules : {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords doit être une chaîne contenant des mots-clés Python séparés par des virgules : {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name} contient des mots-clés Python inconnus : {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords et bannedKeywords se chevauchent : {keywords}: {task_path}"
 }

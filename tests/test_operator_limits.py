@@ -4,12 +4,17 @@ import unittest
 from unittest.mock import patch
 
 from robot.operator_limits import (
+    BANNED_KEYWORDS_MESSAGE_TEMPLATE,
     CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
+    REQUIRED_KEYWORDS_MESSAGE_TEMPLATE,
+    check_banned_keywords,
     check_custom_function_call_count,
     check_operators_limit,
+    check_required_keywords,
     count_robot_operators,
     count_custom_function_calls_with_robot_commands,
+    extract_python_keywords,
 )
 
 
@@ -221,6 +226,82 @@ class CheckCustomFunctionCallCountTest(unittest.TestCase):
         )
 
 
+class ExtractPythonKeywordsTest(unittest.TestCase):
+    def test_collects_keywords_from_code_only(self) -> None:
+        src = (
+            "def run():\n"
+            "    for _ in range(2):\n"
+            "        if True:\n"
+            "            move_right()\n"
+        )
+        self.assertEqual(
+            extract_python_keywords(src),
+            frozenset({"True", "def", "for", "if", "in"}),
+        )
+
+    def test_ignores_keywords_in_strings_and_comments(self) -> None:
+        src = (
+            "# for while def\n"
+            "text = 'if else match case'\n"
+            "move_right()\n"
+        )
+        self.assertEqual(extract_python_keywords(src), frozenset())
+
+    def test_soft_keywords_do_not_count(self) -> None:
+        src = (
+            "match value:\n"
+            "    case 1:\n"
+            "        move_right()\n"
+        )
+        self.assertEqual(extract_python_keywords(src), frozenset())
+
+
+class CheckRequiredKeywordsTest(unittest.TestCase):
+    def test_none_skips(self) -> None:
+        self.assertIsNone(check_required_keywords("move_right()", None))
+
+    def test_passes_when_all_keywords_are_present(self) -> None:
+        src = (
+            "def go():\n"
+            "    for _ in range(1):\n"
+            "        move_right()\n"
+        )
+        self.assertIsNone(check_required_keywords(src, ("def", "for")))
+
+    def test_violation_lists_missing_keywords(self) -> None:
+        v = check_required_keywords("move_right()", ("def", "for"))
+        self.assertIsNotNone(v)
+        assert v is not None
+        self.assertEqual(v.missing_keywords, ("def", "for"))
+        self.assertEqual(
+            v.message,
+            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="def, for"),
+        )
+
+
+class CheckBannedKeywordsTest(unittest.TestCase):
+    def test_none_skips(self) -> None:
+        self.assertIsNone(check_banned_keywords("move_right()", None))
+
+    def test_passes_when_banned_keywords_are_absent(self) -> None:
+        src = "move_right()\n"
+        self.assertIsNone(check_banned_keywords(src, ("for", "while")))
+
+    def test_violation_lists_used_banned_keywords(self) -> None:
+        src = (
+            "while True:\n"
+            "    break\n"
+        )
+        v = check_banned_keywords(src, ("for", "while", "True"))
+        self.assertIsNotNone(v)
+        assert v is not None
+        self.assertEqual(v.used_keywords, ("while", "True"))
+        self.assertEqual(
+            v.message,
+            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="while, True"),
+        )
+
+
 class OperatorLimitsRussianLocaleTest(unittest.TestCase):
     """Russian strings via ``t()`` when ``ROBOT_LANGUAGE`` is set."""
 
@@ -247,6 +328,26 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             self.assertEqual(
                 i18n.t("limit.custom_function_calls", actual=3, required=2),
                 "Вызовов пользовательских функций: 3. Требуется не менее 2",
+            )
+
+    def test_required_keywords_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.required_keywords", keywords="for, def"),
+                "В решении должны использоваться ключевые слова Python: for, def",
+            )
+
+    def test_banned_keywords_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.banned_keywords", keywords="while"),
+                "В решении запрещены ключевые слова Python: while",
             )
 
 

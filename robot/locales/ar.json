@@ -55,5 +55,11 @@
   "help.command.field": "يفتح شبكة بالحجم المعين دون تحميل ملف مهمة. الروبوت يبدأ أعلى اليسار؛ الهدف أسفل اليمين.",
   "runtime.error.field_integers": "field() يجب أن يكون العرض والارتفاع أعدادًا صحيحة",
   "runtime.error.field_width_range": "field() يجب أن يكون العرض بين 1 و 20",
-  "runtime.error.field_height_range": "field() يجب أن يكون الارتفاع بين 1 و 15"
+  "runtime.error.field_height_range": "field() يجب أن يكون الارتفاع بين 1 و 15",
+  "limit.required_keywords": "يجب أن يستخدم الحل الكلمات المفتاحية في Python: {keywords}",
+  "limit.banned_keywords": "الكلمات المفتاحية في Python محظورة في الحل: {keywords}",
+  "loader.required_keywords_invalid": "يجب أن يكون requiredKeywords سلسلة نصية تضم كلمات Python المفتاحية مفصولة بفواصل: {task_path}",
+  "loader.banned_keywords_invalid": "يجب أن يكون bannedKeywords سلسلة نصية تضم كلمات Python المفتاحية مفصولة بفواصل: {task_path}",
+  "loader.keyword_list_unknown_keywords": "يحتوي {field_name} على كلمات Python مفتاحية غير معروفة: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "يوجد تداخل بين requiredKeywords و bannedKeywords: {keywords}: {task_path}"
 }

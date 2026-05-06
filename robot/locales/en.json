@@ -55,5 +55,11 @@
   "help.command.field": "Opens a grid of the given size without loading a task file. Robot starts at the top-left; the goal is the bottom-right.",
   "runtime.error.field_integers": "field() width and height must be integers",
   "runtime.error.field_width_range": "field() width must be between 1 and 20",
-  "runtime.error.field_height_range": "field() height must be between 1 and 15"
+  "runtime.error.field_height_range": "field() height must be between 1 and 15",
+  "limit.required_keywords": "Python keywords required in solution: {keywords}",
+  "limit.banned_keywords": "Python keywords forbidden in solution: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords must be a comma-separated string of Python keywords: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords must be a comma-separated string of Python keywords: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name} contains unknown Python keywords: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords and bannedKeywords overlap: {keywords}: {task_path}"
 }

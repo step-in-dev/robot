@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import ast
+import io
+import keyword
+import token
+import tokenize
 from collections import deque
 from dataclasses import dataclass
 
@@ -89,6 +93,8 @@ def check_operators_limit(
 
 
 CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE = t("limit.custom_function_calls")
+REQUIRED_KEYWORDS_MESSAGE_TEMPLATE = t("limit.required_keywords")
+BANNED_KEYWORDS_MESSAGE_TEMPLATE = t("limit.banned_keywords")
 
 
 def _body_contains_robot_operator_excluding_nested_defs(body: list[ast.stmt]) -> bool:
@@ -219,3 +225,75 @@ def check_custom_function_call_count(
         actual=actual,
         required=custom_function_call_count,
     )
+
+
+def extract_python_keywords(
+    source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
+) -> frozenset[str]:
+    del filename  # Reserved for parity with other static checks.
+    keywords: set[str] = set()
+    tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+    for tok in tokens:
+        if tok.type != token.NAME:
+            continue
+        if keyword.iskeyword(tok.string):
+            keywords.add(tok.string)
+    return frozenset(keywords)
+
+
+@dataclass(frozen=True)
+class RequiredKeywordsViolation:
+    missing_keywords: tuple[str, ...]
+
+    @property
+    def message(self) -> str:
+        return REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(
+            keywords=", ".join(self.missing_keywords)
+        )
+
+
+def check_required_keywords(
+    source: str,
+    required_keywords: tuple[str, ...] | None,
+    *,
+    filename: str = DEFAULT_STUDENT_FILENAME,
+) -> RequiredKeywordsViolation | None:
+    if not required_keywords:
+        return None
+    used_keywords = extract_python_keywords(source, filename=filename)
+    missing_keywords = tuple(
+        keyword_name
+        for keyword_name in required_keywords
+        if keyword_name not in used_keywords
+    )
+    if not missing_keywords:
+        return None
+    return RequiredKeywordsViolation(missing_keywords=missing_keywords)
+
+
+@dataclass(frozen=True)
+class BannedKeywordsViolation:
+    used_keywords: tuple[str, ...]
+
+    @property
+    def message(self) -> str:
+        return BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(
+            keywords=", ".join(self.used_keywords)
+        )
+
+
+def check_banned_keywords(
+    source: str,
+    banned_keywords: tuple[str, ...] | None,
+    *,
+    filename: str = DEFAULT_STUDENT_FILENAME,
+) -> BannedKeywordsViolation | None:
+    if not banned_keywords:
+        return None
+    used_keywords = extract_python_keywords(source, filename=filename)
+    matched_keywords = tuple(
+        keyword_name for keyword_name in banned_keywords if keyword_name in used_keywords
+    )
+    if not matched_keywords:
+        return None
+    return BannedKeywordsViolation(used_keywords=matched_keywords)

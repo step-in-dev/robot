@@ -55,5 +55,11 @@
   "help.command.field": "Abre uma grade do tamanho indicado sem carregar arquivo de tarefa. Robô no canto superior esquerdo; meta no inferior direito.",
   "runtime.error.field_integers": "field() largura e altura devem ser inteiros",
   "runtime.error.field_width_range": "field() a largura deve estar entre 1 e 20",
-  "runtime.error.field_height_range": "field() a altura deve estar entre 1 e 15"
+  "runtime.error.field_height_range": "field() a altura deve estar entre 1 e 15",
+  "limit.required_keywords": "A solução deve usar as palavras-chave Python: {keywords}",
+  "limit.banned_keywords": "Na solução, as palavras-chave Python são proibidas: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords deve ser uma string com palavras-chave Python separadas por vírgulas: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords deve ser uma string com palavras-chave Python separadas por vírgulas: {task_path}",
+  "loader.keyword_list_unknown_keywords": "{field_name} contém palavras-chave Python desconhecidas: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords e bannedKeywords se sobrepõem: {keywords}: {task_path}"
 }

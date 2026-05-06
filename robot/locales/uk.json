@@ -55,5 +55,11 @@
   "help.command.field": "Відкриває поле заданого розміру без файлу завдання. Робот у лівому верхньому куті; ціль — правий нижній.",
   "runtime.error.field_integers": "field() ширина та висота мають бути цілими числами",
   "runtime.error.field_width_range": "field() ширина має бути від 1 до 20",
-  "runtime.error.field_height_range": "field() висота має бути від 1 до 15"
+  "runtime.error.field_height_range": "field() висота має бути від 1 до 15",
+  "limit.required_keywords": "У розв'язанні мають використовуватися ключові слова Python: {keywords}",
+  "limit.banned_keywords": "У розв'язанні заборонені ключові слова Python: {keywords}",
+  "loader.required_keywords_invalid": "requiredKeywords має бути рядком зі списком ключових слів Python, розділених комами: {task_path}",
+  "loader.banned_keywords_invalid": "bannedKeywords має бути рядком зі списком ключових слів Python, розділених комами: {task_path}",
+  "loader.keyword_list_unknown_keywords": "Поле {field_name} містить невідомі ключові слова Python: {keywords}: {task_path}",
+  "loader.keyword_lists_conflict": "requiredKeywords і bannedKeywords перетинаються: {keywords}: {task_path}"
 }
