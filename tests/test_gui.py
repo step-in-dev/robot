@@ -1,12 +1,12 @@
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
-from robot.gui import RobotWindow
+from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
 from robot.gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -289,6 +289,55 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
             for env in envs:
                 self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        finally:
+            window.close()
+
+    def test_run_all_pauses_before_second_env_when_first_succeeds(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("pause_between_envs", envs, run_env, initial_index=0)
+        try:
+            with patch("robot.gui.time.sleep") as sleep_mock:
+                window.run_all()
+            self.assertEqual(
+                sleep_mock.call_args_list,
+                [call(INTER_ENV_PAUSE_SECONDS)],
+            )
+        finally:
+            window.close()
+
+    def test_run_all_no_inter_env_sleep_for_single_env(self) -> None:
+        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+
+        def run_env(env: RobotEnv) -> RunResult:
+            env.robot.move_right()
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("single_env_no_pause", envs, run_env, initial_index=0)
+        try:
+            with patch("robot.gui.time.sleep") as sleep_mock:
+                window.run_all()
+            sleep_mock.assert_not_called()
+        finally:
+            window.close()
+
+    def test_run_all_no_pause_after_failed_first_env(self) -> None:
+        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="wrong", message="wrong")
+
+        window = RobotWindow("fail_first_no_pause", envs, run_env, initial_index=0)
+        try:
+            with patch("robot.gui.time.sleep") as sleep_mock:
+                window.run_all()
+            sleep_mock.assert_not_called()
         finally:
             window.close()
 

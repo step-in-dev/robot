@@ -43,6 +43,10 @@ from .status_strip import StatusStrip
 
 _ESCAPE_BINDING = "<Escape>"
 
+# Pause between environments during Run so the user can see the final state
+# before switching (matches blocking sleep style used for command delays).
+INTER_ENV_PAUSE_SECONDS = 0.2
+
 
 class RobotWindow:
     def __init__(
@@ -554,6 +558,9 @@ class RobotWindow:
                 if not result.success:
                     self._show_failed_result(result)
                     return
+                if index + 1 < len(self.envs):
+                    self.root.update_idletasks()
+                    time.sleep(INTER_ENV_PAUSE_SECONDS)
 
             self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
         finally:
