@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords Python-এর কীওয়ার্ডের কমা-আলাদা স্ট্রিং হতে হবে: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords Python-এর কীওয়ার্ডের কমা-আলাদা স্ট্রিং হতে হবে: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name}-এ অজানা Python কীওয়ার্ড আছে: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords এবং bannedKeywords একে অপরের সাথে ওভারল্যাপ করে: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords এবং bannedKeywords একে অপরের সাথে ওভারল্যাপ করে: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
+  "loader.while_limit_invalid": "whileLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
+  "limit.if_keyword": "Python 'if' কীওয়ার্ড {actual} বার ব্যবহৃত। সর্বোচ্চ {limit} পর্যন্ত অনুমোদিত",
+  "limit.while_keyword": "Python 'while' কীওয়ার্ড {actual} বার ব্যবহৃত। সর্বোচ্চ {limit} পর্যন্ত অনুমোদিত"
 }

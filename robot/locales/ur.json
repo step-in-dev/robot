@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords Python کے کلیدی الفاظ کی کاما سے جدا کردہ سٹرنگ ہونی چاہیے: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords Python کے کلیدی الفاظ کی کاما سے جدا کردہ سٹرنگ ہونی چاہیے: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name} میں Python کے نامعلوم کلیدی الفاظ ہیں: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords اور bannedKeywords آپس میں متداخل ہیں: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords اور bannedKeywords آپس میں متداخل ہیں: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
+  "loader.while_limit_invalid": "whileLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
+  "limit.if_keyword": "Python 'if' کلیدی لفظ {actual} بار استعمال ہوا۔ زیادہ سے زیادہ {limit} کی اجازت",
+  "limit.while_keyword": "Python 'while' کلیدی لفظ {actual} بار استعمال ہوا۔ زیادہ سے زیادہ {limit} کی اجازت"
 }

@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords debe ser una cadena con palabras clave de Python separadas por comas: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords debe ser una cadena con palabras clave de Python separadas por comas: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name} contiene palabras clave de Python desconocidas: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords y bannedKeywords se solapan: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords y bannedKeywords se solapan: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit debe ser un entero no negativo: {task_path}",
+  "loader.while_limit_invalid": "whileLimit debe ser un entero no negativo: {task_path}",
+  "limit.if_keyword": "Palabra clave de Python 'if' usada {actual} veces. Se permiten como máximo {limit}",
+  "limit.while_keyword": "Palabra clave de Python 'while' usada {actual} veces. Se permiten como máximo {limit}"
 }

@@ -26,6 +26,8 @@ class RobotTask:
     todo_text: str
     operators_limit: int | None = None
     custom_function_call_count: int | None = None
+    if_limit: int | None = None
+    while_limit: int | None = None
     required_keywords: tuple[str, ...] | None = None
     banned_keywords: tuple[str, ...] | None = None
 
@@ -51,6 +53,8 @@ def load_task_definition(task_id: str) -> RobotTask:
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
     operators_limit = parse_operators_limit(data, task_path)
     custom_function_call_count = parse_custom_function_call_count(data, task_path)
+    if_limit = parse_if_limit(data, task_path)
+    while_limit = parse_while_limit(data, task_path)
     required_keywords = parse_keyword_list(
         data,
         task_path,
@@ -74,6 +78,8 @@ def load_task_definition(task_id: str) -> RobotTask:
         todo_text=todo_text,
         operators_limit=operators_limit,
         custom_function_call_count=custom_function_call_count,
+        if_limit=if_limit,
+        while_limit=while_limit,
         required_keywords=required_keywords,
         banned_keywords=banned_keywords,
     )
@@ -160,26 +166,55 @@ def resolve_todo_text(raw: Any) -> str:
     return ""
 
 
-def parse_operators_limit(data: dict, task_path: Path) -> int | None:
-    if "operatorsLimit" not in data:
+def _parse_optional_non_negative_int(
+    data: dict,
+    task_path: Path,
+    *,
+    json_key: str,
+    invalid_message_key: str,
+) -> int | None:
+    if json_key not in data:
         return None
-    value = data["operatorsLimit"]
+    value = data[json_key]
     if type(value) is not int or value < 0:
-        raise TaskLoadError(
-            t("loader.operators_limit_invalid", task_path=task_path)
-        )
+        raise TaskLoadError(t(invalid_message_key, task_path=task_path))
     return value
+
+
+def parse_operators_limit(data: dict, task_path: Path) -> int | None:
+    return _parse_optional_non_negative_int(
+        data,
+        task_path,
+        json_key="operatorsLimit",
+        invalid_message_key="loader.operators_limit_invalid",
+    )
 
 
 def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
-    if "customFunctionCallCount" not in data:
-        return None
-    value = data["customFunctionCallCount"]
-    if type(value) is not int or value < 0:
-        raise TaskLoadError(
-            t("loader.custom_function_call_count_invalid", task_path=task_path)
-        )
-    return value
+    return _parse_optional_non_negative_int(
+        data,
+        task_path,
+        json_key="customFunctionCallCount",
+        invalid_message_key="loader.custom_function_call_count_invalid",
+    )
+
+
+def parse_if_limit(data: dict, task_path: Path) -> int | None:
+    return _parse_optional_non_negative_int(
+        data,
+        task_path,
+        json_key="ifLimit",
+        invalid_message_key="loader.if_limit_invalid",
+    )
+
+
+def parse_while_limit(data: dict, task_path: Path) -> int | None:
+    return _parse_optional_non_negative_int(
+        data,
+        task_path,
+        json_key="whileLimit",
+        invalid_message_key="loader.while_limit_invalid",
+    )
 
 
 def parse_keyword_list(

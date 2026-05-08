@@ -12,8 +12,10 @@ from .model import RobotEnv, RobotPathError
 from .operator_limits import (
     check_banned_keywords,
     check_custom_function_call_count,
+    check_if_limit,
     check_operators_limit,
     check_required_keywords,
+    check_while_limit,
 )
 from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
@@ -123,6 +125,8 @@ def _preflight_violation_message(
     filename: str,
     operators_limit: int | None,
     custom_function_call_count: int | None,
+    if_limit: int | None,
+    while_limit: int | None,
     required_keywords: tuple[str, ...] | None,
     banned_keywords: tuple[str, ...] | None,
 ) -> str | None:
@@ -141,6 +145,22 @@ def _preflight_violation_message(
     )
     if custom_function_call_count_violation is not None:
         return custom_function_call_count_violation.message
+
+    if_limit_violation = check_if_limit(
+        source,
+        if_limit,
+        filename=filename,
+    )
+    if if_limit_violation is not None:
+        return if_limit_violation.message
+
+    while_limit_violation = check_while_limit(
+        source,
+        while_limit,
+        filename=filename,
+    )
+    if while_limit_violation is not None:
+        return while_limit_violation.message
 
     required_keywords_violation = check_required_keywords(
         source,
@@ -175,6 +195,8 @@ class StepExecutionSession:
         command_delay_seconds: float = 0.0,
         operators_limit: int | None = None,
         custom_function_call_count: int | None = None,
+        if_limit: int | None = None,
+        while_limit: int | None = None,
         required_keywords: tuple[str, ...] | None = None,
         banned_keywords: tuple[str, ...] | None = None,
     ) -> None:
@@ -190,6 +212,8 @@ class StepExecutionSession:
         self._command_delay_seconds = command_delay_seconds
         self._operators_limit = operators_limit
         self._custom_function_call_count = custom_function_call_count
+        self._if_limit = if_limit
+        self._while_limit = while_limit
         self._required_keywords = required_keywords
         self._banned_keywords = banned_keywords
         self._steps_allowed = 0
@@ -262,6 +286,8 @@ class StepExecutionSession:
                     filename=str(self._script_path),
                     operators_limit=self._operators_limit,
                     custom_function_call_count=self._custom_function_call_count,
+                    if_limit=self._if_limit,
+                    while_limit=self._while_limit,
                     required_keywords=self._required_keywords,
                     banned_keywords=self._banned_keywords,
                 )
@@ -312,6 +338,8 @@ def run_solution_on_env(
     command_delay_seconds: float = 0.0,
     operators_limit: int | None = None,
     custom_function_call_count: int | None = None,
+    if_limit: int | None = None,
+    while_limit: int | None = None,
     required_keywords: tuple[str, ...] | None = None,
     banned_keywords: tuple[str, ...] | None = None,
 ) -> RunResult:
@@ -330,6 +358,8 @@ def run_solution_on_env(
             filename=str(script_path),
             operators_limit=operators_limit,
             custom_function_call_count=custom_function_call_count,
+            if_limit=if_limit,
+            while_limit=while_limit,
             required_keywords=required_keywords,
             banned_keywords=banned_keywords,
         )

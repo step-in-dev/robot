@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords musi być ciągiem znaków z listą słów kluczowych Pythona rozdzielonych przecinkami: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords musi być ciągiem znaków z listą słów kluczowych Pythona rozdzielonych przecinkami: {task_path}",
   "loader.keyword_list_unknown_keywords": "Pole {field_name} zawiera nieznane słowa kluczowe Pythona: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords i bannedKeywords nakładają się: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords i bannedKeywords nakładają się: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit musi być nieujemną liczbą całkowitą: {task_path}",
+  "loader.while_limit_invalid": "whileLimit musi być nieujemną liczbą całkowitą: {task_path}",
+  "limit.if_keyword": "Słowo kluczowe Pythona 'if' użyte {actual} razy. Dozwolone co najwyżej {limit}",
+  "limit.while_keyword": "Słowo kluczowe Pythona 'while' użyte {actual} razy. Dozwolone co najwyżej {limit}"
 }

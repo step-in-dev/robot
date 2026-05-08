@@ -19,6 +19,8 @@ Each task file must contain a JSON object with the following fields:
 - `todoText` (optional): task description shown in the UI.
 - `operatorsLimit` (optional): non-negative integer limit for the number of written operators in the student solution.
 - `customFunctionCallCount` (optional): non-negative integer requirement for the number of qualifying calls to user-defined functions.
+- `ifLimit` (optional): non-negative integer limit for how many times the Python keyword `if` may appear as a real token in the student solution.
+- `whileLimit` (optional): non-negative integer limit for how many times the Python keyword `while` may appear as a real token in the student solution.
 - `requiredKeywords` (optional): comma-separated list of Python keywords that must appear in the student solution as real Python keywords.
 - `bannedKeywords` (optional): comma-separated list of Python keywords that must not appear in the student solution as real Python keywords.
 
@@ -53,6 +55,19 @@ Examples:
 
 - `customFunctionCallCount: 2` is satisfied by one user-defined function called twice.
 - `customFunctionCallCount: 2` is also satisfied by two different qualifying user-defined functions called once each.
+
+## `ifLimit` and `whileLimit`
+
+Both fields are checked statically from the student source code before execution, similar to `operatorsLimit`.
+
+- The value must be a non-negative integer.
+- The checker uses Python tokenization, so keywords inside comments or string literals do not count.
+- Each occurrence of the keyword as a real token counts, including the `if` in a conditional expression such as `x if cond else y`.
+
+Examples:
+
+- `ifLimit: 1` allows a single `if` statement or a single ternary `if`, but rejects two separate `if` tokens.
+- `whileLimit: 0` rejects any solution that uses `while`.
 
 ## `requiredKeywords` and `bannedKeywords`
 
@@ -173,6 +188,8 @@ Wall segment:
   },
   "operatorsLimit": 10,
   "customFunctionCallCount": 1,
+  "ifLimit": 2,
+  "whileLimit": 0,
   "requiredKeywords": "for,def",
   "bannedKeywords": "while"
 }

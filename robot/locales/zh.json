@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords 必须是由逗号分隔的 Python 关键字字符串：{task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords 必须是由逗号分隔的 Python 关键字字符串：{task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name} 包含未知的 Python 关键字：{keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords 与 bannedKeywords 有重叠：{keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords 与 bannedKeywords 有重叠：{keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit 必须为非负整数：{task_path}",
+  "loader.while_limit_invalid": "whileLimit 必须为非负整数：{task_path}",
+  "limit.if_keyword": "Python 关键字「if」使用了 {actual} 次。最多允许 {limit} 次",
+  "limit.while_keyword": "Python 关键字「while」使用了 {actual} 次。最多允许 {limit} 次"
 }

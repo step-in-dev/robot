@@ -6,7 +6,7 @@ import keyword
 import token
 import tokenize
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .i18n import t
 
@@ -95,6 +95,8 @@ def check_operators_limit(
 CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE = t("limit.custom_function_calls")
 REQUIRED_KEYWORDS_MESSAGE_TEMPLATE = t("limit.required_keywords")
 BANNED_KEYWORDS_MESSAGE_TEMPLATE = t("limit.banned_keywords")
+IF_LIMIT_MESSAGE_TEMPLATE = t("limit.if_keyword")
+WHILE_LIMIT_MESSAGE_TEMPLATE = t("limit.while_keyword")
 
 
 def _body_contains_robot_operator_excluding_nested_defs(body: list[ast.stmt]) -> bool:
@@ -239,6 +241,87 @@ def extract_python_keywords(
         if keyword.iskeyword(tok.string):
             keywords.add(tok.string)
     return frozenset(keywords)
+
+
+def count_python_keyword_token_occurrences(
+    source: str, keyword_name: str, *, filename: str = DEFAULT_STUDENT_FILENAME
+) -> int:
+    """Count real keyword tokens (same tokenizer rules as ``extract_python_keywords``)."""
+    del filename
+    count = 0
+    tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+    for tok in tokens:
+        if tok.type != token.NAME:
+            continue
+        if tok.string == keyword_name and keyword.iskeyword(tok.string):
+            count += 1
+    return count
+
+
+@dataclass(frozen=True)
+class PythonKeywordLimitViolation:
+    actual: int
+    limit: int
+    _message_template: str = field(repr=False)
+
+    @property
+    def message(self) -> str:
+        return self._message_template.format(
+            actual=self.actual,
+            limit=self.limit,
+        )
+
+
+def _check_python_keyword_token_limit(
+    source: str,
+    limit: int | None,
+    *,
+    keyword_token: str,
+    filename: str,
+    message_template: str,
+) -> PythonKeywordLimitViolation | None:
+    if limit is None:
+        return None
+    actual = count_python_keyword_token_occurrences(
+        source, keyword_token, filename=filename
+    )
+    if actual <= limit:
+        return None
+    return PythonKeywordLimitViolation(
+        actual=actual,
+        limit=limit,
+        _message_template=message_template,
+    )
+
+
+def check_if_limit(
+    source: str,
+    if_limit: int | None,
+    *,
+    filename: str = DEFAULT_STUDENT_FILENAME,
+) -> PythonKeywordLimitViolation | None:
+    return _check_python_keyword_token_limit(
+        source,
+        if_limit,
+        keyword_token="if",
+        filename=filename,
+        message_template=IF_LIMIT_MESSAGE_TEMPLATE,
+    )
+
+
+def check_while_limit(
+    source: str,
+    while_limit: int | None,
+    *,
+    filename: str = DEFAULT_STUDENT_FILENAME,
+) -> PythonKeywordLimitViolation | None:
+    return _check_python_keyword_token_limit(
+        source,
+        while_limit,
+        keyword_token="while",
+        filename=filename,
+        message_template=WHILE_LIMIT_MESSAGE_TEMPLATE,
+    )
 
 
 @dataclass(frozen=True)

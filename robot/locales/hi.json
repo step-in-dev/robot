@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords Python कीवर्डों की अल्पविराम से अलग की गई स्ट्रिंग होनी चाहिए: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords Python कीवर्डों की अल्पविराम से अलग की गई स्ट्रिंग होनी चाहिए: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name} में Python के अज्ञात कीवर्ड हैं: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords और bannedKeywords एक-दूसरे से ओवरलैप करते हैं: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords और bannedKeywords एक-दूसरे से ओवरलैप करते हैं: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit एक गैर-ऋणात्मक पूर्णांक होना चाहिए: {task_path}",
+  "loader.while_limit_invalid": "whileLimit एक गैर-ऋणात्मक पूर्णांक होना चाहिए: {task_path}",
+  "limit.if_keyword": "Python 'if' कीवर्ड {actual} बार उपयोग किया गया। अधिकतम {limit} अनुमति",
+  "limit.while_keyword": "Python 'while' कीवर्ड {actual} बार उपयोग किया गया। अधिकतम {limit} अनुमति"
 }

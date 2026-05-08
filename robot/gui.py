@@ -59,6 +59,8 @@ class RobotWindow:
         script_path: Path | None = None,
         operators_limit: int | None = None,
         custom_function_call_count: int | None = None,
+        if_limit: int | None = None,
+        while_limit: int | None = None,
         required_keywords: tuple[str, ...] | None = None,
         banned_keywords: tuple[str, ...] | None = None,
     ):
@@ -68,6 +70,8 @@ class RobotWindow:
         self.script_path = script_path
         self.operators_limit = operators_limit
         self.custom_function_call_count = custom_function_call_count
+        self.if_limit = if_limit
+        self.while_limit = while_limit
         self.required_keywords = required_keywords
         self.banned_keywords = banned_keywords
         self.selected_index = initial_index
@@ -306,6 +310,8 @@ class RobotWindow:
                 command_delay_seconds=0.0,
                 operators_limit=self.operators_limit,
                 custom_function_call_count=self.custom_function_call_count,
+                if_limit=self.if_limit,
+                while_limit=self.while_limit,
                 required_keywords=self.required_keywords,
                 banned_keywords=self.banned_keywords,
             )

@@ -6,14 +6,19 @@ from unittest.mock import patch
 from robot.operator_limits import (
     BANNED_KEYWORDS_MESSAGE_TEMPLATE,
     CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
+    IF_LIMIT_MESSAGE_TEMPLATE,
     OPERATORS_LIMIT_MESSAGE_TEMPLATE,
     REQUIRED_KEYWORDS_MESSAGE_TEMPLATE,
+    WHILE_LIMIT_MESSAGE_TEMPLATE,
     check_banned_keywords,
     check_custom_function_call_count,
+    check_if_limit,
     check_operators_limit,
     check_required_keywords,
-    count_robot_operators,
+    check_while_limit,
     count_custom_function_calls_with_robot_commands,
+    count_python_keyword_token_occurrences,
+    count_robot_operators,
     extract_python_keywords,
 )
 
@@ -256,6 +261,93 @@ class ExtractPythonKeywordsTest(unittest.TestCase):
         self.assertEqual(extract_python_keywords(src), frozenset())
 
 
+class CountPythonKeywordTokenOccurrencesTest(unittest.TestCase):
+    def test_counts_if_and_while_tokens(self) -> None:
+        src = (
+            "if True:\n"
+            "    while False:\n"
+            "        pass\n"
+        )
+        self.assertEqual(count_python_keyword_token_occurrences(src, "if"), 1)
+        self.assertEqual(count_python_keyword_token_occurrences(src, "while"), 1)
+
+    def test_ignores_keywords_in_strings_and_comments(self) -> None:
+        src = (
+            "# if while\n"
+            "s = 'if while'\n"
+            "move_right()\n"
+        )
+        self.assertEqual(count_python_keyword_token_occurrences(src, "if"), 0)
+        self.assertEqual(count_python_keyword_token_occurrences(src, "while"), 0)
+
+    def test_counts_ternary_if_tokens(self) -> None:
+        src = "a = 1 if True else 0\n"
+        self.assertEqual(count_python_keyword_token_occurrences(src, "if"), 1)
+
+    def test_repeated_if_tokens(self) -> None:
+        src = (
+            "if True:\n"
+            "    pass\n"
+            "if False:\n"
+            "    pass\n"
+        )
+        self.assertEqual(count_python_keyword_token_occurrences(src, "if"), 2)
+
+
+class CheckIfLimitTest(unittest.TestCase):
+    def test_none_skips(self) -> None:
+        self.assertIsNone(check_if_limit("if True:\n    pass\n", None))
+
+    def test_within_limit(self) -> None:
+        self.assertIsNone(
+            check_if_limit(
+                "if True:\n    pass\n",
+                1,
+            )
+        )
+
+    def test_exceeds_returns_violation_with_message(self) -> None:
+        v = check_if_limit(
+            "if True:\n    pass\nif False:\n    pass\n",
+            1,
+        )
+        self.assertIsNotNone(v)
+        assert v is not None
+        self.assertEqual(v.actual, 2)
+        self.assertEqual(v.limit, 1)
+        self.assertEqual(
+            v.message,
+            IF_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+
+class CheckWhileLimitTest(unittest.TestCase):
+    def test_none_skips(self) -> None:
+        self.assertIsNone(check_while_limit("while False:\n    pass\n", None))
+
+    def test_within_limit(self) -> None:
+        self.assertIsNone(
+            check_while_limit(
+                "while False:\n    pass\n",
+                1,
+            )
+        )
+
+    def test_exceeds_returns_violation_with_message(self) -> None:
+        v = check_while_limit(
+            "while False:\n    pass\nwhile False:\n    pass\n",
+            1,
+        )
+        self.assertIsNotNone(v)
+        assert v is not None
+        self.assertEqual(v.actual, 2)
+        self.assertEqual(v.limit, 1)
+        self.assertEqual(
+            v.message,
+            WHILE_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+
 class CheckRequiredKeywordsTest(unittest.TestCase):
     def test_none_skips(self) -> None:
         self.assertIsNone(check_required_keywords("move_right()", None))
@@ -348,6 +440,26 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             self.assertEqual(
                 i18n.t("limit.banned_keywords", keywords="while"),
                 "В решении запрещены слова: while",
+            )
+
+    def test_if_keyword_limit_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.if_keyword", actual=2, limit=1),
+                "Ключевое слово Python «if» использовано 2 раз(а). Разрешено не более 1",
+            )
+
+    def test_while_keyword_limit_message_russian_via_t(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
+            from robot import i18n
+
+            i18n.clear_translation_cache()
+            self.assertEqual(
+                i18n.t("limit.while_keyword", actual=3, limit=1),
+                "Ключевое слово Python «while» использовано 3 раз(а). Разрешено не более 1",
             )
 
 

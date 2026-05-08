@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords는 쉼표로 구분된 Python 키워드 문자열이어야 합니다: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords는 쉼표로 구분된 Python 키워드 문자열이어야 합니다: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name}에 알 수 없는 Python 키워드가 있습니다: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords와 bannedKeywords가 겹칩니다: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords와 bannedKeywords가 겹칩니다: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit은 음이 아닌 정수여야 합니다: {task_path}",
+  "loader.while_limit_invalid": "whileLimit은 음이 아닌 정수여야 합니다: {task_path}",
+  "limit.if_keyword": "Python 키워드 'if'가 {actual}번 사용되었습니다. 최대 {limit}번까지 허용",
+  "limit.while_keyword": "Python 키워드 'while'이 {actual}번 사용되었습니다. 최대 {limit}번까지 허용"
 }

@@ -61,5 +61,9 @@
   "loader.required_keywords_invalid": "requiredKeywords має бути рядком зі списком ключових слів Python, розділених комами: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords має бути рядком зі списком ключових слів Python, розділених комами: {task_path}",
   "loader.keyword_list_unknown_keywords": "Поле {field_name} містить невідомі ключові слова Python: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords і bannedKeywords перетинаються: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords і bannedKeywords перетинаються: {keywords}: {task_path}",
+  "loader.if_limit_invalid": "ifLimit має бути невід'ємним цілим числом: {task_path}",
+  "loader.while_limit_invalid": "whileLimit має бути невід'ємним цілим числом: {task_path}",
+  "limit.if_keyword": "Ключове слово Python «if» використано {actual} раз(ів). Дозволено не більше {limit}",
+  "limit.while_keyword": "Ключове слово Python «while» використано {actual} раз(ів). Дозволено не більше {limit}"
 }
