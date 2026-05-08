@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords e bannedKeywords se sobrepõem: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit deve ser um inteiro não negativo: {task_path}",
   "loader.while_limit_invalid": "whileLimit deve ser um inteiro não negativo: {task_path}",
-  "limit.if_keyword": "Palavra-chave Python 'if' usada {actual} vezes. Permitido no máximo {limit}",
-  "limit.while_keyword": "Palavra-chave Python 'while' usada {actual} vezes. Permitido no máximo {limit}"
+  "limit.if_keyword": "'if' usado: {actual}. Permitido no máximo {limit}",
+  "limit.while_keyword": "'while' usado: {actual}. Permitido no máximo {limit}"
 }

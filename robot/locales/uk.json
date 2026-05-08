@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords і bannedKeywords перетинаються: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit має бути невід'ємним цілим числом: {task_path}",
   "loader.while_limit_invalid": "whileLimit має бути невід'ємним цілим числом: {task_path}",
-  "limit.if_keyword": "Ключове слово Python «if» використано {actual} раз(ів). Дозволено не більше {limit}",
-  "limit.while_keyword": "Ключове слово Python «while» використано {actual} раз(ів). Дозволено не більше {limit}"
+  "limit.if_keyword": "«if» використано: {actual}. Дозволено не більше {limit}",
+  "limit.while_keyword": "«while» використано: {actual}. Дозволено не більше {limit}"
 }

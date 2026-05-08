@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords und bannedKeywords überschneiden sich: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit muss eine nicht negative Ganzzahl sein: {task_path}",
   "loader.while_limit_invalid": "whileLimit muss eine nicht negative Ganzzahl sein: {task_path}",
-  "limit.if_keyword": "Python-Schlüsselwort 'if' {actual}-mal verwendet. Höchstens {limit} erlaubt",
-  "limit.while_keyword": "Python-Schlüsselwort 'while' {actual}-mal verwendet. Höchstens {limit} erlaubt"
+  "limit.if_keyword": "'if' verwendet: {actual}. Höchstens {limit} erlaubt",
+  "limit.while_keyword": "'while' verwendet: {actual}. Höchstens {limit} erlaubt"
 }

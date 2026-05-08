@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords と bannedKeywords が重複しています: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit は負でない整数である必要があります：{task_path}",
   "loader.while_limit_invalid": "whileLimit は負でない整数である必要があります：{task_path}",
-  "limit.if_keyword": "Python のキーワード「if」が {actual} 回使われています。最大 {limit} 回まで許可",
-  "limit.while_keyword": "Python のキーワード「while」が {actual} 回使われています。最大 {limit} 回まで許可"
+  "limit.if_keyword": "「if」: {actual}。最大 {limit} まで",
+  "limit.while_keyword": "「while」: {actual}。最大 {limit} まで"
 }

@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords와 bannedKeywords가 겹칩니다: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit은 음이 아닌 정수여야 합니다: {task_path}",
   "loader.while_limit_invalid": "whileLimit은 음이 아닌 정수여야 합니다: {task_path}",
-  "limit.if_keyword": "Python 키워드 'if'가 {actual}번 사용되었습니다. 최대 {limit}번까지 허용",
-  "limit.while_keyword": "Python 키워드 'while'이 {actual}번 사용되었습니다. 최대 {limit}번까지 허용"
+  "limit.if_keyword": "'if' 사용: {actual}. 최대 {limit}까지 허용",
+  "limit.while_keyword": "'while' 사용: {actual}. 최대 {limit}까지 허용"
 }

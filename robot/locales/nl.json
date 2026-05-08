@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords en bannedKeywords overlappen: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit moet een niet-negatief geheel getal zijn: {task_path}",
   "loader.while_limit_invalid": "whileLimit moet een niet-negatief geheel getal zijn: {task_path}",
-  "limit.if_keyword": "Python-trefwoord 'if' {actual} keer gebruikt. Maximaal {limit} toegestaan",
-  "limit.while_keyword": "Python-trefwoord 'while' {actual} keer gebruikt. Maximaal {limit} toegestaan"
+  "limit.if_keyword": "'if' gebruikt: {actual}. Maximaal {limit} toegestaan",
+  "limit.while_keyword": "'while' gebruikt: {actual}. Maximaal {limit} toegestaan"
 }

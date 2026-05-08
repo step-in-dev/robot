@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords et bannedKeywords se chevauchent : {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit doit être un entier positif ou nul : {task_path}",
   "loader.while_limit_invalid": "whileLimit doit être un entier positif ou nul : {task_path}",
-  "limit.if_keyword": "Mot-clé Python « if » utilisé {actual} fois. Au plus {limit} autorisé",
-  "limit.while_keyword": "Mot-clé Python « while » utilisé {actual} fois. Au plus {limit} autorisé"
+  "limit.if_keyword": "« if » utilisé : {actual}. Au plus {limit} autorisé",
+  "limit.while_keyword": "« while » utilisé : {actual}. Au plus {limit} autorisé"
 }

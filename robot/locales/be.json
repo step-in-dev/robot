@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords і bannedKeywords перасякаюцца: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit павінен быць цэлым лікам не менш за нуль: {task_path}",
   "loader.while_limit_invalid": "whileLimit павінен быць цэлым лікам не менш за нуль: {task_path}",
-  "limit.if_keyword": "Ключавое слова Python «if» выкарыстана {actual} раз(ы). Дазволена не больш за {limit}",
-  "limit.while_keyword": "Ключавое слова Python «while» выкарыстана {actual} раз(ы). Дазволена не больш за {limit}"
+  "limit.if_keyword": "«if» выкарыстана: {actual}. Дазволена не больш за {limit}",
+  "limit.while_keyword": "«while» выкарыстана: {actual}. Дазволена не больш за {limit}"
 }

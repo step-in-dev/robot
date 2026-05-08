@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords এবং bannedKeywords একে অপরের সাথে ওভারল্যাপ করে: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
   "loader.while_limit_invalid": "whileLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
-  "limit.if_keyword": "Python 'if' কীওয়ার্ড {actual} বার ব্যবহৃত। সর্বোচ্চ {limit} পর্যন্ত অনুমোদিত",
-  "limit.while_keyword": "Python 'while' কীওয়ার্ড {actual} বার ব্যবহৃত। সর্বোচ্চ {limit} পর্যন্ত অনুমোদিত"
+  "limit.if_keyword": "'if' ব্যবহৃত: {actual}। সর্বোচ্চ {limit}",
+  "limit.while_keyword": "'while' ব্যবহৃত: {actual}। সর্বোচ্চ {limit}"
 }

@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "requiredKeywords اور bannedKeywords آپس میں متداخل ہیں: {keywords}: {task_path}",
   "loader.if_limit_invalid": "ifLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
   "loader.while_limit_invalid": "whileLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
-  "limit.if_keyword": "Python 'if' کلیدی لفظ {actual} بار استعمال ہوا۔ زیادہ سے زیادہ {limit} کی اجازت",
-  "limit.while_keyword": "Python 'while' کلیدی لفظ {actual} بار استعمال ہوا۔ زیادہ سے زیادہ {limit} کی اجازت"
+  "limit.if_keyword": "'if' {actual} بار۔ زیادہ سے زیادہ {limit}",
+  "limit.while_keyword": "'while' {actual} بار۔ زیادہ سے زیادہ {limit}"
 }

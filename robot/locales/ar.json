@@ -64,6 +64,6 @@
   "loader.keyword_lists_conflict": "يوجد تداخل بين requiredKeywords و bannedKeywords: {keywords}: {task_path}",
   "loader.if_limit_invalid": "يجب أن يكون ifLimit عددًا صحيحًا غير سالب: {task_path}",
   "loader.while_limit_invalid": "يجب أن يكون whileLimit عددًا صحيحًا غير سالب: {task_path}",
-  "limit.if_keyword": "تم استخدام الكلمة المفتاحية 'if' في بايثون {actual} مرة. يُسمح بحد أقصى {limit}",
-  "limit.while_keyword": "تم استخدام الكلمة المفتاحية 'while' في بايثون {actual} مرة. يُسمح بحد أقصى {limit}"
+  "limit.if_keyword": "'if' مستخدمة {actual} مرة. حد أقصى {limit}",
+  "limit.while_keyword": "'while' مستخدمة {actual} مرة. حد أقصى {limit}"
 }
