@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit deve essere un intero non negativo: {task_path}",
   "loader.while_limit_invalid": "whileLimit deve essere un intero non negativo: {task_path}",
   "limit.if_keyword": "'if' usato: {actual}. Consentiti al massimo {limit}",
-  "limit.while_keyword": "'while' usato: {actual}. Consentiti al massimo {limit}"
+  "limit.while_keyword": "'while' usato: {actual}. Consentiti al massimo {limit}",
+  "constraints.button": "Vincoli",
+  "constraints.title": "Vincoli del compito",
+  "constraints.operators_max": "Comandi del robot: al massimo {limit}",
+  "constraints.functions_min": "Chiamate a funzioni definite dall’utente: almeno {required}",
+  "constraints.if_max": "Parola chiave 'if': al massimo {limit}",
+  "constraints.while_max": "Parola chiave 'while': al massimo {limit}",
+  "constraints.required_keywords": "Parole chiave richieste nella soluzione: {keywords}",
+  "constraints.banned_keywords": "Parole chiave vietate nella soluzione: {keywords}"
 }

@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit musi być nieujemną liczbą całkowitą: {task_path}",
   "loader.while_limit_invalid": "whileLimit musi być nieujemną liczbą całkowitą: {task_path}",
   "limit.if_keyword": "'if' użyte: {actual}. Dozwolone co najwyżej {limit}",
-  "limit.while_keyword": "'while' użyte: {actual}. Dozwolone co najwyżej {limit}"
+  "limit.while_keyword": "'while' użyte: {actual}. Dozwolone co najwyżej {limit}",
+  "constraints.button": "Ograniczenia",
+  "constraints.title": "Ograniczenia zadania",
+  "constraints.operators_max": "Polecenia robota: co najwyżej {limit}",
+  "constraints.functions_min": "Wywołania własnych funkcji: co najmniej {required}",
+  "constraints.if_max": "Słowo kluczowe „if”: co najwyżej {limit}",
+  "constraints.while_max": "Słowo kluczowe „while”: co najwyżej {limit}",
+  "constraints.required_keywords": "Wymagane słowa kluczowe w rozwiązaniu: {keywords}",
+  "constraints.banned_keywords": "Zabronione słowa kluczowe w rozwiązaniu: {keywords}"
 }

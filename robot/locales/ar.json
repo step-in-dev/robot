@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "يجب أن يكون ifLimit عددًا صحيحًا غير سالب: {task_path}",
   "loader.while_limit_invalid": "يجب أن يكون whileLimit عددًا صحيحًا غير سالب: {task_path}",
   "limit.if_keyword": "'if' مستخدمة {actual} مرة. حد أقصى {limit}",
-  "limit.while_keyword": "'while' مستخدمة {actual} مرة. حد أقصى {limit}"
+  "limit.while_keyword": "'while' مستخدمة {actual} مرة. حد أقصى {limit}",
+  "constraints.button": "القيود",
+  "constraints.title": "قيود المهمة",
+  "constraints.operators_max": "أوامر الروبوت: على الأكثر {limit}",
+  "constraints.functions_min": "استدعاءات الدوال المعرّفة من الطالب: على الأقل {required}",
+  "constraints.if_max": "الكلمة المفتاحية if: على الأكثر {limit}",
+  "constraints.while_max": "الكلمة المفتاحية while: على الأكثر {limit}",
+  "constraints.required_keywords": "الكلمات المفتاحية المطلوبة في الحل: {keywords}",
+  "constraints.banned_keywords": "الكلمات المفتاحية الممنوعة في الحل: {keywords}"
 }

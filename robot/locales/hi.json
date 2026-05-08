@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit एक गैर-ऋणात्मक पूर्णांक होना चाहिए: {task_path}",
   "loader.while_limit_invalid": "whileLimit एक गैर-ऋणात्मक पूर्णांक होना चाहिए: {task_path}",
   "limit.if_keyword": "'if' उपयोग: {actual}। अधिकतम {limit}",
-  "limit.while_keyword": "'while' उपयोग: {actual}। अधिकतम {limit}"
+  "limit.while_keyword": "'while' उपयोग: {actual}। अधिकतम {limit}",
+  "constraints.button": "प्रतिबंध",
+  "constraints.title": "कार्य प्रतिबंध",
+  "constraints.operators_max": "रोबोट आदेश: अधिकतम {limit}",
+  "constraints.functions_min": "उपयोगकर्ता-परिभाषित फ़ंक्शन कॉल: कम से कम {required}",
+  "constraints.if_max": "कीवर्ड 'if': अधिकतम {limit}",
+  "constraints.while_max": "कीवर्ड 'while': अधिकतम {limit}",
+  "constraints.required_keywords": "हल में आवश्यक कीवर्ड: {keywords}",
+  "constraints.banned_keywords": "हल में निषिद्ध कीवर्ड: {keywords}"
 }

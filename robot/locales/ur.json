@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
   "loader.while_limit_invalid": "whileLimit منفی نہ ہونے والا عدد ہونا چاہیے: {task_path}",
   "limit.if_keyword": "'if' {actual} بار۔ زیادہ سے زیادہ {limit}",
-  "limit.while_keyword": "'while' {actual} بار۔ زیادہ سے زیادہ {limit}"
+  "limit.while_keyword": "'while' {actual} بار۔ زیادہ سے زیادہ {limit}",
+  "constraints.button": "محدودیتیں",
+  "constraints.title": "کام کی محدودیتیں",
+  "constraints.operators_max": "روبوٹ کے احکام: زیادہ سے زیادہ {limit}",
+  "constraints.functions_min": "اپنی تعریف شدہ فنکشن کالز: کم از کم {required}",
+  "constraints.if_max": "کلیدی لفظ 'if': زیادہ سے زیادہ {limit}",
+  "constraints.while_max": "کلیدی لفظ 'while': زیادہ سے زیادہ {limit}",
+  "constraints.required_keywords": "حل میں ضروری کلیدی الفاظ: {keywords}",
+  "constraints.banned_keywords": "حل میں ممنوع کلیدی الفاظ: {keywords}"
 }

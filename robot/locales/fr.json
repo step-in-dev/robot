@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit doit être un entier positif ou nul : {task_path}",
   "loader.while_limit_invalid": "whileLimit doit être un entier positif ou nul : {task_path}",
   "limit.if_keyword": "« if » utilisé : {actual}. Au plus {limit} autorisé",
-  "limit.while_keyword": "« while » utilisé : {actual}. Au plus {limit} autorisé"
+  "limit.while_keyword": "« while » utilisé : {actual}. Au plus {limit} autorisé",
+  "constraints.button": "Contraintes",
+  "constraints.title": "Contraintes de la tâche",
+  "constraints.operators_max": "Commandes du robot : au plus {limit}",
+  "constraints.functions_min": "Appels de fonctions définies par l’élève : au moins {required}",
+  "constraints.if_max": "Mot-clé « if » : au plus {limit}",
+  "constraints.while_max": "Mot-clé « while » : au plus {limit}",
+  "constraints.required_keywords": "Mots-clés requis dans la solution : {keywords}",
+  "constraints.banned_keywords": "Mots-clés interdits dans la solution : {keywords}"
 }

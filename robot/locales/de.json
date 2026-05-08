@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit muss eine nicht negative Ganzzahl sein: {task_path}",
   "loader.while_limit_invalid": "whileLimit muss eine nicht negative Ganzzahl sein: {task_path}",
   "limit.if_keyword": "'if' verwendet: {actual}. Höchstens {limit} erlaubt",
-  "limit.while_keyword": "'while' verwendet: {actual}. Höchstens {limit} erlaubt"
+  "limit.while_keyword": "'while' verwendet: {actual}. Höchstens {limit} erlaubt",
+  "constraints.button": "Grenzen",
+  "constraints.title": "Aufgabenbeschränkungen",
+  "constraints.operators_max": "Roboter-Befehle: höchstens {limit}",
+  "constraints.functions_min": "Aufrufe eigener Funktionen: mindestens {required}",
+  "constraints.if_max": "Schlüsselwort 'if': höchstens {limit}",
+  "constraints.while_max": "Schlüsselwort 'while': höchstens {limit}",
+  "constraints.required_keywords": "Erforderliche Schlüsselwörter in der Lösung: {keywords}",
+  "constraints.banned_keywords": "Verbotene Schlüsselwörter in der Lösung: {keywords}"
 }

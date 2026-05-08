@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit は負でない整数である必要があります：{task_path}",
   "loader.while_limit_invalid": "whileLimit は負でない整数である必要があります：{task_path}",
   "limit.if_keyword": "「if」: {actual}。最大 {limit} まで",
-  "limit.while_keyword": "「while」: {actual}。最大 {limit} まで"
+  "limit.while_keyword": "「while」: {actual}。最大 {limit} まで",
+  "constraints.button": "制限",
+  "constraints.title": "課題の制限",
+  "constraints.operators_max": "ロボットの命令：最大 {limit} 個",
+  "constraints.functions_min": "自分で定義した関数の呼び出し：少なくとも {required} 回",
+  "constraints.if_max": "キーワード if：最大 {limit} 個",
+  "constraints.while_max": "キーワード while：最大 {limit} 個",
+  "constraints.required_keywords": "解答に必須のキーワード：{keywords}",
+  "constraints.banned_keywords": "解答で禁止のキーワード：{keywords}"
 }

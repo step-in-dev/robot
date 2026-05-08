@@ -65,5 +65,13 @@
   "loader.required_keywords_invalid": "requiredKeywords must be a comma-separated string of Python keywords: {task_path}",
   "loader.banned_keywords_invalid": "bannedKeywords must be a comma-separated string of Python keywords: {task_path}",
   "loader.keyword_list_unknown_keywords": "{field_name} contains unknown Python keywords: {keywords}: {task_path}",
-  "loader.keyword_lists_conflict": "requiredKeywords and bannedKeywords overlap: {keywords}: {task_path}"
+  "loader.keyword_lists_conflict": "requiredKeywords and bannedKeywords overlap: {keywords}: {task_path}",
+  "constraints.button": "Constraints",
+  "constraints.title": "Task constraints",
+  "constraints.operators_max": "Robot commands: at most {limit}",
+  "constraints.functions_min": "User-defined function calls: at least {required}",
+  "constraints.if_max": "Keyword 'if': at most {limit}",
+  "constraints.while_max": "Keyword 'while': at most {limit}",
+  "constraints.required_keywords": "Required keywords in solution: {keywords}",
+  "constraints.banned_keywords": "Forbidden keywords in solution: {keywords}"
 }

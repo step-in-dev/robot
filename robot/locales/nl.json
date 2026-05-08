@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit moet een niet-negatief geheel getal zijn: {task_path}",
   "loader.while_limit_invalid": "whileLimit moet een niet-negatief geheel getal zijn: {task_path}",
   "limit.if_keyword": "'if' gebruikt: {actual}. Maximaal {limit} toegestaan",
-  "limit.while_keyword": "'while' gebruikt: {actual}. Maximaal {limit} toegestaan"
+  "limit.while_keyword": "'while' gebruikt: {actual}. Maximaal {limit} toegestaan",
+  "constraints.button": "Beperkingen",
+  "constraints.title": "Taakbeperkingen",
+  "constraints.operators_max": "Robotopdrachten: hoogstens {limit}",
+  "constraints.functions_min": "Aanroepen van eigen functies: minstens {required}",
+  "constraints.if_max": "Trefwoord 'if': hoogstens {limit}",
+  "constraints.while_max": "Trefwoord 'while': hoogstens {limit}",
+  "constraints.required_keywords": "Verplichte trefwoorden in de oplossing: {keywords}",
+  "constraints.banned_keywords": "Verboden trefwoorden in de oplossing: {keywords}"
 }

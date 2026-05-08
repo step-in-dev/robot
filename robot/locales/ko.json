@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit은 음이 아닌 정수여야 합니다: {task_path}",
   "loader.while_limit_invalid": "whileLimit은 음이 아닌 정수여야 합니다: {task_path}",
   "limit.if_keyword": "'if' 사용: {actual}. 최대 {limit}까지 허용",
-  "limit.while_keyword": "'while' 사용: {actual}. 최대 {limit}까지 허용"
+  "limit.while_keyword": "'while' 사용: {actual}. 최대 {limit}까지 허용",
+  "constraints.button": "제한",
+  "constraints.title": "과제 제한",
+  "constraints.operators_max": "로봇 명령: 최대 {limit}개",
+  "constraints.functions_min": "사용자 정의 함수 호출: 최소 {required}회",
+  "constraints.if_max": "키워드 if: 최대 {limit}개",
+  "constraints.while_max": "키워드 while: 최대 {limit}개",
+  "constraints.required_keywords": "풀이에 필요한 키워드: {keywords}",
+  "constraints.banned_keywords": "풀이에서 금지된 키워드: {keywords}"
 }

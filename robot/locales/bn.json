@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
   "loader.while_limit_invalid": "whileLimit অবশ্যই একটি অ-ঋণাত্মক পূর্ণসংখ্যা হতে হবে: {task_path}",
   "limit.if_keyword": "'if' ব্যবহৃত: {actual}। সর্বোচ্চ {limit}",
-  "limit.while_keyword": "'while' ব্যবহৃত: {actual}। সর্বোচ্চ {limit}"
+  "limit.while_keyword": "'while' ব্যবহৃত: {actual}। সর্বোচ্চ {limit}",
+  "constraints.button": "সীমাবদ্ধতা",
+  "constraints.title": "কাজের সীমাবদ্ধতা",
+  "constraints.operators_max": "রোবটের নির্দেশ: সর্বোচ্চ {limit}",
+  "constraints.functions_min": "নিজস্ব ফাংশন কল: কমপক্ষে {required}",
+  "constraints.if_max": "কীওয়ার্ড 'if': সর্বোচ্চ {limit}",
+  "constraints.while_max": "কীওয়ার্ড 'while': সর্বোচ্চ {limit}",
+  "constraints.required_keywords": "সমাধানে প্রয়োজনীয় কীওয়ার্ড: {keywords}",
+  "constraints.banned_keywords": "সমাধানে নিষিদ্ধ কীওয়ার্ড: {keywords}"
 }

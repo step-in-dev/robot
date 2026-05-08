@@ -47,6 +47,33 @@ _ESCAPE_BINDING = "<Escape>"
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
 
+# Help uses width=72; constraints dialog is intentionally narrower.
+_CONSTRAINTS_TEXT_WIDTH = int(72 * 0.6)
+
+
+def _task_has_any_constraints(
+    *,
+    operators_limit: int | None,
+    custom_function_call_count: int | None,
+    if_limit: int | None,
+    while_limit: int | None,
+    required_keywords: tuple[str, ...] | None,
+    banned_keywords: tuple[str, ...] | None,
+) -> bool:
+    if operators_limit is not None:
+        return True
+    if custom_function_call_count is not None:
+        return True
+    if if_limit is not None:
+        return True
+    if while_limit is not None:
+        return True
+    if required_keywords:
+        return True
+    if banned_keywords:
+        return True
+    return False
+
 
 class RobotWindow:
     def __init__(
@@ -84,6 +111,8 @@ class RobotWindow:
         self._step_tabs_locked = False
         self._help_window: tk.Toplevel | None = None
         self._help_window_close_handler: Callable[[], None] | None = None
+        self._constraints_window: tk.Toplevel | None = None
+        self._constraints_window_close_handler: Callable[[], None] | None = None
 
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"
@@ -129,21 +158,44 @@ class RobotWindow:
             )
             self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
+        self.top_toolbar: tk.Frame | None = None
         self.tab_frame: tk.Frame | None = None
         self.tab_buttons: list[tk.Button] = []
-        if len(envs) > 1:
+        self.constraints_button: tk.Button | None = None
+        has_env_tabs = len(envs) > 1
+        has_constraints = _task_has_any_constraints(
+            operators_limit=operators_limit,
+            custom_function_call_count=custom_function_call_count,
+            if_limit=if_limit,
+            while_limit=while_limit,
+            required_keywords=required_keywords,
+            banned_keywords=banned_keywords,
+        )
+        if has_env_tabs or has_constraints:
             tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
-            self.tab_frame = tk.Frame(self.root)
-            self.tab_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady)
-            for index in range(len(envs)):
-                button = tk.Button(
-                    self.tab_frame,
-                    text=str(index + 1),
-                    command=lambda index=index: self.select_env(index),
-                    width=4,
+            self.top_toolbar = tk.Frame(self.root)
+            self.top_toolbar.pack(
+                side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady
+            )
+            self.tab_frame = tk.Frame(self.top_toolbar)
+            self.tab_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            if has_env_tabs:
+                for index in range(len(envs)):
+                    button = tk.Button(
+                        self.tab_frame,
+                        text=str(index + 1),
+                        command=lambda index=index: self.select_env(index),
+                        width=4,
+                    )
+                    button.pack(side=tk.LEFT)
+                    self.tab_buttons.append(button)
+            if has_constraints:
+                self.constraints_button = tk.Button(
+                    self.top_toolbar,
+                    text=t("constraints.button"),
+                    command=self.show_constraints,
                 )
-                button.pack(side=tk.LEFT)
-                self.tab_buttons.append(button)
+                self.constraints_button.pack(side=tk.RIGHT)
         self.canvas = tk.Canvas(
             self.root,
             bg=self.root.cget("bg"),
@@ -341,6 +393,13 @@ class RobotWindow:
                 pass
             self._help_window = None
             self._help_window_close_handler = None
+        if self._constraints_window is not None:
+            try:
+                self._constraints_window.destroy()
+            except tk.TclError:
+                pass
+            self._constraints_window = None
+            self._constraints_window_close_handler = None
         self.is_closed = True
         self.root.destroy()
 
@@ -405,8 +464,8 @@ class RobotWindow:
                 state=state,
             )
 
-    def _focus_help_window(self, win: tk.Toplevel) -> None:
-        """Raise and focus the help dialog (main window may be ``-topmost``)."""
+    def _focus_toplevel_dialog(self, win: tk.Toplevel) -> None:
+        """Raise and focus a secondary dialog (main window may be ``-topmost``)."""
         win.lift()
         win.focus_set()
 
@@ -428,7 +487,7 @@ class RobotWindow:
         if self._help_window is not None:
             try:
                 if self._help_window.winfo_exists():
-                    self._focus_help_window(self._help_window)
+                    self._focus_toplevel_dialog(self._help_window)
                     return
             except tk.TclError:
                 pass
@@ -475,7 +534,96 @@ class RobotWindow:
         body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
         text.insert(tk.END, body)
         text.configure(state=tk.DISABLED)
-        self._focus_help_window(help_win)
+        self._focus_toplevel_dialog(help_win)
+
+    def _constraints_body_lines(self) -> list[str]:
+        lines: list[str] = []
+        if self.operators_limit is not None:
+            lines.append(
+                t("constraints.operators_max", limit=self.operators_limit)
+            )
+        if self.custom_function_call_count is not None:
+            lines.append(
+                t(
+                    "constraints.functions_min",
+                    required=self.custom_function_call_count,
+                )
+            )
+        if self.if_limit is not None:
+            lines.append(t("constraints.if_max", limit=self.if_limit))
+        if self.while_limit is not None:
+            lines.append(t("constraints.while_max", limit=self.while_limit))
+        if self.required_keywords:
+            joined = ", ".join(self.required_keywords)
+            lines.append(
+                t("constraints.required_keywords", keywords=joined)
+            )
+        if self.banned_keywords:
+            joined = ", ".join(self.banned_keywords)
+            lines.append(
+                t("constraints.banned_keywords", keywords=joined)
+            )
+        return lines
+
+    def show_constraints(self) -> None:
+        """Open or focus a window listing task limits that apply to this task."""
+        if self.is_closed:
+            return
+        if self._constraints_window is not None:
+            try:
+                if self._constraints_window.winfo_exists():
+                    self._focus_toplevel_dialog(self._constraints_window)
+                    return
+            except tk.TclError:
+                pass
+            self._constraints_window = None
+
+        body_lines = self._constraints_body_lines()
+        if not body_lines:
+            return
+
+        c_win = tk.Toplevel(self.root)
+        self._constraints_window = c_win
+        c_win.title(t("constraints.title"))
+        c_win.transient(self.root)
+
+        def _clear_constraints_ref() -> None:
+            try:
+                c_win.destroy()
+            except tk.TclError:
+                pass
+            self._constraints_window = None
+            self._constraints_window_close_handler = None
+
+        self._constraints_window_close_handler = _clear_constraints_ref
+        c_win.protocol("WM_DELETE_WINDOW", self._constraints_window_close_handler)
+
+        def _handle_constraints_escape(_event: tk.Event) -> str | None:
+            _clear_constraints_ref()
+            return "break"
+
+        c_win.bind(_ESCAPE_BINDING, _handle_constraints_escape)
+
+        frame = tk.Frame(c_win, padx=10, pady=10)
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        text = tk.Text(
+            frame,
+            wrap=tk.WORD,
+            width=_CONSTRAINTS_TEXT_WIDTH,
+            height=min(24, max(6, len(body_lines) + 2)),
+            relief=tk.FLAT,
+            highlightthickness=0,
+        )
+        scroll = tk.Scrollbar(frame, command=text.yview)
+        text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        body = "\n".join(body_lines).rstrip() + "\n"
+        text.insert(tk.END, body)
+        text.configure(state=tk.DISABLED)
+        self._focus_toplevel_dialog(c_win)
 
     def _hide_step_button_from_controls(self) -> None:
         """Hide the step button while the UI is in post-run restore mode."""

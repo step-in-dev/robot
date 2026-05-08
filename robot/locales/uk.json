@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit має бути невід'ємним цілим числом: {task_path}",
   "loader.while_limit_invalid": "whileLimit має бути невід'ємним цілим числом: {task_path}",
   "limit.if_keyword": "«if» використано: {actual}. Дозволено не більше {limit}",
-  "limit.while_keyword": "«while» використано: {actual}. Дозволено не більше {limit}"
+  "limit.while_keyword": "«while» використано: {actual}. Дозволено не більше {limit}",
+  "constraints.button": "Обмеження",
+  "constraints.title": "Обмеження завдання",
+  "constraints.operators_max": "Команди Робота: не більше {limit}",
+  "constraints.functions_min": "Викликів власних функцій: не менше {required}",
+  "constraints.if_max": "Ключове слово «if»: не більше {limit}",
+  "constraints.while_max": "Ключове слово «while»: не більше {limit}",
+  "constraints.required_keywords": "У рішенні потрібні ключові слова: {keywords}",
+  "constraints.banned_keywords": "У рішенні заборонені ключові слова: {keywords}"
 }

@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit 必须为非负整数：{task_path}",
   "loader.while_limit_invalid": "whileLimit 必须为非负整数：{task_path}",
   "limit.if_keyword": "「if」使用：{actual}。最多 {limit}",
-  "limit.while_keyword": "「while」使用：{actual}。最多 {limit}"
+  "limit.while_keyword": "「while」使用：{actual}。最多 {limit}",
+  "constraints.button": "限制",
+  "constraints.title": "任务限制",
+  "constraints.operators_max": "机器人指令：最多 {limit} 条",
+  "constraints.functions_min": "自定义函数调用：至少 {required} 次",
+  "constraints.if_max": "关键字 if：最多 {limit} 次",
+  "constraints.while_max": "关键字 while：最多 {limit} 次",
+  "constraints.required_keywords": "解答中必须包含的关键字：{keywords}",
+  "constraints.banned_keywords": "解答中禁止的关键字：{keywords}"
 }

@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit павінен быць цэлым лікам не менш за нуль: {task_path}",
   "loader.while_limit_invalid": "whileLimit павінен быць цэлым лікам не менш за нуль: {task_path}",
   "limit.if_keyword": "«if» выкарыстана: {actual}. Дазволена не больш за {limit}",
-  "limit.while_keyword": "«while» выкарыстана: {actual}. Дазволена не больш за {limit}"
+  "limit.while_keyword": "«while» выкарыстана: {actual}. Дазволена не больш за {limit}",
+  "constraints.button": "Абмежаванні",
+  "constraints.title": "Абмежаванні задання",
+  "constraints.operators_max": "Каманды Робата: не больш за {limit}",
+  "constraints.functions_min": "Выклікаў сваіх функцый: не менш за {required}",
+  "constraints.if_max": "Ключавое слова «if»: не больш за {limit}",
+  "constraints.while_max": "Ключавое слова «while»: не больш за {limit}",
+  "constraints.required_keywords": "У рашэнні патрабуюцца ключавыя словы: {keywords}",
+  "constraints.banned_keywords": "У рашэнні забаронены ключавыя словы: {keywords}"
 }

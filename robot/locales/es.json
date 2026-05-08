@@ -65,5 +65,13 @@
   "loader.if_limit_invalid": "ifLimit debe ser un entero no negativo: {task_path}",
   "loader.while_limit_invalid": "whileLimit debe ser un entero no negativo: {task_path}",
   "limit.if_keyword": "'if' usado: {actual}. Como máximo {limit}",
-  "limit.while_keyword": "'while' usado: {actual}. Como máximo {limit}"
+  "limit.while_keyword": "'while' usado: {actual}. Como máximo {limit}",
+  "constraints.button": "Límites",
+  "constraints.title": "Restricciones de la tarea",
+  "constraints.operators_max": "Comandos del robot: como máximo {limit}",
+  "constraints.functions_min": "Llamadas a funciones propias: al menos {required}",
+  "constraints.if_max": "Palabra clave 'if': como máximo {limit}",
+  "constraints.while_max": "Palabra clave 'while': como máximo {limit}",
+  "constraints.required_keywords": "Palabras clave obligatorias en la solución: {keywords}",
+  "constraints.banned_keywords": "Palabras clave prohibidas en la solución: {keywords}"
 }
