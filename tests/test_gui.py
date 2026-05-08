@@ -126,7 +126,7 @@ class CalculateCanvasSizeTest(unittest.TestCase):
                 }
             ),
         ]
-        self.assertEqual(calculate_canvas_size(envs, 80, 4), (450, 244))
+        self.assertEqual(calculate_canvas_size(envs, 80, 4), (500, 244))
 
     def test_small_environment_uses_minimum_canvas_width(self) -> None:
         envs = [
@@ -210,9 +210,11 @@ class CalculateFieldOffsetTest(unittest.TestCase):
         self.assertEqual(offset_x, (canvas_w - (5 * 80 + 4)) // 2)
 
     def test_vertical_offset_only_when_width_matches_max(self) -> None:
+        # Width 7 so calculated canvas width (7*80+4) exceeds MIN_CANVAS_WIDTH; otherwise
+        # the minimum-width canvas adds horizontal centering unrelated to height mismatch.
         max_env = make_env(
             {
-                "width": 6,
+                "width": 7,
                 "height": 3,
                 "startRow": 0,
                 "startCol": 0,
@@ -222,7 +224,7 @@ class CalculateFieldOffsetTest(unittest.TestCase):
         )
         shorter_same_width = make_env(
             {
-                "width": 6,
+                "width": 7,
                 "height": 2,
                 "startRow": 0,
                 "startCol": 0,
