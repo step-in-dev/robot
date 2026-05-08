@@ -21,6 +21,10 @@ The target audience is school students who are learning introductory programming
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
 
+## Status strip localization
+
+Localized strings shown in the Robot window status strip must not exceed **50 characters**, so they remain visible when the window is at its minimum size.
+
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
