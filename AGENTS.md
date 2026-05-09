@@ -20,6 +20,7 @@ The target audience is school students who are learning introductory programming
 ## Documentation
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
+- `Docs/localization-style.md` describes conventions for localized UI strings (Python keywords, `True`/`False`/`None`, and the proper name Robot).
 
 ## Status strip localization
 
