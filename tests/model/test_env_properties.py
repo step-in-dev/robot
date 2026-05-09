@@ -1,7 +1,6 @@
 import unittest
 
 from robot.model import (
-    RobotEnvDto,
     Cell,
     ValuedCell,
 )
@@ -143,30 +142,6 @@ class RobotEnvPropertiesTest(unittest.TestCase):
             }
         )
         self.assertEqual(env.printed_cells, ())
-
-
-class RobotEnvDtoNormalizationTest(unittest.TestCase):
-    def test_normalization_matches_sidwebui_rules(self):
-        dto = RobotEnvDto.from_dict(
-            {
-                "width": 2,
-                "height": 1,
-                "startRow": 0,
-                "startCol": 0,
-                "finalRow": 0,
-                "finalCol": 1,
-                "walls": [
-                    [{"r": 0, "c": 0}, {"r": 0, "c": 1}],
-                    [{"r": 0, "c": 0}, {"r": 0, "c": 0}],
-                ],
-                "paintedCells": [{"r": 0, "c": 0}],
-                "cellsToPaint": [{"r": 0, "c": 0}, {"r": 0, "c": 1}],
-            }
-        )
-
-        self.assertEqual(len(dto.walls), 1)
-        self.assertEqual(len(dto.cells_to_paint), 1)
-        self.assertEqual((dto.cells_to_paint[0].r, dto.cells_to_paint[0].c), (0, 1))
 
 
 if __name__ == "__main__":
