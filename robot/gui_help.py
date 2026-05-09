@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import webbrowser
 import tkinter as tk
+import tkinter.font as tkfont
 
 from .command_help import iter_command_help_lines, iter_task_list_lines
 from .i18n import t
@@ -79,13 +80,23 @@ def _populate_robot_help_text(text: tk.Text) -> None:
     text.insert(tk.END, t("help.project_repo_label") + "\n")
     text.insert(tk.END, _HELP_PROJECT_REPOSITORY_URL, (_HELP_BODY_LINK_TAG,))
     text.insert(tk.END, "\n\n")
-    body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
+
+    cmd_iter = iter(iter_command_help_lines())
+    intro_line = next(cmd_iter, "")
+    text.insert(tk.END, intro_line, "bold")
+    body = "\n" + "\n".join(cmd_iter).rstrip() + "\n"
     text.insert(tk.END, body)
 
-    task_list = "\n".join(iter_task_list_lines()).rstrip() + "\n"
-    text.insert(tk.END, "\n" + task_list)
+    task_iter = iter(iter_task_list_lines())
+    tasks_title = next(task_iter, "")
+    text.insert(tk.END, "\n" + tasks_title, "bold")
+    task_body = "\n" + "\n".join(task_iter).rstrip() + "\n"
+    text.insert(tk.END, task_body)
 
     text.tag_configure(_HELP_BODY_LINK_TAG, foreground="#0645ad", underline=True)
+    _bold_font = tkfont.Font(font=text.cget("font"))
+    _bold_font.configure(weight="bold")
+    text.tag_configure("bold", font=_bold_font)
 
     def _on_help_text_button1(event: tk.Event) -> None:
         try:
