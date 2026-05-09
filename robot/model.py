@@ -284,18 +284,6 @@ class Robot:
         self._row += 1
         self._change_listener()
 
-    def move(self, direction: Direction) -> None:
-        if direction == "right":
-            self.move_right()
-        elif direction == "left":
-            self.move_left()
-        elif direction == "up":
-            self.move_up()
-        elif direction == "down":
-            self.move_down()
-        else:
-            raise RobotError(t("model.error.unknown_direction", direction=direction))
-
     def paint(self) -> None:
         self._env.paint(Cell(self._row, self._col))
         self._change_listener()
