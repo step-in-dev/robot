@@ -26,10 +26,14 @@ The literals **`True`**, **`False`**, and **`None`** are **not** treated like ge
 
 Do not lowercase the name in running text when it refers to the product or the in-world executor, unless a locale explicitly uses a different convention for product names.
 
+## Status strip length
+
+Strings shown in the Robot window **status strip** must not exceed **50 characters**, so they remain visible when the window is at its minimum size.
+
 ## Consistency
 
 When adding or editing keys:
 
 1. Keep terminology for the executor, grid, and tasks aligned with existing keys in the same locale file.
 2. Prefer the same quoting style as other strings in that file for Python keywords.
-3. Re-read the string at the minimum window width if it appears in the status strip; see `AGENTS.md` for the character limit there.
+3. Re-read the string at the minimum window width if it appears in the status strip; see [Status strip length](#status-strip-length) above.

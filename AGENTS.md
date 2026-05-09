@@ -20,11 +20,8 @@ The target audience is school students who are learning introductory programming
 ## Documentation
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
-- `Docs/localization-style.md` describes conventions for localized UI strings (Python keywords, `True`/`False`/`None`, and the proper name Robot).
-
-## Status strip localization
-
-Localized strings shown in the Robot window status strip must not exceed **50 characters**, so they remain visible when the window is at its minimum size.
+- `Docs/localization-style.md` describes conventions for localized UI strings.
+- UI string catalogs are JSON files in `robot/locales/`.
 
 ## Architecture Overview
 
