@@ -90,7 +90,7 @@
   "help.task_group.compound": "Condiciones compuestas",
   "model.error.width_not_positive": "El ancho del campo debe ser un número entero positivo, se obtuvo {width}",
   "model.error.height_not_positive": "El alto del campo debe ser un número entero positivo, se obtuvo {height}",
-  "model.error.start_position_out_of_bounds": "La posición de inicio del robot ({row}, {col}) está fuera del campo de tamaño {height}×{width}",
+  "model.error.start_position_out_of_bounds": "La posición de inicio del Robot ({row}, {col}) está fuera del campo de tamaño {height}×{width}",
   "model.error.final_position_out_of_bounds": "La posición objetivo ({row}, {col}) está fuera del campo de tamaño {height}×{width}",
   "model.error.cell_out_of_bounds": "La celda ({r}, {c}) en {field} está fuera de los límites del campo",
   "model.error.duplicate_cell": "Celda duplicada ({r}, {c}) en {field}",

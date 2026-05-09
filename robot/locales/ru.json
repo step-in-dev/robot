@@ -21,7 +21,7 @@
   "model.error.invalid_env_format": "Неверный формат обстановки Робота",
   "model.error.width_not_positive": "Ширина поля должна быть положительным числом, получено {width}",
   "model.error.height_not_positive": "Высота поля должна быть положительным числом, получено {height}",
-  "model.error.start_position_out_of_bounds": "Начальная позиция робота ({row}, {col}) выходит за границы поля размером {height}×{width}",
+  "model.error.start_position_out_of_bounds": "Начальная позиция Робота ({row}, {col}) выходит за границы поля размером {height}×{width}",
   "model.error.final_position_out_of_bounds": "Конечная позиция ({row}, {col}) выходит за границы поля размером {height}×{width}",
   "model.error.cell_out_of_bounds": "Клетка ({r}, {c}) в {field} выходит за границы поля",
   "model.error.duplicate_cell": "Повторяющаяся клетка ({r}, {c}) в {field}",

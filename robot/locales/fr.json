@@ -90,7 +90,7 @@
   "help.task_group.compound": "Conditions composées",
   "model.error.width_not_positive": "La largeur du champ doit être un entier positif, obtenu {width}",
   "model.error.height_not_positive": "La hauteur du champ doit être un entier positif, obtenue {height}",
-  "model.error.start_position_out_of_bounds": "La position de départ du robot ({row}, {col}) est en dehors du champ de taille {height}×{width}",
+  "model.error.start_position_out_of_bounds": "La position de départ du Robot ({row}, {col}) est en dehors du champ de taille {height}×{width}",
   "model.error.final_position_out_of_bounds": "La position cible ({row}, {col}) est en dehors du champ de taille {height}×{width}",
   "model.error.cell_out_of_bounds": "La case ({r}, {c}) dans {field} est en dehors des limites du champ",
   "model.error.duplicate_cell": "Case en double ({r}, {c}) dans {field}",

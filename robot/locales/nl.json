@@ -90,7 +90,7 @@
   "help.task_group.compound": "Samengestelde voorwaarden",
   "model.error.width_not_positive": "Veldbreedte moet een positief geheel getal zijn, gekregen {width}",
   "model.error.height_not_positive": "Veldhoogte moet een positief geheel getal zijn, gekregen {height}",
-  "model.error.start_position_out_of_bounds": "Startpositie van de robot ({row}, {col}) ligt buiten het veld van grootte {height}×{width}",
+  "model.error.start_position_out_of_bounds": "Startpositie van de Robot ({row}, {col}) ligt buiten het veld van grootte {height}×{width}",
   "model.error.final_position_out_of_bounds": "Doelpositie ({row}, {col}) ligt buiten het veld van grootte {height}×{width}",
   "model.error.cell_out_of_bounds": "Cel ({r}, {c}) in {field} ligt buiten de veldgrenzen",
   "model.error.duplicate_cell": "Dubbele cel ({r}, {c}) in {field}",

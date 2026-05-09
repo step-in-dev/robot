@@ -90,7 +90,7 @@
   "help.task_group.compound": "Warunki złożone",
   "model.error.width_not_positive": "Szerokość pola musi być dodatnią liczbą całkowitą, otrzymano {width}",
   "model.error.height_not_positive": "Wysokość pola musi być dodatnią liczbą całkowitą, otrzymano {height}",
-  "model.error.start_position_out_of_bounds": "Pozycja początkowa robota ({row}, {col}) jest poza polem o rozmiarze {height}×{width}",
+  "model.error.start_position_out_of_bounds": "Pozycja początkowa Robota ({row}, {col}) jest poza polem o rozmiarze {height}×{width}",
   "model.error.final_position_out_of_bounds": "Pozycja docelowa ({row}, {col}) jest poza polem o rozmiarze {height}×{width}",
   "model.error.cell_out_of_bounds": "Komórka ({r}, {c}) w {field} jest poza granicami pola",
   "model.error.duplicate_cell": "Zduplikowana komórka ({r}, {c}) w {field}",

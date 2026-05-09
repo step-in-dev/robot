@@ -90,7 +90,7 @@
   "help.task_group.compound": "Складні умови",
   "model.error.width_not_positive": "Ширина поля має бути додатним числом, отримано {width}",
   "model.error.height_not_positive": "Висота поля має бути додатним числом, отримано {height}",
-  "model.error.start_position_out_of_bounds": "Початкова позиція робота ({row}, {col}) виходить за межі поля розміром {height}×{width}",
+  "model.error.start_position_out_of_bounds": "Початкова позиція Робота ({row}, {col}) виходить за межі поля розміром {height}×{width}",
   "model.error.final_position_out_of_bounds": "Кінцева позиція ({row}, {col}) виходить за межі поля розміром {height}×{width}",
   "model.error.cell_out_of_bounds": "Клітинка ({r}, {c}) у {field} виходить за межі поля",
   "model.error.duplicate_cell": "Повторна клітинка ({r}, {c}) у {field}",
