@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import webbrowser
 import tkinter as tk
 from pathlib import Path
 from typing import Callable
@@ -43,11 +44,59 @@ from .status_strip import StatusStrip
 
 _ESCAPE_BINDING = "<Escape>"
 
+# Source repository URL (shown as a clickable link in the help dialog).
+_HELP_PROJECT_REPOSITORY_URL = "https://github.com/step-in-dev/robot"
+_HELP_BODY_LINK_TAG = "help_repo_link"
+
 # Pause between environments during Run so the user can see the final state
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
 
 _CONSTRAINTS_TEXT_WIDTH = 51
+
+
+def _open_help_project_repository() -> None:
+    """Open the public project repository in the user's browser."""
+    webbrowser.open(_HELP_PROJECT_REPOSITORY_URL)
+
+
+def _populate_robot_help_text(text: tk.Text) -> None:
+    """Fill the help ``Text`` with module info, repo link, and command list (read-only)."""
+    text.insert(tk.END, t("help.module_intro") + "\n\n")
+    text.insert(tk.END, t("help.author") + "\n")
+    text.insert(tk.END, t("help.project_repo_label") + "\n")
+    text.insert(tk.END, _HELP_PROJECT_REPOSITORY_URL, (_HELP_BODY_LINK_TAG,))
+    text.insert(tk.END, "\n\n")
+    body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
+    text.insert(tk.END, body)
+
+    text.tag_configure(_HELP_BODY_LINK_TAG, foreground="#0645ad", underline=True)
+
+    def _on_help_text_button1(event: tk.Event) -> None:
+        try:
+            idx = text.index(f"@{event.x},{event.y}")
+        except tk.TclError:
+            return
+        if _HELP_BODY_LINK_TAG in text.tag_names(idx):
+            _open_help_project_repository()
+
+    def _link_enter(_event: tk.Event) -> None:
+        text.config(cursor="hand2")
+
+    def _link_leave(_event: tk.Event) -> None:
+        text.config(cursor="")
+
+    text.bind("<Button-1>", _on_help_text_button1)
+    text.tag_bind(_HELP_BODY_LINK_TAG, "<Enter>", _link_enter)
+    text.tag_bind(_HELP_BODY_LINK_TAG, "<Leave>", _link_leave)
+
+    def _block_edit(event: tk.Event) -> str | None:
+        if event.keysym == "Escape":
+            return None
+        return "break"
+
+    text.bind("<Key>", _block_edit)
+    text.bind("<<Paste>>", _block_edit)
 
 
 def _task_has_any_constraints(
@@ -482,7 +531,7 @@ class RobotWindow:
             self.step_button.configure(state=tk.DISABLED)
 
     def show_help(self) -> None:
-        """Open or focus a window listing Robot commands and short localized descriptions."""
+        """Open or focus a window with module info, project link, and Robot command help."""
         if self.is_closed:
             return
         if self._help_window is not None:
@@ -532,9 +581,7 @@ class RobotWindow:
         scroll.pack(side=tk.RIGHT, fill=tk.Y)
         text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
-        text.insert(tk.END, body)
-        text.configure(state=tk.DISABLED)
+        _populate_robot_help_text(text)
         self._focus_toplevel_dialog(help_win)
 
     def _constraints_body_lines(self) -> list[str]:

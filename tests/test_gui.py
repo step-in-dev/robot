@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 import tkinter as tk
 
@@ -43,6 +43,9 @@ def _tkinter_display_works() -> bool:
         return True
     except tk.TclError:
         return False
+
+
+_EXPECTED_HELP_PROJECT_REPO_URL = "https://github.com/step-in-dev/robot"
 
 
 def _help_toplevel_children(root: tk.Misc) -> list[tk.Toplevel]:
@@ -1387,10 +1390,49 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertEqual(len(tops), 1)
             self.assertEqual(tops[0].title(), t("help.title"))
             body = _help_window_body_text(tops[0])
+            self.assertIn(t("help.module_intro"), body)
+            self.assertIn(t("help.author"), body)
+            self.assertIn(_EXPECTED_HELP_PROJECT_REPO_URL, body)
             self.assertIn("move_right()", body)
             self.assertIn(t("help.command.move_right"), body)
             self.assertIn("field(width=8, height=6)", body)
             self.assertIn(t("help.command.field"), body)
+        finally:
+            window.close()
+
+    @patch("robot.gui.webbrowser.open")
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_help_repo_link_click_opens_browser(self, open_mock: MagicMock) -> None:
+        from robot import i18n
+
+        i18n.clear_translation_cache()
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow("help_link", envs, run_env, initial_index=0)
+        try:
+            window.show_help()
+            window.root.update_idletasks()
+            tops = _help_toplevel_children(window.root)
+            self.assertEqual(len(tops), 1)
+            text = _find_first_text_widget(tops[0])
+            self.assertIsNotNone(text)
+            assert text is not None
+            ranges = text.tag_ranges("help_repo_link")
+            self.assertEqual(len(ranges), 2)
+            self.assertEqual(
+                text.get(ranges[0], ranges[1]), _EXPECTED_HELP_PROJECT_REPO_URL
+            )
+            bbox = text.bbox(ranges[0])
+            self.assertIsNotNone(bbox)
+            x = int(bbox[0] + max(bbox[2], 1) / 2)
+            y = int(bbox[1] + max(bbox[3], 1) / 2)
+            text.focus_set()
+            text.event_generate("<Button-1>", x=x, y=y)
+            window.root.update()
+            open_mock.assert_called_once_with(_EXPECTED_HELP_PROJECT_REPO_URL)
         finally:
             window.close()
 
