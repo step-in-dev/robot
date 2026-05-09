@@ -36,7 +36,7 @@
   "help.module_intro": "यह मॉड्यूल प्रोग्रामिंग और एल्गोरिदम की मूल बातें सीखने के लिए शैक्षिक रोबोट निष्पादक का कार्यान्वयन है।",
   "help.author": "लेखक: {author}",
   "help.project_repo_label": "GitHub पर परियोजना:",
-  "help.commands_title": "उपलब्ध कमांड:",
+  "help.commands_title": "उपलब्ध कमांड",
   "help.command.task": "चयनित कार्य शुरू करता है।",
   "help.command.move_right": "रोबोट को एक सेल दाएँ ले जाता है।",
   "help.command.move_left": "रोबोट को एक सेल बाएँ ले जाता है।",

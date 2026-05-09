@@ -36,7 +36,7 @@
   "help.module_intro": "Questo modulo implementa il classico esecutore didattico «Robot» per imparare le basi della programmazione e degli algoritmi.",
   "help.author": "Autore: {author}",
   "help.project_repo_label": "Progetto su GitHub:",
-  "help.commands_title": "Comandi disponibili:",
+  "help.commands_title": "Comandi disponibili",
   "help.command.task": "Avvia il compito selezionato.",
   "help.command.move_right": "Sposta il robot di una cella a destra.",
   "help.command.move_left": "Sposta il robot di una cella a sinistra.",

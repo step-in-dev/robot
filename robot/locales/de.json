@@ -36,7 +36,7 @@
   "help.module_intro": "Dieses Modul implementiert den klassischen pädagogischen Roboter-Executor zum Erlernen der Grundlagen von Programmierung und Algorithmik.",
   "help.author": "Autor: {author}",
   "help.project_repo_label": "Projekt auf GitHub:",
-  "help.commands_title": "Verfügbare Befehle:",
+  "help.commands_title": "Verfügbare Befehle",
   "help.command.task": "Startet die ausgewählte Aufgabe.",
   "help.command.move_right": "Bewegt den Roboter eine Zelle nach rechts.",
   "help.command.move_left": "Bewegt den Roboter eine Zelle nach links.",

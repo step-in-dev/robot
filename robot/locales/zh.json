@@ -36,7 +36,7 @@
   "help.module_intro": "本模块实现了经典的教学用「机器人」执行器，用于学习编程与算法基础。",
   "help.author": "作者：{author}",
   "help.project_repo_label": "GitHub 上的项目：",
-  "help.commands_title": "可用命令：",
+  "help.commands_title": "可用命令",
   "help.command.task": "启动所选任务。",
   "help.command.move_right": "将机器人向右移动一格。",
   "help.command.move_left": "将机器人向左移动一格。",

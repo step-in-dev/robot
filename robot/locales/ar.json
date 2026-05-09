@@ -36,7 +36,7 @@
   "help.module_intro": "تنفّذ هذه الوحدة المنفّذ التعليمي الكلاسيكي «روبوت» لتعلّم أساسيات البرمجة والخوارزميات.",
   "help.author": "المؤلف: {author}",
   "help.project_repo_label": "المشروع على GitHub:",
-  "help.commands_title": "الأوامر المتاحة:",
+  "help.commands_title": "الأوامر المتاحة",
   "help.command.task": "يبدأ المهمة المختارة.",
   "help.command.move_right": "يحرك الروبوت خلية واحدة إلى اليمين.",
   "help.command.move_left": "يحرك الروبوت خلية واحدة إلى اليسار.",

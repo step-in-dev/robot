@@ -36,7 +36,7 @@
   "help.module_intro": "Ten moduł implementuje klasycznego edukacyjnego wykonawcę «Robot» do nauki podstaw programowania i algorytmów.",
   "help.author": "Autor: {author}",
   "help.project_repo_label": "Projekt na GitHubie:",
-  "help.commands_title": "Dostępne polecenia:",
+  "help.commands_title": "Dostępne polecenia",
   "help.command.task": "Uruchamia wybrane zadanie.",
   "help.command.move_right": "Przesuwa robota o jedną komórkę w prawo.",
   "help.command.move_left": "Przesuwa robota o jedną komórkę w lewo.",

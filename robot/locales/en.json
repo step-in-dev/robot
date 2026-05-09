@@ -38,7 +38,7 @@
   "help.module_intro": "This module implements the classic educational Robot simulator for learning basic programming and algorithms.",
   "help.author": "Author: {author}",
   "help.project_repo_label": "Project on GitHub:",
-  "help.commands_title": "Available commands:",
+  "help.commands_title": "Available commands",
   "help.command.task": "Starts the selected task.",
   "help.command.move_right": "Moves the robot one cell to the right.",
   "help.command.move_left": "Moves the robot one cell to the left.",

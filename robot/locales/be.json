@@ -36,7 +36,7 @@
   "help.module_intro": "Модуль з'яўляецца рэалізацыяй вучэбнага выканаўцы «Робат» для асваення асноў праграмавання.",
   "help.author": "Аўтар: {author}",
   "help.project_repo_label": "Праект на GitHub:",
-  "help.commands_title": "Даступныя каманды:",
+  "help.commands_title": "Даступныя каманды",
   "help.command.task": "Запускае выбранае заданне.",
   "help.command.move_right": "Зсувае робата на адну клетку ўправа.",
   "help.command.move_left": "Зсувае робата на адну клетку ўлева.",

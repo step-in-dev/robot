@@ -36,7 +36,7 @@
   "help.module_intro": "Deze module implementeert de klassieke educatieve Robot-uitvoerder om de basis van programmeren en algoritmen te leren.",
   "help.author": "Auteur: {author}",
   "help.project_repo_label": "Project op GitHub:",
-  "help.commands_title": "Beschikbare opdrachten:",
+  "help.commands_title": "Beschikbare opdrachten",
   "help.command.task": "Start de geselecteerde taak.",
   "help.command.move_right": "Verplaatst de robot één cel naar rechts.",
   "help.command.move_left": "Verplaatst de robot één cel naar links.",
