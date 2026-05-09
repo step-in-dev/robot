@@ -9,7 +9,7 @@
   "line.with_message": "Рядок {lineno}: {message}",
   "step.line": "Рядок {lineno}: {text}",
   "step.success_for_env": "Усе правильно для обстановки {env_label}",
-  "window.title": "Робот: {task_id}",
+  "window.title": "Робот v{version}: {task_id}",
   "error.path_collision": "Спроба пройти крізь стіну",
   "error.execution_cancelled": "Виконання перервано",
   "error.system_exit": "програма завершилася з кодом {code}",

@@ -9,7 +9,7 @@
   "line.with_message": "{lineno} 行目：{message}",
   "step.line": "{lineno} 行目：{text}",
   "step.success_for_env": "環境 {env_label} はすべて正しい",
-  "window.title": "ロボット：{task_id}",
+  "window.title": "ロボットv{version}：{task_id}",
   "error.path_collision": "壁を通り抜けようとしました",
   "error.execution_cancelled": "実行が中断されました",
   "error.system_exit": "プログラムがコード {code} で終了しました",

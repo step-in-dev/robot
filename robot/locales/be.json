@@ -9,7 +9,7 @@
   "line.with_message": "Радок {lineno}: {message}",
   "step.line": "Радок {lineno}: {text}",
   "step.success_for_env": "Усё правільна для абстаноўкі {env_label}",
-  "window.title": "Робат: {task_id}",
+  "window.title": "Робат v{version}: {task_id}",
   "error.path_collision": "Спроба прайсці праз сцяну",
   "error.execution_cancelled": "Выкананне перарвана",
   "error.system_exit": "праграма завяршылася з кодам {code}",

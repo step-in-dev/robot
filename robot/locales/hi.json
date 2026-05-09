@@ -9,7 +9,7 @@
   "line.with_message": "पंक्ति {lineno}: {message}",
   "step.line": "पंक्ति {lineno}: {text}",
   "step.success_for_env": "परिवेश {env_label} के लिए सब सही",
-  "window.title": "रोबोट: {task_id}",
+  "window.title": "Robot v{version}: {task_id}",
   "error.path_collision": "दीवार के बीच से गुजरने की कोशिश की",
   "error.execution_cancelled": "निष्पादन रोक दिया गया",
   "error.system_exit": "कार्यक्रम कोड {code} के साथ समाप्त हुआ",

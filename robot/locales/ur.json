@@ -9,7 +9,7 @@
   "line.with_message": "سطر {lineno}: {message}",
   "step.line": "سطر {lineno}: {text}",
   "step.success_for_env": "ماحول {env_label} کے لیے سب درست",
-  "window.title": "روبوٹ: {task_id}",
+  "window.title": "Robot v{version}: {task_id}",
   "error.path_collision": "دیوار میں سے گزرنے کی کوشش کی",
   "error.execution_cancelled": "عمل روک دیا گیا",
   "error.system_exit": "پروگرام کوڈ {code} کے ساتھ ختم ہوا",

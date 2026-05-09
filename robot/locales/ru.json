@@ -9,7 +9,7 @@
   "line.with_message": "Строка {lineno}: {message}",
   "step.line": "Строка {lineno}: {text}",
   "step.success_for_env": "Все верно для обстановки {env_label}",
-  "window.title": "Робот: {task_id}",
+  "window.title": "Робот v{version}: {task_id}",
   "error.path_collision": "Попытка пройти сквозь стену",
   "error.execution_cancelled": "Выполнение прервано",
   "error.system_exit": "программа завершилась с кодом {code}",

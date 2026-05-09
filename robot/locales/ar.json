@@ -9,7 +9,7 @@
   "line.with_message": "السطر {lineno}: {message}",
   "step.line": "السطر {lineno}: {text}",
   "step.success_for_env": "كل شيء صحيح للبيئة {env_label}",
-  "window.title": "الروبوت: {task_id}",
+  "window.title": "الروبوت v{version}: {task_id}",
   "error.path_collision": "محاولة المرور عبر جدار",
   "error.execution_cancelled": "تمت مقاطعة التنفيذ",
   "error.system_exit": "انتهى البرنامج بالرمز {code}",

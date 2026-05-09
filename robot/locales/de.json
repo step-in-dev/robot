@@ -9,7 +9,7 @@
   "line.with_message": "Zeile {lineno}: {message}",
   "step.line": "Zeile {lineno}: {text}",
   "step.success_for_env": "Alles richtig für Umgebung {env_label}",
-  "window.title": "Roboter: {task_id}",
+  "window.title": "Robot v{version}: {task_id}",
   "error.path_collision": "Versuch, durch eine Wand zu gehen",
   "error.execution_cancelled": "Ausführung unterbrochen",
   "error.system_exit": "Programm beendet mit Code {code}",

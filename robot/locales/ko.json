@@ -9,7 +9,7 @@
   "line.with_message": "{lineno}번 줄: {message}",
   "step.line": "{lineno}번 줄: {text}",
   "step.success_for_env": "환경 {env_label}에 대해 모두 정답",
-  "window.title": "로봇: {task_id}",
+  "window.title": "Robot v{version}: {task_id}",
   "error.path_collision": "벽을 통과하려 했습니다",
   "error.execution_cancelled": "실행이 중단되었습니다",
   "error.system_exit": "프로그램이 코드 {code}로 종료되었습니다",

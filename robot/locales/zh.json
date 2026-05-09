@@ -9,7 +9,7 @@
   "line.with_message": "第 {lineno} 行：{message}",
   "step.line": "第 {lineno} 行：{text}",
   "step.success_for_env": "环境 {env_label} 全部正确",
-  "window.title": "机器人：{task_id}",
+  "window.title": "机器人v{version}：{task_id}",
   "error.path_collision": "试图穿过墙壁",
   "error.execution_cancelled": "执行已中断",
   "error.system_exit": "程序以代码 {code} 退出",

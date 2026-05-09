@@ -39,6 +39,7 @@ from .gui_theme import (
     TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from ._version import __version__
 from .i18n import t
 from .model import RobotEnv
 from .results import RunResult
@@ -109,7 +110,7 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
 
         self.root = tk.Tk()
         self._step_release_token = 0
-        self.root.title(t("window.title", task_id=self.task_id))
+        self.root.title(t("window.title", task_id=self.task_id, version=__version__))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.lift()
         self.root.attributes("-topmost", True)
