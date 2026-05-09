@@ -46,33 +46,31 @@ class RobotEnvDto:
     @classmethod
     def from_dict(cls, data: dict) -> "RobotEnvDto":
         try:
-            dto = cls(
-                width=int(data["width"]),
-                height=int(data["height"]),
-                start_row=int(data["startRow"]),
-                start_col=int(data["startCol"]),
-                final_row=int(data["finalRow"]),
-                final_col=int(data["finalCol"]),
-                walls=[
-                    (cell_from_dict(wall[0]), cell_from_dict(wall[1]))
-                    for wall in data.get("walls", [])
-                    if isinstance(wall, list) and len(wall) == 2
-                ],
-                painted_cells=[
-                    cell_from_dict(cell) for cell in data.get("paintedCells", [])
-                ],
-                cells_to_paint=[
-                    cell_from_dict(cell) for cell in data.get("cellsToPaint", [])
-                ],
-                polluted_cells=[
-                    valued_cell_from_dict(cell)
-                    for cell in data.get("pollutedCells", [])
-                ],
-                cells_to_print=[
-                    valued_cell_from_dict(cell)
-                    for cell in data.get("cellsToPrint", [])
-                ],
-            )
+            width = int(data["width"])
+            height = int(data["height"])
+            start_row = int(data["startRow"])
+            start_col = int(data["startCol"])
+            final_row = int(data["finalRow"])
+            final_col = int(data["finalCol"])
+            walls = [
+                (cell_from_dict(wall[0]), cell_from_dict(wall[1]))
+                for wall in data.get("walls", [])
+                if isinstance(wall, list) and len(wall) == 2
+            ]
+            painted_cells = [
+                cell_from_dict(cell) for cell in data.get("paintedCells", [])
+            ]
+            cells_to_paint = [
+                cell_from_dict(cell) for cell in data.get("cellsToPaint", [])
+            ]
+            polluted_cells = [
+                valued_cell_from_dict(cell)
+                for cell in data.get("pollutedCells", [])
+            ]
+            cells_to_print = [
+                valued_cell_from_dict(cell)
+                for cell in data.get("cellsToPrint", [])
+            ]
         except KeyError as exc:
             raise ValueError(
                 t("model.error.missing_env_field", field=exc.args[0])
@@ -80,38 +78,106 @@ class RobotEnvDto:
         except (TypeError, ValueError) as exc:
             raise ValueError(t("model.error.invalid_env_format")) from exc
 
-        return dto.normalized()
-
-    def normalized(self) -> "RobotEnvDto":
-        painted_cells = deduplicate_cells(self.painted_cells)
-        cells_to_paint = [
-            cell
-            for cell in deduplicate_cells(self.cells_to_paint)
-            if cell not in painted_cells
-        ]
-
-        return RobotEnvDto(
-            width=self.width,
-            height=self.height,
-            start_row=self.start_row,
-            start_col=self.start_col,
-            final_row=self.final_row,
-            final_col=self.final_col,
-            walls=[
-                (first, second)
-                for first, second in self.walls
-                if is_valid_wall(first, second)
-            ],
+        return cls(
+            width=width,
+            height=height,
+            start_row=start_row,
+            start_col=start_col,
+            final_row=final_row,
+            final_col=final_col,
+            walls=walls,
             painted_cells=painted_cells,
             cells_to_paint=cells_to_paint,
-            polluted_cells=deduplicate_cells(self.polluted_cells),
-            cells_to_print=deduplicate_cells(self.cells_to_print),
+            polluted_cells=polluted_cells,
+            cells_to_print=cells_to_print,
         )
+
+    def __post_init__(self) -> None:
+        self._validate()
+
+    def _validate(self) -> None:
+        if self.width <= 0:
+            raise ValueError(t("model.error.width_not_positive", width=self.width))
+        if self.height <= 0:
+            raise ValueError(t("model.error.height_not_positive", height=self.height))
+
+        if not (0 <= self.start_row < self.height and 0 <= self.start_col < self.width):
+            raise ValueError(
+                t(
+                    "model.error.start_position_out_of_bounds",
+                    row=self.start_row,
+                    col=self.start_col,
+                    height=self.height,
+                    width=self.width,
+                )
+            )
+        if not (0 <= self.final_row < self.height and 0 <= self.final_col < self.width):
+            raise ValueError(
+                t(
+                    "model.error.final_position_out_of_bounds",
+                    row=self.final_row,
+                    col=self.final_col,
+                    height=self.height,
+                    width=self.width,
+                )
+            )
+
+        _validate_cell_positions(
+            self.painted_cells, "paintedCells", self.width, self.height
+        )
+        _validate_cell_positions(
+            self.cells_to_paint, "cellsToPaint", self.width, self.height
+        )
+        _validate_cell_positions(
+            self.polluted_cells, "pollutedCells", self.width, self.height
+        )
+        _validate_cell_positions(
+            self.cells_to_print, "cellsToPrint", self.width, self.height
+        )
+
+        painted_positions = {(c.r, c.c) for c in self.painted_cells}
+        to_paint_positions = {(c.r, c.c) for c in self.cells_to_paint}
+        overlap = painted_positions & to_paint_positions
+        if overlap:
+            r, c = next(iter(overlap))
+            raise ValueError(
+                t("model.error.painted_and_to_paint_overlap", r=r, c=c)
+            )
+
+        seen_walls: set[tuple[tuple[int, int], tuple[int, int]]] = set()
+        for first, second in self.walls:
+            for cell in (first, second):
+                if not (0 <= cell.r < self.height and 0 <= cell.c < self.width):
+                    raise ValueError(
+                        t("model.error.wall_cell_out_of_bounds", r=cell.r, c=cell.c)
+                    )
+            if not is_valid_wall(first, second):
+                raise ValueError(
+                    t(
+                        "model.error.wall_not_adjacent",
+                        r1=first.r,
+                        c1=first.c,
+                        r2=second.r,
+                        c2=second.c,
+                    )
+                )
+            canonical = _canonical_wall(first, second)
+            if canonical in seen_walls:
+                raise ValueError(
+                    t(
+                        "model.error.duplicate_wall",
+                        r1=first.r,
+                        c1=first.c,
+                        r2=second.r,
+                        c2=second.c,
+                    )
+                )
+            seen_walls.add(canonical)
 
 
 class RobotEnv:
     def __init__(self, dto: RobotEnvDto):
-        self._dto = dto.normalized()
+        self._dto = dto
         self._listeners: list[Callable[[], None]] = []
         self._newly_painted_cells: list[Cell] = []
         self._printed_cells: list[ValuedCell] = []
@@ -355,8 +421,26 @@ def count_positions(target: Cell, cells: Iterable[Cell]) -> int:
     return sum(1 for cell in cells if same_position(target, cell))
 
 
-def deduplicate_cells(cells: Iterable[CellType]) -> list[CellType]:
-    unique_by_position: dict[tuple[int, int], CellType] = {}
+def _validate_cell_positions(
+    cells: Iterable[Cell], field: str, width: int, height: int
+) -> None:
+    seen: set[tuple[int, int]] = set()
     for cell in cells:
-        unique_by_position[(cell.r, cell.c)] = cell
-    return list(unique_by_position.values())
+        if not (0 <= cell.r < height and 0 <= cell.c < width):
+            raise ValueError(
+                t("model.error.cell_out_of_bounds", r=cell.r, c=cell.c, field=field)
+            )
+        pos = (cell.r, cell.c)
+        if pos in seen:
+            raise ValueError(
+                t("model.error.duplicate_cell", r=cell.r, c=cell.c, field=field)
+            )
+        seen.add(pos)
+
+
+def _canonical_wall(
+    first: Cell, second: Cell
+) -> tuple[tuple[int, int], tuple[int, int]]:
+    a = (first.r, first.c)
+    b = (second.r, second.c)
+    return (a, b) if a < b else (b, a)

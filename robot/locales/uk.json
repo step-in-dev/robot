@@ -87,5 +87,15 @@
   "help.task_group.if": "Конструкція «if»",
   "help.task_group.wif": "Цикл «while» з конструкцією «if»",
   "help.task_group.ifelse": "«if» і «else»",
-  "help.task_group.compound": "Складні умови"
+  "help.task_group.compound": "Складні умови",
+  "model.error.width_not_positive": "Field width must be a positive integer, got {width}",
+  "model.error.height_not_positive": "Field height must be a positive integer, got {height}",
+  "model.error.start_position_out_of_bounds": "Robot start position ({row}, {col}) is outside the field of size {height}×{width}",
+  "model.error.final_position_out_of_bounds": "Goal position ({row}, {col}) is outside the field of size {height}×{width}",
+  "model.error.cell_out_of_bounds": "Cell ({r}, {c}) in {field} is outside the field boundaries",
+  "model.error.duplicate_cell": "Duplicate cell ({r}, {c}) in {field}",
+  "model.error.wall_cell_out_of_bounds": "Wall cell ({r}, {c}) is outside the field boundaries",
+  "model.error.wall_not_adjacent": "Wall cells ({r1}, {c1}) and ({r2}, {c2}) are not adjacent",
+  "model.error.duplicate_wall": "Duplicate wall between ({r1}, {c1}) and ({r2}, {c2})",
+  "model.error.painted_and_to_paint_overlap": "Cell ({r}, {c}) cannot be both painted and marked to paint"
 }
