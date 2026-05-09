@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-import webbrowser
 import tkinter as tk
 from pathlib import Path
 from typing import Callable
@@ -12,14 +11,22 @@ from .executor import (
     StudentLine,
 )
 
-from .command_help import iter_command_help_lines
 from .field_renderer import FieldColors, FieldRenderer
+from .gui_constraints import (
+    CONSTRAINTS_TEXT_WIDTH,
+    constraints_body_lines,
+    task_has_any_constraints,
+)
+from .gui_help import (
+    _HELP_AUTHOR_NAME,
+    _help_text_readonly_key_action,
+    _populate_robot_help_text,
+)
 from .gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
     calculate_field_offset,
 )
-from .i18n import t
 from .gui_theme import (
     ACTION_BUTTON_HELP,
     ACTION_BUTTON_RESTORE,
@@ -38,141 +45,16 @@ from .gui_theme import (
     TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from .i18n import t
 from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip
 
 _ESCAPE_BINDING = "<Escape>"
 
-# Source repository URL (shown as a clickable link in the help dialog).
-_HELP_PROJECT_REPOSITORY_URL = "https://github.com/step-in-dev/robot"
-_HELP_AUTHOR_NAME = "Виктор Терещук (Viktar Tserashchuk)"
-_HELP_BODY_LINK_TAG = "help_repo_link"
-
-_HELP_TEXT_KP_NAV_KEYS = frozenset(
-    {
-        "KP_Left",
-        "KP_Right",
-        "KP_Up",
-        "KP_Down",
-        "KP_Prior",
-        "KP_Next",
-        "KP_Home",
-        "KP_End",
-        "KP_Begin",
-    }
-)
-
-
-def _help_text_readonly_key_action(event: tk.Event) -> str | None:
-    """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
-    if event.keysym == "Escape":
-        return None
-
-    state = event.state or 0
-    ctrl = bool(state & 0x0004)
-    meta = bool(state & 0x0008)
-    ks = event.keysym or ""
-
-    if (ctrl or meta) and ks.lower() in ("c", "a", "insert"):
-        return None
-    if (ctrl or meta) and ks.lower() in ("v", "x"):
-        return "break"
-
-    if ks in (
-        "BackSpace",
-        "Delete",
-        "Return",
-        "KP_Enter",
-        "Linefeed",
-        "Tab",
-        "ISO_Left_Tab",
-        "space",
-    ):
-        return "break"
-
-    if ks.startswith("KP_") and ks not in _HELP_TEXT_KP_NAV_KEYS:
-        return "break"
-
-    ch = event.char
-    if ch and ch.isprintable() and not (ctrl or meta):
-        return "break"
-
-    return None
-
-
-def _help_text_block_paste(_event: tk.Event) -> str:
-    return "break"
-
-
 # Pause between environments during Run so the user can see the final state
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
-
-_CONSTRAINTS_TEXT_WIDTH = 51
-
-
-def _open_help_project_repository() -> None:
-    """Open the public project repository in the user's browser."""
-    webbrowser.open(_HELP_PROJECT_REPOSITORY_URL)
-
-
-def _populate_robot_help_text(text: tk.Text) -> None:
-    """Fill the help ``Text`` with module info, repo link, and command list (read-only)."""
-    text.insert(tk.END, t("help.module_intro") + "\n\n")
-    text.insert(tk.END, t("help.author", author=_HELP_AUTHOR_NAME) + "\n")
-    text.insert(tk.END, t("help.project_repo_label") + "\n")
-    text.insert(tk.END, _HELP_PROJECT_REPOSITORY_URL, (_HELP_BODY_LINK_TAG,))
-    text.insert(tk.END, "\n\n")
-    body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
-    text.insert(tk.END, body)
-
-    text.tag_configure(_HELP_BODY_LINK_TAG, foreground="#0645ad", underline=True)
-
-    def _on_help_text_button1(event: tk.Event) -> None:
-        try:
-            idx = text.index(f"@{event.x},{event.y}")
-        except tk.TclError:
-            return
-        if _HELP_BODY_LINK_TAG in text.tag_names(idx):
-            _open_help_project_repository()
-
-    def _link_enter(_event: tk.Event) -> None:
-        text.config(cursor="hand2")
-
-    def _link_leave(_event: tk.Event) -> None:
-        text.config(cursor="")
-
-    text.bind("<Button-1>", _on_help_text_button1)
-    text.tag_bind(_HELP_BODY_LINK_TAG, "<Enter>", _link_enter)
-    text.tag_bind(_HELP_BODY_LINK_TAG, "<Leave>", _link_leave)
-
-    text.bind("<Key>", _help_text_readonly_key_action)
-    text.bind("<<Paste>>", _help_text_block_paste)
-
-
-def _task_has_any_constraints(
-    *,
-    operators_limit: int | None,
-    custom_function_call_count: int | None,
-    if_limit: int | None,
-    while_limit: int | None,
-    required_keywords: tuple[str, ...] | None,
-    banned_keywords: tuple[str, ...] | None,
-) -> bool:
-    if operators_limit is not None:
-        return True
-    if custom_function_call_count is not None:
-        return True
-    if if_limit is not None:
-        return True
-    if while_limit is not None:
-        return True
-    if required_keywords:
-        return True
-    if banned_keywords:
-        return True
-    return False
 
 
 class RobotWindow:
@@ -214,6 +96,15 @@ class RobotWindow:
         self._constraints_window: tk.Toplevel | None = None
         self._constraints_window_close_handler: Callable[[], None] | None = None
 
+        self._init_root_and_geometry()
+        self._build_todo_banner()
+        self._build_env_toolbar()
+        self._build_field_area()
+        self._build_control_row()
+        self._build_status_area()
+        self._finish_initial_placement(initial_index)
+
+    def _init_root_and_geometry(self) -> None:
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"
         self.robot_color = "#428bca"
@@ -229,7 +120,7 @@ class RobotWindow:
 
         self.root = tk.Tk()
         self._step_release_token = 0
-        self.root.title(t("window.title", task_id=task_id))
+        self.root.title(t("window.title", task_id=self.task_id))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.lift()
         self.root.attributes("-topmost", True)
@@ -239,65 +130,72 @@ class RobotWindow:
         )
 
         self.todo_label: tk.Label | None = None
-        if self.todo_text:
-            self.todo_label = tk.Label(
-                self.root,
-                text=f"{self.todo_text}",
-                anchor=tk.W,
-                justify=tk.LEFT,
-                wraplength=max(self.canvas_width, 320),
-                bg=TODO_TEXT_BG,
-                fg="#000000",
-                padx=8,
-                pady=6,
-                bd=0,
-                relief=tk.FLAT,
-                highlightthickness=1,
-                highlightbackground=TODO_TEXT_BORDER,
-                highlightcolor=TODO_TEXT_BORDER,
-            )
-            self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
-
         self.top_toolbar: tk.Frame | None = None
         self.tab_frame: tk.Frame | None = None
         self.tab_buttons: list[tk.Button] = []
         self.constraints_button: tk.Button | None = None
-        has_env_tabs = len(envs) > 1
-        has_constraints = _task_has_any_constraints(
-            operators_limit=operators_limit,
-            custom_function_call_count=custom_function_call_count,
-            if_limit=if_limit,
-            while_limit=while_limit,
-            required_keywords=required_keywords,
-            banned_keywords=banned_keywords,
+
+    def _build_todo_banner(self) -> None:
+        if not self.todo_text:
+            return
+        self.todo_label = tk.Label(
+            self.root,
+            text=f"{self.todo_text}",
+            anchor=tk.W,
+            justify=tk.LEFT,
+            wraplength=max(self.canvas_width, 320),
+            bg=TODO_TEXT_BG,
+            fg="#000000",
+            padx=8,
+            pady=6,
+            bd=0,
+            relief=tk.FLAT,
+            highlightthickness=1,
+            highlightbackground=TODO_TEXT_BORDER,
+            highlightcolor=TODO_TEXT_BORDER,
         )
-        if has_env_tabs or has_constraints:
-            tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
-            self.top_toolbar = tk.Frame(self.root)
-            self.top_toolbar.pack(
-                side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady
-            )
-            self.tab_frame = tk.Frame(self.top_toolbar)
-            self.tab_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            if has_env_tabs:
-                for index in range(len(envs)):
-                    button = tk.Button(
-                        self.tab_frame,
-                        text=str(index + 1),
-                        command=lambda index=index: self.select_env(index),
-                        width=1,
-                        padx='4.5m',
-                        pady='2m'
-                    )
-                    button.pack(side=tk.LEFT)
-                    self.tab_buttons.append(button)
-            if has_constraints:
-                self.constraints_button = tk.Button(
-                    self.top_toolbar,
-                    text=t("constraints.button"),
-                    command=self.show_constraints,
+        self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
+
+    def _build_env_toolbar(self) -> None:
+        has_env_tabs = len(self.envs) > 1
+        has_constraints = task_has_any_constraints(
+            operators_limit=self.operators_limit,
+            custom_function_call_count=self.custom_function_call_count,
+            if_limit=self.if_limit,
+            while_limit=self.while_limit,
+            required_keywords=self.required_keywords,
+            banned_keywords=self.banned_keywords,
+        )
+        if not (has_env_tabs or has_constraints):
+            return
+        tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
+        self.top_toolbar = tk.Frame(self.root)
+        self.top_toolbar.pack(
+            side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady
+        )
+        self.tab_frame = tk.Frame(self.top_toolbar)
+        self.tab_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        if has_env_tabs:
+            for index in range(len(self.envs)):
+                button = tk.Button(
+                    self.tab_frame,
+                    text=str(index + 1),
+                    command=lambda index=index: self.select_env(index),
+                    width=1,
+                    padx='4.5m',
+                    pady='2m'
                 )
-                self.constraints_button.pack(side=tk.RIGHT)
+                button.pack(side=tk.LEFT)
+                self.tab_buttons.append(button)
+        if has_constraints:
+            self.constraints_button = tk.Button(
+                self.top_toolbar,
+                text=t("constraints.button"),
+                command=self.show_constraints,
+            )
+            self.constraints_button.pack(side=tk.RIGHT)
+
+    def _build_field_area(self) -> None:
         self.canvas = tk.Canvas(
             self.root,
             bg=self.root.cget("bg"),
@@ -311,6 +209,7 @@ class RobotWindow:
             self.canvas, self.cell_size, self.wall_width
         )
 
+    def _build_control_row(self) -> None:
         self.controls = tk.Frame(self.root)
         self.controls.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 2))
 
@@ -350,6 +249,7 @@ class RobotWindow:
         )
         self.root.bind(_ESCAPE_BINDING, self._handle_escape_close)
 
+    def _build_status_area(self) -> None:
         initial_status = STATUS_READY
         self._status_strip = StatusStrip(
             self.root,
@@ -363,6 +263,7 @@ class RobotWindow:
         self.status_canvas = self._status_strip.status_canvas
         self.status_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(0, 6))
 
+    def _finish_initial_placement(self, initial_index: int) -> None:
         self.select_env(initial_index)
         self.lock_window_size()
 
@@ -637,33 +538,14 @@ class RobotWindow:
         self._focus_toplevel_dialog(help_win)
 
     def _constraints_body_lines(self) -> list[str]:
-        lines: list[str] = []
-        if self.operators_limit is not None:
-            lines.append(
-                t("constraints.operators_max", limit=self.operators_limit)
-            )
-        if self.custom_function_call_count is not None:
-            lines.append(
-                t(
-                    "constraints.functions_min",
-                    required=self.custom_function_call_count,
-                )
-            )
-        if self.if_limit is not None:
-            lines.append(t("constraints.if_max", limit=self.if_limit))
-        if self.while_limit is not None:
-            lines.append(t("constraints.while_max", limit=self.while_limit))
-        if self.required_keywords:
-            joined = ", ".join(self.required_keywords)
-            lines.append(
-                t("constraints.required_keywords", keywords=joined)
-            )
-        if self.banned_keywords:
-            joined = ", ".join(self.banned_keywords)
-            lines.append(
-                t("constraints.banned_keywords", keywords=joined)
-            )
-        return lines
+        return constraints_body_lines(
+            operators_limit=self.operators_limit,
+            custom_function_call_count=self.custom_function_call_count,
+            if_limit=self.if_limit,
+            while_limit=self.while_limit,
+            required_keywords=self.required_keywords,
+            banned_keywords=self.banned_keywords,
+        )
 
     def show_constraints(self) -> None:
         """Open or focus a window listing task limits that apply to this task."""
@@ -710,7 +592,7 @@ class RobotWindow:
         text = tk.Text(
             frame,
             wrap=tk.WORD,
-            width=_CONSTRAINTS_TEXT_WIDTH,
+            width=CONSTRAINTS_TEXT_WIDTH,
             height=min(24, max(6, len(body_lines) + 2)),
             relief=tk.FLAT,
             highlightthickness=0,

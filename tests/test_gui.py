@@ -1426,7 +1426,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         finally:
             window.close()
 
-    @patch("robot.gui.webbrowser.open")
+    @patch("robot.gui_help.webbrowser.open")
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_repo_link_click_opens_browser(self, open_mock: MagicMock) -> None:
         from robot import i18n

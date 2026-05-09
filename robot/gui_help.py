@@ -1,0 +1,106 @@
+from __future__ import annotations
+
+import webbrowser
+import tkinter as tk
+
+from .command_help import iter_command_help_lines
+from .i18n import t
+
+# Source repository URL (shown as a clickable link in the help dialog).
+_HELP_PROJECT_REPOSITORY_URL = "https://github.com/step-in-dev/robot"
+_HELP_AUTHOR_NAME = "Виктор Терещук (Viktar Tserashchuk)"
+_HELP_BODY_LINK_TAG = "help_repo_link"
+
+_HELP_TEXT_KP_NAV_KEYS = frozenset(
+    {
+        "KP_Left",
+        "KP_Right",
+        "KP_Up",
+        "KP_Down",
+        "KP_Prior",
+        "KP_Next",
+        "KP_Home",
+        "KP_End",
+        "KP_Begin",
+    }
+)
+
+
+def _help_text_readonly_key_action(event: tk.Event) -> str | None:
+    """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
+    if event.keysym == "Escape":
+        return None
+
+    state = event.state or 0
+    ctrl = bool(state & 0x0004)
+    meta = bool(state & 0x0008)
+    ks = event.keysym or ""
+
+    if (ctrl or meta) and ks.lower() in ("c", "a", "insert"):
+        return None
+    if (ctrl or meta) and ks.lower() in ("v", "x"):
+        return "break"
+
+    if ks in (
+        "BackSpace",
+        "Delete",
+        "Return",
+        "KP_Enter",
+        "Linefeed",
+        "Tab",
+        "ISO_Left_Tab",
+        "space",
+    ):
+        return "break"
+
+    if ks.startswith("KP_") and ks not in _HELP_TEXT_KP_NAV_KEYS:
+        return "break"
+
+    ch = event.char
+    if ch and ch.isprintable() and not (ctrl or meta):
+        return "break"
+
+    return None
+
+
+def _help_text_block_paste(_event: tk.Event) -> str:
+    return "break"
+
+
+def _open_help_project_repository() -> None:
+    """Open the public project repository in the user's browser."""
+    webbrowser.open(_HELP_PROJECT_REPOSITORY_URL)
+
+
+def _populate_robot_help_text(text: tk.Text) -> None:
+    """Fill the help ``Text`` with module info, repo link, and command list (read-only)."""
+    text.insert(tk.END, t("help.module_intro") + "\n\n")
+    text.insert(tk.END, t("help.author", author=_HELP_AUTHOR_NAME) + "\n")
+    text.insert(tk.END, t("help.project_repo_label") + "\n")
+    text.insert(tk.END, _HELP_PROJECT_REPOSITORY_URL, (_HELP_BODY_LINK_TAG,))
+    text.insert(tk.END, "\n\n")
+    body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
+    text.insert(tk.END, body)
+
+    text.tag_configure(_HELP_BODY_LINK_TAG, foreground="#0645ad", underline=True)
+
+    def _on_help_text_button1(event: tk.Event) -> None:
+        try:
+            idx = text.index(f"@{event.x},{event.y}")
+        except tk.TclError:
+            return
+        if _HELP_BODY_LINK_TAG in text.tag_names(idx):
+            _open_help_project_repository()
+
+    def _link_enter(_event: tk.Event) -> None:
+        text.config(cursor="hand2")
+
+    def _link_leave(_event: tk.Event) -> None:
+        text.config(cursor="")
+
+    text.bind("<Button-1>", _on_help_text_button1)
+    text.tag_bind(_HELP_BODY_LINK_TAG, "<Enter>", _link_enter)
+    text.tag_bind(_HELP_BODY_LINK_TAG, "<Leave>", _link_leave)
+
+    text.bind("<Key>", _help_text_readonly_key_action)
+    text.bind("<<Paste>>", _help_text_block_paste)
