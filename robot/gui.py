@@ -47,8 +47,7 @@ _ESCAPE_BINDING = "<Escape>"
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
 
-# Help uses width=72; constraints dialog is intentionally narrower.
-_CONSTRAINTS_TEXT_WIDTH = int(72 * 0.7)
+_CONSTRAINTS_TEXT_WIDTH = 51
 
 
 def _task_has_any_constraints(
