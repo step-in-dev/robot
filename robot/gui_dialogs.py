@@ -7,6 +7,9 @@ from .gui_constraints import CONSTRAINTS_TEXT_WIDTH, constraints_body_lines
 from .gui_help import _populate_robot_help_text
 from .i18n import t
 
+HELP_TEXT_WIDTH = 72
+HELP_TEXT_HEIGHT = 32
+
 _ESCAPE_BINDING = "<Escape>"
 
 
@@ -104,8 +107,8 @@ class DialogManagerMixin:
         text = tk.Text(
             frame,
             wrap=tk.WORD,
-            width=72,
-            height=24,
+            width=HELP_TEXT_WIDTH,
+            height=HELP_TEXT_HEIGHT,
             relief=tk.FLAT,
             highlightthickness=0,
         )
