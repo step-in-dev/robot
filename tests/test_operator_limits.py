@@ -449,7 +449,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.if_keyword", actual=2, limit=1),
-                "if использовано: 2. Разрешено не более 1",
+                "«if» использовано: 2. Разрешено не более 1",
             )
 
     def test_while_keyword_limit_message_russian_via_t(self) -> None:
@@ -459,7 +459,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.while_keyword", actual=3, limit=1),
-                "while использовано: 3. Разрешено не более 1",
+                "«while» использовано: 3. Разрешено не более 1",
             )
 
 
