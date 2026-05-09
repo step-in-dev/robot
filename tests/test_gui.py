@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import cast
 from unittest.mock import MagicMock, call, patch
 
 import tkinter as tk
@@ -1370,17 +1371,17 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
         from types import SimpleNamespace
 
         self.assertIsNone(
-            _help_text_readonly_key_action(SimpleNamespace(keysym="c", state=0x0004, char=""))
+            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="c", state=0x0004, char="")))
         )
         self.assertIsNone(
-            _help_text_readonly_key_action(SimpleNamespace(keysym="a", state=0x0004, char=""))
+            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="a", state=0x0004, char="")))
         )
 
     def test_help_readonly_blocks_plain_printable_keys(self) -> None:
         from types import SimpleNamespace
 
         self.assertEqual(
-            _help_text_readonly_key_action(SimpleNamespace(keysym="x", state=0, char="x")),
+            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="x", state=0, char="x"))),
             "break",
         )
 
