@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, call, patch
 import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
-from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
+from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow, _HELP_AUTHOR_NAME
 from robot.gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -1391,7 +1391,7 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertEqual(tops[0].title(), t("help.title"))
             body = _help_window_body_text(tops[0])
             self.assertIn(t("help.module_intro"), body)
-            self.assertIn(t("help.author"), body)
+            self.assertIn(t("help.author", author=_HELP_AUTHOR_NAME), body)
             self.assertIn(_EXPECTED_HELP_PROJECT_REPO_URL, body)
             self.assertIn("move_right()", body)
             self.assertIn(t("help.command.move_right"), body)

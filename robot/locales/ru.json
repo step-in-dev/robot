@@ -34,7 +34,7 @@
   "button.help": "Справка",
   "help.title": "Модуль Робот",
   "help.module_intro": "Модуль представляет собой реализацию учебного исполнителя «Робот» для освоения основ программирования.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "Автор: {author}",
   "help.project_repo_label": "Проект на GitHub:",
   "help.intro": "Доступные команды:",
   "help.command.task": "Запускает выбранное задание.",

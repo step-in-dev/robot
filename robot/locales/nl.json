@@ -34,7 +34,7 @@
   "button.help": "Help",
   "help.title": "Robotmodule",
   "help.module_intro": "Deze module implementeert de klassieke educatieve Robot-uitvoerder om de basis van programmeren en algoritmen te leren.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "Auteur: {author}",
   "help.project_repo_label": "Project op GitHub:",
   "help.intro": "Beschikbare opdrachten:",
   "help.command.task": "Start de geselecteerde taak.",

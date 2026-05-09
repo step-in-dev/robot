@@ -36,7 +36,7 @@
   "button.help": "Help",
   "help.title": "Robot module",
   "help.module_intro": "This module implements the classic educational Robot simulator for learning basic programming and algorithms.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "Author: {author}",
   "help.project_repo_label": "Project on GitHub:",
   "help.intro": "Available commands:",
   "help.command.task": "Starts the selected task.",

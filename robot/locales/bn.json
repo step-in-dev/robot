@@ -34,7 +34,7 @@
   "button.help": "সাহায্য",
   "help.title": "রোবট মডিউল",
   "help.module_intro": "এই মডিউলটি প্রোগ্রামিং ও অ্যালগরিদমের ভিত্তি শেখার জন্য শিক্ষামূলক রোবট এক্সিকিউটরের একটি বাস্তবায়ন।",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "লেখক: {author}",
   "help.project_repo_label": "GitHub-এ প্রকল্প:",
   "help.intro": "উপলব্ধ নির্দেশ:",
   "help.command.task": "নির্বাচিত কাজ শুরু করে।",

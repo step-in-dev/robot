@@ -34,7 +34,7 @@
   "button.help": "Guida",
   "help.title": "Modulo Robot",
   "help.module_intro": "Questo modulo implementa il classico esecutore didattico «Robot» per imparare le basi della programmazione e degli algoritmi.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "Autore: {author}",
   "help.project_repo_label": "Progetto su GitHub:",
   "help.intro": "Comandi disponibili:",
   "help.command.task": "Avvia il compito selezionato.",

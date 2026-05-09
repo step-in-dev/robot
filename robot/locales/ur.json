@@ -34,7 +34,7 @@
   "button.help": "مدد",
   "help.title": "روبوٹ ماڈیول",
   "help.module_intro": "یہ ماڈیول پروگرامنگ اور الگورتھم کی بنیادیں سیکھنے کے لیے تعلیمی روبوٹ ایکزی کیوٹر کا نفاذ ہے۔",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "مصنف: {author}",
   "help.project_repo_label": "GitHub پر منصوبہ:",
   "help.intro": "دستیاب احکامات:",
   "help.command.task": "منتخب شدہ ٹاسک شروع کرتا ہے۔",

@@ -34,7 +34,7 @@
   "button.help": "도움말",
   "help.title": "로봇 모듈",
   "help.module_intro": "이 모듈은 프로그래밍과 알고리즘 기초를 배우기 위한 고전적인 교육용 «로봇» 실행기 구현입니다.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "저자: {author}",
   "help.project_repo_label": "GitHub 프로젝트:",
   "help.intro": "사용 가능한 명령:",
   "help.command.task": "선택한 과제를 시작합니다.",

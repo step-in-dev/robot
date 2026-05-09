@@ -46,6 +46,7 @@ _ESCAPE_BINDING = "<Escape>"
 
 # Source repository URL (shown as a clickable link in the help dialog).
 _HELP_PROJECT_REPOSITORY_URL = "https://github.com/step-in-dev/robot"
+_HELP_AUTHOR_NAME = "Виктор Терещук (Viktar Tserashchuk)"
 _HELP_BODY_LINK_TAG = "help_repo_link"
 
 # Pause between environments during Run so the user can see the final state
@@ -63,7 +64,7 @@ def _open_help_project_repository() -> None:
 def _populate_robot_help_text(text: tk.Text) -> None:
     """Fill the help ``Text`` with module info, repo link, and command list (read-only)."""
     text.insert(tk.END, t("help.module_intro") + "\n\n")
-    text.insert(tk.END, t("help.author") + "\n")
+    text.insert(tk.END, t("help.author", author=_HELP_AUTHOR_NAME) + "\n")
     text.insert(tk.END, t("help.project_repo_label") + "\n")
     text.insert(tk.END, _HELP_PROJECT_REPOSITORY_URL, (_HELP_BODY_LINK_TAG,))
     text.insert(tk.END, "\n\n")

@@ -34,7 +34,7 @@
   "button.help": "Aide",
   "help.title": "Module Robot",
   "help.module_intro": "Ce module implémente l'exécuteur éducatif classique « Robot » pour apprendre les bases de la programmation et des algorithmes.",
-  "help.author": "Виктор Терещук (Viktar Tserashchuk)",
+  "help.author": "Auteur : {author}",
   "help.project_repo_label": "Projet sur GitHub :",
   "help.intro": "Commandes disponibles :",
   "help.command.task": "Démarre la tâche sélectionnée.",
