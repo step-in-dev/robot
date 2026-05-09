@@ -1362,6 +1362,32 @@ class RobotWindowConstraintsTest(unittest.TestCase):
             window.close()
 
 
+class HelpReadonlyKeyFilterTest(unittest.TestCase):
+    """Regression: help ``Text`` must stay read-only without blocking copy (``<Key>`` + ``break``)."""
+
+    def test_help_readonly_allows_copy_and_select_all(self) -> None:
+        from types import SimpleNamespace
+
+        from robot.gui import _help_text_readonly_key_action
+
+        self.assertIsNone(
+            _help_text_readonly_key_action(SimpleNamespace(keysym="c", state=0x0004, char=""))
+        )
+        self.assertIsNone(
+            _help_text_readonly_key_action(SimpleNamespace(keysym="a", state=0x0004, char=""))
+        )
+
+    def test_help_readonly_blocks_plain_printable_keys(self) -> None:
+        from types import SimpleNamespace
+
+        from robot.gui import _help_text_readonly_key_action
+
+        self.assertEqual(
+            _help_text_readonly_key_action(SimpleNamespace(keysym="x", state=0, char="x")),
+            "break",
+        )
+
+
 @unittest.skipUnless(
     _tkinter_display_works(),
     "tkinter display not available (headless / no DISPLAY)",

@@ -49,6 +49,62 @@ _HELP_PROJECT_REPOSITORY_URL = "https://github.com/step-in-dev/robot"
 _HELP_AUTHOR_NAME = "Виктор Терещук (Viktar Tserashchuk)"
 _HELP_BODY_LINK_TAG = "help_repo_link"
 
+_HELP_TEXT_KP_NAV_KEYS = frozenset(
+    {
+        "KP_Left",
+        "KP_Right",
+        "KP_Up",
+        "KP_Down",
+        "KP_Prior",
+        "KP_Next",
+        "KP_Home",
+        "KP_End",
+        "KP_Begin",
+    }
+)
+
+
+def _help_text_readonly_key_action(event: tk.Event) -> str | None:
+    """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
+    if event.keysym == "Escape":
+        return None
+
+    state = event.state or 0
+    ctrl = bool(state & 0x0004)
+    meta = bool(state & 0x0008)
+    ks = event.keysym or ""
+
+    if (ctrl or meta) and ks.lower() in ("c", "a", "insert"):
+        return None
+    if (ctrl or meta) and ks.lower() in ("v", "x"):
+        return "break"
+
+    if ks in (
+        "BackSpace",
+        "Delete",
+        "Return",
+        "KP_Enter",
+        "Linefeed",
+        "Tab",
+        "ISO_Left_Tab",
+        "space",
+    ):
+        return "break"
+
+    if ks.startswith("KP_") and ks not in _HELP_TEXT_KP_NAV_KEYS:
+        return "break"
+
+    ch = event.char
+    if ch and ch.isprintable() and not (ctrl or meta):
+        return "break"
+
+    return None
+
+
+def _help_text_block_paste(_event: tk.Event) -> str:
+    return "break"
+
+
 # Pause between environments during Run so the user can see the final state
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
@@ -91,13 +147,8 @@ def _populate_robot_help_text(text: tk.Text) -> None:
     text.tag_bind(_HELP_BODY_LINK_TAG, "<Enter>", _link_enter)
     text.tag_bind(_HELP_BODY_LINK_TAG, "<Leave>", _link_leave)
 
-    def _block_edit(event: tk.Event) -> str | None:
-        if event.keysym == "Escape":
-            return None
-        return "break"
-
-    text.bind("<Key>", _block_edit)
-    text.bind("<<Paste>>", _block_edit)
+    text.bind("<Key>", _help_text_readonly_key_action)
+    text.bind("<<Paste>>", _help_text_block_paste)
 
 
 def _task_has_any_constraints(
