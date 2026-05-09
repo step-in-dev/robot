@@ -33,7 +33,7 @@
   "loader.custom_function_call_count_invalid": "customFunctionCallCount должен быть целым числом не меньше нуля: {task_path}",
   "button.help": "Справка",
   "help.title": "Модуль Робот",
-  "help.module_intro": "Модуль представляет собой реализацию учебного исполнителя «Робот» для освоения основ программирования.",
+  "help.module_intro": "Модуль представляет собой реализацию учебного исполнителя «Робот» для освоения основ программирования и алгоритмизации.",
   "help.author": "Автор: {author}",
   "help.project_repo_label": "Проект на GitHub:",
   "help.commands_title": "Доступные команды",
