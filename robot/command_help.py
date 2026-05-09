@@ -48,7 +48,7 @@ def iter_command_help() -> list[tuple[str, str]]:
 
 def iter_command_help_lines() -> Iterable[str]:
     """Lines for a plain-text help body."""
-    yield t("help.intro")
+    yield t("help.commands_title")
     yield ""
     for signature, description in iter_command_help():
         yield signature

@@ -36,7 +36,7 @@
   "help.module_intro": "Модуль є реалізацією навчального виконавця «Робот» для засвоєння основ програмування.",
   "help.author": "Автор: {author}",
   "help.project_repo_label": "Проєкт на GitHub:",
-  "help.intro": "Доступні команди:",
+  "help.commands_title": "Доступні команди:",
   "help.command.task": "Запускає обране завдання.",
   "help.command.move_right": "Зсуває робота на одну клітинку вправо.",
   "help.command.move_left": "Зсуває робота на одну клітинку вліво.",

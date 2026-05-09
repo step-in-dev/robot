@@ -36,7 +36,7 @@
   "help.module_intro": "Este módulo implementa o clássico executor educacional «Robô» para aprender os fundamentos da programação e de algoritmos.",
   "help.author": "Autor: {author}",
   "help.project_repo_label": "Projeto no GitHub:",
-  "help.intro": "Comandos disponíveis:",
+  "help.commands_title": "Comandos disponíveis:",
   "help.command.task": "Inicia a tarefa selecionada.",
   "help.command.move_right": "Move o robô uma célula para a direita.",
   "help.command.move_left": "Move o robô uma célula para a esquerda.",

@@ -36,7 +36,7 @@
   "help.module_intro": "このモジュールは、プログラミングとアルゴリズムの基礎を学ぶための古典的な教育用「ロボット」実行環境の実装です。",
   "help.author": "著者：{author}",
   "help.project_repo_label": "GitHub のプロジェクト：",
-  "help.intro": "利用できるコマンド：",
+  "help.commands_title": "利用できるコマンド：",
   "help.command.task": "選択した課題を開始します。",
   "help.command.move_right": "ロボットを右に1マス動かします。",
   "help.command.move_left": "ロボットを左に1マス動かします。",
