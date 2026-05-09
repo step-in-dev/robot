@@ -184,7 +184,9 @@ class RobotWindow:
                         self.tab_frame,
                         text=str(index + 1),
                         command=lambda index=index: self.select_env(index),
-                        width=4,
+                        width=1,
+                        padx='4.5m',
+                        pady='2m'
                     )
                     button.pack(side=tk.LEFT)
                     self.tab_buttons.append(button)
