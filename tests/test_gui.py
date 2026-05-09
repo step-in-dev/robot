@@ -6,7 +6,8 @@ from unittest.mock import MagicMock, call, patch
 import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
-from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow, _HELP_AUTHOR_NAME
+from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
+from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
 from robot.gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -1368,8 +1369,6 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
     def test_help_readonly_allows_copy_and_select_all(self) -> None:
         from types import SimpleNamespace
 
-        from robot.gui import _help_text_readonly_key_action
-
         self.assertIsNone(
             _help_text_readonly_key_action(SimpleNamespace(keysym="c", state=0x0004, char=""))
         )
@@ -1379,8 +1378,6 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
 
     def test_help_readonly_blocks_plain_printable_keys(self) -> None:
         from types import SimpleNamespace
-
-        from robot.gui import _help_text_readonly_key_action
 
         self.assertEqual(
             _help_text_readonly_key_action(SimpleNamespace(keysym="x", state=0, char="x")),

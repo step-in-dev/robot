@@ -12,16 +12,10 @@ from .executor import (
 )
 
 from .field_renderer import FieldColors, FieldRenderer
-from .gui_constraints import (
-    CONSTRAINTS_TEXT_WIDTH,
-    constraints_body_lines,
-    task_has_any_constraints,
-)
-from .gui_help import (
-    _HELP_AUTHOR_NAME,
-    _help_text_readonly_key_action,
-    _populate_robot_help_text,
-)
+from .gui_action_buttons import ActionButtonMixin
+from .gui_constraints import task_has_any_constraints
+from .gui_dialogs import DialogManagerMixin
+from .gui_keyboard import KeyboardHandlerMixin
 from .gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -50,14 +44,12 @@ from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip
 
-_ESCAPE_BINDING = "<Escape>"
-
 # Pause between environments during Run so the user can see the final state
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
 
 
-class RobotWindow:
+class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
     def __init__(
         self,
         task_id: str,
@@ -91,10 +83,7 @@ class RobotWindow:
         self._is_run_all_active = False
         self._step_session: StepExecutionSession | None = None
         self._step_tabs_locked = False
-        self._help_window: tk.Toplevel | None = None
-        self._help_window_close_handler: Callable[[], None] | None = None
-        self._constraints_window: tk.Toplevel | None = None
-        self._constraints_window_close_handler: Callable[[], None] | None = None
+        self._init_dialog_manager()
 
         self._init_root_and_geometry()
         self._build_todo_banner()
@@ -241,13 +230,7 @@ class RobotWindow:
             command=self.show_help,
         )
         self.help_button.pack(side=tk.RIGHT)
-        self.root.bind("<Return>", self._handle_action_enter_key)
-        self.root.bind("<KP_Enter>", self._handle_action_enter_key)
-        self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)
-        self.root.bind(
-            "<KeyRelease-KP_Enter>", self._handle_action_enter_release
-        )
-        self.root.bind(_ESCAPE_BINDING, self._handle_escape_close)
+        self.bind_action_keyboard()
 
     def _build_status_area(self) -> None:
         initial_status = STATUS_READY
@@ -389,20 +372,7 @@ class RobotWindow:
             return
         self._cancel_step_wake_only()
         self._cancel_pending_restore_enable_after()
-        if self._help_window is not None:
-            try:
-                self._help_window.destroy()
-            except tk.TclError:
-                pass
-            self._help_window = None
-            self._help_window_close_handler = None
-        if self._constraints_window is not None:
-            try:
-                self._constraints_window.destroy()
-            except tk.TclError:
-                pass
-            self._constraints_window = None
-            self._constraints_window_close_handler = None
+        self.close_dialogs()
         self.is_closed = True
         self.root.destroy()
 
@@ -418,40 +388,6 @@ class RobotWindow:
 
         self.draw_field()
 
-    def _handle_action_enter_key(self, _event: tk.Event) -> str | None:
-        """Invoke the main action button like a mouse click when Enter is pressed."""
-        if self.action_button is None:
-            return None
-        if self._ignore_action_enter_until_idle:
-            return "break"
-        if self.action_button.cget("state") == tk.DISABLED:
-            self._ignore_action_enter_until_idle = True
-            return "break"
-        self._ignore_action_enter_until_idle = True
-        self.action_button.invoke()
-        return "break"
-
-    def _handle_action_enter_release(self, _event: tk.Event) -> str | None:
-        if self.action_button is None:
-            return None
-        if self._ignore_action_enter_until_idle:
-            self.root.after_idle(self._deferred_clear_enter_ignore)
-            return "break"
-        return None
-
-    def _handle_escape_close(self, _event: tk.Event) -> str | None:
-        """Close the robot window like the window manager close button."""
-        self.close()
-        return "break"
-
-    def _deferred_clear_enter_ignore(self) -> None:
-        if self.is_closed:
-            return
-        if self._is_run_all_active:
-            self.root.after_idle(self._deferred_clear_enter_ignore)
-            return
-        self._ignore_action_enter_until_idle = False
-
     def configure_tab_buttons(self) -> None:
         if self.is_closed:
             return
@@ -465,206 +401,6 @@ class RobotWindow:
                 if tab_index == self.selected_index
                 else tk.RAISED,
                 state=state,
-            )
-
-    def _focus_toplevel_dialog(self, win: tk.Toplevel) -> None:
-        """Raise and focus a secondary dialog (main window may be ``-topmost``)."""
-        win.lift()
-        win.focus_set()
-
-    def _show_step_button_in_controls(self) -> None:
-        """Pack the step button to the right of the main action button and set enabled state."""
-        if self.step_button is None:
-            return
-        if self.step_button not in self.controls_left.pack_slaves():
-            self.step_button.pack(side=tk.LEFT, padx=(4, 0))
-        if self.script_path is not None:
-            self.step_button.configure(state=tk.NORMAL)
-        else:
-            self.step_button.configure(state=tk.DISABLED)
-
-    def show_help(self) -> None:
-        """Open or focus a window with module info, project link, and Robot command help."""
-        if self.is_closed:
-            return
-        if self._help_window is not None:
-            try:
-                if self._help_window.winfo_exists():
-                    self._focus_toplevel_dialog(self._help_window)
-                    return
-            except tk.TclError:
-                pass
-            self._help_window = None
-
-        help_win = tk.Toplevel(self.root)
-        self._help_window = help_win
-        help_win.title(t("help.title"))
-        help_win.transient(self.root)
-
-        def _clear_help_ref() -> None:
-            try:
-                help_win.destroy()
-            except tk.TclError:
-                pass
-            self._help_window = None
-            self._help_window_close_handler = None
-
-        self._help_window_close_handler = _clear_help_ref
-        help_win.protocol("WM_DELETE_WINDOW", self._help_window_close_handler)
-
-        def _handle_help_escape(_event: tk.Event) -> str | None:
-            _clear_help_ref()
-            return "break"
-
-        help_win.bind(_ESCAPE_BINDING, _handle_help_escape)
-
-        frame = tk.Frame(help_win, padx=10, pady=10)
-        frame.pack(fill=tk.BOTH, expand=True)
-
-        text = tk.Text(
-            frame,
-            wrap=tk.WORD,
-            width=72,
-            height=24,
-            relief=tk.FLAT,
-            highlightthickness=0,
-        )
-        scroll = tk.Scrollbar(frame, command=text.yview)
-        text.configure(yscrollcommand=scroll.set)
-        scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        _populate_robot_help_text(text)
-        self._focus_toplevel_dialog(help_win)
-
-    def _constraints_body_lines(self) -> list[str]:
-        return constraints_body_lines(
-            operators_limit=self.operators_limit,
-            custom_function_call_count=self.custom_function_call_count,
-            if_limit=self.if_limit,
-            while_limit=self.while_limit,
-            required_keywords=self.required_keywords,
-            banned_keywords=self.banned_keywords,
-        )
-
-    def show_constraints(self) -> None:
-        """Open or focus a window listing task limits that apply to this task."""
-        if self.is_closed:
-            return
-        if self._constraints_window is not None:
-            try:
-                if self._constraints_window.winfo_exists():
-                    self._focus_toplevel_dialog(self._constraints_window)
-                    return
-            except tk.TclError:
-                pass
-            self._constraints_window = None
-
-        body_lines = self._constraints_body_lines()
-        if not body_lines:
-            return
-
-        c_win = tk.Toplevel(self.root)
-        self._constraints_window = c_win
-        c_win.title(t("constraints.title"))
-        c_win.transient(self.root)
-
-        def _clear_constraints_ref() -> None:
-            try:
-                c_win.destroy()
-            except tk.TclError:
-                pass
-            self._constraints_window = None
-            self._constraints_window_close_handler = None
-
-        self._constraints_window_close_handler = _clear_constraints_ref
-        c_win.protocol("WM_DELETE_WINDOW", self._constraints_window_close_handler)
-
-        def _handle_constraints_escape(_event: tk.Event) -> str | None:
-            _clear_constraints_ref()
-            return "break"
-
-        c_win.bind(_ESCAPE_BINDING, _handle_constraints_escape)
-
-        frame = tk.Frame(c_win, padx=10, pady=10)
-        frame.pack(fill=tk.BOTH, expand=True)
-
-        text = tk.Text(
-            frame,
-            wrap=tk.WORD,
-            width=CONSTRAINTS_TEXT_WIDTH,
-            height=min(24, max(6, len(body_lines) + 2)),
-            relief=tk.FLAT,
-            highlightthickness=0,
-        )
-        scroll = tk.Scrollbar(frame, command=text.yview)
-        text.configure(yscrollcommand=scroll.set)
-        scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        body = "\n".join(body_lines).rstrip() + "\n"
-        text.insert(tk.END, body)
-        text.configure(state=tk.DISABLED)
-        self._focus_toplevel_dialog(c_win)
-
-    def _hide_step_button_from_controls(self) -> None:
-        """Hide the step button while the UI is in post-run restore mode."""
-        if self.step_button is None:
-            return
-        self.step_button.pack_forget()
-
-    def _set_action_to_run(self) -> None:
-        self._cancel_pending_restore_enable_after()
-        if self.action_button is None:
-            return
-        self.action_button.configure(
-            text=ACTION_BUTTON_RUN,
-            command=self.run_all,
-            state=tk.NORMAL,
-        )
-        self._show_step_button_in_controls()
-
-    def _cancel_pending_restore_enable_after(self) -> None:
-        if self._pending_restore_enable_after_id is None:
-            return
-        pending = self._pending_restore_enable_after_id
-        self._pending_restore_enable_after_id = None
-        try:
-            self.root.after_cancel(pending)
-        except tk.TclError:
-            pass
-
-    def _enable_action_button_if_current(self) -> None:
-        self._pending_restore_enable_after_id = None
-        if self.action_button is None or self.is_closed:
-            return
-        if self.action_button.cget("text") != ACTION_BUTTON_RESTORE:
-            return
-        if self.action_button.cget("state") != tk.DISABLED:
-            return
-        self.action_button.configure(state=tk.NORMAL)
-
-    def _set_action_to_restore(
-        self,
-        *,
-        disabled: bool,
-        hide_step: bool,
-        enable_after_idle: bool = False,
-    ) -> None:
-        """Main button becomes Restore; optionally hide Step and defer enabling after idle."""
-        self._cancel_pending_restore_enable_after()
-        if self.action_button is None:
-            return
-        self.action_button.configure(
-            text=ACTION_BUTTON_RESTORE,
-            command=self.restore,
-            state=tk.DISABLED if disabled else tk.NORMAL,
-        )
-        if hide_step:
-            self._hide_step_button_from_controls()
-        if enable_after_idle:
-            self._pending_restore_enable_after_id = self.root.after_idle(
-                self._enable_action_button_if_current
             )
 
     def restore(self) -> None:
@@ -758,4 +494,5 @@ __all__ = [
     "calculate_canvas_size",
     "calculate_cell_size",
     "calculate_field_offset",
+    "INTER_ENV_PAUSE_SECONDS",
 ]
