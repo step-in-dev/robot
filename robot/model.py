@@ -96,11 +96,19 @@ class RobotEnvDto:
         self._validate()
 
     def _validate(self) -> None:
+        self._validate_dimensions()
+        self._validate_start_and_final_in_bounds()
+        self._validate_cell_collections_in_bounds()
+        self._validate_painted_and_to_paint_disjoint()
+        self._validate_walls()
+
+    def _validate_dimensions(self) -> None:
         if self.width <= 0:
             raise ValueError(t("model.error.width_not_positive", width=self.width))
         if self.height <= 0:
             raise ValueError(t("model.error.height_not_positive", height=self.height))
 
+    def _validate_start_and_final_in_bounds(self) -> None:
         if not (0 <= self.start_row < self.height and 0 <= self.start_col < self.width):
             raise ValueError(
                 t(
@@ -122,6 +130,7 @@ class RobotEnvDto:
                 )
             )
 
+    def _validate_cell_collections_in_bounds(self) -> None:
         _validate_cell_positions(
             self.painted_cells, "paintedCells", self.width, self.height
         )
@@ -135,6 +144,7 @@ class RobotEnvDto:
             self.cells_to_print, "cellsToPrint", self.width, self.height
         )
 
+    def _validate_painted_and_to_paint_disjoint(self) -> None:
         painted_positions = {(c.r, c.c) for c in self.painted_cells}
         to_paint_positions = {(c.r, c.c) for c in self.cells_to_paint}
         overlap = painted_positions & to_paint_positions
@@ -144,6 +154,7 @@ class RobotEnvDto:
                 t("model.error.painted_and_to_paint_overlap", r=r, c=c)
             )
 
+    def _validate_walls(self) -> None:
         seen_walls: set[tuple[tuple[int, int], tuple[int, int]]] = set()
         for first, second in self.walls:
             for cell in (first, second):
