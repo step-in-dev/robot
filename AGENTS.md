@@ -20,7 +20,7 @@ The target audience is school students who are learning introductory programming
 ## Documentation
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
-- `Docs/localization-style.md` describes conventions for localized UI strings.
+- `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
 - UI string catalogs are JSON files in `robot/locales/`.
 
 ## Architecture Overview
@@ -35,3 +35,4 @@ The target audience is school students who are learning introductory programming
 - `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Canvas`, optional hatched success background).
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).
+
