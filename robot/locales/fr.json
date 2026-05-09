@@ -76,5 +76,17 @@
   "constraints.if_max": "Mot-clé « if » : au plus {limit}",
   "constraints.while_max": "Mot-clé « while » : au plus {limit}",
   "constraints.required_keywords": "Mots-clés requis dans la solution : {keywords}",
-  "constraints.banned_keywords": "Mots-clés interdits dans la solution : {keywords}"
+  "constraints.banned_keywords": "Mots-clés interdits dans la solution : {keywords}",
+  "help.tasks_title": "Tâches disponibles pour task()",
+  "help.tasks_count": "total {count}",
+  "help.task_group.intro": "Premiers pas",
+  "help.task_group.fun": "Fonctions",
+  "help.task_group.for": "Boucle for",
+  "help.task_group.forfun": "Boucle for et fonctions",
+  "help.task_group.w": "Boucle while",
+  "help.task_group.wfun": "Boucle while et fonctions",
+  "help.task_group.if": "Instruction if",
+  "help.task_group.wif": "Boucle while avec if",
+  "help.task_group.ifelse": "if et else",
+  "help.task_group.compound": "Conditions composées"
 }

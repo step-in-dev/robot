@@ -76,5 +76,17 @@
   "constraints.if_max": "Trefwoord 'if': hoogstens {limit}",
   "constraints.while_max": "Trefwoord 'while': hoogstens {limit}",
   "constraints.required_keywords": "Verplichte trefwoorden in de oplossing: {keywords}",
-  "constraints.banned_keywords": "Verboden trefwoorden in de oplossing: {keywords}"
+  "constraints.banned_keywords": "Verboden trefwoorden in de oplossing: {keywords}",
+  "help.tasks_title": "Beschikbare taken voor task()",
+  "help.tasks_count": "totaal {count}",
+  "help.task_group.intro": "Eerste stappen",
+  "help.task_group.fun": "Functies",
+  "help.task_group.for": "For-lus",
+  "help.task_group.forfun": "For-lus en functies",
+  "help.task_group.w": "While-lus",
+  "help.task_group.wfun": "While-lus en functies",
+  "help.task_group.if": "If-instructie",
+  "help.task_group.wif": "While-lus met if",
+  "help.task_group.ifelse": "if en else",
+  "help.task_group.compound": "Samengestelde voorwaarden"
 }

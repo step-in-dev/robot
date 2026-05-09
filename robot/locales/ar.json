@@ -76,5 +76,17 @@
   "constraints.if_max": "الكلمة المفتاحية if: على الأكثر {limit}",
   "constraints.while_max": "الكلمة المفتاحية while: على الأكثر {limit}",
   "constraints.required_keywords": "الكلمات المفتاحية المطلوبة في الحل: {keywords}",
-  "constraints.banned_keywords": "الكلمات المفتاحية الممنوعة في الحل: {keywords}"
+  "constraints.banned_keywords": "الكلمات المفتاحية الممنوعة في الحل: {keywords}",
+  "help.tasks_title": "المهام المتاحة لـ task()",
+  "help.tasks_count": "الإجمالي {count}",
+  "help.task_group.intro": "الخطوات الأولى",
+  "help.task_group.fun": "الدوال",
+  "help.task_group.for": "حلقة for",
+  "help.task_group.forfun": "حلقة for والدوال",
+  "help.task_group.w": "حلقة while",
+  "help.task_group.wfun": "حلقة while والدوال",
+  "help.task_group.if": "عبارة if",
+  "help.task_group.wif": "حلقة while مع if",
+  "help.task_group.ifelse": "if و else",
+  "help.task_group.compound": "الشروط المركبة"
 }

@@ -76,5 +76,17 @@
   "constraints.if_max": "Keyword 'if': at most {limit}",
   "constraints.while_max": "Keyword 'while': at most {limit}",
   "constraints.required_keywords": "Required keywords in solution: {keywords}",
-  "constraints.banned_keywords": "Forbidden keywords in solution: {keywords}"
+  "constraints.banned_keywords": "Forbidden keywords in solution: {keywords}",
+  "help.tasks_title": "Available tasks for task()",
+  "help.tasks_count": "total {count}",
+  "help.task_group.intro": "First steps",
+  "help.task_group.fun": "Functions",
+  "help.task_group.for": "For loop",
+  "help.task_group.forfun": "For loop and functions",
+  "help.task_group.w": "While loop",
+  "help.task_group.wfun": "While loop and functions",
+  "help.task_group.if": "If statement",
+  "help.task_group.wif": "While loop with if",
+  "help.task_group.ifelse": "If and else",
+  "help.task_group.compound": "Compound conditions"
 }

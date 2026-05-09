@@ -76,5 +76,17 @@
   "constraints.if_max": "কীওয়ার্ড 'if': সর্বোচ্চ {limit}",
   "constraints.while_max": "কীওয়ার্ড 'while': সর্বোচ্চ {limit}",
   "constraints.required_keywords": "সমাধানে প্রয়োজনীয় কীওয়ার্ড: {keywords}",
-  "constraints.banned_keywords": "সমাধানে নিষিদ্ধ কীওয়ার্ড: {keywords}"
+  "constraints.banned_keywords": "সমাধানে নিষিদ্ধ কীওয়ার্ড: {keywords}",
+  "help.tasks_title": "task() এর জন্য উপলব্ধ কাজ",
+  "help.tasks_count": "মোট {count}",
+  "help.task_group.intro": "প্রথম পদক্ষেপ",
+  "help.task_group.fun": "ফাংশন",
+  "help.task_group.for": "for লুপ",
+  "help.task_group.forfun": "for লুপ এবং ফাংশন",
+  "help.task_group.w": "while লুপ",
+  "help.task_group.wfun": "while লুপ এবং ফাংশন",
+  "help.task_group.if": "if বিবৃতি",
+  "help.task_group.wif": "while লুপ with if",
+  "help.task_group.ifelse": "if এবং else",
+  "help.task_group.compound": "যৌক্ত শর্তাবলী"
 }

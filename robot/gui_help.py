@@ -3,7 +3,7 @@ from __future__ import annotations
 import webbrowser
 import tkinter as tk
 
-from .command_help import iter_command_help_lines
+from .command_help import iter_command_help_lines, iter_task_list_lines
 from .i18n import t
 
 # Source repository URL (shown as a clickable link in the help dialog).
@@ -81,6 +81,9 @@ def _populate_robot_help_text(text: tk.Text) -> None:
     text.insert(tk.END, "\n\n")
     body = "\n".join(iter_command_help_lines()).rstrip() + "\n"
     text.insert(tk.END, body)
+
+    task_list = "\n".join(iter_task_list_lines()).rstrip() + "\n"
+    text.insert(tk.END, "\n" + task_list)
 
     text.tag_configure(_HELP_BODY_LINK_TAG, foreground="#0645ad", underline=True)
 

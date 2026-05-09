@@ -76,5 +76,17 @@
   "constraints.if_max": "キーワード if：最大 {limit} 個",
   "constraints.while_max": "キーワード while：最大 {limit} 個",
   "constraints.required_keywords": "解答に必須のキーワード：{keywords}",
-  "constraints.banned_keywords": "解答で禁止のキーワード：{keywords}"
+  "constraints.banned_keywords": "解答で禁止のキーワード：{keywords}",
+  "help.tasks_title": "task() で利用可能な課題",
+  "help.tasks_count": "計 {count} 個",
+  "help.task_group.intro": "入門",
+  "help.task_group.fun": "関数",
+  "help.task_group.for": "for ループ",
+  "help.task_group.forfun": "for ループと関数",
+  "help.task_group.w": "while ループ",
+  "help.task_group.wfun": "while ループと関数",
+  "help.task_group.if": "if 文",
+  "help.task_group.wif": "while ループと if",
+  "help.task_group.ifelse": "if と else",
+  "help.task_group.compound": "複合条件"
 }

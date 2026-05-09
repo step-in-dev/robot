@@ -76,5 +76,17 @@
   "constraints.if_max": "कीवर्ड 'if': अधिकतम {limit}",
   "constraints.while_max": "कीवर्ड 'while': अधिकतम {limit}",
   "constraints.required_keywords": "हल में आवश्यक कीवर्ड: {keywords}",
-  "constraints.banned_keywords": "हल में निषिद्ध कीवर्ड: {keywords}"
+  "constraints.banned_keywords": "हल में निषिद्ध कीवर्ड: {keywords}",
+  "help.tasks_title": "task() के लिए उपलब्ध कार्य",
+  "help.tasks_count": "कुल {count}",
+  "help.task_group.intro": "पहले कदम",
+  "help.task_group.fun": "फंक्शन्स",
+  "help.task_group.for": "for लूप",
+  "help.task_group.forfun": "for लूप और फंक्शन्स",
+  "help.task_group.w": "while लूप",
+  "help.task_group.wfun": "while लूप और फंक्शन्स",
+  "help.task_group.if": "if स्टेटमेंट",
+  "help.task_group.wif": "while लूप with if",
+  "help.task_group.ifelse": "if और else",
+  "help.task_group.compound": "संयुक्त शर्तें"
 }

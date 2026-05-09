@@ -76,5 +76,17 @@
   "constraints.if_max": "Słowo kluczowe „if”: co najwyżej {limit}",
   "constraints.while_max": "Słowo kluczowe „while”: co najwyżej {limit}",
   "constraints.required_keywords": "Wymagane słowa kluczowe w rozwiązaniu: {keywords}",
-  "constraints.banned_keywords": "Zabronione słowa kluczowe w rozwiązaniu: {keywords}"
+  "constraints.banned_keywords": "Zabronione słowa kluczowe w rozwiązaniu: {keywords}",
+  "help.tasks_title": "Dostępne zadania dla task()",
+  "help.tasks_count": "łącznie {count}",
+  "help.task_group.intro": "Pierwsze kroki",
+  "help.task_group.fun": "Funkcje",
+  "help.task_group.for": "Pętla for",
+  "help.task_group.forfun": "Pętla for i funkcje",
+  "help.task_group.w": "Pętla while",
+  "help.task_group.wfun": "Pętla while i funkcje",
+  "help.task_group.if": "Instrukcja if",
+  "help.task_group.wif": "Pętla while z instrukcją if",
+  "help.task_group.ifelse": "if i else",
+  "help.task_group.compound": "Warunki złożone"
 }

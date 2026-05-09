@@ -76,5 +76,17 @@
   "constraints.if_max": "Ключавое слова «if»: не больш за {limit}",
   "constraints.while_max": "Ключавое слова «while»: не больш за {limit}",
   "constraints.required_keywords": "У рашэнні патрабуюцца ключавыя словы: {keywords}",
-  "constraints.banned_keywords": "У рашэнні забаронены ключавыя словы: {keywords}"
+  "constraints.banned_keywords": "У рашэнні забаронены ключавыя словы: {keywords}",
+  "help.tasks_title": "Даступныя заданні для task()",
+  "help.tasks_count": "усяго {count}",
+  "help.task_group.intro": "Першыя крокі",
+  "help.task_group.fun": "Функцыі",
+  "help.task_group.for": "Цыкл «for»",
+  "help.task_group.forfun": "Цыкл «for» і функцыі",
+  "help.task_group.w": "Цыкл «while»",
+  "help.task_group.wfun": "Цыкл «while» і функцыі",
+  "help.task_group.if": "Канструкцыя «if»",
+  "help.task_group.wif": "Цыкл «while» з канструкцыяй «if»",
+  "help.task_group.ifelse": "«if» і «else»",
+  "help.task_group.compound": "Складаныя ўмовы"
 }
