@@ -110,8 +110,10 @@ def iter_task_list_lines() -> Iterable[str]:
         if not task_ids:
             continue
         task_ids.sort(key=_natural_sort_key)
-        id_list = ", ".join(task_ids)
-        count_text = t("help.tasks_count", count=len(task_ids))
+        if len(task_ids) > 2:
+            id_list = f"{task_ids[0]}, ..., {task_ids[-1]}"
+        else:
+            id_list = ", ".join(task_ids)
         yield t(f"help.task_group.{prefix}")
-        yield f"{id_list} ({count_text})"
+        yield id_list
         yield ""

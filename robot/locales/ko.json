@@ -78,7 +78,6 @@
   "constraints.required_keywords": "풀이에 필요한 키워드: {keywords}",
   "constraints.banned_keywords": "풀이에서 금지된 키워드: {keywords}",
   "help.tasks_title": "task()에서 사용 가능한 과제",
-  "help.tasks_count": "총 {count}개",
   "help.task_group.intro": "첫 걸음",
   "help.task_group.fun": "함수",
   "help.task_group.for": "'for' 반복문",

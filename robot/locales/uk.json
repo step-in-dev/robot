@@ -78,7 +78,6 @@
   "constraints.required_keywords": "У рішенні потрібні ключові слова: {keywords}",
   "constraints.banned_keywords": "У рішенні заборонені ключові слова: {keywords}",
   "help.tasks_title": "Доступні завдання для task()",
-  "help.tasks_count": "всього {count}",
   "help.task_group.intro": "Перші кроки",
   "help.task_group.fun": "Функції",
   "help.task_group.for": "Цикл «for»",

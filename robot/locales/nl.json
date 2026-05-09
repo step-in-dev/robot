@@ -78,7 +78,6 @@
   "constraints.required_keywords": "Verplichte trefwoorden in de oplossing: {keywords}",
   "constraints.banned_keywords": "Verboden trefwoorden in de oplossing: {keywords}",
   "help.tasks_title": "Beschikbare taken voor task()",
-  "help.tasks_count": "totaal {count}",
   "help.task_group.intro": "Eerste stappen",
   "help.task_group.fun": "Functies",
   "help.task_group.for": "'for'-lus",

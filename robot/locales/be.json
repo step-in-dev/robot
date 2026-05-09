@@ -78,7 +78,6 @@
   "constraints.required_keywords": "У рашэнні патрабуюцца ключавыя словы: {keywords}",
   "constraints.banned_keywords": "У рашэнні забаронены ключавыя словы: {keywords}",
   "help.tasks_title": "Даступныя заданні для task()",
-  "help.tasks_count": "усяго {count}",
   "help.task_group.intro": "Першыя крокі",
   "help.task_group.fun": "Функцыі",
   "help.task_group.for": "Цыкл «for»",

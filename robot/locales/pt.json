@@ -78,7 +78,6 @@
   "constraints.required_keywords": "Palavras-chave obrigatórias na solução: {keywords}",
   "constraints.banned_keywords": "Palavras-chave proibidas na solução: {keywords}",
   "help.tasks_title": "Tarefas disponíveis para task()",
-  "help.tasks_count": "total {count}",
   "help.task_group.intro": "Primeiros passos",
   "help.task_group.fun": "Funções",
   "help.task_group.for": "Loop 'for'",

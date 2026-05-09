@@ -78,7 +78,6 @@
   "constraints.required_keywords": "解答中必须包含的关键字：{keywords}",
   "constraints.banned_keywords": "解答中禁止的关键字：{keywords}",
   "help.tasks_title": "可用于 task() 的课题",
-  "help.tasks_count": "共 {count} 个",
   "help.task_group.intro": "入门",
   "help.task_group.fun": "函数",
   "help.task_group.for": "「for」循环",

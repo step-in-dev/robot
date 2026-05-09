@@ -78,7 +78,6 @@
   "constraints.required_keywords": "解答に必須のキーワード：{keywords}",
   "constraints.banned_keywords": "解答で禁止のキーワード：{keywords}",
   "help.tasks_title": "task() で利用可能な課題",
-  "help.tasks_count": "計 {count} 個",
   "help.task_group.intro": "入門",
   "help.task_group.fun": "関数",
   "help.task_group.for": "「for」ループ",

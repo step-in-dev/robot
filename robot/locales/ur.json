@@ -78,7 +78,6 @@
   "constraints.required_keywords": "حل میں ضروری کلیدی الفاظ: {keywords}",
   "constraints.banned_keywords": "حل میں ممنوع کلیدی الفاظ: {keywords}",
   "help.tasks_title": "task() کے لیے دستیاب کام",
-  "help.tasks_count": "کل {count}",
   "help.task_group.intro": "پہلے قدم",
   "help.task_group.fun": "فنکشنز",
   "help.task_group.for": "'for' لوپ",

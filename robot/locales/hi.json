@@ -78,7 +78,6 @@
   "constraints.required_keywords": "हल में आवश्यक कीवर्ड: {keywords}",
   "constraints.banned_keywords": "हल में निषिद्ध कीवर्ड: {keywords}",
   "help.tasks_title": "task() के लिए उपलब्ध कार्य",
-  "help.tasks_count": "कुल {count}",
   "help.task_group.intro": "पहले कदम",
   "help.task_group.fun": "फंक्शन्स",
   "help.task_group.for": "'for' लूप",

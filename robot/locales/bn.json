@@ -78,7 +78,6 @@
   "constraints.required_keywords": "সমাধানে প্রয়োজনীয় কীওয়ার্ড: {keywords}",
   "constraints.banned_keywords": "সমাধানে নিষিদ্ধ কীওয়ার্ড: {keywords}",
   "help.tasks_title": "task() এর জন্য উপলব্ধ কাজ",
-  "help.tasks_count": "মোট {count}",
   "help.task_group.intro": "প্রথম পদক্ষেপ",
   "help.task_group.fun": "ফাংশন",
   "help.task_group.for": "'for' লুপ",

@@ -78,7 +78,6 @@
   "constraints.required_keywords": "Mots-clés requis dans la solution : {keywords}",
   "constraints.banned_keywords": "Mots-clés interdits dans la solution : {keywords}",
   "help.tasks_title": "Tâches disponibles pour task()",
-  "help.tasks_count": "total {count}",
   "help.task_group.intro": "Premiers pas",
   "help.task_group.fun": "Fonctions",
   "help.task_group.for": "Boucle « for »",
