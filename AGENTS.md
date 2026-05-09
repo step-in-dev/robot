@@ -1,6 +1,6 @@
 # Project Overview
 
-This project implements an educational Robot executor for learning basic programming concepts. It lets students write Python solutions that control a robot on a grid, run those solutions against predefined task environments, and receive visual feedback through a desktop UI.
+This project implements an educational Robot simulator for learning basic programming concepts. It lets students write Python solutions that control a robot on a grid, run those solutions against predefined task environments, and receive visual feedback through a desktop UI.
 
 ## Purpose
 
