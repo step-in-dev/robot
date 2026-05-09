@@ -409,7 +409,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.operators", actual=3, limit=2),
-                "Команд Робота: 3. Можно не больше 2",
+                "Команд-действий Робота: 3. Можно не больше 2",
             )
 
     def test_custom_function_call_message_russian_via_t(self) -> None:
