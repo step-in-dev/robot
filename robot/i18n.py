@@ -29,6 +29,12 @@ SUPPORTED_LANGUAGES = (
     "de",
     "it",
     "nl",
+    "tr",
+    "el",
+    "cs",
+    "sv",
+    "ro",
+    "hu",
 )
 _SUPPORTED_SET = frozenset(SUPPORTED_LANGUAGES)
 DEFAULT_LANGUAGE = "en"
