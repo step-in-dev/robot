@@ -11,6 +11,9 @@ ACTION_BUTTON_RESTORE = t("button.restore")
 ACTION_BUTTON_STEP = t("button.step")
 ACTION_BUTTON_HELP = t("button.help")
 
+# Help and constraints secondary dialogs (`tk.Text` body).
+DIALOG_BODY_FONT = ("TkDefaultFont", 11)
+
 # todoText panel and status row share border color; backgrounds match task UX states.
 TODO_TEXT_BG = "#fdf9d3"
 TODO_TEXT_BORDER = "#999999"

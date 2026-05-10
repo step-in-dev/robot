@@ -5,6 +5,7 @@ from typing import Callable
 
 from .gui_constraints import constraints_body_lines
 from .gui_help import _populate_robot_help_text
+from .gui_theme import DIALOG_BODY_FONT
 from .i18n import t
 
 HELP_TEXT_WIDTH = 72
@@ -119,6 +120,7 @@ class DialogManagerMixin:
             wrap=tk.WORD,
             width=HELP_TEXT_WIDTH,
             height=HELP_TEXT_HEIGHT,
+            font=DIALOG_BODY_FONT,
             relief=tk.FLAT,
             highlightthickness=0,
         )
@@ -184,6 +186,7 @@ class DialogManagerMixin:
             wrap=tk.WORD,
             width=CONSTRAINTS_TEXT_WIDTH,
             height=min(24, max(6, len(body_lines) + 2)),
+            font=DIALOG_BODY_FONT,
             relief=tk.FLAT,
             highlightthickness=0,
         )
