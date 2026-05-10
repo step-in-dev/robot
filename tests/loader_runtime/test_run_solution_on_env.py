@@ -1,11 +1,10 @@
 """Tests for ``run_solution_on_env`` (batch exec of student script).
 
 ``run_solution_on_env`` compiles and ``exec``s the script, then checks final
-robot state. It does **not** apply ``check_limit_violations`` (required/banned
-keywords, if/while limits, operator counts from the task file); those run in
-the GUI path. Tests that load tasks with strict limits therefore still expect
-``success`` when the robot reaches the goal — the script "violates" the task
-file on paper, but batch execution ignores that layer.
+robot state. It does **not** call ``check_limit_violations``; limit checks run
+in the GUI after a successful ``run_env`` / step session (see
+``tests/test_gui.py``). Regression that batch execution ignores task-file
+constraints is covered here by ``test_batch_run_ignores_*_constraint_still_success``.
 """
 
 import re
@@ -119,247 +118,6 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
 
-    def test_runtime_operators_limit_exceeded_runs_then_returns_wrong_by_final_state(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import *\n"
-                "task('lim')\n"
-                "move_right()\n"
-                "move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 4,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 3,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "lim", env)
-
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(result.message, "")
-        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
-
-    def test_runtime_operators_limit_allows_single_written_operator_in_loop(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import *\n"
-                "task('looplim')\n"
-                "for _ in range(3):\n"
-                "    move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 4,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 3,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "looplim", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 3))
-
-    def test_runtime_custom_function_call_count_exceeded_runs_then_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf1", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_runtime_custom_function_call_count_empty_function_runs_then_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "def helper():\n"
-                "    x = 1\n"
-                "\n"
-                "helper()\n"
-                "move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf1", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_runtime_custom_function_call_count_allows_defined_and_called_function(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n\n"
-                "def step():\n"
-                "    move_right()\n"
-                "\n"
-                "step()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf1", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_runtime_custom_function_call_count_requires_two_runs_then_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n\n"
-                "def step():\n"
-                "    move_right()\n"
-                "\n"
-                "step()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf2", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_runtime_custom_function_call_count_allows_two_calls_to_same_function(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n\n"
-                "def step():\n"
-                "    move_right()\n"
-                "\n"
-                "step()\n"
-                "step()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 2,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf2", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
-
-    def test_runtime_custom_function_call_count_none_allows_plain_solution(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\nmove_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf1", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
     def test_batch_run_ignores_required_keywords_constraint_still_success(
         self,
     ) -> None:
@@ -448,60 +206,6 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 2))
 
-    def test_runtime_if_limit_counts_ternary_expression_tokens(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "a = 1 if True else 0\n"
-                "b = 2 if False else 3\n"
-                "move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "iftern", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_runtime_if_limit_allows_single_if(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "if True:\n"
-                "    move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "ifok", env)
-
-        self.assertTrue(result.success)
-
     def test_batch_run_ignores_while_limit_constraint_still_success(
         self,
     ) -> None:
@@ -534,6 +238,34 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 2))
+
+    def test_batch_run_ignores_custom_function_call_count_constraint_still_success(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import move_right\n"
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+
+            result = run_solution_on_env(script, "uf1", env)
+
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
     def test_runtime_error_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
