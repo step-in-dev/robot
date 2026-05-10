@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from .i18n import t
 
-CONSTRAINTS_TEXT_WIDTH = 51
-
-
 def task_has_any_constraints(
     *,
     operators_limit: int | None,

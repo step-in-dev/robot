@@ -3,12 +3,15 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Callable
 
-from .gui_constraints import CONSTRAINTS_TEXT_WIDTH, constraints_body_lines
+from .gui_constraints import constraints_body_lines
 from .gui_help import _populate_robot_help_text
 from .i18n import t
 
 HELP_TEXT_WIDTH = 72
 HELP_TEXT_HEIGHT = 32
+
+CONSTRAINTS_TEXT_WIDTH = 65
+
 
 _ESCAPE_BINDING = "<Escape>"
 
