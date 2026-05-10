@@ -53,7 +53,13 @@ class DialogManagerMixin:
         self._constraints_window_close_handler = None
 
     def _focus_toplevel_dialog(self, win: tk.Toplevel) -> None:
-        """Raise and focus a secondary dialog (main window may be ``-topmost``)."""
+        """Map a dialog built while withdrawn, then raise and focus it.
+
+        Secondary windows are created with ``withdraw()`` so the WM does not
+        briefly show an empty default-sized frame before widgets are packed.
+        """
+        win.update_idletasks()
+        win.deiconify()
         win.lift()
         win.focus_set()
 
@@ -83,6 +89,7 @@ class DialogManagerMixin:
             self._help_window = None
 
         help_win = tk.Toplevel(self.root)
+        help_win.withdraw()
         self._help_window = help_win
         help_win.title(t("help.title"))
         help_win.transient(self.root)
@@ -147,6 +154,7 @@ class DialogManagerMixin:
             return
 
         c_win = tk.Toplevel(self.root)
+        c_win.withdraw()
         self._constraints_window = c_win
         c_win.title(t("constraints.title"))
         c_win.transient(self.root)
