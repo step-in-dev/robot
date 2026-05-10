@@ -3,8 +3,7 @@
 ``run_solution_on_env`` compiles and ``exec``s the script, then checks final
 robot state. It does **not** call ``check_limit_violations``; limit checks run
 in the GUI after a successful ``run_env`` / step session (see
-``tests/test_gui.py``). Regression that batch execution ignores task-file
-constraints is covered here by ``test_batch_run_ignores_*_constraint_still_success``.
+``tests/test_gui.py``). Regression: ``test_run_solution_on_env_does_not_call_check_limit_violations``.
 """
 
 import re
@@ -118,14 +117,11 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
 
-    def test_batch_run_ignores_required_keywords_constraint_still_success(
-        self,
-    ) -> None:
+    def test_run_solution_on_env_does_not_call_check_limit_violations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
-                "from robot import move_right\n"
-                "move_right()\n",
+                "from robot import move_right\nmove_right()\n",
                 encoding="utf-8",
             )
             env = RobotEnv(
@@ -140,132 +136,11 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                     }
                 )
             )
-
-            result = run_solution_on_env(script, "kw_required", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_batch_run_ignores_banned_keywords_constraint_still_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "for _ in range(1):\n"
-                "    move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "kw_banned", env)
+            with patch("robot.executor.check_limit_violations") as mock_check:
+                result = run_solution_on_env(script, "noop", env)
+            mock_check.assert_not_called()
 
         self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
-
-    def test_batch_run_ignores_if_limit_constraint_still_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "if True:\n"
-                "    move_right()\n"
-                "if True:\n"
-                "    move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 2,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "iflim", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
-
-    def test_batch_run_ignores_while_limit_constraint_still_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "n = 2\n"
-                "while n:\n"
-                "    move_right()\n"
-                "    n -= 1\n"
-                "while False:\n"
-                "    pass\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 2,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "wlim", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
-
-    def test_batch_run_ignores_custom_function_call_count_constraint_still_success(
-        self,
-    ) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import move_right\n"
-                "move_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-
-            result = run_solution_on_env(script, "uf1", env)
-
-        self.assertTrue(result.success)
-        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
     def test_runtime_error_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
