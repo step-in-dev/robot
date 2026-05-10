@@ -24,9 +24,21 @@ class I18nTest(unittest.TestCase):
 
     def test_normalize_language_more_supported_variants(self) -> None:
         self.assertEqual(i18n.normalize_language("de_DE.UTF-8"), "de")
-        self.assertEqual(i18n.normalize_language("zh_CN.UTF-8"), "zh")
+        self.assertEqual(i18n.normalize_language("zh_CN.UTF-8"), "zh-hans")
         self.assertEqual(i18n.normalize_language("pt-BR"), "pt")
         self.assertEqual(i18n.normalize_language("uk_UA"), "uk")
+
+    def test_normalize_language_chinese_variants(self) -> None:
+        self.assertEqual(i18n.normalize_language("zh"), "zh-hans")
+        self.assertEqual(i18n.normalize_language("zh_CN"), "zh-hans")
+        self.assertEqual(i18n.normalize_language("zh_SG"), "zh-hans")
+        self.assertEqual(i18n.normalize_language("zh_TW"), "zh-hant")
+        self.assertEqual(i18n.normalize_language("zh_HK"), "zh-hant")
+        self.assertEqual(i18n.normalize_language("zh_MO"), "zh-hant")
+        self.assertEqual(i18n.normalize_language("zh-Hans"), "zh-hans")
+        self.assertEqual(i18n.normalize_language("zh-Hant"), "zh-hant")
+        self.assertEqual(i18n.normalize_language("zh_Hans_CN"), "zh-hans")
+        self.assertEqual(i18n.normalize_language("zh_Hant_TW"), "zh-hant")
 
     def test_normalize_language_unsupported_returns_none(self) -> None:
         self.assertIsNone(i18n.normalize_language("eo.UTF-8"))
@@ -64,6 +76,8 @@ class I18nTest(unittest.TestCase):
             self.assertEqual(i18n.t("status.ready"), "Roboter: Bereit")
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "zh"}, clear=False):
             self.assertEqual(i18n.t("status.ready"), "机器人：就绪")
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "zh-hant"}, clear=False):
+            self.assertEqual(i18n.t("status.ready"), "機器人：就緒")
 
     def test_locale_files_have_same_keys(self) -> None:
         base = Path(__file__).resolve().parent.parent / "robot" / "locales"

@@ -12,7 +12,8 @@ from typing import Any, Mapping
 SUPPORTED_LANGUAGES = (
     "en",
     "ru",
-    "zh",
+    "zh-hans",
+    "zh-hant",
     "hi",
     "es",
     "fr",
@@ -51,6 +52,19 @@ def normalize_language(value: str | None) -> str | None:
     norm = base.replace("-", "_")
     parts = norm.split("_")
     primary = (parts[0] or "").lower()
+
+    if primary == "zh":
+        rest = "_".join(parts[1:]).lower()
+        if "hans" in rest:
+            return "zh-hans"
+        if "hant" in rest:
+            return "zh-hant"
+        if any(r in rest for r in ("cn", "sg")):
+            return "zh-hans"
+        if any(r in rest for r in ("tw", "hk", "mo")):
+            return "zh-hant"
+        return "zh-hans"
+
     if primary in _SUPPORTED_SET:
         return primary
     return None
