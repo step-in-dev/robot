@@ -50,6 +50,50 @@ class CountRobotOperatorsTest(unittest.TestCase):
         )
         self.assertEqual(count_robot_operators(src), 1)
 
+    def test_counts_user_function_call(self) -> None:
+        src = (
+            "def step():\n"
+            "    move_right()\n"
+            "step()\n"
+        )
+        self.assertEqual(count_robot_operators(src), 2)
+
+    def test_counts_multiple_user_function_calls(self) -> None:
+        src = (
+            "def step():\n"
+            "    move_right()\n"
+            "step()\n"
+            "step()\n"
+        )
+        self.assertEqual(count_robot_operators(src), 3)
+
+    def test_counts_user_function_call_inside_function(self) -> None:
+        src = (
+            "def step():\n"
+            "    move_right()\n"
+            "def go():\n"
+            "    step()\n"
+            "go()\n"
+        )
+        self.assertEqual(count_robot_operators(src), 3)
+
+    def test_counts_recursive_user_function(self) -> None:
+        src = (
+            "def rec():\n"
+            "    move_right()\n"
+            "    rec()\n"
+            "rec()\n"
+        )
+        self.assertEqual(count_robot_operators(src), 3)
+
+    def test_builtin_call_not_counted(self) -> None:
+        src = "range(3)\n"
+        self.assertEqual(count_robot_operators(src), 0)
+
+    def test_task_and_field_not_counted(self) -> None:
+        src = "task('x')\nfield(8, 6)\n"
+        self.assertEqual(count_robot_operators(src), 0)
+
 
 class CheckOperatorsLimitTest(unittest.TestCase):
     def test_none_limit_skips(self) -> None:
@@ -409,7 +453,7 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.operators", actual=3, limit=2),
-                "Команд-действий Робота: 3. Можно не больше 2",
+                "Действий Робота и вызовов своих функций: 3. Ограничение: 2",
             )
 
     def test_custom_function_call_message_russian_via_t(self) -> None:

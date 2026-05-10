@@ -26,7 +26,7 @@ The target audience is school students who are learning introductory programming
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
-- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText`, optional `operatorsLimit`, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
+- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText`, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
 - `robot/results.py` defines run outcome types (`RunResult`, `RunStatus`) and final-state checking.
 - `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so executor and commands avoid ad-hoc global access.
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).

@@ -58,10 +58,20 @@ def count_robot_operators(
     source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
 ) -> int:
     tree = ast.parse(source, filename=filename)
+    user_function_names = {
+        node.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
     return sum(
         1
         for node in ast.walk(tree)
-        if isinstance(node, ast.Call) and _is_counted_operator_call(node)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and (
+            node.func.id in COUNTED_OPERATOR_NAMES
+            or node.func.id in user_function_names
+        )
     )
 
 

@@ -17,7 +17,7 @@ Each task file must contain a JSON object with the following fields:
 
 - `envDtos` (required): array of environment definitions. The task is invalid if this field is missing, is not an array, or resolves to an empty environment list.
 - `todoText` (optional): task description shown in the UI.
-- `operatorsLimit` (optional): non-negative integer limit for the number of written operators in the student solution.
+- `operatorsLimit` (optional): non-negative integer limit for the number of robot action commands and calls to user-defined functions in the student solution.
 - `customFunctionCallCount` (optional): non-negative integer requirement for the number of qualifying calls to user-defined functions.
 - `ifLimit` (optional): non-negative integer limit for how many times the Python keyword `if` may appear as a real token in the student solution.
 - `whileLimit` (optional): non-negative integer limit for how many times the Python keyword `while` may appear as a real token in the student solution.
@@ -55,6 +55,31 @@ Examples:
 
 - `customFunctionCallCount: 2` is satisfied by one user-defined function called twice.
 - `customFunctionCallCount: 2` is also satisfied by two different qualifying user-defined functions called once each.
+
+## `operatorsLimit`
+
+`operatorsLimit` is checked statically from the student source code before execution.
+
+The checker parses the AST and counts:
+
+1. Direct calls to robot action commands: `move_right()`, `move_left()`, `move_up()`, `move_down()`, `paint()`, `printn()`.
+2. Any calls to user-defined functions (`def` or `async def`) declared in the same source file, regardless of nesting level. This includes:
+   - Calls from module-level code.
+   - Calls inside other user-defined functions.
+   - Recursive self-calls.
+
+Built-in calls such as `task()`, `field()`, `range()`, `len()`, etc. are **not** counted, unless the student happens to define a function with the same name.
+
+Example:
+
+```python
+def step():
+    move_right()
+step()
+step()
+```
+
+This counts as 3: `move_right` (1) + `step` (2).
 
 ## `ifLimit` and `whileLimit`
 
