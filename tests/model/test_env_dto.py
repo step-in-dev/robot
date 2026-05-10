@@ -75,7 +75,7 @@ class RobotEnvDtoFromDictTest(unittest.TestCase):
                     "finalCol": 1,
                 }
             )
-        self.assertTrue(len(str(ctx.exception)) > 0)
+        self.assertGreater(len(str(ctx.exception)), 0)
 
     def test_from_dict_missing_optional_fields_default_to_empty(self):
         dto = RobotEnvDto.from_dict(
