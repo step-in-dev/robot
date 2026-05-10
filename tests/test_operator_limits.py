@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+from robot.executor import check_limit_violations
 from robot.operator_limits import (
     BANNED_KEYWORDS_MESSAGE_TEMPLATE,
     CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
@@ -505,6 +506,101 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
                 i18n.t("limit.while_keyword", actual=3, limit=1),
                 "«while» использовано: 3. Разрешено не более 1",
             )
+
+
+class CheckLimitViolationsTest(unittest.TestCase):
+    def test_none_limits_returns_none(self) -> None:
+        self.assertIsNone(check_limit_violations("move_right()", filename="test.py"))
+
+    def test_operators_limit_violation_message(self) -> None:
+        result = check_limit_violations(
+            "move_right()\nmove_right()\n",
+            filename="test.py",
+            operators_limit=1,
+        )
+        self.assertEqual(
+            result,
+            OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+    def test_custom_function_call_count_violation_message(self) -> None:
+        result = check_limit_violations(
+            "move_right()\n",
+            filename="test.py",
+            custom_function_call_count=1,
+        )
+        self.assertEqual(
+            result,
+            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(actual=0, required=1),
+        )
+
+    def test_if_limit_violation_message(self) -> None:
+        result = check_limit_violations(
+            "if True:\n    pass\nif False:\n    pass\n",
+            filename="test.py",
+            if_limit=1,
+        )
+        self.assertEqual(
+            result,
+            IF_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+    def test_while_limit_violation_message(self) -> None:
+        result = check_limit_violations(
+            "while False:\n    pass\nwhile False:\n    pass\n",
+            filename="test.py",
+            while_limit=1,
+        )
+        self.assertEqual(
+            result,
+            WHILE_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+    def test_required_keywords_violation_message(self) -> None:
+        result = check_limit_violations(
+            "move_right()\n",
+            filename="test.py",
+            required_keywords=("for", "if"),
+        )
+        self.assertEqual(
+            result,
+            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for, if"),
+        )
+
+    def test_banned_keywords_violation_message(self) -> None:
+        result = check_limit_violations(
+            "while True:\n    break\n",
+            filename="test.py",
+            banned_keywords=("while",),
+        )
+        self.assertEqual(
+            result,
+            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="while"),
+        )
+
+    def test_first_violation_wins(self) -> None:
+        """When multiple limits are violated, the first check's message is returned."""
+        result = check_limit_violations(
+            "move_right()\nmove_right()\n",
+            filename="test.py",
+            operators_limit=1,
+            if_limit=0,
+        )
+        self.assertEqual(
+            result,
+            OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
+        )
+
+    def test_no_violation_returns_none(self) -> None:
+        result = check_limit_violations(
+            "if True:\n    move_right()\n",
+            filename="test.py",
+            operators_limit=2,
+            if_limit=1,
+            required_keywords=("if",),
+            banned_keywords=("while",),
+        )
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":

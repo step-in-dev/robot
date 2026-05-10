@@ -749,6 +749,64 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         finally:
             window.close()
 
+    def test_run_all_success_with_limit_violation_shows_wrong(self) -> None:
+        base = {**minimal_env_dict(1, 1), "finalCol": 0}
+        envs = [make_env(dict(base)), make_env(dict(base))]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "run_lim.py"
+            script.write_text(
+                "move_right()\nmove_right()\n",
+                encoding="utf-8",
+            )
+            window = RobotWindow(
+                "run_lim",
+                envs,
+                run_env,
+                initial_index=0,
+                script_path=script,
+                operators_limit=1,
+            )
+            try:
+                window.run_all()
+                expected = OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1)
+                self.assertEqual(window.status_var.get(), expected)
+                self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+                self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+                self.assertFalse(window._status_hatched)
+            finally:
+                window.close()
+
+    def test_finish_step_run_success_with_limit_violation_shows_wrong(self) -> None:
+        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "step_lim.py"
+            script.write_text(
+                "move_right()\nmove_right()\n",
+                encoding="utf-8",
+            )
+            window = RobotWindow(
+                "step_lim",
+                envs,
+                None,
+                initial_index=0,
+                script_path=script,
+                operators_limit=1,
+            )
+            try:
+                window._finish_step_run(RunResult(status="success", message="ok"))
+                expected = OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1)
+                self.assertEqual(window.status_var.get(), expected)
+                self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
+                self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
+                self.assertFalse(window._status_hatched)
+            finally:
+                window.close()
+
     def test_error_shows_run_result_message_text(self) -> None:
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
         err_msg = "текст ошибки"

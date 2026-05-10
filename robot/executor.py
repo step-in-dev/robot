@@ -119,16 +119,16 @@ def _map_exec_exception(script_path: Path, env: RobotEnv, exc: BaseException) ->
     )
 
 
-def _preflight_violation_message(
+def check_limit_violations(
     source: str,
     *,
     filename: str,
-    operators_limit: int | None,
-    custom_function_call_count: int | None,
-    if_limit: int | None,
-    while_limit: int | None,
-    required_keywords: tuple[str, ...] | None,
-    banned_keywords: tuple[str, ...] | None,
+    operators_limit: int | None = None,
+    custom_function_call_count: int | None = None,
+    if_limit: int | None = None,
+    while_limit: int | None = None,
+    required_keywords: tuple[str, ...] | None = None,
+    banned_keywords: tuple[str, ...] | None = None,
 ) -> str | None:
     violation = check_operators_limit(
         source,
@@ -193,12 +193,6 @@ class StepExecutionSession:
         show_line: Callable[[StudentLine], None],
         wait_for_next_step: Callable[[], None],
         command_delay_seconds: float = 0.0,
-        operators_limit: int | None = None,
-        custom_function_call_count: int | None = None,
-        if_limit: int | None = None,
-        while_limit: int | None = None,
-        required_keywords: tuple[str, ...] | None = None,
-        banned_keywords: tuple[str, ...] | None = None,
     ) -> None:
         self._script_path = script_path
         try:
@@ -210,12 +204,6 @@ class StepExecutionSession:
         self._show_line = show_line
         self._wait_for_next_step = wait_for_next_step
         self._command_delay_seconds = command_delay_seconds
-        self._operators_limit = operators_limit
-        self._custom_function_call_count = custom_function_call_count
-        self._if_limit = if_limit
-        self._while_limit = while_limit
-        self._required_keywords = required_keywords
-        self._banned_keywords = banned_keywords
         self._steps_allowed = 0
         self._cancelled = False
         self.is_started = False
@@ -281,20 +269,6 @@ class StepExecutionSession:
             try:
                 source = self._script_path.read_text(encoding="utf-8")
                 self._source_lines = source.splitlines()
-                violation_message = _preflight_violation_message(
-                    source,
-                    filename=str(self._script_path),
-                    operators_limit=self._operators_limit,
-                    custom_function_call_count=self._custom_function_call_count,
-                    if_limit=self._if_limit,
-                    while_limit=self._while_limit,
-                    required_keywords=self._required_keywords,
-                    banned_keywords=self._banned_keywords,
-                )
-                if violation_message is not None:
-                    self.is_finished = True
-                    return RunResult(status="wrong", message=violation_message)
-
                 code = compile(source, str(self._script_path), "exec")
             except Exception as exc:
                 self.is_finished = True
@@ -336,12 +310,6 @@ def run_solution_on_env(
     task_id: str,
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
-    operators_limit: int | None = None,
-    custom_function_call_count: int | None = None,
-    if_limit: int | None = None,
-    while_limit: int | None = None,
-    required_keywords: tuple[str, ...] | None = None,
-    banned_keywords: tuple[str, ...] | None = None,
 ) -> RunResult:
     env.reset()
     previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
@@ -353,18 +321,6 @@ def run_solution_on_env(
 
     try:
         source = script_path.read_text(encoding="utf-8")
-        violation_message = _preflight_violation_message(
-            source,
-            filename=str(script_path),
-            operators_limit=operators_limit,
-            custom_function_call_count=custom_function_call_count,
-            if_limit=if_limit,
-            while_limit=while_limit,
-            required_keywords=required_keywords,
-            banned_keywords=banned_keywords,
-        )
-        if violation_message is not None:
-            return RunResult(status="wrong", message=violation_message)
         code = compile(source, str(script_path), "exec")
         exec(code, namespace)
     except RobotPathError as exc:

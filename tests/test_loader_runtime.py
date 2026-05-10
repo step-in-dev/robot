@@ -612,7 +612,9 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
 
-    def test_runtime_operators_limit_exceeded_returns_wrong_without_running(self) -> None:
+    def test_runtime_operators_limit_exceeded_runs_then_returns_wrong_by_final_state(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
@@ -635,20 +637,12 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "lim",
-                env,
-                operators_limit=1,
-            )
+            result = run_solution_on_env(script, "lim", env)
 
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertEqual(result.message, "")
+        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
 
     def test_runtime_operators_limit_allows_single_written_operator_in_loop(
         self,
@@ -675,22 +669,18 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "looplim",
-                env,
-                operators_limit=1,
-            )
+            result = run_solution_on_env(script, "looplim", env)
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 3))
 
-    def test_runtime_custom_function_call_count_exceeded_returns_wrong_without_running(
+    def test_runtime_custom_function_call_count_exceeded_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "move_right()\n",
                 encoding="utf-8",
             )
@@ -707,30 +697,18 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "uf1",
-                env,
-                custom_function_call_count=1,
-            )
+            result = run_solution_on_env(script, "uf1", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
-                actual=0,
-                required=1,
-            ),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_custom_function_call_count_rejects_empty_called_function(
+    def test_runtime_custom_function_call_count_empty_function_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "def helper():\n"
                 "    x = 1\n"
                 "\n"
@@ -751,16 +729,10 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "uf1",
-                env,
-                custom_function_call_count=1,
-            )
+            result = run_solution_on_env(script, "uf1", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
     def test_runtime_custom_function_call_count_allows_defined_and_called_function(
         self,
@@ -788,17 +760,12 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "uf1",
-                env,
-                custom_function_call_count=1,
-            )
+            result = run_solution_on_env(script, "uf1", env)
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_custom_function_call_count_requires_two_calls_not_one(
+    def test_runtime_custom_function_call_count_requires_two_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -824,23 +791,10 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "uf2",
-                env,
-                custom_function_call_count=2,
-            )
+            result = run_solution_on_env(script, "uf2", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
-                actual=1,
-                required=2,
-            ),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
     def test_runtime_custom_function_call_count_allows_two_calls_to_same_function(
         self,
@@ -869,12 +823,7 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "uf2",
-                env,
-                custom_function_call_count=2,
-            )
+            result = run_solution_on_env(script, "uf2", env)
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 2))
@@ -904,12 +853,13 @@ class LoaderRuntimeTest(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_required_keywords_missing_returns_wrong_without_running(
+    def test_runtime_required_keywords_missing_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "move_right()\n",
                 encoding="utf-8",
             )
@@ -926,27 +876,18 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "kw_required",
-                env,
-                required_keywords=("for", "if"),
-            )
+            result = run_solution_on_env(script, "kw_required", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for, if"),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_banned_keywords_used_returns_wrong_without_running(
+    def test_runtime_banned_keywords_used_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "for _ in range(1):\n"
                 "    move_right()\n",
                 encoding="utf-8",
@@ -964,27 +905,18 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "kw_banned",
-                env,
-                banned_keywords=("for",),
-            )
+            result = run_solution_on_env(script, "kw_banned", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_runtime_if_limit_exceeded_returns_wrong_without_running(
+    def test_runtime_if_limit_exceeded_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "if True:\n"
                 "    move_right()\n"
                 "if True:\n"
@@ -1004,25 +936,16 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "iflim",
-                env,
-                if_limit=1,
-            )
+            result = run_solution_on_env(script, "iflim", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            IF_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
 
     def test_runtime_if_limit_counts_ternary_expression_tokens(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "a = 1 if True else 0\n"
                 "b = 2 if False else 3\n"
                 "move_right()\n",
@@ -1041,20 +964,10 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "iftern",
-                env,
-                if_limit=1,
-            )
+            result = run_solution_on_env(script, "iftern", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            IF_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
     def test_runtime_if_limit_allows_single_if(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1078,21 +991,17 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "ifok",
-                env,
-                if_limit=1,
-            )
+            result = run_solution_on_env(script, "ifok", env)
 
         self.assertTrue(result.success)
 
-    def test_runtime_while_limit_exceeded_returns_wrong_without_running(
+    def test_runtime_while_limit_exceeded_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
             script.write_text(
+                "from robot import move_right\n"
                 "n = 2\n"
                 "while n:\n"
                 "    move_right()\n"
@@ -1114,63 +1023,17 @@ class LoaderRuntimeTest(unittest.TestCase):
                 )
             )
 
-            result = run_solution_on_env(
-                script,
-                "wlim",
-                env,
-                while_limit=1,
-            )
+            result = run_solution_on_env(script, "wlim", env)
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            WHILE_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
 
-    def test_step_session_operators_limit_exceeded_before_exec(self) -> None:
+    def test_step_session_operators_limit_exceeded_runs_then_crashed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "two_moves.py"
             script.write_text(
-                "move_right()\nmove_right()\n",
-                encoding="utf-8",
-            )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
-            session = StepExecutionSession(
-                script,
-                "noop",
-                env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
-                command_delay_seconds=0.0,
-                operators_limit=1,
-            )
-            result = session.start()
-
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
-
-    def test_step_session_required_keywords_missing_before_exec(self) -> None:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            script = Path(temp_dir) / "plain_move.py"
-            script.write_text(
+                "from robot import move_right\n"
+                "move_right()\n"
                 "move_right()\n",
                 encoding="utf-8",
             )
@@ -1193,22 +1056,50 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                required_keywords=("for",),
             )
             result = session.start()
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertEqual(result.status, "crashed")
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_step_session_banned_keywords_used_before_exec(self) -> None:
+    def test_step_session_required_keywords_missing_runs_then_success(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "plain_move.py"
+            script.write_text(
+                "from robot import move_right\n"
+                "move_right()\n",
+                encoding="utf-8",
+            )
+            env = RobotEnv(
+                RobotEnvDto.from_dict(
+                    {
+                        "width": 2,
+                        "height": 1,
+                        "startRow": 0,
+                        "startCol": 0,
+                        "finalRow": 0,
+                        "finalCol": 1,
+                    }
+                )
+            )
+            session = StepExecutionSession(
+                script,
+                "noop",
+                env,
+                show_line=lambda _line: None,
+                wait_for_next_step=lambda: None,
+                command_delay_seconds=0.0,
+            )
+            result = session.start()
+
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
+
+    def test_step_session_banned_keywords_used_runs_then_success(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "forbidden_for.py"
             script.write_text(
+                "from robot import move_right\n"
                 "for _ in range(1):\n"
                 "    move_right()\n",
                 encoding="utf-8",
@@ -1232,22 +1123,17 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                banned_keywords=("for",),
             )
             result = session.start()
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(keywords="for"),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_step_session_if_limit_exceeded_before_exec(self) -> None:
+    def test_step_session_if_limit_exceeded_runs_then_success(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "two_ifs.py"
             script.write_text(
+                "from robot import move_right\n"
                 "if True:\n"
                 "    move_right()\n"
                 "if True:\n"
@@ -1273,22 +1159,17 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                if_limit=1,
             )
             result = session.start()
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            IF_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 2))
 
-    def test_step_session_while_limit_exceeded_before_exec(self) -> None:
+    def test_step_session_while_limit_exceeded_runs_then_success(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "two_whiles.py"
             script.write_text(
+                "from robot import move_right\n"
                 "n = 1\n"
                 "while n:\n"
                 "    move_right()\n"
@@ -1316,24 +1197,19 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                while_limit=1,
             )
             result = session.start()
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            WHILE_LIMIT_MESSAGE_TEMPLATE.format(actual=2, limit=1),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_step_session_custom_function_call_count_exceeded_before_exec(
+    def test_step_session_custom_function_call_count_exceeded_runs_then_success(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "one_move.py"
             script.write_text(
+                "from robot import move_right\n"
                 "move_right()\n",
                 encoding="utf-8",
             )
@@ -1356,22 +1232,13 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                custom_function_call_count=1,
             )
             result = session.start()
 
-        self.assertFalse(result.success)
-        self.assertEqual(result.status, "wrong")
-        self.assertEqual(
-            result.message,
-            CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
-                actual=0,
-                required=1,
-            ),
-        )
-        self.assertEqual((env.robot.row, env.robot.col), (0, 0))
+        self.assertTrue(result.success)
+        self.assertEqual((env.robot.row, env.robot.col), (0, 1))
 
-    def test_step_session_syntax_error_with_operators_limit_maps_to_error(
+    def test_step_session_syntax_error_maps_to_error(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -1400,7 +1267,6 @@ class LoaderRuntimeTest(unittest.TestCase):
                 show_line=lambda _line: None,
                 wait_for_next_step=lambda: None,
                 command_delay_seconds=0.0,
-                operators_limit=10,
             )
             result = session.start()
 

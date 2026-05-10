@@ -9,6 +9,7 @@ from .executor import (
     EXECUTION_CANCELLED_MESSAGE,
     StepExecutionSession,
     StudentLine,
+    check_limit_violations,
 )
 
 from .field_renderer import FieldColors, FieldRenderer
@@ -295,6 +296,24 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         else:
             self._set_status(result.message, STATUS_BG_ERROR)
 
+    def _check_script_constraints(self) -> str | None:
+        if self.script_path is None:
+            return None
+        try:
+            source = self.script_path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+        return check_limit_violations(
+            source,
+            filename=str(self.script_path),
+            operators_limit=self.operators_limit,
+            custom_function_call_count=self.custom_function_call_count,
+            if_limit=self.if_limit,
+            while_limit=self.while_limit,
+            required_keywords=self.required_keywords,
+            banned_keywords=self.banned_keywords,
+        )
+
     def _finish_step_run(self, result: RunResult) -> None:
         self._step_tabs_locked = False
         self._step_session = None
@@ -316,12 +335,16 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         if not result.success:
             self._show_failed_result(result)
         else:
-            env_label = self.selected_index + 1
-            self._set_status(
-                t("step.success_for_env", env_label=env_label),
-                STATUS_BG_SUCCESS,
-                hatched=True,
-            )
+            violation = self._check_script_constraints()
+            if violation is not None:
+                self._set_status(violation, STATUS_BG_NEUTRAL)
+            else:
+                env_label = self.selected_index + 1
+                self._set_status(
+                    t("step.success_for_env", env_label=env_label),
+                    STATUS_BG_SUCCESS,
+                    hatched=True,
+                )
         self.draw_field()
         self._set_action_to_restore(
             disabled=True, hide_step=True, enable_after_idle=True
@@ -347,12 +370,6 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
                 show_line=self._show_step_line,
                 wait_for_next_step=self._wait_for_next_step_impl,
                 command_delay_seconds=0.0,
-                operators_limit=self.operators_limit,
-                custom_function_call_count=self.custom_function_call_count,
-                if_limit=self.if_limit,
-                while_limit=self.while_limit,
-                required_keywords=self.required_keywords,
-                banned_keywords=self.banned_keywords,
             )
             self._step_tabs_locked = True
             self.configure_tab_buttons()
@@ -435,7 +452,11 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
                     self.root.update_idletasks()
                     time.sleep(INTER_ENV_PAUSE_SECONDS)
 
-            self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
+            violation = self._check_script_constraints()
+            if violation is not None:
+                self._set_status(violation, STATUS_BG_NEUTRAL)
+            else:
+                self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
         finally:
             try:
                 self._set_action_to_restore(

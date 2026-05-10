@@ -32,6 +32,7 @@ from .executor import (
     ROBOT_PATH_COLLISION_USER_MESSAGE,
     StepExecutionSession,
     StudentLine,
+    check_limit_violations,
     run_solution_on_env,
 )
 from .loader import load_task_definition
@@ -71,12 +72,6 @@ def _launch_student_robot_window(
             task_id,
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
-            operators_limit=operators_limit,
-            custom_function_call_count=custom_function_call_count,
-            if_limit=if_limit,
-            while_limit=while_limit,
-            required_keywords=required_keywords,
-            banned_keywords=banned_keywords,
         ),
         todo_text=todo_text,
         script_path=script_path,
@@ -182,6 +177,7 @@ __all__ = [
     "RunResult",
     "RunStatus",
     "run_solution_on_env",
+    "check_limit_violations",
     "DEFAULT_COMMAND_DELAY_SECONDS",
     "ROBOT_PATH_COLLISION_USER_MESSAGE",
     "StepExecutionSession",
