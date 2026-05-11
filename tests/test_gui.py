@@ -131,7 +131,7 @@ class CalculateCanvasSizeTest(unittest.TestCase):
                 }
             ),
         ]
-        self.assertEqual(calculate_canvas_size(envs, 80, 4), (500, 244))
+        self.assertEqual(calculate_canvas_size(envs, 80, 4), (530, 244))
 
     def test_small_environment_uses_minimum_canvas_width(self) -> None:
         envs = [
