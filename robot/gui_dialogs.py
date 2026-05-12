@@ -8,7 +8,7 @@ from .gui_help import _populate_robot_help_text
 from .gui_theme import DIALOG_BODY_FONT
 from .i18n import t
 
-HELP_TEXT_WIDTH = 72
+HELP_TEXT_WIDTH = 65
 HELP_TEXT_HEIGHT = 32
 
 CONSTRAINTS_TEXT_WIDTH = 65
