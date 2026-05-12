@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local translation cache (tools/fill_todo_text_locales.py)
+tools/_todo_translate_cache.json

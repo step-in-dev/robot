@@ -443,6 +443,29 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
         self.assertEqual(task_ru.todo_text, "Из ru_RU")
         self.assertEqual(task_en.todo_text, "From en-GB")
 
+    def test_load_task_definition_localized_todo_text_ar_preserves_bidi_isolates(self) -> None:
+        """Arabic todo lines may contain LRI/PDI around LTR tokens; loader must not strip them."""
+        base_env = self._minimal_env_dto()
+        lri, pdi = "\u2066", "\u2069"
+        expected_ar = f"ضع {lri}paint(){pdi}."
+        todo = {
+            "en": "Place paint().",
+            "ru": "Поставь paint().",
+            "ar": expected_ar,
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            (Path(temp_dir) / "loc_ar_bidi.env").write_text(
+                json.dumps({"envDtos": [base_env], "todoText": todo}),
+                encoding="utf-8",
+            )
+            with patch.dict(
+                "os.environ",
+                {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "ar"},
+                clear=False,
+            ):
+                task = load_task_definition("loc_ar_bidi")
+        self.assertEqual(task.todo_text, expected_ar)
+
     def test_load_task_definition_localized_todo_text_empty_or_invalid_map(self) -> None:
         base_env = self._minimal_env_dto()
         cases = [

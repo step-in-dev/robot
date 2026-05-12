@@ -29,7 +29,7 @@ Each task file must contain a JSON object with the following fields:
 `todoText` supports two forms:
 
 - Plain string, for example `"Reach the goal"`.
-- Localized object, for example `{ "en": "Reach the goal", "ru": "Дойди до цели" }`.
+- Localized object whose keys are **UI language codes** from `SUPPORTED_LANGUAGES` in [`robot/i18n.py`](../robot/i18n.py) (for example `en`, `ru`, `zh-hans`, `ar`, `ur`, …). Example: `{ "en": "Reach the goal", "ru": "Дойди до цели" }`.
 
 When a localized object is used, the loader:
 
@@ -39,6 +39,8 @@ When a localized object is used, the loader:
 4. Uses an empty string if no suitable value is found.
 
 Non-string values inside the localization object are ignored.
+
+For **Arabic** (`ar`) and **Urdu** (`ur`) strings, follow the same Unicode bidirectional isolation rules as other UI copy: wrap embedded left-to-right fragments (Python tokens such as `"for"`, `paint()`, Latin identifiers, and Western digits) with U+2066 LRI … U+2069 PDI as described in [`localization-style.md`](localization-style.md#unicode-bidirectional-isolation-rtl-locales). Bundled tasks aim to comply; [`tools/repair_todo_rtl.py`](../tools/repair_todo_rtl.py) can fix common nested-isolate issues after machine translation.
 
 ## `customFunctionCallCount`
 
