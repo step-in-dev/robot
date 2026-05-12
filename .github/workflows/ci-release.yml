@@ -37,7 +37,7 @@ jobs:
         run: python -m unittest discover -s tests -t .
 
       - name: Build distribution zip
-        run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py
+        run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py -x '*__pycache__*'
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
