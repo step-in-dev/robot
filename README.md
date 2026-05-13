@@ -1,4 +1,4 @@
-[English](./README.md) | [Русский](./readme/readme_ru.md)
+[English](./README.md) | [Русский](./readme/readme_ru.md) | [Беларуская](./readme/readme_be.md)
 
 # Robot
 
