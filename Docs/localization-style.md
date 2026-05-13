@@ -74,6 +74,7 @@ Canonical terms (align all strings in that locale with your chosen equivalent fo
 - **field** — the grid as a whole or the `field()` synthetic playground, consistent with other keys about size and drawing.
 - **wall** — an impassable edge between cells or at the boundary.
 - **painted cell** — a cell the student’s program has painted (filled), as opposed to an empty or merely valued cell.
+- **marked cell** — a cell the task requires to be painted (`cellsToPaint`), usually shown with a task marker in the UI until it is painted; distinct from a **painted cell**.
 
 When adding a new key, grep the locale file for existing mentions of the same idea and match that wording instead of introducing a synonym.
 
