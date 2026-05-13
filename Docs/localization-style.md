@@ -57,10 +57,25 @@ The literals **`True`**, **`False`**, and **`None`** are **not** treated like ge
 
 **Robot** (the application / executor name) is a **proper noun**. In each locale, spell and capitalize it according to **that language’s rules for proper names** and product naming.
 
-- In Russian, use **Робот** with an initial capital letter when it denotes the named environment (e.g. status line, window title), matching strings such as `Робот: Готов` in `robot/locales/ru.json`.
+- In Russian, use **Робот** with an initial capital letter when it names the application or executor (e.g. status line, window title), matching strings such as `Робот: Готов` in `robot/locales/ru.json`.
 - In English, **Robot** is typically capitalized when it refers to the app or the executor as a named entity; adjust if editorial guidelines differ.
 
 Do not lowercase the name in running text when it refers to the product or the in-world executor, unless a locale explicitly uses a different convention for product names.
+
+## Domain terms (consistent within each locale)
+
+These English labels name core simulator concepts. **Within a single locale file**, pick one established wording per concept (translation, compound, or loanword) and **reuse it everywhere** the same idea appears—status line, errors, help, buttons—so the UI reads as one coherent vocabulary.
+
+Canonical terms (align all strings in that locale with your chosen equivalent for each):
+
+- **Robot** — the named executor / application; capitalization follows [Proper name: Robot](#proper-name-robot).
+- **environment** — a loaded task world (grid, robot placement, goals), not “the natural world” or generic “setting”.
+- **cell** — one square of the grid (not a spreadsheet cell, biological cell, etc., unless context forces disambiguation in that locale).
+- **field** — the grid as a whole or the `field()` synthetic playground, consistent with other keys about size and drawing.
+- **wall** — an impassable edge between cells or at the boundary.
+- **painted cell** — a cell the student’s program has painted (filled), as opposed to an empty or merely valued cell.
+
+When adding a new key, grep the locale file for existing mentions of the same idea and match that wording instead of introducing a synonym.
 
 ## Unicode bidirectional isolation (RTL locales)
 
@@ -91,7 +106,7 @@ Strings shown in the Robot window **status strip** must not exceed **50 characte
 
 When adding or editing keys:
 
-1. Keep terminology for the executor, grid, and tasks aligned with existing keys in the same locale file.
+1. Keep terminology for the executor, grid, and tasks aligned with existing keys in the same locale file; see [Domain terms (consistent within each locale)](#domain-terms-consistent-within-each-locale).
 2. Prefer the same quoting style as other strings in that file for Python keywords, or the pair listed for that locale in [Quotation marks by locale](#quotation-marks-by-locale).
 3. Re-read the string at the minimum window width if it appears in the status strip; see [Status strip length](#status-strip-length) above.
 4. For RTL locales, follow [Unicode bidirectional isolation (RTL locales)](#unicode-bidirectional-isolation-rtl-locales) and match isolate usage in that locale file.
