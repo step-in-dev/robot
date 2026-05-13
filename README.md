@@ -1,3 +1,5 @@
+[English](./README.md) | [Русский](./readme/readme_ru.md)
+
 # Robot
 
 This project is an educational **Robot** simulator for learning basic programming and algorithms. Students write short Python programs that move a robot on a grid, paint cells, read the environment, and complete small tasks with immediate visual feedback in a desktop window.
