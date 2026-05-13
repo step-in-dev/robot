@@ -88,8 +88,6 @@ printn(value)
 ## Available tasks for `task()`
 
 ```
-Available tasks for task()
-
 First steps
 intro1, ..., intro24
 
