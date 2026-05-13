@@ -2,7 +2,7 @@
 
 # Robot
 
-This project is an educational **Robot** simulator for learning basic programming and algorithms. Students write short Python programs that move a robot on a grid, paint cells, read the environment, and complete small tasks with immediate visual feedback in a desktop window.
+This project is an educational **Robot** simulator for learning basic programming and algorithms. Students write short Python programs that move the Robot on a grid, paint cells, read the environment, and complete small tasks with immediate visual feedback in a desktop window.
 
 It is intended for **school students** and anyone beginning to learn programming: sequencing, loops, conditions, and simple problem solving in a friendly, game-like setting.
 
