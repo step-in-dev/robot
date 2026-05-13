@@ -13,6 +13,42 @@ Examples:
 
 The important rule: **keywords are quoted** so they read as words of the programming language, not as ordinary prose.
 
+For a **locale-by-locale cheat sheet** (opening and closing characters, code points), see [Quotation marks by locale](#quotation-marks-by-locale) below.
+
+## Quotation marks by locale
+
+The table below is the **canonical pair** (opening, closing) used around **Python keywords** in existing strings (see keys such as `limit.if_keyword`, `limit.while_keyword`, and `help.task_group.*` in each `robot/locales/<locale>.json`). Use the same style for new or edited keyword mentions in that locale, and use it for **other quoted snippets** (technical tokens, product name in running prose, etc.) unless a locale already follows a different established pattern for nested quotes.
+
+| Locale | Language (short) | Opening | Closing | Unicode (opening / closing) | Notes |
+|--------|-------------------|---------|---------|-------------------------------|--------|
+| `ar` | Arabic | « | » | U+00AB / U+00BB | Wrap embedded LTR in bidi isolates per [RTL section](#unicode-bidirectional-isolation-rtl-locales). |
+| `be` | Belarusian | « | » | U+00AB / U+00BB | |
+| `bn` | Bengali | ' | ' | U+0027 / U+0027 | ASCII apostrophe, same glyph both sides. |
+| `cs` | Czech | „ | “ | U+201E / U+201C | |
+| `de` | German | ' | ' | U+0027 / U+0027 | |
+| `el` | Greek | « | » | U+00AB / U+00BB | |
+| `en` | English | ' | ' | U+0027 / U+0027 | |
+| `es` | Spanish | ' | ' | U+0027 / U+0027 | |
+| `fr` | French | « | » | U+00AB / U+00BB | Often a space inside the guillemets, e.g. `« if »`. |
+| `hi` | Hindi | ' | ' | U+0027 / U+0027 | |
+| `hu` | Hungarian | „ | ” | U+201E / U+201D | |
+| `it` | Italian | ' | ' | U+0027 / U+0027 | |
+| `ja` | Japanese | 「 | 」 | U+300C / U+300D | |
+| `ko` | Korean | ' | ' | U+0027 / U+0027 | |
+| `nl` | Dutch | ' | ' | U+0027 / U+0027 | |
+| `pl` | Polish | „ | ” | U+201E / U+201D | |
+| `pt` | Portuguese | ' | ' | U+0027 / U+0027 | |
+| `ro` | Romanian | „ | ” | U+201E / U+201D | |
+| `ru` | Russian | « | » | U+00AB / U+00BB | |
+| `sv` | Swedish | ' | ' | U+0027 / U+0027 | |
+| `tr` | Turkish | “ | ” | U+201C / U+201D | |
+| `uk` | Ukrainian | « | » | U+00AB / U+00BB | |
+| `ur` | Urdu | « | » | U+00AB / U+00BB | Same bidi rules as Arabic. |
+| `zh-hans` | Chinese (Simplified) | 「 | 」 | U+300C / U+300D | Some keys use “ ” (U+201C / U+201D) around placeholders; keep consistency within each string. |
+| `zh-hant` | Chinese (Traditional) | 「 | 」 | U+300C / U+300D | |
+
+When adding a **new locale file**, pick the pair that matches standard typography for that language; align keyword quoting with this table once the file exists so the reference stays accurate.
+
 ## `True`, `False`, and `None`
 
 The literals **`True`**, **`False`**, and **`None`** are **not** treated like generic keywords for this purpose: **do not** put them in quotation marks in localized strings unless you have a rare case where quotes are required for another reason (e.g. nested dialogue). In normal UI and error text, write them as bare identifiers, consistent with Python spelling and casing.
@@ -56,6 +92,6 @@ Strings shown in the Robot window **status strip** must not exceed **50 characte
 When adding or editing keys:
 
 1. Keep terminology for the executor, grid, and tasks aligned with existing keys in the same locale file.
-2. Prefer the same quoting style as other strings in that file for Python keywords.
+2. Prefer the same quoting style as other strings in that file for Python keywords, or the pair listed for that locale in [Quotation marks by locale](#quotation-marks-by-locale).
 3. Re-read the string at the minimum window width if it appears in the status strip; see [Status strip length](#status-strip-length) above.
 4. For RTL locales, follow [Unicode bidirectional isolation (RTL locales)](#unicode-bidirectional-isolation-rtl-locales) and match isolate usage in that locale file.
