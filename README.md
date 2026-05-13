@@ -32,92 +32,88 @@ move_down()
 
 ## Robot commands
 
-```
-move_right()
-  Moves the Robot one cell to the right.
+**move_right()**  
+Moves the Robot one cell to the right.
 
-move_left()
-  Moves the Robot one cell to the left.
+**move_left()**  
+Moves the Robot one cell to the left.
 
-move_up()
-  Moves the Robot one cell up.
+**move_up()**  
+Moves the Robot one cell up.
 
-move_down()
-  Moves the Robot one cell down.
+**move_down()**  
+Moves the Robot one cell down.
 
-paint()
-  Paints the current cell.
+**paint()**  
+Paints the current cell.
 
-is_free_left()
-  Returns True if there is no wall on the left.
+**is_free_left()**  
+Returns True if there is no wall on the left.
 
-is_free_right()
-  Returns True if there is no wall on the right.
+**is_free_right()**  
+Returns True if there is no wall on the right.
 
-is_free_up()
-  Returns True if there is no wall above.
+**is_free_up()**  
+Returns True if there is no wall above.
 
-is_free_down()
-  Returns True if there is no wall below.
+**is_free_down()**  
+Returns True if there is no wall below.
 
-is_wall_left()
-  Returns True if there is a wall on the left.
+**is_wall_left()**  
+Returns True if there is a wall on the left.
 
-is_wall_right()
-  Returns True if there is a wall on the right.
+**is_wall_right()**  
+Returns True if there is a wall on the right.
 
-is_wall_up()
-  Returns True if there is a wall above.
+**is_wall_up()**  
+Returns True if there is a wall above.
 
-is_wall_down()
-  Returns True if there is a wall below.
+**is_wall_down()**  
+Returns True if there is a wall below.
 
-is_cell_painted()
-  Returns True if the current cell is painted.
+**is_cell_painted()**  
+Returns True if the current cell is painted.
 
-is_cell_not_painted()
-  Returns True if the current cell is not painted.
+**is_cell_not_painted()**  
+Returns True if the current cell is not painted.
 
-pol()
-  Returns the pollution value of the current cell.
+**pol()**  
+Returns the pollution value of the current cell.
 
-printn(value)
-  Prints an integer in the current cell.
-```
+**printn(value)**  
+Prints an integer in the current cell.
 
 ## Available tasks for `task()`
 
-```
-First steps
+**First steps**  
 intro1, ..., intro24
 
-Functions
+**Functions**  
 fun1, ..., fun20
 
-'for' loop
+**'for' loop**  
 for1, ..., for28
 
-'for' loop and functions
+**'for' loop and functions**  
 forfun1, ..., forfun9
 
-'while' loop
+**'while' loop**  
 w1, ..., w51
 
-'while' loop and functions
+**'while' loop and functions**  
 wfun1, ..., wfun12
 
-'if' statement
+**'if' statement**  
 if1, ..., if14
 
-'while' loop with 'if'
+**'while' loop with 'if'**  
 wif1, ..., wif13
 
-'if' and 'else'
+**'if' and 'else'**  
 ifelse1, ..., ifelse12
 
-Compound conditions
+**Compound conditions**  
 compound1, ..., compound11
-```
 
 ## Using the distributed module
 
