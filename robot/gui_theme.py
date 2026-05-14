@@ -11,6 +11,14 @@ ACTION_BUTTON_RESTORE = t("button.restore")
 ACTION_BUTTON_STEP = t("button.step")
 ACTION_BUTTON_HELP = t("button.help")
 
+# tk.Button internal padding (text ↔ border). Omitting padx/pady lets the platform
+# theme decide, which makes Windows noticeably tighter than typical Linux/X11.
+# Screen distances in "m" (mm) track DPI better than a fixed pixel padding.
+ENV_SELECT_BUTTON_PAD_X = "4.5m"
+ENV_SELECT_BUTTON_PAD_Y = "1.5m"
+BUTTON_PAD_X = "2.5m"
+BUTTON_PAD_Y = "1.5m"
+
 # Readable body text: help/constraints dialogs and task condition (`todoText`) banner.
 DIALOG_BODY_FONT = ("TkDefaultFont", 11)
 
