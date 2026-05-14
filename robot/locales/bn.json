@@ -9,7 +9,7 @@
   "line.with_message": "লাইন {lineno}: {message}",
   "step.line": "লাইন {lineno}: {text}",
   "step.success_for_env": "পরিবেশ {env_label}-এর জন্য সব ঠিক",
-  "window.title": "Robot v{version}: {task_id}",
+  "window.title": "রোবট v{version}: {task_id}",
   "error.path_collision": "দেয়ালের মধ্য দিয়ে যাওয়ার চেষ্টা করা হয়েছে",
   "error.execution_cancelled": "কার্যক্রম বিঘ্নিত হয়েছে",
   "error.system_exit": "প্রোগ্রাম কোড {code} দিয়ে শেষ হয়েছে",
