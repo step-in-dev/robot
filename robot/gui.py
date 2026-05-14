@@ -118,6 +118,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self._step_release_token = 0
         self.root.title(t("window.title", task_id=self.task_id, version=__version__))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
+        # Hide shell until layout is ready (reduces visible startup jitter).
+        self.root.withdraw()
 
         self.canvas_width, self.canvas_height = calculate_canvas_size(
             self.envs, self.cell_size, self.wall_width
@@ -262,17 +264,19 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
 
     def _finish_initial_placement(self, initial_index: int) -> None:
         self.select_env(initial_index)
+        self.root.update_idletasks()
         self.lock_window_size()
-        # Raise only after the field and chrome exist so the WM never briefly
-        # maps an empty default-sized toplevel (was lift/topmost in _init_root).
+        self.root.deiconify()
         self.root.lift()
         self.root.attributes("-topmost", True)
+        self.root.update()
 
     def lock_window_size(self) -> None:
-        self.root.update_idletasks()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
-        self.root.geometry(f"{width}x{height}")
+        width = self.root.winfo_reqwidth()
+        height = self.root.winfo_reqheight()
+        if width <= 1 or height <= 1:
+            width = max(width, self.root.winfo_width())
+            height = max(height, self.root.winfo_height())
         self.root.resizable(False, False)
         self.root.minsize(width, height)
         self.root.maxsize(width, height)
