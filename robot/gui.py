@@ -27,7 +27,11 @@ from .gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
     ACTION_BUTTON_STEP,
+    BUTTON_PAD_X,
+    BUTTON_PAD_Y,
     COMPACT_CELL_SIZE,
+    ENV_SELECT_BUTTON_PAD_X,
+    ENV_SELECT_BUTTON_PAD_Y,
     DEFAULT_CELL_SIZE,
     DIALOG_BODY_FONT,
     MIN_CANVAS_WIDTH,
@@ -173,8 +177,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
                     text=str(index + 1),
                     command=lambda index=index: self.select_env(index),
                     width=1,
-                    padx='4.5m',
-                    pady='2m'
+                    padx=ENV_SELECT_BUTTON_PAD_X,
+                    pady=ENV_SELECT_BUTTON_PAD_Y,
                 )
                 button.pack(side=tk.LEFT)
                 self.tab_buttons.append(button)
@@ -183,6 +187,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
                 self.top_toolbar,
                 text=t("constraints.button"),
                 command=self.show_constraints,
+                padx=BUTTON_PAD_X,
+                pady=BUTTON_PAD_Y,
             )
             self.constraints_button.pack(side=tk.RIGHT)
 
@@ -216,12 +222,16 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
             text=ACTION_BUTTON_RUN,
             command=self.run_all,
             width=max(len(ACTION_BUTTON_RUN), len(ACTION_BUTTON_RESTORE)),
+            padx=BUTTON_PAD_X,
+            pady=BUTTON_PAD_Y,
         )
         self.action_button.pack(side=tk.LEFT)
         self.step_button = tk.Button(
             self.controls_left,
             text=ACTION_BUTTON_STEP,
             command=self.step_once,
+            padx=BUTTON_PAD_X,
+            pady=BUTTON_PAD_Y,
         )
         self.step_button.pack(side=tk.LEFT, padx=(4, 0))
         if self.script_path is None:
@@ -230,6 +240,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
             self.controls_right,
             text=ACTION_BUTTON_HELP,
             command=self.show_help,
+            padx=BUTTON_PAD_X,
+            pady=BUTTON_PAD_Y,
         )
         self.help_button.pack(side=tk.RIGHT)
         self.bind_action_keyboard()

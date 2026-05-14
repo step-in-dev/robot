@@ -1,5 +1,5 @@
 from robot import *
 
-task("w1")
+task("intro1")
 
 move_right()
