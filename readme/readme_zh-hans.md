@@ -1,5 +1,3 @@
-[English](../README.md) | [Русский](./readme_ru.md) | [Беларуская](./readme_be.md) | [Українська](./readme_uk.md) | [Polski](./readme_pl.md) | [Deutsch](./readme_de.md) | [Nederlands](./readme_nl.md) | [Español](./readme_es.md) | [Français](./readme_fr.md) | [Italiano](./readme_it.md) | [Português](./readme_pt.md) | [简体中文](./readme_zh-hans.md) | [繁體中文](./readme_zh-hant.md) | [日本語](./readme_ja.md) | [한국어](./readme_ko.md) | [العربية](./readme_ar.md) | [اردو](./readme_ur.md) | [हिन्दी](./readme_hi.md) | [বাংলা](./readme_bn.md) | [Čeština](./readme_cs.md) | [Türkçe](./readme_tr.md)
-
 # 机器人
 
 本项目是一个用于学习编程与算法基础的教学用**机器人**模拟器。学生编写简短的 Python 程序，控制机器人在格状场地上移动、着色格子、读取环境状态，并完成小型课题，同时通过桌面窗口获得即时的视觉反馈。

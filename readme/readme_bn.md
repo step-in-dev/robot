@@ -1,5 +1,3 @@
-[English](../README.md) | [Русский](./readme_ru.md) | [Беларуская](./readme_be.md) | [Українська](./readme_uk.md) | [Polski](./readme_pl.md) | [Deutsch](./readme_de.md) | [Nederlands](./readme_nl.md) | [Español](./readme_es.md) | [Français](./readme_fr.md) | [Italiano](./readme_it.md) | [Português](./readme_pt.md) | [简体中文](./readme_zh-hans.md) | [繁體中文](./readme_zh-hant.md) | [日本語](./readme_ja.md) | [한국어](./readme_ko.md) | [العربية](./readme_ar.md) | [اردو](./readme_ur.md) | [हिन्दी](./readme_hi.md) | [বাংলা](./readme_bn.md) | [Čeština](./readme_cs.md) | [Türkçe](./readme_tr.md)
-
 # রোবট
 
 এই প্রকল্পটি প্রোগ্রামিং ও অ্যালগরিদমের মূল বিষয় শেখার জন্য একটি শিক্ষামূলক **রোবট** সিমুলেটর। শিক্ষার্থীরা ছোট Python প্রোগ্রাম লেখে যা রোবটকে গ্রিডের উপর নিয়ে চলে, ঘর রাঙায়, পরিবেশ পড়ে এবং ডেস্কটপ উইন্ডোতে তাৎক্ষণিক চাক্ষুষ প্রতিক্রিয়াসহ ছোট কাজ সম্পন্ন করে।

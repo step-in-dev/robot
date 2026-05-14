@@ -1,5 +1,3 @@
-[English](../README.md) | [Русский](./readme_ru.md) | [Беларуская](./readme_be.md) | [Українська](./readme_uk.md) | [Polski](./readme_pl.md) | [Deutsch](./readme_de.md) | [Nederlands](./readme_nl.md) | [Español](./readme_es.md) | [Français](./readme_fr.md) | [Italiano](./readme_it.md) | [Português](./readme_pt.md) | [简体中文](./readme_zh-hans.md) | [繁體中文](./readme_zh-hant.md) | [日本語](./readme_ja.md) | [한국어](./readme_ko.md) | [العربية](./readme_ar.md) | [اردو](./readme_ur.md) | [हिन्दी](./readme_hi.md) | [বাংলা](./readme_bn.md) | [Čeština](./readme_cs.md) | [Türkçe](./readme_tr.md)
-
 # रोबोट
 
 यह प्रोजेक्ट प्रोग्रामिंग और एल्गोरिदम की मूल बातें सीखने के लिए एक शैक्षिक **रोबोट** सिम्युलेटर है। छात्र छोटे Python प्रोग्राम लिखते हैं जो रोबोट को ग्रिड पर चलाते हैं, सेलों को रंगते हैं, परिवेश को पढ़ते हैं और डेस्कटॉप विंडो में तुरंत दृश्य प्रतिक्रिया के साथ छोटे कार्य पूरे करते हैं।

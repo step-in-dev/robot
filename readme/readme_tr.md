@@ -1,5 +1,3 @@
-[English](../README.md) | [Русский](./readme_ru.md) | [Беларуская](./readme_be.md) | [Українська](./readme_uk.md) | [Polski](./readme_pl.md) | [Deutsch](./readme_de.md) | [Nederlands](./readme_nl.md) | [Español](./readme_es.md) | [Français](./readme_fr.md) | [Italiano](./readme_it.md) | [Português](./readme_pt.md) | [简体中文](./readme_zh-hans.md) | [繁體中文](./readme_zh-hant.md) | [日本語](./readme_ja.md) | [한국어](./readme_ko.md) | [العربية](./readme_ar.md) | [اردو](./readme_ur.md) | [हिन्दी](./readme_hi.md) | [বাংলা](./readme_bn.md) | [Čeština](./readme_cs.md) | [Türkçe](./readme_tr.md)
-
 # Robot
 
 Bu proje, temel programlama ve algoritmaları öğrenmek için eğitim amaçlı bir **Robot** simülatörüdür. Öğrenciler, Robotu bir ızgara üzerinde hareket ettiren, hücreleri boyayan, ortamı okuyan ve masaüstü penceresinde anında görsel geri bildirimle küçük görevleri tamamlayan kısa Python programları yazarlar.
