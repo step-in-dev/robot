@@ -1,4 +1,4 @@
-[English](./README.md) | [Русский](./readme/readme_ru.md) | [Беларуская](./readme/readme_be.md) | [Українська](./readme/readme_uk.md) | [Polski](./readme/readme_pl.md) | [Deutsch](./readme/readme_de.md) | [Español](./readme/readme_es.md) | [Français](./readme/readme_fr.md) | [Português](./readme/readme_pt.md)
+[English](./README.md) | [Русский](./readme/readme_ru.md) | [Беларуская](./readme/readme_be.md) | [Українська](./readme/readme_uk.md) | [Polski](./readme/readme_pl.md) | [Deutsch](./readme/readme_de.md) | [Español](./readme/readme_es.md) | [Français](./readme/readme_fr.md) | [Português](./readme/readme_pt.md) | [简体中文](./readme/readme_zh-hans.md)
 
 # Robot
 
