@@ -36,6 +36,9 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s tests -t .
 
+      - name: Copy LICENSE into package directory
+        run: cp LICENSE robot/LICENSE
+
       - name: Build distribution zip
         run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py -x '*__pycache__*'
 
