@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from robot.i18n import SUPPORTED_LANGUAGES
+from robot.loader import TaskLoadError, load_task_definition
 
 
 def _require_command(cmd: str) -> None:
@@ -79,6 +80,54 @@ def _stop_process(proc: subprocess.Popen[bytes]) -> None:
     proc.wait(timeout=2.0)
 
 
+def _script_body_for_task(
+    *,
+    task_id: str,
+    env_index: int | None,
+) -> str:
+    """Code run in a subprocess to open the Robot window for *task_id*."""
+    if env_index is None:
+        return textwrap.dedent(
+            f"""
+            from robot import *
+
+            task({task_id!r})
+            """
+        )
+    return textwrap.dedent(
+        f"""
+        import sys
+
+        from robot.loader import load_task_definition
+        from robot.runtime import _launch_student_robot_window
+
+        task_id = {task_id!r}
+        env_index = {env_index}
+
+        td = load_task_definition(task_id)
+        if env_index < 0 or env_index >= len(td.envs):
+            print(
+                f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+
+        _launch_student_robot_window(
+            task_id=task_id,
+            envs=td.envs,
+            initial_index=env_index,
+            todo_text=td.todo_text,
+            operators_limit=td.operators_limit,
+            custom_function_call_count=td.custom_function_call_count,
+            if_limit=td.if_limit,
+            while_limit=td.while_limit,
+            required_keywords=td.required_keywords,
+            banned_keywords=td.banned_keywords,
+        )
+        """
+    )
+
+
 def capture_for_language(
     *,
     python_executable: str,
@@ -86,14 +135,9 @@ def capture_for_language(
     language: str,
     output_path: Path,
     workdir: Path,
+    env_index: int | None,
 ) -> None:
-    script_body = textwrap.dedent(
-        f"""
-        from robot import *
-
-        task({task_id!r})
-        """
-    )
+    script_body = _script_body_for_task(task_id=task_id, env_index=env_index)
 
     with tempfile.NamedTemporaryFile(
         mode="w",
@@ -148,6 +192,18 @@ def parse_args() -> argparse.Namespace:
         help="Task id for task('<id>'). Default: fun17",
     )
     parser.add_argument(
+        "--env-index",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "If set, capture with environment N (0-based index in the task's "
+            "envDtos) initially selected. All environments stay loaded so "
+            "environment switcher tabs remain visible. If omitted, opens the "
+            "task with the default initial environment (usually 0)."
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         default="screenshots_by_language",
         help="Directory where PNG files are written.",
@@ -164,6 +220,24 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _validate_env_index_for_task(task_id: str, env_index: int) -> int | None:
+    """Return 0 on success, 1 if the task cannot be loaded or *env_index* is invalid."""
+    try:
+        td = load_task_definition(task_id)
+    except TaskLoadError as exc:
+        print(f"Cannot load task {task_id!r}: {exc}", file=sys.stderr)
+        return 1
+    n = len(td.envs)
+    if env_index < 0 or env_index >= n:
+        print(
+            f"--env-index must be between 0 and {n - 1} "
+            f"({n} environment(s) in this task); got {env_index}",
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
 def main() -> int:
     args = parse_args()
 
@@ -174,9 +248,17 @@ def main() -> int:
     output_dir = (workdir / args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    if args.env_index is not None:
+        if _validate_env_index_for_task(args.task, args.env_index) != 0:
+            return 1
+
     failed: list[tuple[str, str]] = []
     for language in args.languages:
-        output_path = output_dir / f"{args.task}_{language}.png"
+        if args.env_index is None:
+            stem = f"{args.task}_{language}"
+        else:
+            stem = f"{args.task}_env{args.env_index}_{language}"
+        output_path = output_dir / f"{stem}.png"
         print(f"[{language}] capturing -> {output_path}")
         try:
             capture_for_language(
@@ -185,6 +267,7 @@ def main() -> int:
                 language=language,
                 output_path=output_path,
                 workdir=workdir,
+                env_index=args.env_index,
             )
         except Exception as exc:  # noqa: BLE001
             failed.append((language, str(exc)))

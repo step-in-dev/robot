@@ -59,6 +59,7 @@ def _launch_student_robot_window(
     while_limit: int | None,
     required_keywords: tuple[str, ...] | None,
     banned_keywords: tuple[str, ...] | None,
+    initial_index: int = 0,
 ) -> None:
     """Open the GUI and run the student script against *envs*; never returns normally."""
     script_path = _detect_student_script()
@@ -73,6 +74,7 @@ def _launch_student_robot_window(
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
         ),
+        initial_index=initial_index,
         todo_text=todo_text,
         script_path=script_path,
         operators_limit=operators_limit,
