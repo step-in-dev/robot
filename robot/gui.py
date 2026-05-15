@@ -71,6 +71,7 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         while_limit: int | None = None,
         required_keywords: tuple[str, ...] | None = None,
         banned_keywords: tuple[str, ...] | None = None,
+        open_constraints_on_startup: bool = False,
     ):
         self.task_id = task_id
         self.envs = envs
@@ -82,6 +83,7 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self.while_limit = while_limit
         self.required_keywords = required_keywords
         self.banned_keywords = banned_keywords
+        self._open_constraints_on_startup = open_constraints_on_startup
         self.selected_index = initial_index
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
@@ -403,6 +405,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
             self._finish_step_run(result)
 
     def run(self) -> None:
+        if self._open_constraints_on_startup:
+            self.root.after(300, self.show_constraints)
         self.root.mainloop()
 
     def close(self) -> None:

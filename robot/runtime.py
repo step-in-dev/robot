@@ -60,6 +60,7 @@ def _launch_student_robot_window(
     required_keywords: tuple[str, ...] | None,
     banned_keywords: tuple[str, ...] | None,
     initial_index: int = 0,
+    open_constraints_on_startup: bool = False,
 ) -> None:
     """Open the GUI and run the student script against *envs*; never returns normally."""
     script_path = _detect_student_script()
@@ -83,6 +84,7 @@ def _launch_student_robot_window(
         while_limit=while_limit,
         required_keywords=required_keywords,
         banned_keywords=banned_keywords,
+        open_constraints_on_startup=open_constraints_on_startup,
     )
     window.run()
     raise SystemExit(0)
