@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot — a classroom simulator for Python</title>
+  <meta name="description" content="Robot is a classroom simulator for Python lessons: grid tasks, automatic checking, multiple environments, and step-by-step runs.">
+  <link rel="canonical" href="index.html">
+  <link rel="alternate" hreflang="en" href="index.html">
+  <link rel="alternate" hreflang="ru" href="index_ru.html">
+  <meta property="og:title" content="Robot — a classroom simulator for Python">
+  <meta property="og:description" content="Grid tasks, solution checking, multiple environments, and step-by-step execution in the Robot window.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="img/hero/intro19_en.png">
+  <meta property="og:locale" content="en_US">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="index.html" aria-current="page">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">Robot</span>
+      </a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#lessons">For lessons</a></li>
+          <li><a href="#commands">Commands</a></li>
+          <li><a href="#get-started">Get started</a></li>
+          <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        </ul>
+        <p class="site-nav__lang">
+          <a href="index.html" class="is-active" aria-current="page">English</a>
+          <span class="site-nav__lang-sep" aria-hidden="true">·</span>
+          <a href="index_ru.html" hreflang="ru">Русский</a>
+        </p>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow">For computer science teachers</p>
+          <h1><strong>Robot</strong>, a classroom simulator for Python</h1>
+          <p class="lead">
+            Students write small <strong>Python</strong> programs: move the Robot across a field, paint cells, check walls, and solve tasks. Everything runs locally, with the result shown in the desktop window.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Download the module</a>
+            <a class="btn btn--secondary" href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">View on GitHub</a>
+          </div>
+        </div>
+        <figure class="hero__media">
+          <img src="img/hero/intro19_en.png" width="640" height="400" alt="Robot desktop window showing a colorful grid task with the robot, walls, and goal.">
+          <figcaption>The Robot window shows the field, walls, task goal, and the result of each run.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="features" aria-labelledby="features-heading">
+      <div class="section__inner">
+        <h2 id="features-heading">Why Robot works well in class</h2>
+        <p class="section__intro">
+          Tasks are small problems on a clear field. Students practice command sequences, loops, conditions, and functions while seeing the result of their code right away.
+        </p>
+        <ul class="feature-cards">
+          <li class="feature-card">
+            <h3>Readable field tasks</h3>
+            <p>Walls, marked cells, and the goal are visible from the start, so students can focus on the algorithm.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Automatic checking</h3>
+            <p>After a run, Robot checks the result. Students can see whether the solution passed and try again without waiting for manual review.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Multiple environments</h3>
+            <p>Many tasks include several <strong>environments</strong>. One program has to pass each variant, which encourages a general algorithm instead of memorized moves.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Preview environments first</h3>
+            <p>Students can open each environment before writing code and see which cases their solution must handle.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Step-by-step execution</h3>
+            <p>Programs can run one command at a time in the Robot window. This is useful for debugging and for explaining a solution on a projector.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Limits that match the lesson</h3>
+            <p>Some tasks limit commands or language constructs. The limits point students toward the intended idea, such as a loop, condition, or function.</p>
+          </li>
+        </ul>
+
+        <figure class="inline-figure">
+          <img src="img/intro/intro8_en.png" width="720" height="420" alt="Robot window with task intro8: reach the house and paint marked cells along the way.">
+          <figcaption>Task <code>intro8</code>: reach the house and paint every marked cell.</figcaption>
+        </figure>
+
+        <div class="media-block">
+          <div class="media-block__text">
+            <h3>Students can see when it passes</h3>
+            <p>When all environments pass, Robot shows that in the window. Students do not have to wait for a manual check.</p>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/all_done/w45_en.png" width="560" height="340" alt="Robot window with success state: all environments completed for task w45.">
+          </figure>
+        </div>
+
+        <div class="media-block media-block--reverse">
+          <div class="media-block__text">
+            <h3>Look through environments before coding</h3>
+            <p>The environment selector lets students inspect each field variant before they plan a solution that works everywhere.</p>
+          </div>
+          <div class="media-block__figures media-block__figures--pair">
+            <figure>
+              <img src="img/robot_envs/w49_env0_en.png" width="280" height="200" alt="Task w49 environment 1: different wall layout on the grid.">
+              <figcaption>Environment 1</figcaption>
+            </figure>
+            <figure>
+              <img src="img/robot_envs/w49_env1_en.png" width="280" height="200" alt="Task w49 environment 2: another wall layout requiring a general solution.">
+              <figcaption>Environment 2</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="media-block">
+          <div class="media-block__text">
+            <h3>Step through the program</h3>
+            <p>Step mode shows what each command does. It is useful for self-checking and for walking through a solution with the class.</p>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/step/intro8_en.png" width="560" height="340" alt="Robot window in step mode: program paused after a move command.">
+          </figure>
+        </div>
+
+        <div class="media-block media-block--reverse">
+          <div class="media-block__text">
+            <h3>Limits are visible in the UI</h3>
+            <p>When a task has limits, Robot shows them next to the task. Students can see which tools they are expected to use.</p>
+          </div>
+          <div class="media-block__figures media-block__figures--stack">
+            <figure>
+              <img src="img/constraints/for26_en.png" width="520" height="300" alt="Robot window showing task for26 with constraint hints in the UI.">
+              <figcaption>Task with limits</figcaption>
+            </figure>
+            <figure>
+              <img src="img/constraints/for26_constraints_en.png" width="520" height="220" alt="Constraint panel listing operator limits and construct limits for the task.">
+              <figcaption>Constraint details</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lessons" aria-labelledby="lessons-heading">
+      <div class="section__inner">
+        <h2 id="lessons-heading">Using Robot in a lesson</h2>
+        <p class="section__intro">
+          After you introduce a topic, students work through tasks at their own pace. Automatic checking removes part of the routine review, so you can focus on students who need help.
+        </p>
+        <div class="two-col">
+          <div>
+            <h3>One possible lesson flow</h3>
+            <ol class="steps">
+              <li>Introduce the topic: movement, a loop, a condition, or a function.</li>
+              <li>Assign a task from the matching track, such as <code>for12</code> or <code>w25</code>.</li>
+              <li>Students run <code>task("…")</code> and improve their program until every environment passes.</li>
+              <li>Use step mode to discuss tricky bugs or walk through a solution together.</li>
+            </ol>
+          </div>
+          <div class="callout">
+            <h3>Task tracks</h3>
+            <p>Tasks are grouped by topic, so they can fit into an existing course plan.</p>
+            <ul class="track-list">
+              <li><strong>First steps</strong> — <code>intro1</code> … <code>intro24</code></li>
+              <li><strong>Functions</strong> — <code>fun1</code> … <code>fun20</code></li>
+              <li><strong><code>for</code> loop</strong> — <code>for1</code> … <code>for28</code></li>
+              <li><strong><code>for</code> + functions</strong> — <code>forfun1</code> … <code>forfun9</code></li>
+              <li><strong><code>while</code> loop</strong> — <code>w1</code> … <code>w51</code></li>
+              <li><strong><code>while</code> + functions</strong> — <code>wfun1</code> … <code>wfun12</code></li>
+              <li><strong><code>if</code></strong> — <code>if1</code> … <code>if14</code></li>
+              <li><strong><code>while</code> + <code>if</code></strong> — <code>wif1</code> … <code>wif13</code></li>
+              <li><strong><code>if</code> / <code>else</code></strong> — <code>ifelse1</code> … <code>ifelse12</code></li>
+              <li><strong>Compound conditions</strong> — <code>compound1</code> … <code>compound11</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="commands" aria-labelledby="commands-heading">
+      <div class="section__inner">
+        <h2 id="commands-heading">Robot commands for students</h2>
+        <p class="section__intro">
+          The Python API is intentionally small. Students can start with <code>from robot import *</code> or import only the names they need.
+        </p>
+
+        <div class="code-showcase">
+          <h3>Minimal example</h3>
+          <pre class="code-block" tabindex="0"><code>from robot import *
+
+task("intro8")
+
+move_down()
+paint()
+move_right()
+paint()
+move_up()
+paint()
+move_right()
+paint()
+move_down()</code></pre>
+        </div>
+
+        <div class="command-grid">
+          <article class="command-group">
+            <h3>Task or free field</h3>
+            <dl>
+              <dt><code>task("name")</code></dt>
+              <dd>Open a task from the bundled set.</dd>
+              <dt><code>field(width=8, height=6)</code></dt>
+              <dd>Open a free field without a task file.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Movement</h3>
+            <dl>
+              <dt><code>move_right()</code></dt><dd>One cell right.</dd>
+              <dt><code>move_left()</code></dt><dd>One cell left.</dd>
+              <dt><code>move_up()</code></dt><dd>One cell up.</dd>
+              <dt><code>move_down()</code></dt><dd>One cell down.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Cell &amp; walls</h3>
+            <dl>
+              <dt><code>paint()</code></dt><dd>Paint the current cell.</dd>
+              <dt><code>is_free_left()</code> … <code>is_free_down()</code></dt><dd>True if no wall in that direction.</dd>
+              <dt><code>is_wall_left()</code> … <code>is_wall_down()</code></dt><dd>True if there is a wall.</dd>
+              <dt><code>is_cell_painted()</code></dt><dd>True if the cell is painted.</dd>
+              <dt><code>is_cell_not_painted()</code></dt><dd>True if not painted.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Values &amp; output</h3>
+            <dl>
+              <dt><code>pol()</code></dt><dd>Pollution value in the current cell (integer).</dd>
+              <dt><code>printn(value)</code></dt><dd>Print an integer in the current cell.</dd>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="get-started" aria-labelledby="get-started-heading">
+      <div class="section__inner">
+        <h2 id="get-started-heading">Get started</h2>
+        <ol class="numbered-list">
+          <li>Download the module archive from <a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">GitHub Releases</a>.</li>
+          <li>Extract it into the student's working folder.</li>
+          <li>Place the solution file next to the <code>robot</code> package. You can start from <strong><code>sample_solution.py</code></strong> in the archive.</li>
+          <li>To choose another task, change the string passed to <strong><code>task()</code></strong>. The task names are listed in the tracks above.</li>
+        </ol>
+        <p class="requirements">
+          <strong>Requirements:</strong> Python 3 and the standard library. The Robot window uses <code>tkinter</code>, which is included with most desktop Python installations.
+        </p>
+        <p class="section__outro">
+          <a class="btn btn--primary" href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Download the module</a>
+          <a class="btn btn--secondary" href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__brand"><span class="brand__mark brand__mark--small" aria-hidden="true"></span> Robot — educational simulator</p>
+      <ul class="site-footer__links">
+        <li><a href="index.html">English</a></li>
+        <li><a href="index_ru.html">Русский</a></li>
+        <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Releases</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

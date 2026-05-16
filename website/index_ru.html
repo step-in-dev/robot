@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Робот — учебный исполнитель для Python</title>
+  <meta name="description" content="Учебный исполнитель Робот для уроков информатики: задания на клетчатом поле, автоматическая проверка, несколько обстановок и пошаговый запуск.">
+  <link rel="canonical" href="index_ru.html">
+  <link rel="alternate" hreflang="en" href="index.html">
+  <link rel="alternate" hreflang="ru" href="index_ru.html">
+  <meta property="og:title" content="Робот — учебный исполнитель для Python">
+  <meta property="og:description" content="Задания на клетчатом поле, проверка решений, несколько обстановок и пошаговый запуск в окне Робота.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="img/hero/intro19_ru.png">
+  <meta property="og:locale" content="ru_RU">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="index_ru.html" aria-current="page">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">Робот</span>
+      </a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Открыть меню">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Основная навигация">
+        <ul class="site-nav__list">
+          <li><a href="#features">Возможности</a></li>
+          <li><a href="#lessons">На уроках</a></li>
+          <li><a href="#commands">Команды</a></li>
+          <li><a href="#get-started">Начать</a></li>
+          <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        </ul>
+        <p class="site-nav__lang">
+          <a href="index.html" hreflang="en">English</a>
+          <span class="site-nav__lang-sep" aria-hidden="true">·</span>
+          <a href="index_ru.html" class="is-active" aria-current="page">Русский</a>
+        </p>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow">Для учителей информатики</p>
+          <h1><strong>Исполнитель Робот</strong> для уроков информатики</h1>
+          <p class="lead">
+            Учащиеся пишут небольшие программы на <strong>Python</strong>: двигают Робота по клетчатому полю, закрашивают клетки, проверяют стены и решают задания. Всё видно в окне исполнителя, а сервер не нужен — программа работает локально.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Скачать модуль</a>
+            <a class="btn btn--secondary" href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">Проект на GitHub</a>
+          </div>
+        </div>
+        <figure class="hero__media">
+          <img src="img/hero/intro19_ru.png" width="640" height="400" alt="Окно Робота: наглядное поле с роботом, стенами и целью.">
+          <figcaption>Окно Робота: поле, стены, цель задания и результат запуска программы.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="features" aria-labelledby="features-heading">
+      <div class="section__inner">
+        <h2 id="features-heading">Чем Робот удобен на уроке</h2>
+        <p class="section__intro">
+          Задания выглядят как небольшие задачи на клетчатом поле. Учащиеся тренируют последовательности команд, циклы, условия и функции, а результат сразу виден на экране.
+        </p>
+        <ul class="feature-cards">
+          <li class="feature-card">
+            <h3>Понятные задания на поле</h3>
+            <p>Стены, отмеченные клетки и цель задания видны сразу, поэтому ученику проще понять, что должна сделать программа.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Автоматическая проверка</h3>
+            <p>После запуска Робот проверяет результат. Учащийся сразу видит, прошло ли решение, и может сам исправить ошибку.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Несколько обстановок</h3>
+            <p>Во многих заданиях есть несколько <strong>обстановок</strong>. Одна программа должна пройти все варианты, поэтому приходится писать общий алгоритм, а не набор ходов для первой обстановки.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Обстановки можно посмотреть заранее</h3>
+            <p>Перед написанием кода можно открыть каждую обстановку и понять, какие случаи должно покрывать решение.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Пошаговое выполнение</h3>
+            <p>Программу можно запускать по одной команде в окне Робота. Это помогает найти ошибку и удобно для разбора у доски или на проекторе.</p>
+          </li>
+          <li class="feature-card">
+            <h3>Ограничения под тему урока</h3>
+            <p>В некоторых заданиях есть лимиты на команды или конструкции. Они помогают вывести учащегося к нужной идее: циклу, условию или функции.</p>
+          </li>
+        </ul>
+
+        <figure class="inline-figure">
+          <img src="img/intro/intro8_ru.png" width="720" height="420" alt="Окно Робота с заданием intro8: дойти до домика и закрасить отмеченные клетки.">
+          <figcaption>Задание <code>intro8</code>: дойти до домика и закрасить отмеченные клетки.</figcaption>
+        </figure>
+
+        <div class="media-block">
+          <div class="media-block__text">
+            <h3>Сразу видно, что решение прошло</h3>
+            <p>Когда все обстановки пройдены, Робот показывает это в окне. Учащемуся не нужно ждать ручной проверки.</p>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/all_done/w45_ru.png" width="560" height="340" alt="Окно Робота: успешное завершение, все обстановки для задания w45 пройдены.">
+          </figure>
+        </div>
+
+        <div class="media-block media-block--reverse">
+          <div class="media-block__text">
+            <h3>Просмотр обстановок до решения</h3>
+            <p>Через выбор обстановки можно посмотреть все варианты поля. Так проще заранее продумать решение, которое сработает везде.</p>
+          </div>
+          <div class="media-block__figures media-block__figures--pair">
+            <figure>
+              <img src="img/robot_envs/w49_env0_ru.png" width="280" height="200" alt="Задание w49, обстановка 1: другая конфигурация стен.">
+              <figcaption>Обстановка 1</figcaption>
+            </figure>
+            <figure>
+              <img src="img/robot_envs/w49_env1_ru.png" width="280" height="200" alt="Задание w49, обстановка 2: ещё один вариант поля.">
+              <figcaption>Обстановка 2</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="media-block">
+          <div class="media-block__text">
+            <h3>Шаг за шагом</h3>
+            <p>В пошаговом режиме видно, что делает каждая команда. Это удобно для самопроверки и для общего разбора.</p>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/step/intro8_ru.png" width="560" height="340" alt="Окно Робота в пошаговом режиме: выполнение остановлено после команды перемещения.">
+          </figure>
+        </div>
+
+        <div class="media-block media-block--reverse">
+          <div class="media-block__text">
+            <h3>Лимиты видны в интерфейсе</h3>
+            <p>Если в задании есть ограничения, Робот показывает их рядом с условием. Учащийся понимает, какие средства нужно использовать в решении.</p>
+          </div>
+          <div class="media-block__figures media-block__figures--stack">
+            <figure>
+              <img src="img/constraints/for26_ru.png" width="520" height="300" alt="Окно Робота: задание for26 с подсказками по ограничениям.">
+              <figcaption>Задание с ограничениями</figcaption>
+            </figure>
+            <figure>
+              <img src="img/constraints/for26_constraints_ru.png" width="520" height="220" alt="Панель ограничений: лимиты операторов и конструкций для задания.">
+              <figcaption>Детали ограничений</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lessons" aria-labelledby="lessons-heading">
+      <div class="section__inner">
+        <h2 id="lessons-heading">Робот на уроке</h2>
+        <p class="section__intro">
+          После объяснения темы учащиеся решают задания в своём темпе. Автоматическая проверка снимает часть рутинной проверки: вы видите, кому нужна помощь, а кто уже может двигаться дальше.
+        </p>
+        <div class="two-col">
+          <div>
+            <h3>Как это может выглядеть на уроке</h3>
+            <ol class="steps">
+              <li>Вы объясняете тему: движение, цикл, условие или функцию.</li>
+              <li>Даёте задание из нужной темы, например <code>for12</code> или <code>w25</code>.</li>
+              <li>Учащиеся запускают <code>task("…")</code> и дорабатывают программу, пока не пройдут все обстановки.</li>
+              <li>Сложные ошибки разбираете в пошаговом режиме.</li>
+            </ol>
+          </div>
+          <div class="callout">
+            <h3>Темы заданий</h3>
+            <p>Задания уже разложены по темам, поэтому их легко встроить в ход курса.</p>
+            <ul class="track-list">
+              <li><strong>Первые шаги</strong> — <code>intro1</code> … <code>intro24</code></li>
+              <li><strong>Функции</strong> — <code>fun1</code> … <code>fun20</code></li>
+              <li><strong>Цикл <code>for</code></strong> — <code>for1</code> … <code>for28</code></li>
+              <li><strong><code>for</code> и функции</strong> — <code>forfun1</code> … <code>forfun9</code></li>
+              <li><strong>Цикл <code>while</code></strong> — <code>w1</code> … <code>w51</code></li>
+              <li><strong><code>while</code> и функции</strong> — <code>wfun1</code> … <code>wfun12</code></li>
+              <li><strong>Конструкция <code>if</code></strong> — <code>if1</code> … <code>if14</code></li>
+              <li><strong><code>while</code> с <code>if</code></strong> — <code>wif1</code> … <code>wif13</code></li>
+              <li><strong><code>if</code> и <code>else</code></strong> — <code>ifelse1</code> … <code>ifelse12</code></li>
+              <li><strong>Составные условия</strong> — <code>compound1</code> … <code>compound11</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="commands" aria-labelledby="commands-heading">
+      <div class="section__inner">
+        <h2 id="commands-heading">Команды Робота для учащихся</h2>
+        <p class="section__intro">
+          Команд немного, и их легко показать на первых занятиях. Можно подключить всё сразу через <code>from robot import *</code> или импортировать только нужные имена.
+        </p>
+
+        <div class="code-showcase">
+          <h3>Минимальный пример</h3>
+          <pre class="code-block" tabindex="0"><code>from robot import *
+
+task("intro8")
+
+move_down()
+paint()
+move_right()
+paint()
+move_up()
+paint()
+move_right()
+paint()
+move_down()</code></pre>
+        </div>
+
+        <div class="command-grid">
+          <article class="command-group">
+            <h3>Задание или свободное поле</h3>
+            <dl>
+              <dt><code>task("имя")</code></dt>
+              <dd>Открыть задание из набора.</dd>
+              <dt><code>field(width=8, height=6)</code></dt>
+              <dd>Открыть свободное поле без файла задания.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Движение</h3>
+            <dl>
+              <dt><code>move_right()</code></dt><dd>На одну клетку вправо.</dd>
+              <dt><code>move_left()</code></dt><dd>На одну клетку влево.</dd>
+              <dt><code>move_up()</code></dt><dd>На одну клетку вверх.</dd>
+              <dt><code>move_down()</code></dt><dd>На одну клетку вниз.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Клетка и стены</h3>
+            <dl>
+              <dt><code>paint()</code></dt><dd>Закрасить текущую клетку.</dd>
+              <dt><code>is_free_left()</code> … <code>is_free_down()</code></dt><dd>True, если в этом направлении нет стены.</dd>
+              <dt><code>is_wall_left()</code> … <code>is_wall_down()</code></dt><dd>True, если стена есть.</dd>
+              <dt><code>is_cell_painted()</code></dt><dd>True, если клетка закрашена.</dd>
+              <dt><code>is_cell_not_painted()</code></dt><dd>True, если не закрашена.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h3>Значения и вывод</h3>
+            <dl>
+              <dt><code>pol()</code></dt><dd>Значение загрязнения в текущей клетке (целое число).</dd>
+              <dt><code>printn(value)</code></dt><dd>Вывести целое число в текущей клетке.</dd>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="get-started" aria-labelledby="get-started-heading">
+      <div class="section__inner">
+        <h2 id="get-started-heading">Как начать</h2>
+        <ol class="numbered-list">
+          <li>Скачайте архив модуля на странице <a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">GitHub Releases</a>.</li>
+          <li>Распакуйте архив в рабочую папку учащегося.</li>
+          <li>Положите файл с решением рядом с пакетом <code>robot</code>. Для старта можно взять <strong><code>sample_solution.py</code></strong> из архива.</li>
+          <li>Чтобы выбрать другое задание, измените строку в вызове <strong><code>task()</code></strong>. Имена заданий перечислены в темах выше.</li>
+        </ol>
+        <p class="requirements">
+          <strong>Требования:</strong> Python 3 и стандартная библиотека. Окно Робота использует <code>tkinter</code>; он входит в большинство настольных установок Python.
+        </p>
+        <p class="section__outro">
+          <a class="btn btn--primary" href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Скачать модуль</a>
+          <a class="btn btn--secondary" href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__brand"><span class="brand__mark brand__mark--small" aria-hidden="true"></span> Робот — учебный исполнитель</p>
+      <ul class="site-footer__links">
+        <li><a href="index.html">English</a></li>
+        <li><a href="index_ru.html">Русский</a></li>
+        <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Releases</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
