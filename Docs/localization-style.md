@@ -69,6 +69,7 @@ These English labels name core simulator concepts. **Within a single locale file
 Canonical terms (align all strings in that locale with your chosen equivalent for each):
 
 - **Robot** — the named executor / application; capitalization follows [Proper name: Robot](#proper-name-robot).
+- **executor / simulator** — the educational programming tool in general (the classic school “Robot” executor), not a generic runtime “executor” in CS jargon or an unrelated game/simulation product. In Russian, use **исполнитель** consistently (e.g. учебный исполнитель); in English, prefer **simulator** (e.g. Robot simulator). When both the concept and the proper name appear together, follow established phrasing in that locale (e.g. исполнитель «Робот», educational Robot simulator).
 - **environment** — a loaded task world (grid, robot placement, goals), not “the natural world” or generic “setting”.
 - **cell** — one square of the grid (not a spreadsheet cell, biological cell, etc., unless context forces disambiguation in that locale).
 - **field** — the grid as a whole or the `field()` synthetic playground, consistent with other keys about size and drawing.
