@@ -487,11 +487,6 @@ button:focus-visible {
   gap: 1rem;
 }
 
-.media-block__figures--pair {
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
 .media-block__figures figure {
   margin: 0;
   flex: 1 1 200px;
