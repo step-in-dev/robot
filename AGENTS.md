@@ -23,6 +23,10 @@ The target audience is school students who are learning introductory programming
 - `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
 - UI string catalogs are JSON files in `robot/locales/`.
 
+## Website
+
+The `website/` directory holds a static landing page for the Robot project: `index.html` (English), `index_ru.html` (Russian), shared `styles.css` and `script.js`, and images under `website/img/`.
+
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
