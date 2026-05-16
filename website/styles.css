@@ -262,7 +262,7 @@ button:focus-visible {
   max-width: var(--max-width);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
+  grid-template-columns: 1fr 1.2fr;
   gap: 2.5rem;
   align-items: center;
 }
@@ -338,12 +338,14 @@ button:focus-visible {
 }
 
 .hero__media {
-  margin: 0;
+  margin-inline: auto;
+  width: fit-content;
   background: var(--color-surface);
   padding: 0.75rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--color-border);
+  text-align: center;
 }
 
 .hero__media figcaption {
@@ -425,8 +427,7 @@ button:focus-visible {
 }
 
 .inline-figure img {
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft), 0 0 0 1px var(--color-border);
 }
 
 .inline-figure figcaption {
@@ -439,7 +440,7 @@ button:focus-visible {
 .media-block {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: center;
   margin-bottom: 2.5rem;
 }
@@ -451,6 +452,11 @@ button:focus-visible {
 .media-block--reverse .media-block__figure,
 .media-block--reverse .media-block__figures {
   order: 1;
+}
+
+.media-block__figure,
+.media-block__figures figure {
+  text-align: center;
 }
 
 @media (max-width: 900px) {
@@ -473,12 +479,12 @@ button:focus-visible {
 }
 
 .media-block__figure {
-  margin: 0;
+  width: fit-content;
+  margin-inline: auto;
 }
 
 .media-block__figure img {
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft), 0 0 0 1px var(--color-border);
 }
 
 .media-block__figures {
@@ -499,9 +505,9 @@ button:focus-visible {
 }
 
 .media-block__figures img {
-  width: 100%;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border);
+  display: block;
+  margin: 0 auto;
+  box-shadow: var(--shadow-card), 0 0 0 1px var(--color-border);
 }
 
 /* Two column + callout */
