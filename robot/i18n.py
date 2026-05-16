@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import locale
 import os
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
@@ -76,6 +77,49 @@ def normalize_language(value: str | None) -> str | None:
     return None
 
 
+def _language_from_locale_env() -> str | None:
+    for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
+        lang = normalize_language(os.environ.get(var))
+        if lang is not None:
+            return lang
+    return None
+
+
+def _language_from_getlocale_messages() -> str | None:
+    try:
+        loc = locale.getlocale(locale.LC_MESSAGES)
+    except (AttributeError, ValueError, OSError):
+        return None
+    if not loc or not loc[0]:
+        return None
+    return normalize_language(loc[0])
+
+
+def _windows_ui_locale_string() -> str | None:
+    """Return a locale-style string for the Windows UI language, or ``None``.
+
+    Uses ``GetUserDefaultUILanguage`` (display language), not regional format
+    settings. Only meaningful on Windows; returns ``None`` elsewhere or on
+    failure. Relies on :data:`locale.windows_locale` for LANGID → name mapping.
+    """
+    if sys.platform != "win32":
+        return None
+    try:
+        import ctypes
+
+        lang_id = int(ctypes.windll.kernel32.GetUserDefaultUILanguage())
+    except (AttributeError, OSError, TypeError, ValueError):
+        return None
+    wl = getattr(locale, "windows_locale", None)
+    if not isinstance(wl, dict):
+        return None
+    name = wl.get(lang_id)
+    if name:
+        return name
+    # Some builds may omit newer LANGIDs; try the low 16 bits.
+    return wl.get(lang_id & 0xFFFF)
+
+
 def detect_language() -> str:
     """Resolve UI language: ``ROBOT_LANGUAGE`` override, then OS locale, else ``en``."""
     override = os.environ.get(LANGUAGE_ENV_VAR)
@@ -84,19 +128,20 @@ def detect_language() -> str:
         if lang is not None:
             return lang
 
-    for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
-        lang = normalize_language(os.environ.get(var))
-        if lang is not None:
-            return lang
+    lang = _language_from_locale_env()
+    if lang is not None:
+        return lang
 
-    try:
-        loc = locale.getlocale(locale.LC_MESSAGES)
-    except (AttributeError, ValueError, OSError):
-        loc = (None, None)
-    if loc and loc[0]:
-        lang = normalize_language(loc[0])
-        if lang is not None:
-            return lang
+    if sys.platform == "win32":
+        win_loc = _windows_ui_locale_string()
+        if win_loc:
+            lang = normalize_language(win_loc)
+            if lang is not None:
+                return lang
+
+    lang = _language_from_getlocale_messages()
+    if lang is not None:
+        return lang
 
     return DEFAULT_LANGUAGE
 
