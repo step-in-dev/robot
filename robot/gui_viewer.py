@@ -10,6 +10,34 @@ from .i18n import t
 from .loader import RobotTask, TaskLoadError, load_task_definition
 from .task_catalog import TaskCatalog, task_id_for_theme, task_number_from_id
 
+_VIEWER_TOOLBAR_COMBO_STYLE = "Viewer.TCombobox"
+
+
+def _widget_reqheight(widget: tk.Misc) -> int:
+    widget.update_idletasks()
+    return widget.winfo_reqheight()
+
+
+def _configure_viewer_combobox_height(
+    root: tk.Misc,
+    combo: ttk.Combobox,
+    *,
+    target_height: int,
+) -> None:
+    style = ttk.Style(root)
+    style.configure(_VIEWER_TOOLBAR_COMBO_STYLE, padding=0)
+    combo.configure(style=_VIEWER_TOOLBAR_COMBO_STYLE)
+    combo.update_idletasks()
+    current = combo.winfo_reqheight()
+    if current < target_height:
+        pad = (target_height - current) // 2
+        style.configure(_VIEWER_TOOLBAR_COMBO_STYLE, padding=(4, pad, 4, pad))
+
+
+def _entry_pack_ipady(entry: tk.Entry, *, target_height: int) -> int:
+    entry.update_idletasks()
+    return max(0, (target_height - entry.winfo_reqheight()) // 2)
+
 
 class ViewerMixin:
     """Theme dropdown and task navigation for ``RobotWindow`` viewer mode."""
@@ -42,16 +70,6 @@ class ViewerMixin:
         self.viewer_toolbar = tk.Frame(self.root)
         self.viewer_toolbar.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
-        theme_combo = ttk.Combobox(
-            self.viewer_toolbar,
-            textvariable=self._viewer_theme_var,
-            values=list(catalog.themes),
-            state="readonly",
-            width=10,
-        )
-        theme_combo.pack(side=tk.LEFT)
-        theme_combo.bind("<<ComboboxSelected>>", self._on_viewer_theme_selected)
-
         prev_button = tk.Button(
             self.viewer_toolbar,
             text=t("viewer.previous"),
@@ -59,6 +77,21 @@ class ViewerMixin:
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,
         )
+        nav_height = _widget_reqheight(prev_button)
+
+        theme_combo = ttk.Combobox(
+            self.viewer_toolbar,
+            textvariable=self._viewer_theme_var,
+            values=list(catalog.themes),
+            state="readonly",
+            width=10,
+        )
+        _configure_viewer_combobox_height(
+            self.root, theme_combo, target_height=nav_height
+        )
+        theme_combo.pack(side=tk.LEFT)
+        theme_combo.bind("<<ComboboxSelected>>", self._on_viewer_theme_selected)
+
         prev_button.pack(side=tk.LEFT, padx=(8, 0))
 
         next_button = tk.Button(
@@ -76,7 +109,11 @@ class ViewerMixin:
             width=5,
             justify=tk.CENTER,
         )
-        number_entry.pack(side=tk.LEFT, padx=(8, 0))
+        number_entry.pack(
+            side=tk.LEFT,
+            padx=(8, 0),
+            ipady=_entry_pack_ipady(number_entry, target_height=nav_height),
+        )
         number_entry.bind("<Return>", self._on_viewer_number_commit)
         number_entry.bind("<FocusOut>", self._on_viewer_number_commit)
 
