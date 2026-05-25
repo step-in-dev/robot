@@ -97,5 +97,8 @@
   "help.task_group.if": "عبارة «⁦if⁩»",
   "help.task_group.wif": "حلقة «⁦while⁩» مع «⁦if⁩»",
   "help.task_group.ifelse": "«⁦if⁩» و«⁦else⁩»",
-  "help.task_group.compound": "الشروط المركبة"
+  "help.task_group.compound": "الشروط المركبة",
+  "viewer.previous": "السابقة",
+  "viewer.next": "التالية",
+  "viewer.no_tasks": "لم يتم العثور على ملفات مهام."
 }

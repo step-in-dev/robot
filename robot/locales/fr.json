@@ -97,5 +97,8 @@
   "help.task_group.if": "Instruction « if »",
   "help.task_group.wif": "Boucle « while » avec « if »",
   "help.task_group.ifelse": "« if » et « else »",
-  "help.task_group.compound": "Conditions composées"
+  "help.task_group.compound": "Conditions composées",
+  "viewer.previous": "Précédente",
+  "viewer.next": "Suivante",
+  "viewer.no_tasks": "Aucun fichier de tâche trouvé."
 }

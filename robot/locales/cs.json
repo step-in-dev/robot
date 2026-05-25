@@ -97,5 +97,8 @@
   "help.task_group.if": "Příkaz „if“",
   "help.task_group.wif": "Cyklus „while“ s příkazem „if“",
   "help.task_group.ifelse": "„if“ a „else“",
-  "help.task_group.compound": "Složené podmínky"
+  "help.task_group.compound": "Složené podmínky",
+  "viewer.previous": "Předchozí",
+  "viewer.next": "Další",
+  "viewer.no_tasks": "Nebyly nalezeny soubory úloh."
 }

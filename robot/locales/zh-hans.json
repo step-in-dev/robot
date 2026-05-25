@@ -97,5 +97,8 @@
   "help.task_group.if": "「if」语句",
   "help.task_group.wif": "「while」循环与「if」",
   "help.task_group.ifelse": "「if」和「else」",
-  "help.task_group.compound": "复合条件"
+  "help.task_group.compound": "复合条件",
+  "viewer.previous": "上一个",
+  "viewer.next": "下一个",
+  "viewer.no_tasks": "未找到任务文件。"
 }

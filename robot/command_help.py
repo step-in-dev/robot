@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-import os
-import re
 from pathlib import Path
 from typing import Iterable
 
 from .i18n import t
+from .task_catalog import (
+    KNOWN_TASK_GROUP_PREFIXES,
+    discover_task_groups,
+    natural_sort_key,
+)
 
 # (i18n key suffix under help.command.*, display signature)
 COMMAND_HELP_SPECS: tuple[tuple[str, str], ...] = (
@@ -56,60 +59,19 @@ def iter_command_help_lines() -> Iterable[str]:
         yield ""
 
 
-# Ordered mapping from filename prefix to i18n key suffix under help.task_group.*
-_TASK_GROUP_PREFIXES: tuple[str, ...] = (
-    "intro",
-    "fun",
-    "for",
-    "forfun",
-    "w",
-    "wfun",
-    "if",
-    "wif",
-    "ifelse",
-    "compound",
-)
-
-_TASKS_DIR = Path(__file__).resolve().parent / "tasks"
-_TASK_FILE_EXT = ".env"
-_PREFIX_RE = re.compile(r"^([a-zA-Z]+)")
-_NUMBER_RE = re.compile(r"(\d+)$")
-
-
-def _natural_sort_key(task_id: str) -> tuple[str, int]:
-    """Sort key that orders numbers numerically within the same prefix."""
-    m = _NUMBER_RE.search(task_id)
-    num = int(m.group(1)) if m else 0
-    return (task_id[: m.start()] if m else task_id, num)
-
-
-def _discover_task_ids() -> dict[str, list[str]]:
-    """Scan the bundled tasks directory and group task IDs by their prefix."""
-    groups: dict[str, list[str]] = {}
-    if not _TASKS_DIR.is_dir():
-        return groups
-    for entry in os.scandir(_TASKS_DIR):
-        if not entry.name.endswith(_TASK_FILE_EXT):
-            continue
-        task_id = entry.name[: -len(_TASK_FILE_EXT)]
-        m = _PREFIX_RE.match(task_id)
-        if m:
-            groups.setdefault(m.group(1), []).append(task_id)
-    return groups
-
-
 def iter_task_list_lines() -> Iterable[str]:
     """Yield localized lines listing available task IDs grouped by topic."""
-    groups = _discover_task_ids()
+    bundled_tasks = Path(__file__).resolve().parent / "tasks"
+    groups = discover_task_groups(bundled_tasks)
 
     yield t("help.tasks_title")
     yield ""
 
-    for prefix in _TASK_GROUP_PREFIXES:
+    for prefix in KNOWN_TASK_GROUP_PREFIXES:
         task_ids = groups.get(prefix)
         if not task_ids:
             continue
-        task_ids.sort(key=_natural_sort_key)
+        task_ids.sort(key=natural_sort_key)
         if len(task_ids) > 2:
             id_list = f"{task_ids[0]}, ..., {task_ids[-1]}"
         else:

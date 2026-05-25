@@ -97,5 +97,8 @@
   "help.task_group.if": "„if” utasítás",
   "help.task_group.wif": "„while” ciklus „if”-fel",
   "help.task_group.ifelse": "„if” és „else”",
-  "help.task_group.compound": "Összetett feltételek"
+  "help.task_group.compound": "Összetett feltételek",
+  "viewer.previous": "Előző",
+  "viewer.next": "Következő",
+  "viewer.no_tasks": "Nem találhatók feladatfájlok."
 }

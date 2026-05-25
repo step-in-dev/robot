@@ -97,5 +97,8 @@
   "help.task_group.if": "بیان «⁦if⁩»",
   "help.task_group.wif": "لوپ «⁦while⁩» اور «⁦if⁩»",
   "help.task_group.ifelse": "«⁦if⁩» اور «⁦else⁩»",
-  "help.task_group.compound": "مرکب شرائط"
+  "help.task_group.compound": "مرکب شرائط",
+  "viewer.previous": "پچھلی",
+  "viewer.next": "اگلی",
+  "viewer.no_tasks": "کوئی ٹاسک فائل نہیں ملی۔"
 }

@@ -97,5 +97,8 @@
   "help.task_group.if": "'if'-sats",
   "help.task_group.wif": "'while'-loop med 'if'",
   "help.task_group.ifelse": "'if' och 'else'",
-  "help.task_group.compound": "Sammansatta villkor"
+  "help.task_group.compound": "Sammansatta villkor",
+  "viewer.previous": "Föregående",
+  "viewer.next": "Nästa",
+  "viewer.no_tasks": "Inga uppgiftsfiler hittades."
 }

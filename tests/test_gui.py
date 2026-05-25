@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +9,8 @@ import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
 from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
+from robot.task_catalog import TaskCatalog
+from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
 from robot.gui_layout import (
     calculate_canvas_size,
@@ -1600,6 +1603,94 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertEqual(len(_help_toplevel_children(window.root)), 1)
         finally:
             window.close()
+
+
+def _make_viewer_window(temp_dir: str) -> RobotWindow:
+    """Build a viewer window; caller must keep ``patched_tasks_dir`` active."""
+    catalog = TaskCatalog.discover()
+    first_id = catalog.first_task_id(catalog.themes[0])
+    assert first_id is not None
+    from robot.loader import load_task_definition
+
+    task_def = load_task_definition(first_id)
+    return RobotWindow(
+        task_id=first_id,
+        envs=task_def.envs,
+        run_env=None,
+        todo_text=task_def.todo_text,
+        viewer_catalog=catalog,
+    )
+
+
+@unittest.skipUnless(
+    _tkinter_display_works(),
+    "tkinter display not available (headless / no DISPLAY)",
+)
+class RobotWindowViewerTest(unittest.TestCase):
+    def test_viewer_disables_run_and_step(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    self.assertEqual(window.action_button.cget("state"), tk.DISABLED)
+                    self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+                finally:
+                    window.close()
+
+    def test_viewer_theme_switch_loads_first_task_in_theme(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            write_minimal_task_env(base / "fun1.env", "fun1")
+            write_minimal_task_env(base / "fun2.env", "fun2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    window._viewer_theme_var.set("fun")
+                    window._on_viewer_theme_selected()
+                    window.root.update()
+                    self.assertEqual(window.task_id, "fun1")
+                    self.assertEqual(window._viewer_number_var.get(), "1")
+                finally:
+                    window.close()
+
+    def test_viewer_invalid_number_restores_last_task(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    window._viewer_show_task("intro2")
+                    window.root.update()
+                    window._viewer_number_var.set("999")
+                    window._on_viewer_number_commit()
+                    window.root.update()
+                    self.assertEqual(window.task_id, "intro2")
+                    self.assertEqual(window._viewer_number_var.get(), "2")
+                finally:
+                    window.close()
+
+    def test_viewer_next_and_previous(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    window._viewer_show_relative(1)
+                    window.root.update()
+                    self.assertEqual(window.task_id, "intro2")
+                    window._viewer_show_relative(-1)
+                    window.root.update()
+                    self.assertEqual(window.task_id, "intro1")
+                finally:
+                    window.close()
 
 
 if __name__ == "__main__":

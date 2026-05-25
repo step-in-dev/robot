@@ -4,11 +4,56 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import sys
 import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+from robot.loader import TASKS_DIR_ENV
+
+
+def minimal_env_dto(*, width: int = 1, height: int = 1) -> dict[str, int]:
+    """Single-row environment used by viewer and loader tests."""
+    return {
+        "width": width,
+        "height": height,
+        "startRow": 0,
+        "startCol": 0,
+        "finalRow": 0,
+        "finalCol": width - 1,
+    }
+
+
+def write_minimal_task_env(
+    path: Path, task_id: str, *, width: int = 2, todo_text: str | None = None
+) -> None:
+    """Write a minimal valid ``.env`` task file."""
+    payload: dict[str, object] = {"envDtos": [minimal_env_dto(width=width, height=1)]}
+    if todo_text is not None:
+        payload["todoText"] = todo_text
+    else:
+        payload["todoText"] = f"todo for {task_id}"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def make_capture_robot_window_cls(captured: list) -> type:
+    class CaptureRobotWindow:
+        def __init__(self, **kwargs):
+            captured.append(kwargs)
+
+        def run(self) -> None:
+            pass  # Skip Tk mainloop in unit tests.
+
+    return CaptureRobotWindow
+
+
+@contextlib.contextmanager
+def patched_tasks_dir(temp_dir: str | Path):
+    """Keep ``ROBOT_TASKS_DIR`` set for catalog discovery and task loads."""
+    with patch.dict(os.environ, {TASKS_DIR_ENV: str(temp_dir)}, clear=False):
+        yield
 
 
 class LoaderRuntimeTestBase(unittest.TestCase):
@@ -17,25 +62,11 @@ class LoaderRuntimeTestBase(unittest.TestCase):
     @staticmethod
     def _minimal_env_dto() -> dict[str, int]:
         """Single-cell environment used by several loader tests."""
-        return {
-            "width": 1,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 0,
-        }
+        return minimal_env_dto()
 
     @staticmethod
     def _make_capture_robot_window_cls(captured: list) -> type:
-        class CaptureRobotWindow:
-            def __init__(self, **kwargs):
-                captured.append(kwargs)
-
-            def run(self) -> None:
-                pass  # Skip Tk mainloop in unit tests
-
-        return CaptureRobotWindow
+        return make_capture_robot_window_cls(captured)
 
     @staticmethod
     @contextlib.contextmanager

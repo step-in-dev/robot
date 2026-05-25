@@ -17,6 +17,7 @@ from .gui_action_buttons import ActionButtonMixin
 from .gui_constraints import task_has_any_constraints
 from .gui_dialogs import DialogManagerMixin
 from .gui_keyboard import KeyboardHandlerMixin
+from .gui_viewer import ViewerMixin
 from .gui_layout import (
     calculate_canvas_size,
     calculate_cell_size,
@@ -47,16 +48,20 @@ from .gui_theme import (
 )
 from ._version import __version__
 from .i18n import t
+from .loader import RobotTask
 from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip
+from .task_catalog import TaskCatalog
 
 # Pause between environments during Run so the user can see the final state
 # before switching (matches blocking sleep style used for command delays).
 INTER_ENV_PAUSE_SECONDS = 0.2
 
 
-class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
+class RobotWindow(
+    DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin, ViewerMixin
+):
     def __init__(
         self,
         task_id: str,
@@ -72,6 +77,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         required_keywords: tuple[str, ...] | None = None,
         banned_keywords: tuple[str, ...] | None = None,
         open_constraints_on_startup: bool = False,
+        *,
+        viewer_catalog: TaskCatalog | None = None,
     ):
         self.task_id = task_id
         self.envs = envs
@@ -84,6 +91,11 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self.required_keywords = required_keywords
         self.banned_keywords = banned_keywords
         self._open_constraints_on_startup = open_constraints_on_startup
+        self._viewer_catalog = viewer_catalog
+        self.viewer_toolbar: tk.Frame | None = None
+        if viewer_catalog is not None:
+            self.run_env = None
+            self.script_path = None
         self.selected_index = initial_index
         self.todo_text = todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
@@ -95,6 +107,9 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self._init_dialog_manager()
 
         self._init_root_and_geometry()
+        if viewer_catalog is not None:
+            self._init_viewer_state(viewer_catalog)
+            self._build_viewer_toolbar()
         self._build_todo_banner()
         self._build_env_toolbar()
         self._build_field_area()
@@ -133,7 +148,15 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self.tab_buttons: list[tk.Button] = []
         self.constraints_button: tk.Button | None = None
 
-    def _build_todo_banner(self) -> None:
+    def _top_section_pack_after(self) -> tk.Misc | None:
+        if self.todo_label is not None:
+            return self.todo_label
+        return self.viewer_toolbar
+
+    def _rebuild_todo_banner(self) -> None:
+        if self.todo_label is not None:
+            self.todo_label.destroy()
+            self.todo_label = None
         if not self.todo_text:
             return
         self.todo_label = tk.Label(
@@ -153,9 +176,25 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
             highlightbackground=TODO_TEXT_BORDER,
             highlightcolor=TODO_TEXT_BORDER,
         )
-        self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
+        pack_after = self.viewer_toolbar
+        if pack_after is not None:
+            self.todo_label.pack(
+                side=tk.TOP, fill=tk.X, padx=6, pady=(2, 2), after=pack_after
+            )
+        else:
+            self.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
-    def _build_env_toolbar(self) -> None:
+    def _build_todo_banner(self) -> None:
+        self._rebuild_todo_banner()
+
+    def _rebuild_env_toolbar(self) -> None:
+        if self.top_toolbar is not None:
+            self.top_toolbar.destroy()
+            self.top_toolbar = None
+            self.tab_frame = None
+            self.tab_buttons = []
+            self.constraints_button = None
+
         has_env_tabs = len(self.envs) > 1
         has_constraints = task_has_any_constraints(
             operators_limit=self.operators_limit,
@@ -169,9 +208,15 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
             return
         tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
         self.top_toolbar = tk.Frame(self.root)
-        self.top_toolbar.pack(
-            side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady
-        )
+        pack_after = self._top_section_pack_after()
+        if pack_after is not None:
+            self.top_toolbar.pack(
+                side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady, after=pack_after
+            )
+        else:
+            self.top_toolbar.pack(
+                side=tk.TOP, fill=tk.X, padx=6, pady=tab_top_pady
+            )
         self.tab_frame = tk.Frame(self.top_toolbar)
         self.tab_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
         if has_env_tabs:
@@ -195,6 +240,50 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
                 pady=BUTTON_PAD_Y,
             )
             self.constraints_button.pack(side=tk.RIGHT)
+
+    def _build_env_toolbar(self) -> None:
+        self._rebuild_env_toolbar()
+
+    def _update_task_canvas_geometry(self) -> None:
+        self.cell_size = calculate_cell_size(self.envs)
+        self.canvas_width, self.canvas_height = calculate_canvas_size(
+            self.envs, self.cell_size, self.wall_width
+        )
+        self.canvas.configure(width=self.canvas_width, height=self.canvas_height)
+        if self.todo_label is not None:
+            self.todo_label.configure(wraplength=max(self.canvas_width, 320))
+
+    def apply_task_payload(self, task_id: str, task_definition: RobotTask) -> None:
+        """Replace the displayed task (viewer navigation)."""
+        self.close_dialogs()
+
+        if self.current_listener is not None:
+            self.envs[self.selected_index].remove_listener(self.current_listener)
+            self.current_listener = None
+
+        self.task_id = task_id
+        self.envs = list(task_definition.envs)
+        self.todo_text = task_definition.todo_text.strip()
+        self.operators_limit = task_definition.operators_limit
+        self.custom_function_call_count = task_definition.custom_function_call_count
+        self.if_limit = task_definition.if_limit
+        self.while_limit = task_definition.while_limit
+        self.required_keywords = task_definition.required_keywords
+        self.banned_keywords = task_definition.banned_keywords
+
+        self.root.title(t("window.title", task_id=self.task_id, version=__version__))
+        if self._viewer_catalog is not None:
+            self._refresh_viewer_top_chrome()
+        else:
+            self._rebuild_todo_banner()
+            self._rebuild_env_toolbar()
+        self._update_task_canvas_geometry()
+        self.selected_index = 0
+        self.select_env(0)
+        self._set_status(STATUS_READY, STATUS_BG_NEUTRAL)
+        self.draw_field()
+        self.root.update_idletasks()
+        self.lock_window_size()
 
     def _build_field_area(self) -> None:
         self.canvas = tk.Canvas(
@@ -240,6 +329,8 @@ class RobotWindow(DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin):
         self.step_button.pack(side=tk.LEFT, padx=(4, 0))
         if self.script_path is None:
             self.step_button.configure(state=tk.DISABLED)
+        if self._viewer_catalog is not None:
+            self._configure_viewer_execution_disabled()
         self.help_button = tk.Button(
             self.controls_right,
             text=ACTION_BUTTON_HELP,
