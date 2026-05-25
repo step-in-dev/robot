@@ -24,7 +24,7 @@ class ViewerLauncherTest(unittest.TestCase):
             sys.path.insert(0, repo_root_str)
 
     def test_main_opens_viewer_window_on_first_task(self) -> None:
-        import viewer.view_tasks as view_tasks
+        import viewer.viewer as viewer
 
         captured: list[dict[str, object]] = []
         CaptureRobotWindow = make_capture_robot_window_cls(captured)
@@ -34,8 +34,8 @@ class ViewerLauncherTest(unittest.TestCase):
             for task_id in ("intro1", "intro2", "fun1"):
                 write_minimal_task_env(base / f"{task_id}.env", task_id, width=1)
             with patched_tasks_dir(temp_dir):
-                with patch("viewer.view_tasks.RobotWindow", CaptureRobotWindow):
-                    exit_code = view_tasks.main()
+                with patch("viewer.viewer.RobotWindow", CaptureRobotWindow):
+                    exit_code = viewer.main()
         self.assertEqual(exit_code, 0)
         self.assertEqual(len(captured), 1)
         kw = captured[0]
@@ -45,11 +45,11 @@ class ViewerLauncherTest(unittest.TestCase):
         self.assertIsNone(kw.get("script_path"))
 
     def test_main_exits_when_no_tasks(self) -> None:
-        import viewer.view_tasks as view_tasks
+        import viewer.viewer as viewer
 
         with tempfile.TemporaryDirectory() as temp_dir:
             with patched_tasks_dir(temp_dir):
-                exit_code = view_tasks.main()
+                exit_code = viewer.main()
         self.assertEqual(exit_code, 1)
 
 
