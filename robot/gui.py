@@ -132,6 +132,7 @@ class RobotWindow(
         self.cell_size = calculate_cell_size(self.envs)
 
         self.root = tk.Tk()
+        self.root.resizable(False, False)
         self._step_release_token = 0
         self.root.title(t("window.title", task_id=self.task_id, version=__version__))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
@@ -370,9 +371,11 @@ class RobotWindow(
         if width <= 1 or height <= 1:
             width = max(width, self.root.winfo_width())
             height = max(height, self.root.winfo_height())
-        self.root.resizable(False, False)
-        self.root.minsize(width, height)
-        self.root.maxsize(width, height)
+        current_width = self.root.winfo_width()
+        current_height = self.root.winfo_height()
+        if width == current_width and height == current_height:
+            return
+        self.root.wm_geometry(f"{width}x{height}")
 
     @property
     def _status_background(self) -> str:

@@ -9,6 +9,7 @@ import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
 from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
+from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
 from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
@@ -1610,8 +1611,6 @@ def _make_viewer_window(temp_dir: str) -> RobotWindow:
     catalog = TaskCatalog.discover()
     first_id = catalog.first_task_id(catalog.themes[0])
     assert first_id is not None
-    from robot.loader import load_task_definition
-
     task_def = load_task_definition(first_id)
     return RobotWindow(
         task_id=first_id,
@@ -1689,6 +1688,26 @@ class RobotWindowViewerTest(unittest.TestCase):
                     window._viewer_show_relative(-1)
                     window.root.update()
                     self.assertEqual(window.task_id, "intro1")
+                finally:
+                    window.close()
+
+    def test_apply_task_payload_keeps_root_and_non_resizable(self) -> None:
+        """Task switches must not recreate the Tk wrapper HWND (Windows taskbar)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    root_id = window.root.winfo_id()
+                    self.assertEqual(window.root.wm_resizable(), (0, 0))
+                    for task_id in ("intro2", "intro1", "intro2"):
+                        task_def = load_task_definition(task_id)
+                        window.apply_task_payload(task_id, task_def)
+                        window.root.update()
+                        self.assertEqual(window.root.winfo_id(), root_id)
+                        self.assertEqual(window.root.wm_resizable(), (0, 0))
                 finally:
                     window.close()
 
