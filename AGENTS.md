@@ -20,6 +20,7 @@ The target audience is school students who are learning introductory programming
 ## Documentation
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
+- `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
 - `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
 - UI string catalogs are JSON files in `robot/locales/`.
 
@@ -36,7 +37,8 @@ The `website/` directory holds a static landing page for the Robot project: `ind
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
 - `robot/executor.py` compiles and runs student scripts against an environment and maps exceptions to `RunResult`; static checks (operator limits, minimum qualifying custom-function call count) run before `exec`.
 - `robot/runtime.py` is a thin facade: `task()`, `field()`, compatibility re-exports, and script discovery; it wires loader, GUI, and executor (including synthetic environments for `field()` without reading a task file).
-- `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Canvas`, optional hatched success background).
+- `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Canvas`, optional hatched success background). The same window supports two modes: **solution mode** (opened from `task()` with a student script — Run/Step enabled) and **viewer mode** (opened via `viewer/viewer.py` with `viewer_catalog` — browse tasks by theme/number, Run/Step disabled). See `Docs/task-viewer.md`.
+- `viewer/viewer.py` is the teacher-facing launcher for viewer mode; `robot/task_catalog.py` indexes tasks for browsing; `robot/gui_viewer.py` implements the viewer toolbar and in-window task switching.
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).
 
