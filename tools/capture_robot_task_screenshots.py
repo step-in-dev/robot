@@ -161,15 +161,8 @@ def _script_body_for_task(
 
         _launch_student_robot_window(
             task_id=task_id,
-            envs=td.envs,
+            task_definition=td,
             initial_index=initial_index,
-            todo_text=td.todo_text,
-            operators_limit=td.operators_limit,
-            custom_function_call_count=td.custom_function_call_count,
-            if_limit=td.if_limit,
-            while_limit=td.while_limit,
-            required_keywords=td.required_keywords,
-            banned_keywords=td.banned_keywords,
             open_constraints_on_startup=open_constraints_on_startup,
         )
         """

@@ -51,53 +51,11 @@ def _detect_student_script() -> Path:
 def _launch_student_robot_window(
     *,
     task_id: str,
-    envs: list[RobotEnv],
-    todo_text: str,
-    operators_limit: int | None,
-    custom_function_call_count: int | None,
-    if_limit: int | None,
-    while_limit: int | None,
-    required_keywords: tuple[str, ...] | None,
-    banned_keywords: tuple[str, ...] | None,
-    initial_index: int = 0,
-    open_constraints_on_startup: bool = False,
-) -> None:
-    """Open the GUI for synthetic fields; never returns normally."""
-    script_path = _detect_student_script()
-    from .gui import RobotWindow
-
-    window = RobotWindow(
-        task_id=task_id,
-        envs=envs,
-        run_env=lambda env: run_solution_on_env(
-            script_path,
-            task_id,
-            env,
-            command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
-        ),
-        initial_index=initial_index,
-        todo_text=todo_text,
-        script_path=script_path,
-        operators_limit=operators_limit,
-        custom_function_call_count=custom_function_call_count,
-        if_limit=if_limit,
-        while_limit=while_limit,
-        required_keywords=required_keywords,
-        banned_keywords=banned_keywords,
-        open_constraints_on_startup=open_constraints_on_startup,
-    )
-    window.run()
-    raise SystemExit(0)
-
-
-def _launch_student_robot_window_from_task(
-    *,
-    task_id: str,
     task_definition: RobotTask,
     initial_index: int = 0,
     open_constraints_on_startup: bool = False,
 ) -> None:
-    """Open the GUI for a loaded task; never returns normally."""
+    """Open the GUI for a loaded or synthetic task; never returns normally."""
     script_path = _detect_student_script()
     from .gui import RobotWindow
 
@@ -128,7 +86,7 @@ def task(task_id: str) -> None:
         return
 
     task_definition = load_task_definition(task_id)
-    _launch_student_robot_window_from_task(
+    _launch_student_robot_window(
         task_id=task_id,
         task_definition=task_definition,
     )
@@ -168,14 +126,10 @@ def field(width: int = 8, height: int = 6) -> None:
     task_id = _field_task_label(width_i, height_i)
     _launch_student_robot_window(
         task_id=task_id,
-        envs=_synthetic_field_envs(width_i, height_i),
-        todo_text="",
-        operators_limit=None,
-        custom_function_call_count=None,
-        if_limit=None,
-        while_limit=None,
-        required_keywords=None,
-        banned_keywords=None,
+        task_definition=RobotTask(
+            envs=_synthetic_field_envs(width_i, height_i),
+            todo_text="",
+        ),
     )
 
 

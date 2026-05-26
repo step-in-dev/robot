@@ -38,10 +38,42 @@ def write_minimal_task_env(
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
+def _capture_robot_window_call(
+    captured: list,
+    *,
+    task_id: str,
+    task_definition,
+    run_env=None,
+    options=None,
+) -> None:
+    captured.append(
+        {
+            "task_id": task_id,
+            "task_definition": task_definition,
+            "run_env": run_env,
+            "options": options,
+        }
+    )
+
+
 def make_capture_robot_window_cls(captured: list) -> type:
+    from robot.gui import RobotWindowOptions
+
     class CaptureRobotWindow:
-        def __init__(self, **kwargs):
-            captured.append(kwargs)
+        def __init__(
+            self,
+            task_id: str,
+            task_definition,
+            run_env=None,
+            options: RobotWindowOptions | None = None,
+        ):
+            _capture_robot_window_call(
+                captured,
+                task_id=task_id,
+                task_definition=task_definition,
+                run_env=run_env,
+                options=options,
+            )
 
         @classmethod
         def from_task_definition(
@@ -57,19 +89,14 @@ def make_capture_robot_window_cls(captured: list) -> type:
         ):
             return cls(
                 task_id=task_id,
-                envs=task_definition.envs,
+                task_definition=task_definition,
                 run_env=run_env,
-                initial_index=initial_index,
-                todo_text=task_definition.todo_text,
-                script_path=script_path,
-                operators_limit=task_definition.operators_limit,
-                custom_function_call_count=task_definition.custom_function_call_count,
-                if_limit=task_definition.if_limit,
-                while_limit=task_definition.while_limit,
-                required_keywords=task_definition.required_keywords,
-                banned_keywords=task_definition.banned_keywords,
-                open_constraints_on_startup=open_constraints_on_startup,
-                viewer_catalog=viewer_catalog,
+                options=RobotWindowOptions(
+                    initial_index=initial_index,
+                    script_path=script_path,
+                    open_constraints_on_startup=open_constraints_on_startup,
+                    viewer_catalog=viewer_catalog,
+                ),
             )
 
         def run(self) -> None:

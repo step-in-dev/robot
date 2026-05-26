@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import time
 import tkinter as tk
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
@@ -59,45 +60,43 @@ from .task_catalog import TaskCatalog
 INTER_ENV_PAUSE_SECONDS = 0.2
 
 
+@dataclass(frozen=True)
+class RobotWindowOptions:
+    initial_index: int = 0
+    script_path: Path | None = None
+    open_constraints_on_startup: bool = False
+    viewer_catalog: TaskCatalog | None = None
+
+
 class RobotWindow(
     DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin, ViewerMixin
 ):
     def __init__(
         self,
         task_id: str,
-        envs: list[RobotEnv],
+        task_definition: RobotTask,
         run_env: Callable[[RobotEnv], RunResult] | None,
-        initial_index: int = 0,
-        todo_text: str = "",
-        script_path: Path | None = None,
-        operators_limit: int | None = None,
-        custom_function_call_count: int | None = None,
-        if_limit: int | None = None,
-        while_limit: int | None = None,
-        required_keywords: tuple[str, ...] | None = None,
-        banned_keywords: tuple[str, ...] | None = None,
-        open_constraints_on_startup: bool = False,
-        *,
-        viewer_catalog: TaskCatalog | None = None,
+        options: RobotWindowOptions | None = None,
     ):
+        opts = options or RobotWindowOptions()
         self.task_id = task_id
-        self.envs = envs
+        self.envs = list(task_definition.envs)
         self.run_env = run_env
-        self.script_path = script_path
-        self.operators_limit = operators_limit
-        self.custom_function_call_count = custom_function_call_count
-        self.if_limit = if_limit
-        self.while_limit = while_limit
-        self.required_keywords = required_keywords
-        self.banned_keywords = banned_keywords
-        self._open_constraints_on_startup = open_constraints_on_startup
-        self._viewer_catalog = viewer_catalog
+        self.script_path = opts.script_path
+        self.operators_limit = task_definition.operators_limit
+        self.custom_function_call_count = task_definition.custom_function_call_count
+        self.if_limit = task_definition.if_limit
+        self.while_limit = task_definition.while_limit
+        self.required_keywords = task_definition.required_keywords
+        self.banned_keywords = task_definition.banned_keywords
+        self._open_constraints_on_startup = opts.open_constraints_on_startup
+        self._viewer_catalog = opts.viewer_catalog
         self.viewer_toolbar: tk.Frame | None = None
-        if viewer_catalog is not None:
+        if opts.viewer_catalog is not None:
             self.run_env = None
             self.script_path = None
-        self.selected_index = initial_index
-        self.todo_text = todo_text.strip()
+        self.selected_index = opts.initial_index
+        self.todo_text = task_definition.todo_text.strip()
         self.current_listener: Callable[[], None] | None = None
         self.is_closed = False
         self._ignore_action_enter_until_idle = False
@@ -107,15 +106,15 @@ class RobotWindow(
         self._init_dialog_manager()
 
         self._init_root_and_geometry()
-        if viewer_catalog is not None:
-            self._init_viewer_state(viewer_catalog)
+        if opts.viewer_catalog is not None:
+            self._init_viewer_state(opts.viewer_catalog)
             self._build_viewer_toolbar()
         self._build_todo_banner()
         self._build_env_toolbar()
         self._build_field_area()
         self._build_control_row()
         self._build_status_area()
-        self._finish_initial_placement(initial_index)
+        self._finish_initial_placement(opts.initial_index)
 
     @classmethod
     def from_task_definition(
@@ -131,19 +130,14 @@ class RobotWindow(
     ) -> RobotWindow:
         return cls(
             task_id=task_id,
-            envs=task_definition.envs,
+            task_definition=task_definition,
             run_env=run_env,
-            initial_index=initial_index,
-            todo_text=task_definition.todo_text,
-            script_path=script_path,
-            operators_limit=task_definition.operators_limit,
-            custom_function_call_count=task_definition.custom_function_call_count,
-            if_limit=task_definition.if_limit,
-            while_limit=task_definition.while_limit,
-            required_keywords=task_definition.required_keywords,
-            banned_keywords=task_definition.banned_keywords,
-            open_constraints_on_startup=open_constraints_on_startup,
-            viewer_catalog=viewer_catalog,
+            options=RobotWindowOptions(
+                initial_index=initial_index,
+                script_path=script_path,
+                open_constraints_on_startup=open_constraints_on_startup,
+                viewer_catalog=viewer_catalog,
+            ),
         )
 
     def _init_root_and_geometry(self) -> None:

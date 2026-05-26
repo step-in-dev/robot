@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from robot.loader import RobotTask
 from robot.task_catalog import TaskCatalog
 
 from tests.loader_runtime._helpers import (
@@ -38,11 +39,17 @@ class ViewerLauncherTest(unittest.TestCase):
                     exit_code = viewer.main()
         self.assertEqual(exit_code, 0)
         self.assertEqual(len(captured), 1)
-        kw = captured[0]
-        self.assertIsInstance(kw["viewer_catalog"], TaskCatalog)
-        self.assertEqual(kw["task_id"], "intro1")
-        self.assertIsNone(kw.get("run_env"))
-        self.assertIsNone(kw.get("script_path"))
+        call = captured[0]
+        opts = call["options"]
+        self.assertIsNotNone(opts)
+        self.assertIsInstance(opts.viewer_catalog, TaskCatalog)
+        self.assertEqual(call["task_id"], "intro1")
+        self.assertIsNone(call.get("run_env"))
+        self.assertIsNone(opts.script_path)
+        task_def = call["task_definition"]
+        self.assertIsInstance(task_def, RobotTask)
+        self.assertEqual(len(task_def.envs), 1)
+        self.assertEqual(task_def.todo_text, "todo for intro1")
 
     def test_main_exits_when_no_tasks(self) -> None:
         import viewer.viewer as viewer

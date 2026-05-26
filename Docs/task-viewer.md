@@ -19,9 +19,9 @@ The `viewer/` folder is included in release artifacts alongside `robot/` and `sa
 | Mode | How it opens | Run / Step | Script |
 |------|----------------|------------|--------|
 | **Solution** (default) | `task()` / runtime with a student script | Enabled when a script path is present | Required for execution |
-| **Viewer** | `viewer/viewer.py` or `RobotWindow(..., viewer_catalog=catalog)` | Always disabled | Not used (`run_env` and `script_path` are cleared) |
+| **Viewer** | `viewer/viewer.py` or `RobotWindow.from_task_definition(..., viewer_catalog=catalog)` | Always disabled | Not used (`run_env` and `script_path` are cleared) |
 
-Viewer mode is selected by passing a non-`None` `viewer_catalog` to `RobotWindow`. Implementation is split between `robot/gui_viewer.py` (`ViewerMixin`: toolbar and navigation) and task switching via `apply_task_payload()` in `robot/gui.py`.
+Viewer mode is selected by passing a non-`None` `viewer_catalog` to `RobotWindow.from_task_definition()`. Implementation is split between `robot/gui_viewer.py` (`ViewerMixin`: toolbar and navigation) and task switching via `apply_task_payload()` in `robot/gui.py`.
 
 ## Task Catalog
 

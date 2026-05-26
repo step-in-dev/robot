@@ -58,18 +58,21 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
 
         self.assertEqual(ctx.exception.code, 0)
         self.assertEqual(len(captured), 1)
-        kw = captured[0]
-        self.assertEqual(kw["task_id"], "trace_task")
-        self.assertEqual(kw["todo_text"], "Записка")
-        self.assertEqual(kw["operators_limit"], 42)
-        self.assertEqual(kw["custom_function_call_count"], 7)
-        self.assertEqual(kw["if_limit"], 3)
-        self.assertEqual(kw["while_limit"], 0)
-        self.assertEqual(kw["required_keywords"], ("def", "for"))
-        self.assertEqual(kw["banned_keywords"], ("while",))
-        self.assertIsNotNone(kw["run_env"])
-        self.assertTrue(callable(kw["run_env"]))
-        self.assertEqual(kw["script_path"], Path(script).resolve())
+        call = captured[0]
+        task_def = call["task_definition"]
+        opts = call["options"]
+        self.assertIsNotNone(opts)
+        self.assertEqual(call["task_id"], "trace_task")
+        self.assertEqual(task_def.todo_text, "Записка")
+        self.assertEqual(task_def.operators_limit, 42)
+        self.assertEqual(task_def.custom_function_call_count, 7)
+        self.assertEqual(task_def.if_limit, 3)
+        self.assertEqual(task_def.while_limit, 0)
+        self.assertEqual(task_def.required_keywords, ("def", "for"))
+        self.assertEqual(task_def.banned_keywords, ("while",))
+        self.assertIsNotNone(call["run_env"])
+        self.assertTrue(callable(call["run_env"]))
+        self.assertEqual(opts.script_path, Path(script).resolve())
 
     def test_field_wires_robot_window_and_sys_exit(self) -> None:
         captured: list[dict[str, object]] = []
@@ -86,16 +89,19 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
 
         self.assertEqual(ctx.exception.code, 0)
         self.assertEqual(len(captured), 1)
-        kw = captured[0]
-        self.assertEqual(kw["task_id"], "field(7, 5)")
-        self.assertEqual(kw["todo_text"], "")
-        self.assertIsNone(kw["operators_limit"])
-        self.assertIsNone(kw["custom_function_call_count"])
-        self.assertIsNone(kw["if_limit"])
-        self.assertIsNone(kw["while_limit"])
-        self.assertIsNone(kw["required_keywords"])
-        self.assertIsNone(kw["banned_keywords"])
-        envs = kw["envs"]
+        call = captured[0]
+        task_def = call["task_definition"]
+        opts = call["options"]
+        self.assertIsNotNone(opts)
+        self.assertEqual(call["task_id"], "field(7, 5)")
+        self.assertEqual(task_def.todo_text, "")
+        self.assertIsNone(task_def.operators_limit)
+        self.assertIsNone(task_def.custom_function_call_count)
+        self.assertIsNone(task_def.if_limit)
+        self.assertIsNone(task_def.while_limit)
+        self.assertIsNone(task_def.required_keywords)
+        self.assertIsNone(task_def.banned_keywords)
+        envs = task_def.envs
         self.assertEqual(len(envs), 1)
         env = envs[0]
         self.assertEqual(env.width, 7)
@@ -104,7 +110,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(env.start_col, 0)
         self.assertEqual(env.final_row, 4)
         self.assertEqual(env.final_col, 6)
-        self.assertEqual(kw["script_path"], Path(script).resolve())
+        self.assertEqual(opts.script_path, Path(script).resolve())
 
     def test_field_defaults_eight_by_six(self) -> None:
         captured: list[dict[str, object]] = []
@@ -119,7 +125,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 with self.assertRaises(SystemExit):
                     runtime.field()
 
-        env = captured[0]["envs"][0]
+        env = captured[0]["task_definition"].envs[0]
         self.assertEqual(env.width, 8)
         self.assertEqual(env.height, 6)
 
@@ -136,7 +142,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 with self.assertRaises(SystemExit):
                     runtime.field(10)
 
-        env = captured[0]["envs"][0]
+        env = captured[0]["task_definition"].envs[0]
         self.assertEqual(env.width, 10)
         self.assertEqual(env.height, 6)
 
@@ -153,7 +159,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 with self.assertRaises(SystemExit):
                     runtime.field(height=7)
 
-        env = captured[0]["envs"][0]
+        env = captured[0]["task_definition"].envs[0]
         self.assertEqual(env.width, 8)
         self.assertEqual(env.height, 7)
 

@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock, call, patch
@@ -8,8 +9,8 @@ from unittest.mock import MagicMock, call, patch
 import tkinter as tk
 
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
-from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow
-from robot.loader import load_task_definition
+from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindow, RobotWindowOptions
+from robot.loader import RobotTask, load_task_definition
 from robot.task_catalog import TaskCatalog
 from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
@@ -77,6 +78,40 @@ def _help_window_body_text(help_top: tk.Toplevel) -> str:
 
 def make_env(data: dict) -> RobotEnv:
     return RobotEnv(RobotEnvDto.from_dict(data))
+
+
+def make_test_window(
+    task_id: str,
+    envs: list[RobotEnv],
+    run_env: Callable[[RobotEnv], RunResult] | None,
+    *,
+    initial_index: int = 0,
+    script_path: Path | None = None,
+    operators_limit: int | None = None,
+    custom_function_call_count: int | None = None,
+    if_limit: int | None = None,
+    while_limit: int | None = None,
+    required_keywords: tuple[str, ...] | None = None,
+    banned_keywords: tuple[str, ...] | None = None,
+) -> RobotWindow:
+    return RobotWindow(
+        task_id,
+        RobotTask(
+            envs=envs,
+            todo_text="",
+            operators_limit=operators_limit,
+            custom_function_call_count=custom_function_call_count,
+            if_limit=if_limit,
+            while_limit=while_limit,
+            required_keywords=required_keywords,
+            banned_keywords=banned_keywords,
+        ),
+        run_env,
+        RobotWindowOptions(
+            initial_index=initial_index,
+            script_path=script_path,
+        ),
+    )
 
 
 def minimal_env_dict(width: int, height: int) -> dict:
@@ -281,7 +316,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("test_task", envs, run_env, initial_index=1)
+        window = make_test_window("test_task", envs, run_env, initial_index=1)
         try:
             self.assertIsNotNone(window.action_button)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)
@@ -311,7 +346,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("pause_between_envs", envs, run_env, initial_index=0)
+        window = make_test_window("pause_between_envs", envs, run_env, initial_index=0)
         try:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
@@ -329,7 +364,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("single_env_no_pause", envs, run_env, initial_index=0)
+        window = make_test_window("single_env_no_pause", envs, run_env, initial_index=0)
         try:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
@@ -344,7 +379,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message="wrong")
 
-        window = RobotWindow("fail_first_no_pause", envs, run_env, initial_index=0)
+        window = make_test_window("fail_first_no_pause", envs, run_env, initial_index=0)
         try:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
@@ -358,7 +393,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message="wrong")
 
-        window = RobotWindow("test_task2", envs, run_env, initial_index=0)
+        window = make_test_window("test_task2", envs, run_env, initial_index=0)
         try:
             self.assertIsNotNone(window.action_button)
             window.run_all()
@@ -371,7 +406,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         """Restore label appears immediately; disabled Restore ignores invokes during run."""
         envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
 
-        window = RobotWindow("restore_while_run", envs, None, initial_index=0)
+        window = make_test_window("restore_while_run", envs, None, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -403,7 +438,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
         run_count = 0
 
-        window = RobotWindow("test_queued_invoke", envs, None, initial_index=0)
+        window = make_test_window("test_queued_invoke", envs, None, initial_index=0)
         try:
             self.assertIsNotNone(window.action_button)
             btn = window.action_button
@@ -437,7 +472,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("enter_canvas", envs, run_env, initial_index=0)
+        window = make_test_window("enter_canvas", envs, run_env, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -470,7 +505,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("enter_when_button_active", envs, run_env, initial_index=0)
+        window = make_test_window("enter_when_button_active", envs, run_env, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -489,7 +524,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
         run_count = 0
 
-        window = RobotWindow("enter_start_two_queued", envs, None, initial_index=0)
+        window = make_test_window("enter_start_two_queued", envs, None, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -537,7 +572,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("enter_while_disabled", envs, run_env, initial_index=0)
+        window = make_test_window("enter_while_disabled", envs, run_env, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -566,7 +601,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             run_calls += 1
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("kp_enter_canvas", envs, run_env, initial_index=0)
+        window = make_test_window("kp_enter_canvas", envs, run_env, initial_index=0)
         try:
             btn = window.action_button
             self.assertIsNotNone(btn)
@@ -584,7 +619,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("escape_canvas", envs, run_env, initial_index=0)
+        window = make_test_window("escape_canvas", envs, run_env, initial_index=0)
         try:
             window.canvas.focus_set()
             window.canvas.event_generate("<Escape>", when="tail")
@@ -605,7 +640,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_border", envs, run_env, initial_index=0)
+        window = make_test_window("status_border", envs, run_env, initial_index=0)
         try:
             self.assertEqual(int(window.status_canvas.cget("highlightthickness")), 1)
             self.assertEqual(
@@ -623,7 +658,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_bg_init", envs, run_env, initial_index=0)
+        window = make_test_window("status_bg_init", envs, run_env, initial_index=0)
         try:
             self.assertEqual(window.status_frame.cget("bg"), STATUS_BG_NEUTRAL)
             self.assertEqual(window._status_background, STATUS_BG_NEUTRAL)
@@ -637,7 +672,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_layout", envs, run_env, initial_index=0)
+        window = make_test_window("status_layout", envs, run_env, initial_index=0)
         try:
             self.assertNotEqual(window.status_canvas.master, window.controls)
             self.assertEqual(window.status_canvas.master, window.status_frame)
@@ -657,7 +692,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_init", envs, run_env, initial_index=0)
+        window = make_test_window("status_init", envs, run_env, initial_index=0)
         try:
             self.assertEqual(window.status_var.get(), STATUS_READY)
         finally:
@@ -671,7 +706,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_restore", envs, run_env, initial_index=0)
+        window = make_test_window("status_restore", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
@@ -691,7 +726,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("status_success", envs, run_env, initial_index=0)
+        window = make_test_window("status_success", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_ALL_CORRECT)
@@ -707,7 +742,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message="")
 
-        window = RobotWindow("status_wrong", envs, run_env, initial_index=0)
+        window = make_test_window("status_wrong", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), STATUS_WRONG)
@@ -724,7 +759,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message=custom)
 
-        window = RobotWindow("status_wrong_msg", envs, run_env, initial_index=0)
+        window = make_test_window("status_wrong_msg", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), custom)
@@ -741,7 +776,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("finish_step_wrong_msg", envs, run_env, initial_index=0)
+        window = make_test_window("finish_step_wrong_msg", envs, run_env, initial_index=0)
         try:
             window._finish_step_run(
                 RunResult(status="wrong", message=custom)
@@ -766,7 +801,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
                 "move_right()\nmove_right()\n",
                 encoding="utf-8",
             )
-            window = RobotWindow(
+            window = make_test_window(
                 "run_lim",
                 envs,
                 run_env,
@@ -793,7 +828,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
                 "move_right()\nmove_right()\n",
                 encoding="utf-8",
             )
-            window = RobotWindow(
+            window = make_test_window(
                 "step_lim",
                 envs,
                 None,
@@ -818,7 +853,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="error", message=err_msg)
 
-        window = RobotWindow("status_error", envs, run_env, initial_index=0)
+        window = make_test_window("status_error", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), err_msg)
@@ -835,7 +870,7 @@ class RobotWindowStatusCanvasTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="crashed", message=msg)
 
-        window = RobotWindow("status_crashed", envs, run_env, initial_index=0)
+        window = make_test_window("status_crashed", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertEqual(window.status_var.get(), msg)
@@ -860,7 +895,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "sol.py"
             script.write_text("#\n", encoding="utf-8")
-            window = RobotWindow(
+            window = make_test_window(
                 "step_layout",
                 envs,
                 run_env,
@@ -886,7 +921,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("no_script", envs, run_env, initial_index=0)
+        window = make_test_window("no_script", envs, run_env, initial_index=0)
         try:
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
             self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
@@ -904,7 +939,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "s2.py"
             script.write_text("#\n", encoding="utf-8")
-            window = RobotWindow(
+            window = make_test_window(
                 "enter_no_step",
                 envs,
                 run_env,
@@ -931,7 +966,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "s3.py"
             script.write_text("#\n", encoding="utf-8")
-            window = RobotWindow("run_disables_step", envs, None, script_path=script)
+            window = make_test_window("run_disables_step", envs, None, script_path=script)
             try:
 
                 def run_env(_env: RobotEnv) -> RunResult:
@@ -966,7 +1001,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "s4.py"
             script.write_text("#\n", encoding="utf-8")
-            window = RobotWindow(
+            window = make_test_window(
                 "restore_step",
                 envs,
                 run_env,
@@ -998,7 +1033,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("hide_step_no_script", envs, run_env, initial_index=0)
+        window = make_test_window("hide_step_no_script", envs, run_env, initial_index=0)
         try:
             window.run_all()
             self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
@@ -1017,7 +1052,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "s5.py"
             script.write_text("#\n", encoding="utf-8")
-            window = RobotWindow(
+            window = make_test_window(
                 "step_status_fmt",
                 envs,
                 run_env,
@@ -1046,7 +1081,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 "from robot import move_right; move_right()\n",
                 encoding="utf-8",
             )
-            window = RobotWindow(
+            window = make_test_window(
                 "step_hatch",
                 envs,
                 run_env,
@@ -1082,7 +1117,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 "from robot import move_right\nmove_right()\n",
                 encoding="utf-8",
             )
-            window = RobotWindow(
+            window = make_test_window(
                 "step_restore_visible",
                 envs,
                 run_env,
@@ -1121,7 +1156,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 "from robot import move_right\nmove_right()\n",
                 encoding="utf-8",
             )
-            window = RobotWindow(
+            window = make_test_window(
                 "restore_mid_step",
                 envs,
                 run_env,
@@ -1153,7 +1188,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "multi_line.py"
             script.write_text("a = 1\nb = 2\n", encoding="utf-8")
-            window = RobotWindow(
+            window = make_test_window(
                 "close_during_step",
                 envs,
                 None,
@@ -1200,7 +1235,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("no_lim", envs, run_env, initial_index=0)
+        window = make_test_window("no_lim", envs, run_env, initial_index=0)
         try:
             self.assertIsNone(window.top_toolbar)
             self.assertIsNone(window.constraints_button)
@@ -1219,7 +1254,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("two_env", envs, run_env, initial_index=0)
+        window = make_test_window("two_env", envs, run_env, initial_index=0)
         try:
             self.assertIsNotNone(window.top_toolbar)
             self.assertIsNotNone(window.tab_frame)
@@ -1238,7 +1273,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "one_lim",
             envs,
             run_env,
@@ -1266,7 +1301,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "two_lim",
             envs,
             run_env,
@@ -1291,7 +1326,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "dlg_lim",
             envs,
             run_env,
@@ -1332,7 +1367,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "esc_lim",
             envs,
             run_env,
@@ -1366,7 +1401,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "reuse_lim",
             envs,
             run_env,
@@ -1395,7 +1430,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow(
+        window = make_test_window(
             "reopen_lim",
             envs,
             run_env,
@@ -1468,7 +1503,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("help_win", envs, run_env, initial_index=0)
+        window = make_test_window("help_win", envs, run_env, initial_index=0)
         try:
             window.show_help()
             window.root.update()
@@ -1497,7 +1532,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("help_link", envs, run_env, initial_index=0)
+        window = make_test_window("help_link", envs, run_env, initial_index=0)
         try:
             window.show_help()
             window.root.update_idletasks()
@@ -1532,7 +1567,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("help_escape", envs, run_env, initial_index=0)
+        window = make_test_window("help_escape", envs, run_env, initial_index=0)
         try:
             window.show_help()
             window.root.update()
@@ -1561,7 +1596,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("help_reuse", envs, run_env, initial_index=0)
+        window = make_test_window("help_reuse", envs, run_env, initial_index=0)
         try:
             window.show_help()
             window.root.update()
@@ -1584,7 +1619,7 @@ class RobotWindowHelpTest(unittest.TestCase):
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = RobotWindow("help_reopen", envs, run_env, initial_index=0)
+        window = make_test_window("help_reopen", envs, run_env, initial_index=0)
         try:
             window.show_help()
             window.root.update()
@@ -1612,11 +1647,10 @@ def _make_viewer_window(temp_dir: str) -> RobotWindow:
     first_id = catalog.first_task_id(catalog.themes[0])
     assert first_id is not None
     task_def = load_task_definition(first_id)
-    return RobotWindow(
+    return RobotWindow.from_task_definition(
         task_id=first_id,
-        envs=task_def.envs,
+        task_definition=task_def,
         run_env=None,
-        todo_text=task_def.todo_text,
         viewer_catalog=catalog,
     )
 
