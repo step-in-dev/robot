@@ -9,7 +9,7 @@ The loader searches for task files in this order:
 1. The directory from the `ROBOT_TASKS_DIR` environment variable.
 2. The bundled `robot/tasks` directory inside the project.
 
-The task identifier may be passed either with or without the `.env` suffix.
+The task identifier may be passed either with or without the `.env` suffix. It must match the file stem exactly (including spaces and punctuation). For viewer grouping and navigation, see [task-viewer.md](task-viewer.md#task-catalog).
 
 ## Top-Level Structure
 

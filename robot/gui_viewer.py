@@ -86,7 +86,7 @@ class ViewerMixin:
             textvariable=self._viewer_theme_var,
             values=list(catalog.themes),
             state="readonly",
-            width=10,
+            width=16,
         )
         _configure_viewer_combobox_height(
             self.root, theme_combo, target_height=nav_height

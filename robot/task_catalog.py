@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .loader import TASKS_DIR_ENV, TASK_FILE_EXTENSION
 
-# Ordered filename prefixes; matches help task list order in command_help.
+# Ordered theme ids for bundled tasks; matches help task list order in command_help.
 KNOWN_TASK_GROUP_PREFIXES: tuple[str, ...] = (
     "intro",
     "fun",
@@ -23,8 +23,7 @@ KNOWN_TASK_GROUP_PREFIXES: tuple[str, ...] = (
     "compound",
 )
 
-_PREFIX_RE = re.compile(r"^([a-zA-Z]+)")
-_NUMBER_RE = re.compile(r"(\d+)$")
+_NUMBER_RE = re.compile(r"([0-9]+)$")
 
 
 def resolve_tasks_dir() -> Path:
@@ -37,15 +36,23 @@ def resolve_tasks_dir() -> Path:
     return Path(__file__).resolve().parent / "tasks"
 
 
+def theme_from_task_id(task_id: str) -> str | None:
+    """Theme string before trailing ASCII digits, or ``None`` if stem has no numeric suffix."""
+    match = _NUMBER_RE.search(task_id)
+    if not match:
+        return None
+    return task_id[: match.start()]
+
+
 def natural_sort_key(task_id: str) -> tuple[str, int]:
-    """Sort key that orders numbers numerically within the same prefix."""
+    """Sort key that orders numbers numerically within the same theme."""
     match = _NUMBER_RE.search(task_id)
     num = int(match.group(1)) if match else 0
     return (task_id[: match.start()] if match else task_id, num)
 
 
 def discover_task_groups(tasks_dir: Path | None = None) -> dict[str, list[str]]:
-    """Scan a tasks directory and group task IDs (stems of ``*.env``) by letter prefix."""
+    """Scan a tasks directory and group task IDs (stems of ``*.env``) by theme before trailing digits."""
     directory = tasks_dir if tasks_dir is not None else resolve_tasks_dir()
     groups: dict[str, list[str]] = {}
     if not directory.is_dir():
@@ -54,14 +61,14 @@ def discover_task_groups(tasks_dir: Path | None = None) -> dict[str, list[str]]:
         if not entry.name.endswith(TASK_FILE_EXTENSION):
             continue
         task_id = entry.name[: -len(TASK_FILE_EXTENSION)]
-        match = _PREFIX_RE.match(task_id)
-        if match:
-            groups.setdefault(match.group(1), []).append(task_id)
+        theme = theme_from_task_id(task_id)
+        if theme is not None:
+            groups.setdefault(theme, []).append(task_id)
     return groups
 
 
 def ordered_theme_prefixes(groups: dict[str, list[str]]) -> list[str]:
-    """Known prefixes in help order, then unknown prefixes alphabetically; only non-empty."""
+    """Known themes in help order, then unknown themes alphabetically; only non-empty."""
     known = [
         prefix
         for prefix in KNOWN_TASK_GROUP_PREFIXES
@@ -76,7 +83,7 @@ def ordered_theme_prefixes(groups: dict[str, list[str]]) -> list[str]:
 
 
 def task_number_from_id(task_id: str) -> int | None:
-    """Trailing digits in a task id, e.g. ``intro8`` -> ``8``."""
+    """Trailing ASCII digits in a task id, e.g. ``intro8`` -> ``8``."""
     match = _NUMBER_RE.search(task_id)
     return int(match.group(1)) if match else None
 
@@ -87,7 +94,7 @@ def task_id_for_theme(prefix: str, number: int) -> str:
 
 @dataclass(frozen=True)
 class TaskCatalog:
-    """Read-only index of available tasks grouped by theme prefix."""
+    """Read-only index of available tasks grouped by theme."""
 
     themes: tuple[str, ...]
     groups: dict[str, tuple[str, ...]]
@@ -112,10 +119,9 @@ class TaskCatalog:
         return ids[0] if ids else None
 
     def current_theme_for_task(self, task_id: str) -> str | None:
-        match = _PREFIX_RE.match(task_id)
-        if not match:
+        theme = theme_from_task_id(task_id)
+        if theme is None:
             return None
-        prefix = match.group(1)
-        if task_id in self.task_ids_for(prefix):
-            return prefix
+        if task_id in self.task_ids_for(theme):
+            return theme
         return None

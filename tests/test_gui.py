@@ -1731,6 +1731,23 @@ class RobotWindowViewerTest(unittest.TestCase):
                 finally:
                     window.close()
 
+    def test_viewer_number_commit_spaced_theme(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "урок 1.env", "урок 1")
+            write_minimal_task_env(base / "урок 2.env", "урок 2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    window._viewer_theme_var.set("урок ")
+                    window._viewer_number_var.set("2")
+                    window._on_viewer_number_commit()
+                    window.root.update()
+                    self.assertEqual(window.task_id, "урок 2")
+                    self.assertEqual(window._viewer_number_var.get(), "2")
+                finally:
+                    window.close()
+
     def test_viewer_next_and_previous(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)
