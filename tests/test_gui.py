@@ -1674,6 +1674,29 @@ class RobotWindowViewerTest(unittest.TestCase):
                 finally:
                     window.close()
 
+    def test_viewer_kp_enter_commits_task_number(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    assert window.viewer_toolbar is not None
+                    entry = next(
+                        w
+                        for w in window.viewer_toolbar.winfo_children()
+                        if type(w) is tk.Entry
+                    )
+                    entry.focus_set()
+                    window._viewer_number_var.set("2")
+                    entry.event_generate("<KP_Enter>", when="tail")
+                    window.root.update()
+                    self.assertEqual(window.task_id, "intro2")
+                    self.assertEqual(window._viewer_number_var.get(), "2")
+                finally:
+                    window.close()
+
     def test_viewer_next_and_previous(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)

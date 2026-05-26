@@ -115,6 +115,7 @@ class ViewerMixin:
             ipady=_entry_pack_ipady(number_entry, target_height=nav_height),
         )
         number_entry.bind("<Return>", self._on_viewer_number_commit)
+        number_entry.bind("<KP_Enter>", self._on_viewer_number_commit)
         number_entry.bind("<FocusOut>", self._on_viewer_number_commit)
 
     def _configure_viewer_execution_disabled(self) -> None:
