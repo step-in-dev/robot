@@ -53,6 +53,8 @@ class ViewerMixin:
     _viewer_number_var: tk.StringVar
     _viewer_last_valid_number: int
     _viewer_switching: bool
+    _viewer_prev_button: tk.Button
+    _viewer_next_button: tk.Button
 
     def _init_viewer_state(self, catalog: TaskCatalog) -> None:
         theme = catalog.current_theme_for_task(self.task_id) or catalog.themes[0]
@@ -70,14 +72,14 @@ class ViewerMixin:
         self.viewer_toolbar = tk.Frame(self.root)
         self.viewer_toolbar.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
-        prev_button = tk.Button(
+        self._viewer_prev_button = tk.Button(
             self.viewer_toolbar,
             text=t("viewer.previous"),
             command=lambda: self._viewer_show_relative(-1),
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,
         )
-        nav_height = _widget_reqheight(prev_button)
+        nav_height = _widget_reqheight(self._viewer_prev_button)
 
         theme_combo = ttk.Combobox(
             self.viewer_toolbar,
@@ -92,16 +94,16 @@ class ViewerMixin:
         theme_combo.pack(side=tk.LEFT)
         theme_combo.bind("<<ComboboxSelected>>", self._on_viewer_theme_selected)
 
-        prev_button.pack(side=tk.LEFT, padx=(8, 0))
+        self._viewer_prev_button.pack(side=tk.LEFT, padx=(8, 0))
 
-        next_button = tk.Button(
+        self._viewer_next_button = tk.Button(
             self.viewer_toolbar,
             text=t("viewer.next"),
             command=lambda: self._viewer_show_relative(1),
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,
         )
-        next_button.pack(side=tk.LEFT, padx=(4, 0))
+        self._viewer_next_button.pack(side=tk.LEFT, padx=(4, 0))
 
         number_entry = tk.Entry(
             self.viewer_toolbar,
@@ -117,6 +119,27 @@ class ViewerMixin:
         number_entry.bind("<Return>", self._on_viewer_number_commit)
         number_entry.bind("<KP_Enter>", self._on_viewer_number_commit)
         number_entry.bind("<FocusOut>", self._on_viewer_number_commit)
+        self._viewer_update_nav_button_states()
+
+    def _viewer_update_nav_button_states(self) -> None:
+        catalog = self._viewer_catalog
+        assert catalog is not None
+        prefix = self._viewer_theme_var.get()
+        task_ids = catalog.task_ids_for(prefix)
+        if not task_ids:
+            self._viewer_prev_button.configure(state=tk.DISABLED)
+            self._viewer_next_button.configure(state=tk.DISABLED)
+            return
+        try:
+            index = task_ids.index(self.task_id)
+        except ValueError:
+            self._viewer_prev_button.configure(state=tk.DISABLED)
+            self._viewer_next_button.configure(state=tk.DISABLED)
+            return
+        prev_state = tk.NORMAL if index > 0 else tk.DISABLED
+        next_state = tk.NORMAL if index < len(task_ids) - 1 else tk.DISABLED
+        self._viewer_prev_button.configure(state=prev_state)
+        self._viewer_next_button.configure(state=next_state)
 
     def _configure_viewer_execution_disabled(self) -> None:
         if self.action_button is not None:
@@ -186,6 +209,7 @@ class ViewerMixin:
         if number is not None:
             self._viewer_last_valid_number = number
             self._viewer_number_var.set(str(number))
+        self._viewer_update_nav_button_states()
 
     def _refresh_viewer_top_chrome(self) -> None:
         """Rebuild todo banner and env toolbar after a viewer task switch."""

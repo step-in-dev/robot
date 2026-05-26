@@ -54,7 +54,7 @@ When viewer mode is active, a toolbar is packed above the environment tabs and c
 **Behavior**:
 
 - Changing the theme loads the **first** task of that theme (by catalog order).
-- Previous/Next walk the ordered task list for the current theme; out-of-range clicks do nothing.
+- Previous/Next walk the ordered task list for the current theme. On the first task of a theme, **Previous** is disabled; on the last task, **Next** is disabled; with only one task in the theme, both are disabled. Programmatic or out-of-range navigation still does nothing safely if invoked.
 - Manual number entry builds `{theme}{number}`; if that task id is missing, the field reverts to the last successfully shown number.
 - On a successful switch, the window updates in place (no second `Tk` instance): `task_id`, window title, `todoText` banner, env tabs, constraints button, selected environment, field drawing, and limits metadata.
 - **Run** and **Step** stay disabled for the lifetime of the window.
@@ -67,4 +67,4 @@ Viewer-specific strings live under the `viewer.*` keys in `robot/locales/*.json`
 
 - `tests/test_task_catalog.py` — catalog discovery, theme order, `ROBOT_TASKS_DIR`, natural sort.
 - `tests/test_viewer_launcher.py` — viewer entry script behavior.
-- GUI viewer scenarios in `tests/test_gui.py` — disabled Run/Step, theme change, invalid number rollback, prev/next navigation.
+- GUI viewer scenarios in `tests/test_gui.py` — disabled Run/Step, theme change, invalid number rollback, prev/next navigation, disabled prev/next at theme ends.

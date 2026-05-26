@@ -1714,6 +1714,46 @@ class RobotWindowViewerTest(unittest.TestCase):
                 finally:
                     window.close()
 
+    def test_viewer_nav_buttons_disabled_at_theme_ends(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            write_minimal_task_env(base / "intro2.env", "intro2")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    self.assertEqual(
+                        window._viewer_prev_button.cget("state"), tk.DISABLED
+                    )
+                    self.assertEqual(
+                        window._viewer_next_button.cget("state"), tk.NORMAL
+                    )
+                    window._viewer_show_task("intro2")
+                    window.root.update()
+                    self.assertEqual(
+                        window._viewer_prev_button.cget("state"), tk.NORMAL
+                    )
+                    self.assertEqual(
+                        window._viewer_next_button.cget("state"), tk.DISABLED
+                    )
+                finally:
+                    window.close()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            with patched_tasks_dir(temp_dir):
+                window = _make_viewer_window(temp_dir)
+                try:
+                    self.assertEqual(
+                        window._viewer_prev_button.cget("state"), tk.DISABLED
+                    )
+                    self.assertEqual(
+                        window._viewer_next_button.cget("state"), tk.DISABLED
+                    )
+                finally:
+                    window.close()
+
     def test_apply_task_payload_keeps_root_and_non_resizable(self) -> None:
         """Task switches must not recreate the Tk wrapper HWND (Windows taskbar)."""
         with tempfile.TemporaryDirectory() as temp_dir:
