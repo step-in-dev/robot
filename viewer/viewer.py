@@ -25,17 +25,10 @@ def main() -> int:
         return 1
 
     task_definition = load_task_definition(first_task_id)
-    window = RobotWindow(
+    window = RobotWindow.from_task_definition(
         task_id=first_task_id,
-        envs=task_definition.envs,
+        task_definition=task_definition,
         run_env=None,
-        todo_text=task_definition.todo_text,
-        operators_limit=task_definition.operators_limit,
-        custom_function_call_count=task_definition.custom_function_call_count,
-        if_limit=task_definition.if_limit,
-        while_limit=task_definition.while_limit,
-        required_keywords=task_definition.required_keywords,
-        banned_keywords=task_definition.banned_keywords,
         viewer_catalog=catalog,
     )
     window.run()

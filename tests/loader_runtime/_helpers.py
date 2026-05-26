@@ -43,6 +43,35 @@ def make_capture_robot_window_cls(captured: list) -> type:
         def __init__(self, **kwargs):
             captured.append(kwargs)
 
+        @classmethod
+        def from_task_definition(
+            cls,
+            *,
+            task_id: str,
+            task_definition,
+            run_env=None,
+            initial_index: int = 0,
+            script_path=None,
+            open_constraints_on_startup: bool = False,
+            viewer_catalog=None,
+        ):
+            return cls(
+                task_id=task_id,
+                envs=task_definition.envs,
+                run_env=run_env,
+                initial_index=initial_index,
+                todo_text=task_definition.todo_text,
+                script_path=script_path,
+                operators_limit=task_definition.operators_limit,
+                custom_function_call_count=task_definition.custom_function_call_count,
+                if_limit=task_definition.if_limit,
+                while_limit=task_definition.while_limit,
+                required_keywords=task_definition.required_keywords,
+                banned_keywords=task_definition.banned_keywords,
+                open_constraints_on_startup=open_constraints_on_startup,
+                viewer_catalog=viewer_catalog,
+            )
+
         def run(self) -> None:
             pass  # Skip Tk mainloop in unit tests.
 

@@ -35,7 +35,7 @@ from .executor import (
     check_limit_violations,
     run_solution_on_env,
 )
-from .loader import load_task_definition
+from .loader import RobotTask, load_task_definition
 from .model import RobotEnv, RobotEnvDto, RobotError
 from .results import RunResult, RunStatus
 
@@ -62,7 +62,7 @@ def _launch_student_robot_window(
     initial_index: int = 0,
     open_constraints_on_startup: bool = False,
 ) -> None:
-    """Open the GUI and run the student script against *envs*; never returns normally."""
+    """Open the GUI for synthetic fields; never returns normally."""
     script_path = _detect_student_script()
     from .gui import RobotWindow
 
@@ -90,6 +90,34 @@ def _launch_student_robot_window(
     raise SystemExit(0)
 
 
+def _launch_student_robot_window_from_task(
+    *,
+    task_id: str,
+    task_definition: RobotTask,
+    initial_index: int = 0,
+    open_constraints_on_startup: bool = False,
+) -> None:
+    """Open the GUI for a loaded task; never returns normally."""
+    script_path = _detect_student_script()
+    from .gui import RobotWindow
+
+    window = RobotWindow.from_task_definition(
+        task_id=task_id,
+        task_definition=task_definition,
+        run_env=lambda env: run_solution_on_env(
+            script_path,
+            task_id,
+            env,
+            command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
+        ),
+        initial_index=initial_index,
+        script_path=script_path,
+        open_constraints_on_startup=open_constraints_on_startup,
+    )
+    window.run()
+    raise SystemExit(0)
+
+
 def task(task_id: str) -> None:
     if is_executing_solution():
         eid = expected_task_id()
@@ -100,16 +128,9 @@ def task(task_id: str) -> None:
         return
 
     task_definition = load_task_definition(task_id)
-    _launch_student_robot_window(
+    _launch_student_robot_window_from_task(
         task_id=task_id,
-        envs=task_definition.envs,
-        todo_text=task_definition.todo_text,
-        operators_limit=task_definition.operators_limit,
-        custom_function_call_count=task_definition.custom_function_call_count,
-        if_limit=task_definition.if_limit,
-        while_limit=task_definition.while_limit,
-        required_keywords=task_definition.required_keywords,
-        banned_keywords=task_definition.banned_keywords,
+        task_definition=task_definition,
     )
 
 

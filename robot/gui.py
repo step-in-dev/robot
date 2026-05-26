@@ -117,6 +117,35 @@ class RobotWindow(
         self._build_status_area()
         self._finish_initial_placement(initial_index)
 
+    @classmethod
+    def from_task_definition(
+        cls,
+        *,
+        task_id: str,
+        task_definition: RobotTask,
+        run_env: Callable[[RobotEnv], RunResult] | None,
+        initial_index: int = 0,
+        script_path: Path | None = None,
+        open_constraints_on_startup: bool = False,
+        viewer_catalog: TaskCatalog | None = None,
+    ) -> RobotWindow:
+        return cls(
+            task_id=task_id,
+            envs=task_definition.envs,
+            run_env=run_env,
+            initial_index=initial_index,
+            todo_text=task_definition.todo_text,
+            script_path=script_path,
+            operators_limit=task_definition.operators_limit,
+            custom_function_call_count=task_definition.custom_function_call_count,
+            if_limit=task_definition.if_limit,
+            while_limit=task_definition.while_limit,
+            required_keywords=task_definition.required_keywords,
+            banned_keywords=task_definition.banned_keywords,
+            open_constraints_on_startup=open_constraints_on_startup,
+            viewer_catalog=viewer_catalog,
+        )
+
     def _init_root_and_geometry(self) -> None:
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"

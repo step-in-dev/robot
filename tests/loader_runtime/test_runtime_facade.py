@@ -10,21 +10,14 @@ from robot.executor import run_solution_on_env
 from robot.i18n import clear_translation_cache, t
 from robot.model import RobotEnv, RobotEnvDto, RobotError
 
-from ._helpers import LoaderRuntimeTestBase
+from ._helpers import LoaderRuntimeTestBase, make_capture_robot_window_cls
 
 
 class RuntimeFacadeTest(LoaderRuntimeTestBase):
     def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
         """IDE trace must not switch task(); localized todoText resolves before RobotWindow."""
         captured: list[dict[str, object]] = []
-
-        class CaptureRobotWindow:
-            def __init__(self, **kwargs):
-                captured.append(kwargs)
-
-            def run(self) -> None:
-                """Skip Tk mainloop while exercising task() wiring."""
-                pass
+        CaptureRobotWindow = make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "student.py"
