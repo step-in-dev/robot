@@ -23,7 +23,7 @@ KNOWN_TASK_GROUP_PREFIXES: tuple[str, ...] = (
     "compound",
 )
 
-_NUMBER_RE = re.compile(r"([0-9]+)$")
+_NUMBER_RE = re.compile(r"(\d+)$")
 
 
 def resolve_tasks_dir() -> Path:
@@ -37,7 +37,7 @@ def resolve_tasks_dir() -> Path:
 
 
 def theme_from_task_id(task_id: str) -> str | None:
-    """Theme string before trailing ASCII digits, or ``None`` if stem has no numeric suffix."""
+    """Theme string before trailing digits, or ``None`` if stem has no numeric suffix."""
     match = _NUMBER_RE.search(task_id)
     if not match:
         return None
@@ -83,7 +83,7 @@ def ordered_theme_prefixes(groups: dict[str, list[str]]) -> list[str]:
 
 
 def task_number_from_id(task_id: str) -> int | None:
-    """Trailing ASCII digits in a task id, e.g. ``intro8`` -> ``8``."""
+    """Trailing digits in a task id, e.g. ``intro8`` -> ``8``."""
     match = _NUMBER_RE.search(task_id)
     return int(match.group(1)) if match else None
 

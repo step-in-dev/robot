@@ -32,7 +32,7 @@ Viewer mode is selected by passing a non-`None` `viewer_catalog` to `RobotWindow
 1. `ROBOT_TASKS_DIR` if set and the path is a directory.
 2. Otherwise bundled `robot/tasks`.
 
-**Grouping**: each `*.env` file stem must end with ASCII digits `0`–`9`. The stem is parsed as `{theme}{number}`: the theme is everything before the final digit run; the number is those digits (e.g. `intro8.env` → theme `intro`, number `8`; `введение 8.env` → theme `введение `, number `8`; `my_task-1.env` → theme `my_task-`, number `1`). Any characters allowed in a file name may appear in the theme (spaces, `_`, `-`, `!`, national alphabets). Files whose stem does not end with ASCII digits are not indexed for the viewer.
+**Grouping**: each `*.env` file stem must end with digits (Unicode digit characters, matched by `\d`). The stem is parsed as `{theme}{number}`: the theme is everything before the final digit run; the number is those digits (e.g. `intro8.env` → theme `intro`, number `8`; `введение 8.env` → theme `введение `, number `8`; `my_task-1.env` → theme `my_task-`, number `1`). Any characters allowed in a file name may appear in the theme (spaces, `_`, `-`, `!`, national alphabets). Files whose stem does not end with digits are not indexed for the viewer.
 
 `intro8` and `intro 8` are different themes. `intro01` and `intro1` are different task ids; manual number entry builds `intro1`, not `intro01`.
 
