@@ -98,5 +98,6 @@
   "help.task_group.wif": "„while” ciklus „if”-fel",
   "help.task_group.ifelse": "„if” és „else”",
   "help.task_group.compound": "Összetett feltételek",
-  "viewer.no_tasks": "Nem találhatók feladatfájlok."
+  "viewer.no_tasks": "Nem találhatók feladatfájlok.",
+  "viewer.theme_task_count": "Feladatok összesen: {count}"
 }

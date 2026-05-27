@@ -98,5 +98,6 @@
   "help.task_group.wif": "حلقة «⁦while⁩» مع «⁦if⁩»",
   "help.task_group.ifelse": "«⁦if⁩» و«⁦else⁩»",
   "help.task_group.compound": "الشروط المركبة",
-  "viewer.no_tasks": "لم يتم العثور على ملفات مهام."
+  "viewer.no_tasks": "لم يتم العثور على ملفات مهام.",
+  "viewer.theme_task_count": "إجمالي المهام: ⁦{count}⁩"
 }

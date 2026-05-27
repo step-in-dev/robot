@@ -98,5 +98,6 @@
   "help.task_group.wif": "「while」循环与「if」",
   "help.task_group.ifelse": "「if」和「else」",
   "help.task_group.compound": "复合条件",
-  "viewer.no_tasks": "未找到任务文件。"
+  "viewer.no_tasks": "未找到任务文件。",
+  "viewer.theme_task_count": "任务总数：{count}"
 }

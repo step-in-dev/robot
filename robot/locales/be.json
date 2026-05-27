@@ -98,5 +98,6 @@
   "help.task_group.wif": "Цыкл «while» з канструкцыяй «if»",
   "help.task_group.ifelse": "«if» і «else»",
   "help.task_group.compound": "Складаныя ўмовы",
-  "viewer.no_tasks": "Файлы заданняў не знойдзены."
+  "viewer.no_tasks": "Файлы заданняў не знойдзены.",
+  "viewer.theme_task_count": "Усяго задач: {count}"
 }

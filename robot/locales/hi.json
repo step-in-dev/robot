@@ -98,5 +98,6 @@
   "help.task_group.wif": "'while' लूप और 'if'",
   "help.task_group.ifelse": "'if' और 'else'",
   "help.task_group.compound": "संयुक्त शर्तें",
-  "viewer.no_tasks": "कोई कार्य फ़ाइल नहीं मिली।"
+  "viewer.no_tasks": "कोई कार्य फ़ाइल नहीं मिली।",
+  "viewer.theme_task_count": "कुल कार्य: {count}"
 }

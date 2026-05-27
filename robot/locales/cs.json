@@ -98,5 +98,6 @@
   "help.task_group.wif": "Cyklus „while“ s příkazem „if“",
   "help.task_group.ifelse": "„if“ a „else“",
   "help.task_group.compound": "Složené podmínky",
-  "viewer.no_tasks": "Nebyly nalezeny soubory úloh."
+  "viewer.no_tasks": "Nebyly nalezeny soubory úloh.",
+  "viewer.theme_task_count": "Úloh celkem: {count}"
 }

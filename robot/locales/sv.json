@@ -98,5 +98,6 @@
   "help.task_group.wif": "'while'-loop med 'if'",
   "help.task_group.ifelse": "'if' och 'else'",
   "help.task_group.compound": "Sammansatta villkor",
-  "viewer.no_tasks": "Inga uppgiftsfiler hittades."
+  "viewer.no_tasks": "Inga uppgiftsfiler hittades.",
+  "viewer.theme_task_count": "Uppgifter totalt: {count}"
 }

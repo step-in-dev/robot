@@ -98,5 +98,6 @@
   "help.task_group.wif": "「while」ループと「if」",
   "help.task_group.ifelse": "「if」と「else」",
   "help.task_group.compound": "複合条件",
-  "viewer.no_tasks": "タスクファイルが見つかりません。"
+  "viewer.no_tasks": "タスクファイルが見つかりません。",
+  "viewer.theme_task_count": "タスク合計: {count}"
 }

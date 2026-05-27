@@ -98,5 +98,6 @@
   "help.task_group.wif": "Boucle « while » avec « if »",
   "help.task_group.ifelse": "« if » et « else »",
   "help.task_group.compound": "Conditions composées",
-  "viewer.no_tasks": "Aucun fichier de tâche trouvé."
+  "viewer.no_tasks": "Aucun fichier de tâche trouvé.",
+  "viewer.theme_task_count": "Tâches au total : {count}"
 }

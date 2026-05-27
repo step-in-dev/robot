@@ -98,5 +98,6 @@
   "help.task_group.wif": "'while'-Schleife mit 'if'",
   "help.task_group.ifelse": "'if' und 'else'",
   "help.task_group.compound": "Zusammengesetzte Bedingungen",
-  "viewer.no_tasks": "Keine Aufgabendateien gefunden."
+  "viewer.no_tasks": "Keine Aufgabendateien gefunden.",
+  "viewer.theme_task_count": "Aufgaben insgesamt: {count}"
 }

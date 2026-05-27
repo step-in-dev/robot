@@ -98,5 +98,6 @@
   "help.task_group.wif": "'while' loop with 'if'",
   "help.task_group.ifelse": "'if' and 'else'",
   "help.task_group.compound": "Compound conditions",
-  "viewer.no_tasks": "No task files found."
+  "viewer.no_tasks": "No task files found.",
+  "viewer.theme_task_count": "Total tasks: {count}"
 }

@@ -52,6 +52,7 @@ When viewer mode is active, a toolbar is packed above the environment tabs and c
 - **Theme** — read-only `ttk.Combobox` showing theme ids (`intro`, `fun`, `for`, …).
 - **&lt; / &gt;** — previous/next task within the current theme only; button labels are fixed in `robot/gui_viewer.py`, not localized.
 - **Task number** — entry field for the numeric suffix; commit on Enter or focus loss.
+- **Task count** — label to the right of the number field showing how many tasks exist in the current theme (localized `viewer.theme_task_count`, e.g. `Total tasks: 14`).
 
 **Behavior**:
 
@@ -63,7 +64,7 @@ When viewer mode is active, a toolbar is packed above the environment tabs and c
 
 ## Localization
 
-Viewer-specific localized strings use the `viewer.*` keys in `robot/locales/*.json` (currently `viewer.no_tasks` for the empty-catalog message). Navigation button labels are not localized. Follow `Docs/localization-style.md` when adding or changing locale keys.
+Viewer-specific localized strings use the `viewer.*` keys in `robot/locales/*.json` (`viewer.no_tasks` for the empty-catalog message; `viewer.theme_task_count` for the per-theme task total beside the number field). Navigation button labels are not localized. Follow `Docs/localization-style.md` when adding or changing locale keys.
 
 ## Tests
 

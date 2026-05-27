@@ -98,5 +98,6 @@
   "help.task_group.wif": "“while” döngüsü ile “if”",
   "help.task_group.ifelse": "“if” ve “else”",
   "help.task_group.compound": "Birleşik Koşullar",
-  "viewer.no_tasks": "Görev dosyası bulunamadı."
+  "viewer.no_tasks": "Görev dosyası bulunamadı.",
+  "viewer.theme_task_count": "Toplam görev: {count}"
 }

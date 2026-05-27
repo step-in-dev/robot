@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
+from .i18n import t
 from .loader import RobotTask, TaskLoadError, load_task_definition
 from .task_catalog import TaskCatalog, task_id_for_theme, task_number_from_id
 
@@ -54,6 +55,7 @@ class ViewerMixin:
     _viewer_switching: bool
     _viewer_prev_button: tk.Button
     _viewer_next_button: tk.Button
+    _viewer_task_count_label: tk.Label
 
     def _init_viewer_state(self, catalog: TaskCatalog) -> None:
         theme = catalog.current_theme_for_task(self.task_id) or catalog.themes[0]
@@ -118,7 +120,20 @@ class ViewerMixin:
         number_entry.bind("<Return>", self._on_viewer_number_commit)
         number_entry.bind("<KP_Enter>", self._on_viewer_number_commit)
         number_entry.bind("<FocusOut>", self._on_viewer_number_commit)
+
+        self._viewer_task_count_label = tk.Label(self.viewer_toolbar)
+        self._viewer_task_count_label.pack(side=tk.LEFT, padx=(8, 0))
+        self._viewer_update_task_count_label()
         self._viewer_update_nav_button_states()
+
+    def _viewer_update_task_count_label(self) -> None:
+        catalog = self._viewer_catalog
+        assert catalog is not None
+        prefix = self._viewer_theme_var.get()
+        count = len(catalog.task_ids_for(prefix))
+        self._viewer_task_count_label.configure(
+            text=t("viewer.theme_task_count", count=count)
+        )
 
     def _viewer_update_nav_button_states(self) -> None:
         catalog = self._viewer_catalog
@@ -209,6 +224,7 @@ class ViewerMixin:
             self._viewer_last_valid_number = number
             self._viewer_number_var.set(str(number))
         self._viewer_update_nav_button_states()
+        self._viewer_update_task_count_label()
 
     def _refresh_viewer_top_chrome(self) -> None:
         """Rebuild todo banner and env toolbar after a viewer task switch."""

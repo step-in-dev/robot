@@ -1687,6 +1687,10 @@ class RobotWindowViewerTest(unittest.TestCase):
                     window.root.update()
                     self.assertEqual(window.task_id, "fun1")
                     self.assertEqual(window._viewer_number_var.get(), "1")
+                    self.assertEqual(
+                        window._viewer_task_count_label.cget("text"),
+                        t("viewer.theme_task_count", count=2),
+                    )
                 finally:
                     window.close()
 
