@@ -6,7 +6,6 @@ import tkinter as tk
 from tkinter import ttk
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
-from .i18n import t
 from .loader import RobotTask, TaskLoadError, load_task_definition
 from .task_catalog import TaskCatalog, task_id_for_theme, task_number_from_id
 
@@ -74,7 +73,7 @@ class ViewerMixin:
 
         self._viewer_prev_button = tk.Button(
             self.viewer_toolbar,
-            text=t("viewer.previous"),
+            text="<",
             command=lambda: self._viewer_show_relative(-1),
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,
@@ -98,7 +97,7 @@ class ViewerMixin:
 
         self._viewer_next_button = tk.Button(
             self.viewer_toolbar,
-            text=t("viewer.next"),
+            text=">",
             command=lambda: self._viewer_show_relative(1),
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,

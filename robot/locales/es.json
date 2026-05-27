@@ -98,7 +98,5 @@
   "help.task_group.wif": "Bucle 'while' con 'if'",
   "help.task_group.ifelse": "'if' y 'else'",
   "help.task_group.compound": "Condiciones compuestas",
-  "viewer.previous": "Anterior",
-  "viewer.next": "Siguiente",
   "viewer.no_tasks": "No se encontraron archivos de tareas."
 }

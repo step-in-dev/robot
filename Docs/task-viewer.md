@@ -50,7 +50,7 @@ Viewer mode is selected by passing a non-`None` `viewer_catalog` to `RobotWindow
 When viewer mode is active, a toolbar is packed above the environment tabs and constraints button:
 
 - **Theme** — read-only `ttk.Combobox` showing theme ids (`intro`, `fun`, `for`, …).
-- **Previous / Next** — move within the current theme only (`viewer.previous`, `viewer.next` in locale JSON).
+- **&lt; / &gt;** — previous/next task within the current theme only; button labels are fixed in `robot/gui_viewer.py`, not localized.
 - **Task number** — entry field for the numeric suffix; commit on Enter or focus loss.
 
 **Behavior**:
@@ -63,7 +63,7 @@ When viewer mode is active, a toolbar is packed above the environment tabs and c
 
 ## Localization
 
-Viewer-specific strings live under the `viewer.*` keys in `robot/locales/*.json`. Follow `Docs/localization-style.md` when adding or changing them.
+Viewer-specific localized strings use the `viewer.*` keys in `robot/locales/*.json` (currently `viewer.no_tasks` for the empty-catalog message). Navigation button labels are not localized. Follow `Docs/localization-style.md` when adding or changing locale keys.
 
 ## Tests
 

@@ -98,7 +98,5 @@
   "help.task_group.wif": "Bucla „while” cu „if”",
   "help.task_group.ifelse": "„if” și „else”",
   "help.task_group.compound": "Condiții compuse",
-  "viewer.previous": "Anterioară",
-  "viewer.next": "Următoare",
   "viewer.no_tasks": "Nu s-au găsit fișiere de sarcini."
 }

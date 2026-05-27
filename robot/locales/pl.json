@@ -98,7 +98,5 @@
   "help.task_group.wif": "Pętla „while” z instrukcją „if”",
   "help.task_group.ifelse": "„if” i „else”",
   "help.task_group.compound": "Warunki złożone",
-  "viewer.previous": "Poprzednie",
-  "viewer.next": "Następne",
   "viewer.no_tasks": "Nie znaleziono plików zadań."
 }

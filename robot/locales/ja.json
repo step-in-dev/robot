@@ -98,7 +98,5 @@
   "help.task_group.wif": "「while」ループと「if」",
   "help.task_group.ifelse": "「if」と「else」",
   "help.task_group.compound": "複合条件",
-  "viewer.previous": "前へ",
-  "viewer.next": "次へ",
   "viewer.no_tasks": "タスクファイルが見つかりません。"
 }

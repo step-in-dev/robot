@@ -98,7 +98,5 @@
   "help.task_group.wif": "「while」迴圈與「if」",
   "help.task_group.ifelse": "「if」和「else」",
   "help.task_group.compound": "複合條件",
-  "viewer.previous": "上一個",
-  "viewer.next": "下一個",
   "viewer.no_tasks": "找不到任務檔案。"
 }

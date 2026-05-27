@@ -98,7 +98,5 @@
   "help.task_group.wif": "'while' 반복문과 'if'",
   "help.task_group.ifelse": "'if' 와 'else'",
   "help.task_group.compound": "복합 조건",
-  "viewer.previous": "이전",
-  "viewer.next": "다음",
   "viewer.no_tasks": "작업 파일을 찾을 수 없습니다."
 }

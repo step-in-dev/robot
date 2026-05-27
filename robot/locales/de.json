@@ -98,7 +98,5 @@
   "help.task_group.wif": "'while'-Schleife mit 'if'",
   "help.task_group.ifelse": "'if' und 'else'",
   "help.task_group.compound": "Zusammengesetzte Bedingungen",
-  "viewer.previous": "Vorherige",
-  "viewer.next": "Nächste",
   "viewer.no_tasks": "Keine Aufgabendateien gefunden."
 }

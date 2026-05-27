@@ -98,7 +98,5 @@
   "help.task_group.wif": "Ciclo 'while' con 'if'",
   "help.task_group.ifelse": "'if' e 'else'",
   "help.task_group.compound": "Condizioni composte",
-  "viewer.previous": "Precedente",
-  "viewer.next": "Successiva",
   "viewer.no_tasks": "Nessun file di compito trovato."
 }

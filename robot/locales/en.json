@@ -98,7 +98,5 @@
   "help.task_group.wif": "'while' loop with 'if'",
   "help.task_group.ifelse": "'if' and 'else'",
   "help.task_group.compound": "Compound conditions",
-  "viewer.previous": "Previous",
-  "viewer.next": "Next",
   "viewer.no_tasks": "No task files found."
 }

@@ -98,7 +98,5 @@
   "help.task_group.wif": "Цикл «while» з конструкцією «if»",
   "help.task_group.ifelse": "«if» і «else»",
   "help.task_group.compound": "Складні умови",
-  "viewer.previous": "Попередня",
-  "viewer.next": "Наступна",
   "viewer.no_tasks": "Файли завдань не знайдено."
 }

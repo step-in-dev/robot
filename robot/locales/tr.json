@@ -98,7 +98,5 @@
   "help.task_group.wif": "“while” döngüsü ile “if”",
   "help.task_group.ifelse": "“if” ve “else”",
   "help.task_group.compound": "Birleşik Koşullar",
-  "viewer.previous": "Önceki",
-  "viewer.next": "Sonraki",
   "viewer.no_tasks": "Görev dosyası bulunamadı."
 }

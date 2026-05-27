@@ -98,7 +98,5 @@
   "help.task_group.wif": "Βρόχος «while» με «if»",
   "help.task_group.ifelse": "«if» και «else»",
   "help.task_group.compound": "Σύνθετες συνθήκες",
-  "viewer.previous": "Προηγούμενη",
-  "viewer.next": "Επόμενη",
   "viewer.no_tasks": "Δεν βρέθηκαν αρχεία εργασιών."
 }

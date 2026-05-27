@@ -98,7 +98,5 @@
   "help.task_group.wif": "'while'-lus met 'if'",
   "help.task_group.ifelse": "'if' en 'else'",
   "help.task_group.compound": "Samengestelde voorwaarden",
-  "viewer.previous": "Vorige",
-  "viewer.next": "Volgende",
   "viewer.no_tasks": "Geen taakbestanden gevonden."
 }

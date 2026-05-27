@@ -98,7 +98,5 @@
   "help.task_group.wif": "'while' লুপ এবং 'if'",
   "help.task_group.ifelse": "'if' এবং 'else'",
   "help.task_group.compound": "যৌক্ত শর্তাবলী",
-  "viewer.previous": "পূর্ববর্তী",
-  "viewer.next": "পরবর্তী",
   "viewer.no_tasks": "কোনো টাস্ক ফাইল পাওয়া যায়নি।"
 }
