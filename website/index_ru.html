@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Робот — учебный исполнитель для Python</title>
-  <meta name="description" content="Учебный исполнитель Робот для уроков информатики: задания на клетчатом поле, автоматическая проверка, несколько обстановок и пошаговый запуск.">
+  <meta name="description" content="Учебный исполнитель Робот для уроков информатики: задания на клетчатом поле, просмотр условий, автоматическая проверка, несколько обстановок и пошаговый запуск.">
   <link rel="canonical" href="index_ru.html">
   <link rel="alternate" hreflang="en" href="index.html">
   <link rel="alternate" hreflang="ru" href="index_ru.html">
   <meta property="og:title" content="Робот — учебный исполнитель для Python">
-  <meta property="og:description" content="Задания на клетчатом поле, проверка решений, несколько обстановок и пошаговый запуск в окне Робота.">
+  <meta property="og:description" content="Задания на клетчатом поле, просмотр условий, проверка решений, несколько обстановок и пошаговый запуск в окне Робота.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="img/hero/intro19_ru.png">
   <meta property="og:locale" content="ru_RU">
@@ -32,6 +32,7 @@
       <nav class="site-nav" id="site-nav" aria-label="Основная навигация">
         <ul class="site-nav__list">
           <li><a href="#features">Возможности</a></li>
+          <li><a href="#task-viewer">Просмотр задач</a></li>
           <li><a href="#lessons">На уроках</a></li>
           <li><a href="#commands">Команды</a></li>
           <li><a href="#get-started">Начать</a></li>
@@ -161,7 +162,32 @@
       </div>
     </section>
 
-    <section class="section" id="lessons" aria-labelledby="lessons-heading">
+    <section class="section" id="task-viewer" aria-labelledby="task-viewer-heading">
+      <div class="section__inner">
+        <h2 id="task-viewer-heading">Просмотр условий задач</h2>
+        <p class="section__intro">
+          Отдельный режим просмотра открывает каталог задач без запуска ученического решения. Учитель может выбрать тему, перейти к нужному номеру, прочитать условие, посмотреть все обстановки и ограничения. Это удобно при подготовке урока и для показа условия на проекторе.
+        </p>
+        <div class="two-col">
+          <div class="callout">
+            <h3>Что можно посмотреть</h3>
+            <ul class="track-list">
+              <li>тему и номер задачи;</li>
+              <li>текст условия;</li>
+              <li>все обстановки задания;</li>
+              <li>ограничения на команды и конструкции;</li>
+              <li>поле без возможности случайно запустить решение.</li>
+            </ul>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/viewer/viewer_if3_ru.png" width="542" height="404" alt="Режим просмотра задач: задание if3, панель выбора темы и номера, условие и поле.">
+            <figcaption>Каталог задач в режиме просмотра (<code>if3</code>).</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="lessons" aria-labelledby="lessons-heading">
       <div class="section__inner">
         <h2 id="lessons-heading">Робот на уроке</h2>
         <p class="section__intro">
@@ -197,7 +223,7 @@
       </div>
     </section>
 
-    <section class="section section--alt" id="commands" aria-labelledby="commands-heading">
+    <section class="section" id="commands" aria-labelledby="commands-heading">
       <div class="section__inner">
         <h2 id="commands-heading">Команды Робота для учащихся</h2>
         <p class="section__intro">
@@ -261,7 +287,7 @@ move_down()</code></pre>
       </div>
     </section>
 
-    <section class="section" id="get-started" aria-labelledby="get-started-heading">
+    <section class="section section--alt" id="get-started" aria-labelledby="get-started-heading">
       <div class="section__inner">
         <h2 id="get-started-heading">Как начать</h2>
         <ol class="numbered-list">
@@ -269,6 +295,7 @@ move_down()</code></pre>
           <li>Распакуйте архив в рабочую папку учащегося.</li>
           <li>Положите файл с решением рядом с пакетом <code>robot</code>. Для старта можно взять <strong><code>sample_solution.py</code></strong> из архива.</li>
           <li>Чтобы выбрать другое задание, измените строку в вызове <strong><code>task()</code></strong>. Имена заданий перечислены в темах выше.</li>
+          <li>Чтобы просматривать условия задач без решения, запустите <strong><code>python viewer/viewer.py</code></strong> из папки проекта.</li>
         </ol>
         <p class="requirements">
           <strong>Требования:</strong> Python 3 и стандартная библиотека. Окно Робота использует <code>tkinter</code>; он входит в большинство настольных установок Python.

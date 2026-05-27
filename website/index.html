@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Robot — a classroom simulator for Python</title>
-  <meta name="description" content="Robot is a classroom simulator for Python lessons: grid tasks, automatic checking, multiple environments, and step-by-step runs.">
+  <meta name="description" content="Robot is a classroom simulator for Python lessons: grid tasks, task browsing, automatic checking, multiple environments, and step-by-step runs.">
   <link rel="canonical" href="index.html">
   <link rel="alternate" hreflang="en" href="index.html">
   <link rel="alternate" hreflang="ru" href="index_ru.html">
   <meta property="og:title" content="Robot — a classroom simulator for Python">
-  <meta property="og:description" content="Grid tasks, solution checking, multiple environments, and step-by-step execution in the Robot window.">
+  <meta property="og:description" content="Grid tasks, task browsing, solution checking, multiple environments, and step-by-step execution in the Robot window.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="img/hero/intro19_en.png">
   <meta property="og:locale" content="en_US">
@@ -32,6 +32,7 @@
       <nav class="site-nav" id="site-nav" aria-label="Primary">
         <ul class="site-nav__list">
           <li><a href="#features">Features</a></li>
+          <li><a href="#task-viewer">Task Viewer</a></li>
           <li><a href="#lessons">For lessons</a></li>
           <li><a href="#commands">Commands</a></li>
           <li><a href="#get-started">Get started</a></li>
@@ -161,7 +162,32 @@
       </div>
     </section>
 
-    <section class="section" id="lessons" aria-labelledby="lessons-heading">
+    <section class="section" id="task-viewer" aria-labelledby="task-viewer-heading">
+      <div class="section__inner">
+        <h2 id="task-viewer-heading">Browse Task Conditions</h2>
+        <p class="section__intro">
+          The separate viewer mode opens the task catalog without running a student solution. A teacher can choose a topic, jump to a task number, read the condition, inspect every environment, and see the limits. It is useful for lesson preparation and for showing a task on a projector.
+        </p>
+        <div class="two-col">
+          <div class="callout">
+            <h3>What you can inspect</h3>
+            <ul class="track-list">
+              <li>topic and task number;</li>
+              <li>task condition;</li>
+              <li>all task environments;</li>
+              <li>command and construct limits;</li>
+              <li>the field without accidentally running a solution.</li>
+            </ul>
+          </div>
+          <figure class="media-block__figure">
+            <img src="img/viewer/viewer_if3_en.png" width="542" height="425" alt="Task viewer mode: task if3 with topic and number toolbar, condition text, and grid.">
+            <figcaption>Task catalog in viewer mode (<code>if3</code>).</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="lessons" aria-labelledby="lessons-heading">
       <div class="section__inner">
         <h2 id="lessons-heading">Using Robot in a lesson</h2>
         <p class="section__intro">
@@ -197,7 +223,7 @@
       </div>
     </section>
 
-    <section class="section section--alt" id="commands" aria-labelledby="commands-heading">
+    <section class="section" id="commands" aria-labelledby="commands-heading">
       <div class="section__inner">
         <h2 id="commands-heading">Robot commands for students</h2>
         <p class="section__intro">
@@ -261,7 +287,7 @@ move_down()</code></pre>
       </div>
     </section>
 
-    <section class="section" id="get-started" aria-labelledby="get-started-heading">
+    <section class="section section--alt" id="get-started" aria-labelledby="get-started-heading">
       <div class="section__inner">
         <h2 id="get-started-heading">Get started</h2>
         <ol class="numbered-list">
@@ -269,6 +295,7 @@ move_down()</code></pre>
           <li>Extract it into the student's working folder.</li>
           <li>Place the solution file next to the <code>robot</code> package. You can start from <strong><code>sample_solution.py</code></strong> in the archive.</li>
           <li>To choose another task, change the string passed to <strong><code>task()</code></strong>. The task names are listed in the tracks above.</li>
+          <li>To browse task conditions without a solution file, run <strong><code>python viewer/viewer.py</code></strong> from the project folder.</li>
         </ol>
         <p class="requirements">
           <strong>Requirements:</strong> Python 3 and the standard library. The Robot window uses <code>tkinter</code>, which is included with most desktop Python installations.

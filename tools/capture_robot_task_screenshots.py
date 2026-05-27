@@ -127,46 +127,114 @@ def _stop_process(proc: subprocess.Popen[bytes]) -> None:
     proc.wait(timeout=2.0)
 
 
-def _script_body_for_task(
+def _script_body_for_capture(
     *,
     task_id: str,
     env_index: int | None,
+    viewer_mode: bool,
     open_constraints_on_startup: bool,
-) -> str:
-    """Code run in a subprocess to open the Robot window for *task_id*."""
+) -> tuple[str, str]:
+    """Return subprocess script source and a tempfile prefix for the capture mode."""
     env_index_literal = "None" if env_index is None else str(env_index)
-    oc = "True" if open_constraints_on_startup else "False"
-    return textwrap.dedent(
-        f"""
-        import sys
 
-        from robot.loader import load_task_definition
-        from robot.runtime import _launch_student_robot_window
+    if viewer_mode:
+        prefix = "tmp_robot_viewer_"
+        body = textwrap.dedent(
+            f"""
+            import sys
 
-        task_id = {task_id!r}
-        env_index = {env_index_literal}
-        open_constraints_on_startup = {oc}
+            from robot.gui import RobotWindow
+            from robot.loader import load_task_definition
+            from robot.task_catalog import TaskCatalog
 
-        td = load_task_definition(task_id)
-        if env_index is not None:
-            if env_index < 0 or env_index >= len(td.envs):
-                print(
-                    f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
-                    file=sys.stderr,
-                )
-                sys.exit(2)
-            initial_index = env_index
-        else:
-            initial_index = 0
+            task_id = {task_id!r}
+            env_index = {env_index_literal}
 
-        _launch_student_robot_window(
-            task_id=task_id,
-            task_definition=td,
-            initial_index=initial_index,
-            open_constraints_on_startup=open_constraints_on_startup,
+            td = load_task_definition(task_id)
+            if env_index is not None:
+                if env_index < 0 or env_index >= len(td.envs):
+                    print(
+                        f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
+                        file=sys.stderr,
+                    )
+                    sys.exit(2)
+                initial_index = env_index
+            else:
+                initial_index = 0
+
+            catalog = TaskCatalog.discover()
+            window = RobotWindow.from_task_definition(
+                task_id=task_id,
+                task_definition=td,
+                run_env=None,
+                initial_index=initial_index,
+                viewer_catalog=catalog,
+            )
+            window.run()
+            """
         )
-        """
-    )
+    else:
+        oc = "True" if open_constraints_on_startup else "False"
+        prefix = "tmp_robot_task_"
+        body = textwrap.dedent(
+            f"""
+            import sys
+
+            from robot.loader import load_task_definition
+            from robot.runtime import _launch_student_robot_window
+
+            task_id = {task_id!r}
+            env_index = {env_index_literal}
+            open_constraints_on_startup = {oc}
+
+            td = load_task_definition(task_id)
+            if env_index is not None:
+                if env_index < 0 or env_index >= len(td.envs):
+                    print(
+                        f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
+                        file=sys.stderr,
+                    )
+                    sys.exit(2)
+                initial_index = env_index
+            else:
+                initial_index = 0
+
+            _launch_student_robot_window(
+                task_id=task_id,
+                task_definition=td,
+                initial_index=initial_index,
+                open_constraints_on_startup=open_constraints_on_startup,
+            )
+            """
+        )
+
+    return body, prefix
+
+
+def _default_settle_seconds(*, viewer_mode: bool, override: float | None) -> float:
+    if override is not None:
+        return override
+    if viewer_mode:
+        return 0.85
+    return 0.25
+
+
+def _effective_output_prefix(output_prefix: str, viewer_mode: bool) -> str:
+    if viewer_mode and not output_prefix:
+        return "viewer_"
+    return output_prefix
+
+
+def _screenshot_stem(
+    *,
+    output_prefix: str,
+    task_id: str,
+    language: str,
+    env_index: int | None,
+) -> str:
+    if env_index is None:
+        return f"{output_prefix}{task_id}_{language}"
+    return f"{output_prefix}{task_id}_env{env_index}_{language}"
 
 
 def capture_for_language(
@@ -178,10 +246,16 @@ def capture_for_language(
     workdir: Path,
     env_index: int | None,
     capture_constraints_window: bool,
+    viewer_mode: bool,
+    settle_seconds: float,
 ) -> None:
-    script_body = _script_body_for_task(
+    if viewer_mode and capture_constraints_window:
+        raise RuntimeError("Constraints capture is not supported in --viewer mode")
+
+    script_body, script_prefix = _script_body_for_capture(
         task_id=task_id,
         env_index=env_index,
+        viewer_mode=viewer_mode,
         open_constraints_on_startup=capture_constraints_window,
     )
 
@@ -189,7 +263,7 @@ def capture_for_language(
         mode="w",
         encoding="utf-8",
         suffix=".py",
-        prefix="tmp_robot_task_",
+        prefix=script_prefix,
         delete=False,
         dir=workdir,
     ) as f:
@@ -214,7 +288,7 @@ def capture_for_language(
             before_ids=before_ids, proc=proc, timeout_seconds=12.0
         )
         subprocess.run(["wmctrl", "-ia", main_window_id], check=True)
-        time.sleep(0.25)
+        time.sleep(settle_seconds)
 
         if capture_constraints_window:
             time.sleep(0.55)
@@ -284,6 +358,32 @@ def parse_args() -> argparse.Namespace:
             "Constraints dialog (same as the Constraints button) and captures "
             "that window. Requires the task to define at least one limit "
             "(operators, function calls, if/while, keywords)."
+        ),
+    )
+    parser.add_argument(
+        "--viewer",
+        action="store_true",
+        help=(
+            "Open teacher task viewer mode (viewer_catalog) instead of a "
+            "student solution window."
+        ),
+    )
+    parser.add_argument(
+        "--output-prefix",
+        default="",
+        help=(
+            "Optional prefix for PNG filenames (e.g. viewer_ yields "
+            "viewer_if3_ru.png)."
+        ),
+    )
+    parser.add_argument(
+        "--settle-seconds",
+        type=float,
+        default=None,
+        metavar="SEC",
+        help=(
+            "Seconds to wait after focusing the window before capture. "
+            "Default: 0.85 for --viewer, 0.25 otherwise."
         ),
     )
     return parser.parse_args()
@@ -364,15 +464,27 @@ def main() -> int:
         if _validate_env_index_for_task(args.task, args.env_index) != 0:
             return 1
 
+    if args.constraints and args.viewer:
+        print("--constraints cannot be used with --viewer", file=sys.stderr)
+        return 1
+
     if args.constraints and _validate_task_has_constraints_for_flag(args.task) != 0:
         return 1
 
+    settle_seconds = _default_settle_seconds(
+        viewer_mode=args.viewer,
+        override=args.settle_seconds,
+    )
+    output_prefix = _effective_output_prefix(args.output_prefix, args.viewer)
+
     failed: list[tuple[str, str]] = []
     for language in args.languages:
-        if args.env_index is None:
-            stem = f"{args.task}_{language}"
-        else:
-            stem = f"{args.task}_env{args.env_index}_{language}"
+        stem = _screenshot_stem(
+            output_prefix=output_prefix,
+            task_id=args.task,
+            language=language,
+            env_index=args.env_index,
+        )
         output_path = output_dir / f"{stem}.png"
         _try_capture(
             label=language,
@@ -387,6 +499,8 @@ def main() -> int:
                 workdir=workdir,
                 env_index=args.env_index,
                 capture_constraints_window=False,
+                viewer_mode=args.viewer,
+                settle_seconds=settle_seconds,
             ),
         )
 
@@ -405,6 +519,8 @@ def main() -> int:
                     workdir=workdir,
                     env_index=args.env_index,
                     capture_constraints_window=True,
+                    viewer_mode=False,
+                    settle_seconds=settle_seconds,
                 ),
             )
 

@@ -487,6 +487,22 @@ button:focus-visible {
   box-shadow: var(--shadow-soft), 0 0 0 1px var(--color-border);
 }
 
+.two-col .media-block__figure {
+  margin: 0;
+  margin-inline: auto;
+}
+
+.two-col .media-block__figure img {
+  display: block;
+}
+
+.two-col .media-block__figure figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
 .media-block__figures {
   display: flex;
   flex-direction: column;

@@ -28,6 +28,8 @@ The target audience is school students who are learning introductory programming
 
 The `website/` directory holds a static landing page for the Robot project: `index.html` (English), `index_ru.html` (Russian), shared `styles.css` and `script.js`, and images under `website/img/`.
 
+To capture window screenshots for the site (full window frame, including the title bar), use [`tools/capture_robot_task_screenshots.py`](tools/capture_robot_task_screenshots.py). It requires `wmctrl` and `gnome-screenshot` on Linux. Student mode opens a task via `task()`; `--viewer` opens teacher browse mode (`viewer_catalog`). Example for website viewer images: `python tools/capture_robot_task_screenshots.py --viewer --task if3 --output-dir website/img/viewer --languages ru en`.
+
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
