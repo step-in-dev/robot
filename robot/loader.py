@@ -33,10 +33,12 @@ class RobotTask:
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
+    """Load all environments for a task id."""
     return load_task_definition(task_id).envs
 
 
 def load_task_definition(task_id: str) -> RobotTask:
+    """Load task metadata and environments from a ``.env`` file."""
     task_path = find_task_file(task_id)
     try:
         with task_path.open("r", encoding="utf-8") as stream:
@@ -86,6 +88,7 @@ def load_task_definition(task_id: str) -> RobotTask:
 
 
 def find_task_file(task_id: str) -> Path:
+    """Resolve a task id to an existing ``.env`` file path."""
     task_name = (
         task_id
         if task_id.endswith(TASK_FILE_EXTENSION)
@@ -110,6 +113,7 @@ def find_task_file(task_id: str) -> Path:
 
 
 def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
+    """Extract ``envDtos`` and resolved ``todoText`` from parsed task JSON."""
     if not isinstance(data, dict):
         raise TaskLoadError(
             t("loader.must_be_object_with_env_dtos", task_path=task_path)
@@ -182,6 +186,7 @@ def _parse_optional_non_negative_int(
 
 
 def parse_operators_limit(data: dict, task_path: Path) -> int | None:
+    """Parse optional ``operatorsLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
         task_path,
@@ -191,6 +196,7 @@ def parse_operators_limit(data: dict, task_path: Path) -> int | None:
 
 
 def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
+    """Parse optional ``customFunctionCallCount`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
         task_path,
@@ -200,6 +206,7 @@ def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
 
 
 def parse_if_limit(data: dict, task_path: Path) -> int | None:
+    """Parse optional ``ifLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
         task_path,
@@ -209,6 +216,7 @@ def parse_if_limit(data: dict, task_path: Path) -> int | None:
 
 
 def parse_while_limit(data: dict, task_path: Path) -> int | None:
+    """Parse optional ``whileLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
         task_path,
@@ -224,6 +232,7 @@ def parse_keyword_list(
     field_name: str,
     invalid_message_key: str,
 ) -> tuple[str, ...] | None:
+    """Parse a comma-separated Python keyword list from task JSON."""
     if field_name not in data:
         return None
 
@@ -252,6 +261,7 @@ def validate_keyword_lists(
     banned_keywords: tuple[str, ...] | None,
     task_path: Path,
 ) -> None:
+    """Raise ``TaskLoadError`` when required and banned keyword sets overlap."""
     if not required_keywords or not banned_keywords:
         return
 

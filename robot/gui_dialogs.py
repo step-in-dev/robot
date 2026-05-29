@@ -65,6 +65,7 @@ class DialogManagerMixin:
         win.focus_set()
 
     def close_dialogs(self) -> None:
+        """Destroy help and constraints dialogs if they are open."""
         if self._help_window is not None:
             try:
                 self._help_window.destroy()

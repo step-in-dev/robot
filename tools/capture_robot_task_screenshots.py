@@ -21,6 +21,7 @@ from robot.loader import TaskLoadError, load_task_definition
 
 
 def _require_command(cmd: str) -> None:
+    """Raise when ``cmd`` is not available on ``PATH``."""
     if subprocess.run(
         ["bash", "-lc", f"command -v {cmd}"],
         stdout=subprocess.DEVNULL,
@@ -52,6 +53,7 @@ def _wmctrl_list_windows() -> list[tuple[str, str]]:
 
 
 def _all_window_ids() -> set[str]:
+    """Return window ids reported by ``wmctrl -l``."""
     return {win_id for win_id, _title in _wmctrl_list_windows()}
 
 
@@ -61,6 +63,7 @@ def _find_new_window_id(
     proc: subprocess.Popen[bytes],
     timeout_seconds: float = 10.0,
 ) -> str:
+    """Wait for a new window opened by ``proc`` and return its id."""
     deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         current_ids = _all_window_ids()
@@ -95,6 +98,7 @@ def _find_constraints_window_id(
     proc: subprocess.Popen[bytes],
     timeout_seconds: float = 12.0,
 ) -> str:
+    """Wait for the constraints dialog window and return its id."""
     deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         for win_id, title in _wmctrl_list_windows():
@@ -115,6 +119,7 @@ def _find_constraints_window_id(
 
 
 def _stop_process(proc: subprocess.Popen[bytes]) -> None:
+    """Terminate ``proc``, escalating to SIGKILL when needed."""
     if proc.poll() is not None:
         return
     proc.terminate()
@@ -212,6 +217,7 @@ def _script_body_for_capture(
 
 
 def _default_settle_seconds(*, viewer_mode: bool, override: float | None) -> float:
+    """Return screenshot settle time for viewer or student mode."""
     if override is not None:
         return override
     if viewer_mode:
@@ -220,6 +226,7 @@ def _default_settle_seconds(*, viewer_mode: bool, override: float | None) -> flo
 
 
 def _effective_output_prefix(output_prefix: str, viewer_mode: bool) -> str:
+    """Apply default ``viewer_`` prefix in viewer mode when unset."""
     if viewer_mode and not output_prefix:
         return "viewer_"
     return output_prefix
@@ -232,6 +239,7 @@ def _screenshot_stem(
     language: str,
     env_index: int | None,
 ) -> str:
+    """Build output filename stem for one language capture."""
     if env_index is None:
         return f"{output_prefix}{task_id}_{language}"
     return f"{output_prefix}{task_id}_env{env_index}_{language}"
@@ -249,6 +257,7 @@ def capture_for_language(
     viewer_mode: bool,
     settle_seconds: float,
 ) -> None:
+    """Launch Robot for one language and save a window screenshot to ``output_path``."""
     if viewer_mode and capture_constraints_window:
         raise RuntimeError("Constraints capture is not supported in --viewer mode")
 
@@ -313,6 +322,7 @@ def capture_for_language(
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the screenshot capture tool."""
     parser = argparse.ArgumentParser(
         description=(
             "Run robot task for each supported language and save "
@@ -440,6 +450,7 @@ def _try_capture(
     failed: list[tuple[str, str]],
     capture: Callable[[], None],
 ) -> None:
+    """Run ``capture()`` and record failures for the summary report."""
     print(intro_line)
     try:
         capture()
@@ -451,6 +462,7 @@ def _try_capture(
 
 
 def main() -> int:
+    """Capture Robot window screenshots for each requested language."""
     args = parse_args()
 
     _require_command("wmctrl")

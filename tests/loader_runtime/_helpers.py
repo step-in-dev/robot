@@ -1,5 +1,6 @@
 """Shared fixtures for loader / runtime integration tests."""
 
+
 from __future__ import annotations
 
 import contextlib

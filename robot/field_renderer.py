@@ -69,6 +69,7 @@ class FieldRenderer:
         self.wall_width = wall_width
 
     def set_dimensions(self, cell_size: int, wall_width: int) -> None:
+        """Update cell and wall drawing sizes."""
         self.cell_size = cell_size
         self.wall_width = wall_width
 
@@ -114,6 +115,7 @@ class FieldRenderer:
         canvas_height: int,
         colors: FieldColors,
     ) -> None:
+        """Redraw the grid, walls, robot, and cell markers for ``env``."""
         half_wall_width = self.wall_width // 2
 
         self.canvas.delete("all")

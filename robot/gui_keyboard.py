@@ -15,6 +15,7 @@ class KeyboardHandlerMixin:
     _is_run_all_active: bool
 
     def bind_action_keyboard(self) -> None:
+        """Bind Enter to the action button and Escape to close the window."""
         self.root.bind("<Return>", self._handle_action_enter_key)
         self.root.bind("<KP_Enter>", self._handle_action_enter_key)
         self.root.bind("<KeyRelease-Return>", self._handle_action_enter_release)

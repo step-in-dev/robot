@@ -130,6 +130,7 @@ def check_limit_violations(
     required_keywords: tuple[str, ...] | None = None,
     banned_keywords: tuple[str, ...] | None = None,
 ) -> str | None:
+    """Run static limit checks; return the first violation message or ``None``."""
     violation = check_operators_limit(
         source,
         operators_limit,
@@ -215,21 +216,26 @@ class StepExecutionSession:
         }
 
     def allow_one_step(self) -> None:
+        """Allow the tracer to run past one more student line."""
         self._steps_allowed += 1
 
     def cancel(self) -> None:
+        """Request cancellation of the stepping session."""
         self._cancelled = True
 
     @property
     def cancelled(self) -> bool:
+        """Whether the user cancelled stepping."""
         return self._cancelled
 
     def _line_text(self, lineno: int) -> str:
+        """Return stripped source text for a 1-based line number."""
         if lineno < 1 or lineno > len(self._source_lines):
             return ""
         return self._source_lines[lineno - 1].strip()
 
     def _trace(self, frame, event, arg):
+        """``sys.settrace`` callback: pause on each student line until allowed."""
         if self._cancelled:
             raise StepExecutionCancelled
         if event != "line":
@@ -311,6 +317,7 @@ def run_solution_on_env(
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
 ) -> RunResult:
+    """Execute a student script on one environment and return the run outcome."""
     env.reset()
     previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
 

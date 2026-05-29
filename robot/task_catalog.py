@@ -89,6 +89,7 @@ def task_number_from_id(task_id: str) -> int | None:
 
 
 def task_id_for_theme(prefix: str, number: int) -> str:
+    """Build a task id from a theme prefix and numeric suffix."""
     return f"{prefix}{number}"
 
 
@@ -101,6 +102,7 @@ class TaskCatalog:
 
     @classmethod
     def discover(cls, tasks_dir: Path | None = None) -> TaskCatalog:
+        """Scan a tasks directory and build a catalog grouped by theme."""
         raw = discover_task_groups(tasks_dir)
         sorted_groups = {
             prefix: tuple(sorted(task_ids, key=natural_sort_key))
@@ -112,13 +114,16 @@ class TaskCatalog:
         return cls(themes=themes, groups=groups)
 
     def task_ids_for(self, prefix: str) -> tuple[str, ...]:
+        """Return sorted task ids for a theme prefix."""
         return self.groups.get(prefix, ())
 
     def first_task_id(self, prefix: str) -> str | None:
+        """Return the first task id in a theme, or ``None`` when empty."""
         ids = self.task_ids_for(prefix)
         return ids[0] if ids else None
 
     def current_theme_for_task(self, task_id: str) -> str | None:
+        """Return the theme prefix for ``task_id`` if it exists in the catalog."""
         theme = theme_from_task_id(task_id)
         if theme is None:
             return None

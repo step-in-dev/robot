@@ -16,10 +16,12 @@ class RunResult:
 
     @property
     def success(self) -> bool:
+        """Return whether the run finished with status ``success``."""
         return self.status == "success"
 
 
 def check_final_state(env: RobotEnv) -> RunResult:
+    """Map environment final-state check to a ``RunResult``."""
     if env.is_in_final_state():
         return RunResult(status="success", message="")
     return RunResult(status="wrong", message="")

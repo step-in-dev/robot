@@ -22,6 +22,7 @@ The target audience is school students who are learning introductory programming
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
 - `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
+- `Docs/linting.md` describes pylint usage.
 - UI string catalogs are JSON files in `robot/locales/`.
 
 ## Website

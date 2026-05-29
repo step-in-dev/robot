@@ -45,6 +45,7 @@ class RobotEnvDto:
 
     @classmethod
     def from_dict(cls, data: dict) -> "RobotEnvDto":
+        """Build a DTO from a task JSON environment object."""
         try:
             width = int(data["width"])
             height = int(data["height"])
@@ -188,6 +189,7 @@ class RobotEnvDto:
 
 class RobotEnv:
     def __init__(self, dto: RobotEnvDto):
+        """Create a mutable environment from a validated DTO."""
         self._dto = dto
         self._listeners: list[Callable[[], None]] = []
         self._newly_painted_cells: list[Cell] = []
@@ -196,78 +198,98 @@ class RobotEnv:
 
     @property
     def robot(self) -> "Robot":
+        """Robot instance bound to this environment."""
         return self._robot
 
     @property
     def width(self) -> int:
+        """Grid width in cells."""
         return self._dto.width
 
     @property
     def height(self) -> int:
+        """Grid height in cells."""
         return self._dto.height
 
     @property
     def start_row(self) -> int:
+        """Starting row of the robot."""
         return self._dto.start_row
 
     @property
     def start_col(self) -> int:
+        """Starting column of the robot."""
         return self._dto.start_col
 
     @property
     def final_row(self) -> int:
+        """Required final row of the robot."""
         return self._dto.final_row
 
     @property
     def final_col(self) -> int:
+        """Required final column of the robot."""
         return self._dto.final_col
 
     @property
     def walls(self) -> tuple[tuple[Cell, Cell], ...]:
+        """Wall segments as pairs of adjacent cells."""
         return tuple(self._dto.walls)
 
     @property
     def painted_cells(self) -> tuple[Cell, ...]:
+        """Cells painted in the initial state."""
         return tuple(self._dto.painted_cells)
 
     @property
     def cells_to_paint(self) -> tuple[Cell, ...]:
+        """Cells the solution must paint during the run."""
         return tuple(self._dto.cells_to_paint)
 
     @property
     def polluted_cells(self) -> tuple[ValuedCell, ...]:
+        """Cells with fixed pollution values."""
         return tuple(self._dto.polluted_cells)
 
     @property
     def cells_to_print(self) -> tuple[ValuedCell, ...]:
+        """Cells and values the solution must print."""
         return tuple(self._dto.cells_to_print)
 
     @property
     def printed_cells(self) -> tuple[ValuedCell, ...]:
+        """Values printed so far during the run."""
         return tuple(self._printed_cells)
 
     def add_listener(self, listener: Callable[[], None]) -> None:
+        """Register a callback invoked when environment state changes."""
         self._listeners.append(listener)
 
     def remove_listener(self, listener: Callable[[], None]) -> None:
+        """Unregister a previously added change listener."""
         self._listeners.remove(listener)
 
     def extract_painted_cells(self) -> tuple[Cell, ...]:
+        """Return initial and newly painted cells."""
         return tuple(self._newly_painted_cells + self._dto.painted_cells)
 
     def paint(self, cell: Cell) -> None:
+        """Record a cell as painted during the run."""
         self._newly_painted_cells.append(cell)
 
     def is_painted(self, cell: Cell) -> bool:
+        """Return whether ``cell`` is painted initially or during the run."""
         return cell in self._newly_painted_cells or cell in self._dto.painted_cells
 
     def get_pollution_level(self, cell: Cell) -> int:
+        """Return pollution at ``cell``, or ``0`` when the cell is not polluted."""
         for polluted_cell in self._dto.polluted_cells:
             if same_position(polluted_cell, cell):
                 return polluted_cell.value
         return 0
 
     def print_number(self, cell: ValuedCell) -> None:
+        """Store a printed value at ``cell``, replacing any prior print there."""
         self._printed_cells = [
             printed_cell
             for printed_cell in self._printed_cells
@@ -276,11 +298,13 @@ class RobotEnv:
         self._printed_cells.append(cell)
 
     def reset(self) -> None:
+        """Clear run-time paint/print state and reset the robot to the start."""
         self._newly_painted_cells = []
         self._printed_cells = []
         self._robot.reset()
 
     def is_in_final_state(self) -> bool:
+        """Return whether position, paint, and print goals are all satisfied."""
         return (
             self._robot.row == self.final_row
             and self._robot.col == self.final_col
@@ -321,6 +345,7 @@ class RobotEnv:
 
 class Robot:
     def __init__(self, env: RobotEnv, change_listener: Callable[[], None]):
+        """Place the robot at the environment start and build wall lookup."""
         self._env = env
         self._change_listener = change_listener
         self._row = env.start_row
@@ -329,46 +354,56 @@ class Robot:
 
     @property
     def row(self) -> int:
+        """Current row of the robot."""
         return self._row
 
     @property
     def col(self) -> int:
+        """Current column of the robot."""
         return self._col
 
     def reset(self) -> None:
+        """Move back to the start cell and notify listeners."""
         self._row = self._env.start_row
         self._col = self._env.start_col
         self._walls = self._create_wall_hash_table()
         self._change_listener()
 
     def move_right(self) -> None:
+        """Move one cell right or raise ``RobotPathError``."""
         self._assert_there_is_way_to(self._row, self._col + 1)
         self._col += 1
         self._change_listener()
 
     def move_left(self) -> None:
+        """Move one cell left or raise ``RobotPathError``."""
         self._assert_there_is_way_to(self._row, self._col - 1)
         self._col -= 1
         self._change_listener()
 
     def move_up(self) -> None:
+        """Move one cell up or raise ``RobotPathError``."""
         self._assert_there_is_way_to(self._row - 1, self._col)
         self._row -= 1
         self._change_listener()
 
     def move_down(self) -> None:
+        """Move one cell down or raise ``RobotPathError``."""
         self._assert_there_is_way_to(self._row + 1, self._col)
         self._row += 1
         self._change_listener()
 
     def paint(self) -> None:
+        """Paint the cell under the robot."""
         self._env.paint(Cell(self._row, self._col))
         self._change_listener()
 
     def is_cell_painted(self) -> bool:
+        """Return whether the current cell is painted."""
         return self._env.is_painted(Cell(self._row, self._col))
 
     def is_wall_from(self, direction: Direction) -> bool:
+        """Return whether movement in ``direction`` is blocked."""
         if direction == "right":
             return self._is_there_way_to(self._row, self._col + 1)
         if direction == "left":
@@ -380,12 +415,15 @@ class Robot:
         raise RobotError(t("model.error.unknown_direction", direction=direction))
 
     def is_free_from(self, direction: Direction) -> bool:
+        """Return whether movement in ``direction`` is not blocked."""
         return not self.is_wall_from(direction)
 
     def get_pollution_level(self) -> int:
+        """Return pollution at the cell under the robot."""
         return self._env.get_pollution_level(Cell(self._row, self._col))
 
     def print_number(self, value: object) -> None:
+        """Print an integer at the current cell."""
         if type(value) is not int:
             raise RobotError(t("model.error.printn_integers"))
         self._env.print_number(ValuedCell(self._row, self._col, value))
@@ -413,22 +451,27 @@ class Robot:
 
 
 def cell_from_dict(data: dict) -> Cell:
+    """Parse a ``{r, c}`` cell object from task JSON."""
     return Cell(r=int(data["r"]), c=int(data["c"]))
 
 
 def valued_cell_from_dict(data: dict) -> ValuedCell:
+    """Parse a ``{r, c, value}`` cell object from task JSON."""
     return ValuedCell(r=int(data["r"]), c=int(data["c"]), value=int(data["value"]))
 
 
 def is_valid_wall(first: Cell, second: Cell) -> bool:
+    """Return whether two cells form an orthogonal adjacent wall segment."""
     return abs(first.r - second.r) + abs(first.c - second.c) == 1
 
 
 def same_position(first: Cell, second: Cell) -> bool:
+    """Return whether two cells share the same coordinates."""
     return first.r == second.r and first.c == second.c
 
 
 def count_positions(target: Cell, cells: Iterable[Cell]) -> int:
+    """Count how many cells in ``cells`` match ``target``."""
     return sum(1 for cell in cells if same_position(target, cell))
 
 

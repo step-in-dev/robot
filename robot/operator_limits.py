@@ -57,6 +57,7 @@ def _walk_nodes_skip_nested_scopes(body: list[ast.stmt]):
 def count_robot_operators(
     source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
 ) -> int:
+    """Count robot command calls and calls to user-defined functions."""
     tree = ast.parse(source, filename=filename)
     user_function_names = {
         node.name
@@ -82,6 +83,7 @@ class OperatorsLimitViolation:
 
     @property
     def message(self) -> str:
+        """Localized message describing the operators limit violation."""
         return OPERATORS_LIMIT_MESSAGE_TEMPLATE.format(
             actual=self.actual,
             limit=self.limit,
@@ -94,6 +96,7 @@ def check_operators_limit(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> OperatorsLimitViolation | None:
+    """Return a violation when operator count exceeds ``operators_limit``."""
     if operators_limit is None:
         return None
     actual = count_robot_operators(source, filename=filename)
@@ -186,6 +189,7 @@ def _count_qualifying_calls_in_body(
 def count_custom_function_calls_with_robot_commands(
     source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
 ) -> int:
+    """Count calls to user functions that themselves invoke robot commands."""
     tree = ast.parse(source, filename=filename)
     function_defs = _top_level_function_defs(tree)
     if not function_defs:
@@ -214,6 +218,7 @@ class CustomFunctionCallCountViolation:
 
     @property
     def message(self) -> str:
+        """Localized message describing the custom-function call requirement."""
         return CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE.format(
             actual=self.actual,
             required=self.required,
@@ -226,6 +231,7 @@ def check_custom_function_call_count(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> CustomFunctionCallCountViolation | None:
+    """Return a violation when qualifying custom-function calls are below the minimum."""
     if custom_function_call_count is None:
         return None
     actual = count_custom_function_calls_with_robot_commands(
@@ -242,6 +248,7 @@ def check_custom_function_call_count(
 def extract_python_keywords(
     source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
 ) -> frozenset[str]:
+    """Collect Python keyword tokens present in student source."""
     del filename  # Reserved for parity with other static checks.
     keywords: set[str] = set()
     tokens = tokenize.generate_tokens(io.StringIO(source).readline)
@@ -276,6 +283,7 @@ class PythonKeywordLimitViolation:
 
     @property
     def message(self) -> str:
+        """Localized message describing a Python keyword limit violation."""
         return self._message_template.format(
             actual=self.actual,
             limit=self.limit,
@@ -290,6 +298,7 @@ def _check_python_keyword_token_limit(
     filename: str,
     message_template: str,
 ) -> PythonKeywordLimitViolation | None:
+    """Return a violation when a keyword token count exceeds ``limit``."""
     if limit is None:
         return None
     actual = count_python_keyword_token_occurrences(
@@ -310,6 +319,7 @@ def check_if_limit(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> PythonKeywordLimitViolation | None:
+    """Return a violation when ``if`` keyword uses exceed ``if_limit``."""
     return _check_python_keyword_token_limit(
         source,
         if_limit,
@@ -325,6 +335,7 @@ def check_while_limit(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> PythonKeywordLimitViolation | None:
+    """Return a violation when ``while`` keyword uses exceed ``while_limit``."""
     return _check_python_keyword_token_limit(
         source,
         while_limit,
@@ -340,6 +351,7 @@ class RequiredKeywordsViolation:
 
     @property
     def message(self) -> str:
+        """Localized message listing required keywords that are missing."""
         return REQUIRED_KEYWORDS_MESSAGE_TEMPLATE.format(
             keywords=", ".join(self.missing_keywords)
         )
@@ -351,6 +363,7 @@ def check_required_keywords(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> RequiredKeywordsViolation | None:
+    """Return a violation when any required keyword is absent from source."""
     if not required_keywords:
         return None
     used_keywords = extract_python_keywords(source, filename=filename)
@@ -370,6 +383,7 @@ class BannedKeywordsViolation:
 
     @property
     def message(self) -> str:
+        """Localized message listing banned keywords found in source."""
         return BANNED_KEYWORDS_MESSAGE_TEMPLATE.format(
             keywords=", ".join(self.used_keywords)
         )
@@ -381,6 +395,7 @@ def check_banned_keywords(
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
 ) -> BannedKeywordsViolation | None:
+    """Return a violation when any banned keyword appears in source."""
     if not banned_keywords:
         return None
     used_keywords = extract_python_keywords(source, filename=filename)

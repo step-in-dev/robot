@@ -48,10 +48,12 @@ class StatusStrip:
 
     @property
     def background(self) -> str:
+        """Current status strip background color."""
         return self._background
 
     @property
     def hatched(self) -> bool:
+        """Whether the success hatched pattern is shown."""
         return self._hatched
 
     def _handle_configure(self, _event: tk.Event) -> None:
@@ -63,6 +65,7 @@ class StatusStrip:
             pass
 
     def set_status(self, text: str, background: str, *, hatched: bool = False) -> None:
+        """Update message text and redraw the status canvas."""
         if self._is_closed():
             return
         self.status_var.set(text)

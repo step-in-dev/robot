@@ -17,6 +17,7 @@ from robot.task_catalog import TaskCatalog
 
 
 def main() -> int:
+    """Open viewer mode with the first task in the first catalog theme."""
     catalog = TaskCatalog.discover()
     first_task_id = (
         catalog.first_task_id(catalog.themes[0]) if catalog.themes else None

@@ -11,6 +11,7 @@ def task_has_any_constraints(
     required_keywords: tuple[str, ...] | None,
     banned_keywords: tuple[str, ...] | None,
 ) -> bool:
+    """Return whether any static script constraint is configured for the task."""
     if operators_limit is not None:
         return True
     if custom_function_call_count is not None:
@@ -35,6 +36,7 @@ def constraints_body_lines(
     required_keywords: tuple[str, ...] | None,
     banned_keywords: tuple[str, ...] | None,
 ) -> list[str]:
+    """Build localized lines describing configured script constraints."""
     lines: list[str] = []
     if operators_limit is not None:
         lines.append(

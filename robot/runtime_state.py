@@ -34,18 +34,22 @@ def end_solution_run(previous_command_delay_seconds: float) -> None:
 
 
 def is_executing_solution() -> bool:
+    """Return whether a student script is currently running."""
     return _is_executing_solution
 
 
 def expected_task_id() -> str | None:
+    """Task id for the active solution run, or ``None`` outside a run."""
     return _expected_task_id
 
 
 def active_env() -> RobotEnv | None:
+    """Environment receiving robot commands during a run, or ``None``."""
     return _active_env
 
 
 def active_robot() -> Robot:
+    """Return the robot for the active environment."""
     env = _active_env
     if env is None:
         raise RobotError(
@@ -55,4 +59,5 @@ def active_robot() -> Robot:
 
 
 def command_delay_seconds() -> float:
+    """Seconds to sleep before each robot command during the active run."""
     return _active_command_delay_seconds

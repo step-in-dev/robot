@@ -77,6 +77,7 @@ def _launch_student_robot_window(
 
 
 def task(task_id: str) -> None:
+    """Open the Robot window for a bundled or external task id."""
     if is_executing_solution():
         eid = expected_task_id()
         if eid is not None and task_id != eid:
@@ -119,6 +120,7 @@ def _synthetic_field_envs(width: int, height: int) -> list[RobotEnv]:
 
 
 def field(width: int = 8, height: int = 6) -> None:
+    """Open the Robot window on a blank synthetic field of the given size."""
     width_i, height_i = _validate_field_dimensions(width, height)
     if is_executing_solution():
         return

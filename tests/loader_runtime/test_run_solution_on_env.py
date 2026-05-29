@@ -6,6 +6,7 @@ in the GUI after a successful ``run_env`` / step session (see
 ``tests/test_gui.py``). Regression: ``test_run_solution_on_env_does_not_call_check_limit_violations``.
 """
 
+
 import re
 import tempfile
 import unittest

@@ -128,6 +128,7 @@ class RobotWindow(
         open_constraints_on_startup: bool = False,
         viewer_catalog: TaskCatalog | None = None,
     ) -> RobotWindow:
+        """Construct a window from a loaded task definition and options."""
         return cls(
             task_id=task_id,
             task_definition=task_definition,
@@ -389,6 +390,7 @@ class RobotWindow(
         self.root.update()
 
     def lock_window_size(self) -> None:
+        """Set window geometry from requested size; no-op when unchanged."""
         width = self.root.winfo_reqwidth()
         height = self.root.winfo_reqheight()
         if width <= 1 or height <= 1:
@@ -498,6 +500,7 @@ class RobotWindow(
         self._step_release_token += 1
 
     def step_once(self) -> None:
+        """Run or resume the student script for one source line."""
         if self.is_closed or self.script_path is None or self._is_run_all_active:
             return
         if self._step_session is None:
@@ -522,11 +525,13 @@ class RobotWindow(
             self._finish_step_run(result)
 
     def run(self) -> None:
+        """Start the Tk event loop."""
         if self._open_constraints_on_startup:
             self.root.after(300, self.show_constraints)
         self.root.mainloop()
 
     def close(self) -> None:
+        """Tear down stepping, dialogs, and the root window."""
         if self.is_closed:
             return
         self._cancel_step_wake_only()
@@ -536,6 +541,7 @@ class RobotWindow(
         self.root.destroy()
 
     def select_env(self, index: int) -> None:
+        """Switch the visible environment tab and redraw the field."""
         if self.current_listener is not None:
             self.envs[self.selected_index].remove_listener(self.current_listener)
 
@@ -548,6 +554,7 @@ class RobotWindow(
         self.draw_field()
 
     def configure_tab_buttons(self) -> None:
+        """Update environment tab button relief and enabled state."""
         if self.is_closed:
             return
         for tab_index, button in enumerate(self.tab_buttons):
@@ -563,6 +570,7 @@ class RobotWindow(
             )
 
     def restore(self) -> None:
+        """Reset all environments and return the UI to the ready state."""
         self._cancel_step_wake_only()
         for env in self.envs:
             env.reset()
@@ -571,6 +579,7 @@ class RobotWindow(
         self._set_action_to_run()
 
     def run_all(self) -> None:
+        """Run the student script on every environment in sequence."""
         if self.run_env is None:
             raise RuntimeError("run_env is required")
 
@@ -607,6 +616,7 @@ class RobotWindow(
                 self._is_run_all_active = False
 
     def on_env_change(self) -> None:
+        """Redraw the field when robot state changes."""
         if self.is_closed:
             return
         try:
@@ -616,6 +626,7 @@ class RobotWindow(
             self.is_closed = True
 
     def draw_field(self) -> None:
+        """Paint the current environment on the canvas."""
         if self.is_closed:
             return
 

@@ -1,5 +1,6 @@
 """Every bundled task file must contain at least one valid environment DTO."""
 
+
 from __future__ import annotations
 
 import json
