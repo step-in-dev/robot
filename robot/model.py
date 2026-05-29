@@ -1,3 +1,5 @@
+"""Grid environment, robot movement, painting, and validation."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

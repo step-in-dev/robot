@@ -1,3 +1,4 @@
+"""Tests for RobotEnvDto parsing and serialization."""
 
 import unittest
 

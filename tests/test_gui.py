@@ -1,3 +1,4 @@
+"""Tests for RobotWindow and tkinter UI behavior."""
 
 import json
 import tempfile

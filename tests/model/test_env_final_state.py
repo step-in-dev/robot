@@ -1,3 +1,4 @@
+"""Tests for final-state validation against task DTOs."""
 
 import unittest
 

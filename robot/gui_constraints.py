@@ -1,3 +1,5 @@
+"""Task constraint detection and labels for the UI."""
+
 from __future__ import annotations
 
 from .i18n import t

@@ -1,3 +1,5 @@
+"""Status row below the field (message and success styling)."""
+
 from __future__ import annotations
 
 from typing import Callable

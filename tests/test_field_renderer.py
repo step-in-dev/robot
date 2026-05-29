@@ -1,3 +1,4 @@
+"""Tests for field grid rendering on Canvas."""
 
 import unittest
 

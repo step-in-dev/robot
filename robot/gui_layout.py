@@ -1,3 +1,5 @@
+"""Window layout geometry and size constants."""
+
 from __future__ import annotations
 
 from .gui_theme import (

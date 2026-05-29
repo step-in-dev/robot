@@ -1,3 +1,5 @@
+"""Static checks for operators, control flow, and banned keywords."""
+
 from __future__ import annotations
 
 import ast

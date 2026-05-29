@@ -1,3 +1,5 @@
+"""Capture Robot window screenshots (Linux)."""
+
 from __future__ import annotations
 
 import argparse

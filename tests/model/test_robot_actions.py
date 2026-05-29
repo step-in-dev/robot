@@ -1,3 +1,4 @@
+"""Tests for robot paint and pollution actions."""
 
 import unittest
 from unittest.mock import MagicMock

@@ -1,3 +1,5 @@
+"""Run student scripts with limits, stepping, and error mapping."""
+
 from __future__ import annotations
 
 import sys

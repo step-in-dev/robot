@@ -1,3 +1,4 @@
+"""Tests for robot movement and wall handling."""
 
 import unittest
 

@@ -1,3 +1,4 @@
+"""Tests for language detection and locale strings."""
 
 from __future__ import annotations
 

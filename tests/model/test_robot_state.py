@@ -1,3 +1,4 @@
+"""Tests for robot position and internal state."""
 
 import unittest
 from unittest.mock import MagicMock

@@ -1,3 +1,4 @@
+"""Tests for task file discovery and ordering."""
 
 from __future__ import annotations
 

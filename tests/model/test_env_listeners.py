@@ -1,3 +1,4 @@
+"""Tests for environment change listeners."""
 
 import unittest
 from unittest.mock import MagicMock

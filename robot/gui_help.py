@@ -1,3 +1,5 @@
+"""Help dialog content and command reference text."""
+
 from __future__ import annotations
 
 import webbrowser

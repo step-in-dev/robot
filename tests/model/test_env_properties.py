@@ -1,3 +1,4 @@
+"""Tests for environment dimensions and cell access."""
 
 import unittest
 

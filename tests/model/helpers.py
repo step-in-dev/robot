@@ -1,3 +1,4 @@
+"""Shared helpers for model unit tests."""
 
 from robot.model import RobotEnv, RobotEnvDto
 

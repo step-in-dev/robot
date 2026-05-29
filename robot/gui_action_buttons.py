@@ -1,3 +1,5 @@
+"""Run, Step, and Reset toolbar controls for RobotWindow."""
+
 from __future__ import annotations
 
 import tkinter as tk

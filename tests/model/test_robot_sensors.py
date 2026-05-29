@@ -1,3 +1,4 @@
+"""Tests for is_free / is_wall style probes."""
 
 import unittest
 

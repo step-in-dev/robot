@@ -1,3 +1,4 @@
+"""Tests for localized student command help text."""
 
 from __future__ import annotations
 

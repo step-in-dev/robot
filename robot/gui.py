@@ -1,3 +1,5 @@
+"""Main Robot window for solution and viewer modes."""
+
 from __future__ import annotations
 
 import time

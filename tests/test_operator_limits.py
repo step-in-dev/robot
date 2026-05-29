@@ -1,3 +1,4 @@
+"""Tests for static operator and keyword limits."""
 
 from __future__ import annotations
 

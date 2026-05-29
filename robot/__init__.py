@@ -1,3 +1,5 @@
+"""Student-facing Robot API re-exports."""
+
 from .runtime import (
     field,
     is_cell_not_painted,

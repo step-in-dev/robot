@@ -1,3 +1,5 @@
+"""Draw the grid, robot, walls, and painted cells on a Canvas."""
+
 from __future__ import annotations
 
 import math

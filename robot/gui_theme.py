@@ -1,3 +1,5 @@
+"""Colors, fonts, and visual constants for the UI."""
+
 from __future__ import annotations
 
 from .i18n import t

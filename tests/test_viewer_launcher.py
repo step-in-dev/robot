@@ -1,3 +1,4 @@
+"""Tests for the teacher task viewer launcher."""
 
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+"""Tests for environment state and cell mutations."""
 
 import unittest
 from unittest.mock import MagicMock

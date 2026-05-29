@@ -1,3 +1,5 @@
+"""Facade: task(), field(), and wiring loader, GUI, and executor."""
+
 from __future__ import annotations
 
 import sys
