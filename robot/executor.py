@@ -37,6 +37,8 @@ class StepExecutionCancelled(BaseException):  # NOSONAR — must not inherit Exc
 
 @dataclass(frozen=True)
 class StudentLine:
+    """One source line from the student script (lineno and text)."""
+
     lineno: int
     text: str
 

@@ -80,6 +80,8 @@ def count_robot_operators(
 
 @dataclass(frozen=True)
 class OperatorsLimitViolation:
+    """Operators limit exceeded during static script check."""
+
     actual: int
     limit: int
 
@@ -215,6 +217,8 @@ def count_custom_function_calls_with_robot_commands(
 
 @dataclass(frozen=True)
 class CustomFunctionCallCountViolation:
+    """Minimum custom-function call count not met."""
+
     actual: int
     required: int
 
@@ -279,6 +283,8 @@ def count_python_keyword_token_occurrences(
 
 @dataclass(frozen=True)
 class PythonKeywordLimitViolation:
+    """``if`` or ``while`` keyword limit exceeded."""
+
     actual: int
     limit: int
     _message_template: str = field(repr=False)
@@ -349,6 +355,8 @@ def check_while_limit(
 
 @dataclass(frozen=True)
 class RequiredKeywordsViolation:
+    """Required Python keywords missing from the script."""
+
     missing_keywords: tuple[str, ...]
 
     @property
@@ -381,6 +389,8 @@ def check_required_keywords(
 
 @dataclass(frozen=True)
 class BannedKeywordsViolation:
+    """Banned Python keywords found in the script."""
+
     used_keywords: tuple[str, ...]
 
     @property

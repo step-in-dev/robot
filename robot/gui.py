@@ -64,6 +64,8 @@ INTER_ENV_PAUSE_SECONDS = 0.2
 
 @dataclass(frozen=True)
 class RobotWindowOptions:
+    """Optional settings when opening a ``RobotWindow``."""
+
     initial_index: int = 0
     script_path: Path | None = None
     open_constraints_on_startup: bool = False
@@ -73,6 +75,8 @@ class RobotWindowOptions:
 class RobotWindow(
     DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin, ViewerMixin
 ):
+    """Main tkinter window for student solutions and task viewer."""
+
     def __init__(
         self,
         task_id: str,

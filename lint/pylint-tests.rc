@@ -1,4 +1,5 @@
-# Tests: same rule set as production, except missing-function-docstring (C0116).
+# Tests: same rule set as production, except missing-function-docstring (C0116)
+# and missing-class-docstring (C0115).
 [MESSAGES CONTROL]
 enable=all
-disable=missing-function-docstring
+disable=missing-function-docstring,missing-class-docstring

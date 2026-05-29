@@ -19,11 +19,13 @@ PYTHON_KEYWORDS = frozenset(keyword.kwlist)
 
 
 class TaskLoadError(Exception):
-    pass
+    """Raised when a task ``.env`` file cannot be loaded or parsed."""
 
 
 @dataclass(frozen=True)
 class RobotTask:
+    """Loaded task: environments, todo text, and constraint limits."""
+
     envs: list[RobotEnv]
     todo_text: str
     operators_limit: int | None = None

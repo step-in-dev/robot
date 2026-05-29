@@ -12,6 +12,8 @@ RunStatus = Literal["success", "wrong", "crashed", "error"]
 
 @dataclass(frozen=True)
 class RunResult:
+    """Outcome of a solution run (status, message, details)."""
+
     status: RunStatus
     message: str
     details: str = ""

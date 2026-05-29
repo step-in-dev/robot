@@ -22,17 +22,23 @@ class RobotPathError(RobotError):
 
 @dataclass(frozen=True)
 class Cell:
+    """Grid coordinates as row and column indices."""
+
     r: int
     c: int
 
 
 @dataclass(frozen=True)
 class ValuedCell(Cell):
+    """Grid cell with an integer value (pollution or print)."""
+
     value: int
 
 
 @dataclass
 class RobotEnvDto:
+    """Validated environment layout loaded from a task file."""
+
     width: int
     height: int
     start_row: int
@@ -190,6 +196,8 @@ class RobotEnvDto:
 
 
 class RobotEnv:
+    """Mutable task environment: grid state, robot, and change listeners."""
+
     def __init__(self, dto: RobotEnvDto):
         """Create a mutable environment from a validated DTO."""
         self._dto = dto
@@ -346,6 +354,8 @@ class RobotEnv:
 
 
 class Robot:
+    """Robot actor that moves, paints, and reads sensors on the grid."""
+
     def __init__(self, env: RobotEnv, change_listener: Callable[[], None]):
         """Place the robot at the environment start and build wall lookup."""
         self._env = env

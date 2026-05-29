@@ -3,13 +3,13 @@
 Pylint configuration lives in `lint/`.
 
 - `lint/pylint-src.rc` — full pylint rule set (`enable=all`) on production paths, including `missing-function-docstring` (**C0116**).
-- `lint/pylint-tests.rc` — the same rule set on `tests/`, with **C0116** disabled.
+- `lint/pylint-tests.rc` — the same rule set on `tests/`, with **C0116** and **C0115** disabled.
 
-## C0116 in tests
+## Docstrings in tests
 
-Test code is not checked for `missing-function-docstring` (**C0116**). Test function and method names (for example `test_robot_moves_right_when_cell_is_free`) already describe the scenario and assertion clearly enough; a docstring would mostly repeat the name.
+Test code is not checked for `missing-function-docstring` (**C0116**) or `missing-class-docstring` (**C0115**). Module docstrings, descriptive `unittest` class names (for example `RobotMovementTest`), and test method names (for example `test_robot_moves_right_when_cell_is_free`) already scope each file and scenario; a per-class or per-method docstring would mostly repeat those names.
 
-Production code still requires a short one-line docstring on every function and method (including `@property` getters), per **C0116**.
+Production code still requires a short one-line docstring on every function and method (including `@property` getters), per **C0116**, and on public classes, per **C0115**.
 
 ## Scope
 

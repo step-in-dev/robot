@@ -50,6 +50,8 @@ def format_printable_value(value: int) -> str:
 
 @dataclass
 class FieldColors:
+    """Tkinter color palette for field rendering."""
+
     grid_color: str
     wall_color: str
     robot_color: str
