@@ -20,16 +20,20 @@ from robot.i18n import t
 from robot.results import RunResult
 
 from ._helpers import (
+    GuiTestCase,
+    cell_1x1,
+    corridor,
     make_env,
     make_test_window,
     minimal_env_dict,
     requires_tk_display,
+    test_window,
 )
 
 @requires_tk_display
-class RobotWindowStepButtonTest(unittest.TestCase):
+class RobotWindowStepButtonTest(GuiTestCase):
     def test_step_button_is_right_of_run_with_script_path(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -37,13 +41,12 @@ class RobotWindowStepButtonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "sol.py"
             script.write_text("#\n", encoding="utf-8")
-            window = make_test_window(
+            with test_window(
                 "step_layout",
                 envs,
                 run_env,
                 options=RobotWindowOptions(script_path=script),
-            )
-            try:
+            ) as window:
                 left_slaves = list(window.controls_left.pack_slaves())
                 self.assertEqual(left_slaves[0], window.action_button)
                 self.assertEqual(left_slaves[1], window.step_button)
@@ -53,24 +56,19 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 self.assertEqual(window.step_button.cget("state"), tk.NORMAL)
                 self.assertEqual(window.help_button.cget("text"), ACTION_BUTTON_HELP)
                 self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
-            finally:
-                window.close()
 
     def test_step_button_disabled_without_script_path(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("no_script", envs, run_env)
-        try:
+        with test_window("no_script", envs, run_env) as window:
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
             self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
-        finally:
-            window.close()
 
     def test_enter_does_not_invoke_step_button(self) -> None:
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
         step_calls = 0
 
         def run_env(env: RobotEnv) -> RunResult:
@@ -101,18 +99,17 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.close()
 
     def test_run_all_disables_step_button_while_running(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "s3.py"
             script.write_text("#\n", encoding="utf-8")
-            window = make_test_window(
+            with test_window(
                 "run_disables_step",
                 envs,
                 None,
                 options=RobotWindowOptions(script_path=script),
-            )
-            try:
+            ) as window:
 
                 def run_env(_env: RobotEnv) -> RunResult:
                     self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
@@ -133,11 +130,9 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 )
                 self.assertIn(window.help_button, window.controls_right.pack_slaves())
                 self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
-            finally:
-                window.close()
 
     def test_restore_re_enables_step_with_script_path(self) -> None:
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
 
         def run_env(env: RobotEnv) -> RunResult:
             env.robot.move_right()
@@ -173,23 +168,20 @@ class RobotWindowStepButtonTest(unittest.TestCase):
                 window.close()
 
     def test_run_all_hides_step_without_script_restore_shows_disabled(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("hide_step_no_script", envs, run_env)
-        try:
+        with test_window("hide_step_no_script", envs, run_env) as window:
             window.run_all()
             self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
             window.restore()
             self.assertIn(window.step_button, window.controls_left.pack_slaves())
             self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
-        finally:
-            window.close()
 
     def test_show_step_line_status_format(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -214,7 +206,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
     def test_successful_step_shows_hatched_status(self) -> None:
         """Step-by-step success uses hatched green status (unlike run_all)."""
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
@@ -249,7 +241,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
     def test_first_step_shows_restore_enabled_and_keeps_step_visible(self) -> None:
         """After starting step debug, Restore is active while waiting for the next line."""
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
@@ -287,7 +279,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
     def test_restore_during_step_wait_resets_field(self) -> None:
         """Restore while paused between steps cancels stepping and resets the grid."""
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
@@ -324,7 +316,7 @@ class RobotWindowStepButtonTest(unittest.TestCase):
 
     def test_close_during_step_wait_does_not_raise_tcl_error(self) -> None:
         """Closing while waiting for the next step must not configure destroyed widgets."""
-        base = {**minimal_env_dict(1, 1), "finalCol": 0}
+        base = cell_1x1()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         with tempfile.TemporaryDirectory() as tmp:

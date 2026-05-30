@@ -11,11 +11,14 @@ from robot.results import RunResult
 from robot.i18n import t
 
 from ._helpers import (
+    GuiTestCase,
     _find_first_text_widget,
+    cell_1x1,
     make_env,
     make_test_window,
     minimal_env_dict,
     requires_tk_display,
+    test_window,
 )
 
 
@@ -28,82 +31,74 @@ def _toplevels_with_title(root: tk.Misc, title: str) -> list[tk.Toplevel]:
 
 
 @requires_tk_display
-class RobotWindowConstraintsTest(unittest.TestCase):
+class RobotWindowConstraintsTest(GuiTestCase):
     def tearDown(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
+        super().tearDown()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_no_constraints_no_top_toolbar_single_env(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("no_lim", envs, run_env)
-        try:
+        with test_window("no_lim", envs, run_env) as window:
             self.assertIsNone(window.top_toolbar)
             self.assertIsNone(window.constraints_button)
             self.assertEqual(window.tab_buttons, [])
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_multi_env_without_constraints_has_top_bar_only_tabs(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        base = {**minimal_env_dict(1, 1), "finalCol": 0}
+        base = cell_1x1()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("two_env", envs, run_env)
-        try:
+        with test_window("two_env", envs, run_env) as window:
             self.assertIsNotNone(window.top_toolbar)
             self.assertIsNotNone(window.tab_frame)
             self.assertIsNone(window.constraints_button)
             self.assertEqual(len(window.tab_buttons), 2)
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_button_top_right_single_env(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window(
+        with test_window(
             "one_lim",
             envs,
             run_env,
             constraints=ScriptConstraints(operators_limit=5),
-        )
-        try:
+        ) as window:
             self.assertIsNotNone(window.top_toolbar)
             self.assertIsNotNone(window.constraints_button)
             self.assertIs(window.tab_frame.master, window.top_toolbar)
             self.assertIs(window.constraints_button.master, window.top_toolbar)
             slaves = list(window.top_toolbar.pack_slaves())
             self.assertEqual(slaves, [window.tab_frame, window.constraints_button])
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_with_multi_env_tabs_left_button_right(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        base = {**minimal_env_dict(1, 1), "finalCol": 0}
+        base = cell_1x1()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
@@ -128,7 +123,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -170,7 +165,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -203,7 +198,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -231,7 +226,7 @@ class RobotWindowConstraintsTest(unittest.TestCase):
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
@@ -264,7 +259,6 @@ class RobotWindowConstraintsTest(unittest.TestCase):
             )
         finally:
             window.close()
-
 
 
 if __name__ == "__main__":

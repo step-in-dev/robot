@@ -22,7 +22,8 @@ from robot.executor import (
     StepExecutionTarget,
 )
 from robot.i18n import t
-from robot.model import RobotEnv, RobotEnvDto
+from robot.model import RobotEnv
+from tests.env_fixtures import cell_1x1, corridor, env_dict, make_env
 
 from ._helpers import NOOP_STEP_CALLBACKS, LoaderRuntimeTestBase
 
@@ -37,18 +38,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -68,18 +58,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -100,18 +79,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "    move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -134,18 +102,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "    move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 3,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 2,
-                    }
-                )
-            )
+            env = make_env(env_dict(3, 1, final_col=2))
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -170,18 +127,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "    pass\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -203,18 +149,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -236,18 +171,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "    move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -281,18 +205,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "a = 2\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -351,18 +264,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "y = go()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -410,18 +312,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "a = 2\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,
@@ -463,18 +354,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 "1 / 0\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
             session = StepExecutionSession(
                 StepExecutionTarget(script, "noop"),
                 env,

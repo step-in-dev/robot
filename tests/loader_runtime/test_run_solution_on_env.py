@@ -16,7 +16,7 @@ from unittest.mock import call, patch
 import robot.runtime as runtime
 from robot.executor import run_solution_on_env
 from robot.i18n import t
-from robot.model import RobotEnv, RobotEnvDto
+from tests.env_fixtures import cell_1x1, corridor, make_env
 
 from ._helpers import LoaderRuntimeTestBase
 
@@ -32,18 +32,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "    move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 4,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 3,
-                    }
-                )
-            )
+            env = make_env(corridor(width=4))
 
             result = run_solution_on_env(script, "while1", env)
 
@@ -63,20 +52,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "printn(7)\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                        "cellsToPaint": [{"r": 0, "c": 1}],
-                        "cellsToPrint": [{"r": 0, "c": 1, "value": 7}],
-                    }
-                )
-            )
+            env = make_env(corridor(cellsToPaint=[{"r": 0, "c": 1}], cellsToPrint=[{"r": 0, "c": 1, "value": 7}]))
 
             with patch("robot.commands.time.sleep") as sleep:
                 result = run_solution_on_env(
@@ -100,18 +76,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "task('while1')\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
 
             result = run_solution_on_env(script, "while1", env)
 
@@ -125,18 +90,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "from robot import move_right\nmove_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
             with patch("robot.executor.check_limit_violations") as mock_check:
                 result = run_solution_on_env(script, "noop", env)
             mock_check.assert_not_called()
@@ -152,18 +106,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "1/0\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 2,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 1,
-                    }
-                )
-            )
+            env = make_env(corridor())
 
             result = run_solution_on_env(script, "divtask", env)
 
@@ -181,18 +124,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "printn(1.2)\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
 
             result = run_solution_on_env(script, "printntest", env)
 
@@ -211,18 +143,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "move_right()\n",
                 encoding="utf-8",
             )
-            env = RobotEnv(
-                RobotEnvDto.from_dict(
-                    {
-                        "width": 1,
-                        "height": 1,
-                        "startRow": 0,
-                        "startCol": 0,
-                        "finalRow": 0,
-                        "finalCol": 0,
-                    }
-                )
-            )
+            env = make_env(cell_1x1())
 
             result = run_solution_on_env(script, "walltask", env)
 

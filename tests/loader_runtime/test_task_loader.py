@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 from robot.loader import TaskLoadError, load_task, load_task_definition
 
+from tests.env_fixtures import cell_1x1, corridor
+
 from ._helpers import LoaderRuntimeTestBase
 
 
@@ -19,14 +21,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 2,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 1,
-                            }
+                            corridor()
                         ],
                         "todoText": "Reach the end",
                     }
@@ -56,14 +51,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 1,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 0,
-                            }
+                            cell_1x1()
                         ],
                         "operatorsLimit": 5,
                     }
@@ -83,14 +71,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 1,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 0,
-                            }
+                            cell_1x1()
                         ],
                         "customFunctionCallCount": 2,
                     }
@@ -144,14 +125,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
         self.assertEqual(task.banned_keywords, ("if", "while"))
 
     def test_load_task_definition_rejects_invalid_operators_limit(self) -> None:
-        base_env = {
-            "width": 1,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 0,
-        }
+        base_env = cell_1x1()
         invalid_cases = {
             "neg": -1,
             "string": "3",
@@ -178,14 +152,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
     def test_load_task_definition_rejects_invalid_custom_function_call_count(
         self,
     ) -> None:
-        base_env = {
-            "width": 1,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 0,
-        }
+        base_env = cell_1x1()
         invalid_cases = {
             "neg": -1,
             "string": "3",
@@ -214,14 +181,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                         load_task_definition(f"uf_{name}")
 
     def test_load_task_definition_rejects_invalid_if_limit(self) -> None:
-        base_env = {
-            "width": 1,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 0,
-        }
+        base_env = cell_1x1()
         invalid_cases = {
             "neg": -1,
             "string": "3",
@@ -245,14 +205,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                         load_task_definition(f"if_{name}")
 
     def test_load_task_definition_rejects_invalid_while_limit(self) -> None:
-        base_env = {
-            "width": 1,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 0,
-        }
+        base_env = cell_1x1()
         invalid_cases = {
             "neg": -1,
             "string": "3",
@@ -310,14 +263,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 1,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 0,
-                            }
+                            cell_1x1()
                         ]
                     }
                 ),
@@ -344,14 +290,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 1,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 0,
-                            }
+                            cell_1x1()
                         ],
                         "todoText": "",
                     }
@@ -362,14 +301,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 json.dumps(
                     {
                         "envDtos": [
-                            {
-                                "width": 1,
-                                "height": 1,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 0,
-                                "finalCol": 0,
-                            }
+                            cell_1x1()
                         ],
                         "todoText": 123,
                     }

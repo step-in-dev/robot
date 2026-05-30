@@ -1,7 +1,19 @@
 """Shared helpers for model unit tests."""
 
-from robot.model import RobotEnv, RobotEnvDto
+from tests.env_fixtures import (
+    attach_mock_listener,
+    cell_1x1,
+    corridor,
+    corridor_with_paint,
+    env_dict,
+    make_env,
+)
 
-
-def make_env(data):
-    return RobotEnv(RobotEnvDto.from_dict(data))
+__all__ = [
+    "attach_mock_listener",
+    "cell_1x1",
+    "corridor",
+    "corridor_with_paint",
+    "env_dict",
+    "make_env",
+]

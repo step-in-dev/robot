@@ -1,25 +1,33 @@
 """Shared helpers for GUI unittest modules."""
 
-import unittest
-from collections.abc import Callable
+import contextlib
+from collections.abc import Callable, Iterator
 
 import tkinter as tk
 
 from robot.gui import RobotWindow, RobotWindowOptions
 from robot.loader import RobotTask, ScriptConstraints
-from robot.model import RobotEnv, RobotEnvDto
+from robot.model import RobotEnv
 from robot.results import RunResult
+from tests.env_fixtures import (
+    cell_1x1,
+    corridor,
+    env_dict,
+    make_env,
+)
+from tests.tk_display import GuiTestCase, requires_tk_display
 
-
-def _tkinter_display_works() -> bool:
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        root.update_idletasks()
-        root.destroy()
-        return True
-    except tk.TclError:
-        return False
+__all__ = [
+    "GuiTestCase",
+    "cell_1x1",
+    "corridor",
+    "env_dict",
+    "make_env",
+    "make_test_window",
+    "minimal_env_dict",
+    "requires_tk_display",
+    "test_window",
+]
 
 
 def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
@@ -30,10 +38,6 @@ def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
         if nested is not None:
             return nested
     return None
-
-
-def make_env(data: dict) -> RobotEnv:
-    return RobotEnv(RobotEnvDto.from_dict(data))
 
 
 def make_test_window(
@@ -55,17 +59,27 @@ def make_test_window(
 
 
 def minimal_env_dict(width: int, height: int) -> dict:
-    return {
-        "width": width,
-        "height": height,
-        "startRow": 0,
-        "startCol": 0,
-        "finalRow": 0,
-        "finalCol": 0,
-    }
+    return env_dict(width, height, final_col=0)
 
 
-requires_tk_display = unittest.skipUnless(
-    _tkinter_display_works(),
-    "tkinter display not available (headless / no DISPLAY)",
-)
+@contextlib.contextmanager
+def test_window(
+    task_id: str,
+    envs: list[RobotEnv],
+    run_env: Callable[[RobotEnv], RunResult] | None,
+    *,
+    options: RobotWindowOptions | None = None,
+    constraints: ScriptConstraints | None = None,
+) -> Iterator[RobotWindow]:
+    window = make_test_window(
+        task_id,
+        envs,
+        run_env,
+        options=options,
+        constraints=constraints,
+    )
+    try:
+        yield window
+    finally:
+        window.close()
+

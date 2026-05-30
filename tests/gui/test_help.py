@@ -12,11 +12,14 @@ from robot.i18n import t
 from robot.results import RunResult
 
 from ._helpers import (
+    GuiTestCase,
     _find_first_text_widget,
+    cell_1x1,
     make_env,
     make_test_window,
     minimal_env_dict,
     requires_tk_display,
+    test_window,
 )
 
 _EXPECTED_HELP_PROJECT_REPO_URL = "https://github.com/step-in-dev/robot"
@@ -76,24 +79,24 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
 
 
 @requires_tk_display
-class RobotWindowHelpTest(unittest.TestCase):
+class RobotWindowHelpTest(GuiTestCase):
     def tearDown(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
+        super().tearDown()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_opens_toplevel_with_expected_title_and_body(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("help_win", envs, run_env)
-        try:
+        with test_window("help_win", envs, run_env) as window:
             window.show_help()
             window.root.update()
             tops = _help_toplevel_children(window.root)
@@ -107,8 +110,6 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertIn(t("help.command.move_right"), body)
             self.assertIn("field(width=8, height=6)", body)
             self.assertIn(t("help.command.field"), body)
-        finally:
-            window.close()
 
     @patch("robot.gui_help.webbrowser.open")
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
@@ -116,13 +117,12 @@ class RobotWindowHelpTest(unittest.TestCase):
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("help_link", envs, run_env)
-        try:
+        with test_window("help_link", envs, run_env) as window:
             window.show_help()
             window.root.update_idletasks()
             tops = _help_toplevel_children(window.root)
@@ -143,21 +143,18 @@ class RobotWindowHelpTest(unittest.TestCase):
             text.event_generate("<Button-1>", x=x, y=y)
             window.root.update()
             open_mock.assert_called_once_with(_EXPECTED_HELP_PROJECT_REPO_URL)
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_escape_dismisses_help_but_not_main(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("help_escape", envs, run_env)
-        try:
+        with test_window("help_escape", envs, run_env) as window:
             window.show_help()
             window.root.update()
             tops = _help_toplevel_children(window.root)
@@ -172,21 +169,18 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertIsNone(window._help_window_close_handler)
             self.assertFalse(window.is_closed)
             self.assertEqual(window.root.winfo_exists(), 1)
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_second_open_lifts_same_window(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("help_reuse", envs, run_env)
-        try:
+        with test_window("help_reuse", envs, run_env) as window:
             window.show_help()
             window.root.update()
             first = _help_toplevel_children(window.root)[0]
@@ -195,21 +189,18 @@ class RobotWindowHelpTest(unittest.TestCase):
             tops = _help_toplevel_children(window.root)
             self.assertEqual(len(tops), 1)
             self.assertIs(tops[0], first)
-        finally:
-            window.close()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_reopens_after_wm_delete_window_handler(self) -> None:
         from robot import i18n
 
         i18n.clear_translation_cache()
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("help_reopen", envs, run_env)
-        try:
+        with test_window("help_reopen", envs, run_env) as window:
             window.show_help()
             window.root.update()
             first = window._help_window
@@ -226,8 +217,6 @@ class RobotWindowHelpTest(unittest.TestCase):
             self.assertIsNotNone(second)
             self.assertIsNot(first, second)
             self.assertEqual(len(_help_toplevel_children(window.root)), 1)
-        finally:
-            window.close()
 
 
 if __name__ == "__main__":

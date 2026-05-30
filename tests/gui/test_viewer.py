@@ -12,7 +12,7 @@ from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
 from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 
-from ._helpers import requires_tk_display
+from ._helpers import GuiTestCase, requires_tk_display
 
 
 def _make_viewer_window() -> RobotWindow:
@@ -30,7 +30,7 @@ def _make_viewer_window() -> RobotWindow:
 
 
 @requires_tk_display
-class RobotWindowViewerTest(unittest.TestCase):
+class RobotWindowViewerTest(GuiTestCase):
     def test_viewer_disables_run_and_step(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)

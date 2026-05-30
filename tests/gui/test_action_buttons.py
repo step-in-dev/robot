@@ -14,16 +14,20 @@ from robot.gui_theme import (
 from robot.results import RunResult
 
 from ._helpers import (
+    GuiTestCase,
+    cell_1x1,
+    corridor,
     make_env,
     make_test_window,
     minimal_env_dict,
     requires_tk_display,
+    test_window,
 )
 
 @requires_tk_display
-class RobotWindowActionButtonTest(unittest.TestCase):
+class RobotWindowActionButtonTest(GuiTestCase):
     def test_run_then_restore_button_and_first_env(self) -> None:
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         def run_env(env: RobotEnv) -> RunResult:
@@ -58,72 +62,60 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.close()
 
     def test_run_all_pauses_before_second_env_when_first_succeeds(self) -> None:
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         def run_env(env: RobotEnv) -> RunResult:
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("pause_between_envs", envs, run_env)
-        try:
+        with test_window("pause_between_envs", envs, run_env) as window:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
             self.assertEqual(
                 sleep_mock.call_args_list,
                 [call(INTER_ENV_PAUSE_SECONDS)],
             )
-        finally:
-            window.close()
 
     def test_run_all_no_inter_env_sleep_for_single_env(self) -> None:
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
 
         def run_env(env: RobotEnv) -> RunResult:
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("single_env_no_pause", envs, run_env)
-        try:
+        with test_window("single_env_no_pause", envs, run_env) as window:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
             sleep_mock.assert_not_called()
-        finally:
-            window.close()
 
     def test_run_all_no_pause_after_failed_first_env(self) -> None:
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message="wrong")
 
-        window = make_test_window("fail_first_no_pause", envs, run_env)
-        try:
+        with test_window("fail_first_no_pause", envs, run_env) as window:
             with patch("robot.gui.time.sleep") as sleep_mock:
                 window.run_all()
             sleep_mock.assert_not_called()
-        finally:
-            window.close()
 
     def test_failed_run_still_shows_restore(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="wrong", message="wrong")
 
-        window = make_test_window("test_task2", envs, run_env)
-        try:
+        with test_window("test_task2", envs, run_env) as window:
             self.assertIsNotNone(window.action_button)
             window.run_all()
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
             self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
-        finally:
-            window.close()
 
     def test_run_all_shows_restore_disabled_while_running(self) -> None:
         """Restore label appears immediately; disabled Restore ignores invokes during run."""
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
 
         window = make_test_window("restore_while_run", envs, None)
         try:
@@ -154,7 +146,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
 
     def test_queued_invokes_during_run_do_not_restore_then_rerun(self) -> None:
         """Queued button invokes while disabled must not restore then start run_all."""
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
         run_count = 0
 
         window = make_test_window("test_queued_invoke", envs, None)
@@ -181,7 +173,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.close()
 
     def test_enter_from_canvas_runs_then_restores(self) -> None:
-        base = {**minimal_env_dict(2, 1), "finalCol": 1}
+        base = corridor()
         envs = [make_env(dict(base))]
         run_calls = 0
 
@@ -191,8 +183,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("enter_canvas", envs, run_env)
-        try:
+        with test_window("enter_canvas", envs, run_env) as window:
             btn = window.action_button
             self.assertIsNotNone(btn)
             window.canvas.focus_set()
@@ -210,12 +201,10 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             self.assertEqual(window.selected_index, 0)
             self.assertEqual(btn.cget("text"), ACTION_BUTTON_RUN)
             self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
-        finally:
-            window.close()
 
     def test_enter_from_canvas_when_action_button_in_active_state(self) -> None:
         """Hover makes tk.Button state 'active'; Enter must still run like normal."""
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
         run_calls = 0
 
         def run_env(env: RobotEnv) -> RunResult:
@@ -224,8 +213,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("enter_when_button_active", envs, run_env)
-        try:
+        with test_window("enter_when_button_active", envs, run_env) as window:
             btn = window.action_button
             self.assertIsNotNone(btn)
             btn.configure(state=tk.ACTIVE)
@@ -235,16 +223,13 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.root.update()
             self.assertEqual(run_calls, 1)
             self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
-        finally:
-            window.close()
 
     def test_start_run_via_enter_with_two_queued_enters_during_run(self) -> None:
         """Start run with Enter; two Enter pairs queued during run must not restore+rerun."""
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
         run_count = 0
 
-        window = make_test_window("enter_start_two_queued", envs, None)
-        try:
+        with test_window("enter_start_two_queued", envs, None) as window:
             btn = window.action_button
             self.assertIsNotNone(btn)
             window.canvas.focus_set()
@@ -281,18 +266,15 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.root.update()
             self.assertEqual(btn.cget("text"), ACTION_BUTTON_RUN)
             self.assertEqual((envs[0].robot.row, envs[0].robot.col), (0, 0))
-        finally:
-            window.close()
 
     def test_enter_does_not_invoke_when_restore_button_disabled(self) -> None:
-        envs = [make_env({**minimal_env_dict(2, 1), "finalCol": 1})]
+        envs = [make_env(corridor())]
 
         def run_env(env: RobotEnv) -> RunResult:
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("enter_while_disabled", envs, run_env)
-        try:
+        with test_window("enter_while_disabled", envs, run_env) as window:
             btn = window.action_button
             self.assertIsNotNone(btn)
             window.canvas.focus_set()
@@ -308,11 +290,9 @@ class RobotWindowActionButtonTest(unittest.TestCase):
                 "Enter must not restore while button is still disabled",
             )
             self.assertEqual(btn.cget("state"), tk.NORMAL)
-        finally:
-            window.close()
 
     def test_kp_enter_from_canvas_runs(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
         run_calls = 0
 
         def run_env(_env: RobotEnv) -> RunResult:
@@ -320,8 +300,7 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             run_calls += 1
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("kp_enter_canvas", envs, run_env)
-        try:
+        with test_window("kp_enter_canvas", envs, run_env) as window:
             btn = window.action_button
             self.assertIsNotNone(btn)
             window.canvas.focus_set()
@@ -329,23 +308,18 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             window.root.update()
             self.assertEqual(run_calls, 1)
             self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
-        finally:
-            window.close()
 
     def test_escape_from_canvas_closes_window(self) -> None:
-        envs = [make_env({**minimal_env_dict(1, 1), "finalCol": 0})]
+        envs = [make_env(cell_1x1())]
 
         def run_env(_env: RobotEnv) -> RunResult:
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("escape_canvas", envs, run_env)
-        try:
+        with test_window("escape_canvas", envs, run_env) as window:
             window.canvas.focus_set()
             window.canvas.event_generate("<Escape>", when="tail")
             window.root.update()
             self.assertTrue(window.is_closed)
-        finally:
-            window.close()
 
 
 

@@ -15,22 +15,10 @@ from robot.field_renderer import (
     format_printable_value,
     print_line_gap,
 )
-from robot.model import RobotEnv, RobotEnvDto, ValuedCell
-
-
-def _tkinter_display_works() -> bool:
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        root.update_idletasks()
-        root.destroy()
-        return True
-    except tk.TclError:
-        return False
-
-
-def make_env(data: dict) -> RobotEnv:
-    return RobotEnv(RobotEnvDto.from_dict(data))
+from robot.model import ValuedCell
+from robot.tk_util import destroy_tk_root
+from tests.env_fixtures import env_dict, make_env
+from tests.tk_display import GuiTestCase, requires_tk_display
 
 
 def _collect_text_items(canvas: tk.Canvas) -> list[dict[str, object]]:
@@ -92,11 +80,8 @@ class PrintLineGapTest(unittest.TestCase):
         self.assertEqual(print_line_gap(10), 2)
 
 
-@unittest.skipUnless(
-    _tkinter_display_works(),
-    "tkinter display not available (headless / no DISPLAY)",
-)
-class FieldRendererTextPlacementTest(unittest.TestCase):
+@requires_tk_display
+class FieldRendererTextPlacementTest(GuiTestCase):
     """Layout matches SidWebUi intent; tkinter uses anchor nw for print lines (top y)."""
 
     def setUp(self) -> None:
@@ -104,21 +89,12 @@ class FieldRendererTextPlacementTest(unittest.TestCase):
         self.root.withdraw()
 
     def tearDown(self) -> None:
-        self.root.destroy()
+        destroy_tk_root(self.root)
+        self.root = None  # type: ignore[assignment]
+        super().tearDown()
 
     def test_pollution_bottom_left_expected_top_printed_second_line(self) -> None:
-        env = make_env(
-            {
-                "width": 2,
-                "height": 2,
-                "startRow": 0,
-                "startCol": 0,
-                "finalRow": 0,
-                "finalCol": 0,
-                "pollutedCells": [{"r": 1, "c": 0, "value": 7}],
-                "cellsToPrint": [{"r": 0, "c": 0, "value": 42}],
-            }
-        )
+        env = make_env(env_dict(2, 2, pollutedCells=[{'r': 1, 'c': 0, 'value': 7}], cellsToPrint=[{'r': 0, 'c': 0, 'value': 42}]))
         env.print_number(ValuedCell(0, 0, 42))
 
         cell_size = 80

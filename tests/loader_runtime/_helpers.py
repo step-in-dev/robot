@@ -10,10 +10,13 @@ import sys
 import types
 import unittest
 from dataclasses import dataclass
+from collections.abc import Iterator
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from robot.executor import StepExecutionCallbacks
+from tests.env_fixtures import corridor
 from robot.loader import TASKS_DIR_ENV, ScriptConstraints
 
 NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
@@ -24,14 +27,15 @@ NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
 
 def minimal_env_dto(*, width: int = 1, height: int = 1) -> dict[str, int]:
     """Single-row environment used by viewer and loader tests."""
-    return {
-        "width": width,
-        "height": height,
-        "startRow": 0,
-        "startCol": 0,
-        "finalRow": 0,
-        "finalCol": width - 1,
-    }
+    return corridor(width=width, height=height)
+
+
+@contextlib.contextmanager
+def temp_script(body: str, *, name: str = "solution.py") -> Iterator[Path]:
+    with TemporaryDirectory() as temp_dir:
+        script = Path(temp_dir) / name
+        script.write_text(body, encoding="utf-8")
+        yield script
 
 
 def write_minimal_task_env(

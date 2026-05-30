@@ -57,6 +57,7 @@ from .loader import RobotTask, ScriptConstraints
 from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip, StatusStripHost
+from .tk_util import destroy_tk_root
 from .task_catalog import TaskCatalog
 
 # Pause between environments during Run so the user can see the final state
@@ -753,7 +754,18 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._cancel_pending_restore_enable_after()
         self.close_dialogs()
         self._execution.is_closed = True
-        self.root.destroy()
+        destroy_tk_root(self.root)
+        self.root = None  # type: ignore[assignment]
+        self._detach_tk_references()
+
+    def _detach_tk_references(self) -> None:
+        """Drop Tcl-backed variables so GC does not touch them after destroy."""
+        strip = getattr(self, "_status_strip", None)
+        if strip is not None:
+            strip.status_var = None
+        for name in ("_viewer_theme_var", "_viewer_number_var"):
+            if hasattr(self, name):
+                setattr(self, name, None)
 
     def select_env(self, index: int) -> None:
         """Switch the visible environment tab and redraw the field."""

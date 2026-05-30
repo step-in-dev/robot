@@ -14,6 +14,8 @@ from robot.model import RobotEnv, RobotEnvDto, RobotError
 
 from robot.loader import ScriptConstraints
 
+from tests.env_fixtures import cell_1x1, make_env
+
 from ._helpers import LoaderRuntimeTestBase, TaskFileWrite, make_capture_robot_window_cls
 
 
@@ -232,18 +234,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
             self.assertEqual(str(ctx.exception), t("runtime.error.field_height_range"))
 
     def test_field_noop_during_solution_run(self) -> None:
-        one = RobotEnv(
-            RobotEnvDto.from_dict(
-                {
-                    "width": 1,
-                    "height": 1,
-                    "startRow": 0,
-                    "startCol": 0,
-                    "finalRow": 0,
-                    "finalCol": 0,
-                }
-            )
-        )
+        one = make_env(cell_1x1())
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "sol.py"
             script.write_text(
@@ -260,18 +251,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(result.status, "success")
 
     def test_field_validates_before_noop_in_solution_run(self) -> None:
-        one = RobotEnv(
-            RobotEnvDto.from_dict(
-                {
-                    "width": 1,
-                    "height": 1,
-                    "startRow": 0,
-                    "startCol": 0,
-                    "finalRow": 0,
-                    "finalCol": 0,
-                }
-            )
-        )
+        one = make_env(cell_1x1())
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
             clear_translation_cache()
             with tempfile.TemporaryDirectory() as temp_dir:

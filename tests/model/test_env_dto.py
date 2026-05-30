@@ -3,6 +3,7 @@
 import unittest
 
 from robot.model import RobotEnvDto, Cell, ValuedCell
+from tests.env_fixtures import corridor
 
 
 class RobotEnvDtoFromDictTest(unittest.TestCase):
@@ -160,14 +161,7 @@ class RobotEnvDtoFromDictTest(unittest.TestCase):
 
 class RobotEnvDtoValidationTest(unittest.TestCase):
     def _minimal_valid(self, **overrides):
-        data = {
-            "width": 2,
-            "height": 1,
-            "startRow": 0,
-            "startCol": 0,
-            "finalRow": 0,
-            "finalCol": 1,
-        }
+        data = dict(corridor())
         data.update(overrides)
         return data
 
