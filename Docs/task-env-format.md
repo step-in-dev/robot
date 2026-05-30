@@ -40,7 +40,7 @@ When a localized object is used, the loader:
 
 Non-string values inside the localization object are ignored.
 
-For **Arabic** (`ar`) and **Urdu** (`ur`) strings, follow the same Unicode bidirectional isolation rules as other UI copy: wrap embedded left-to-right fragments (Python tokens such as `"for"`, `paint()`, Latin identifiers, and Western digits) with U+2066 LRI … U+2069 PDI as described in [`localization-style.md`](localization-style.md#unicode-bidirectional-isolation-rtl-locales). Bundled tasks aim to comply; [`tools/repair_todo_rtl.py`](../tools/repair_todo_rtl.py) can fix common nested-isolate issues after machine translation.
+For **Arabic** (`ar`) and **Urdu** (`ur`) strings, follow the same Unicode bidirectional isolation rules as other UI copy: wrap embedded left-to-right fragments (Python tokens such as `"for"`, `paint()`, Latin identifiers, and Western digits) with U+2066 LRI … U+2069 PDI as described in [`localization-style.md`](localization-style.md#unicode-bidirectional-isolation-rtl-locales).
 
 ## `customFunctionCallCount`
 
