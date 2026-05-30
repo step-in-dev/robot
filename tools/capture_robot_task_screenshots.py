@@ -486,7 +486,8 @@ def _try_capture(
     print(intro_line)
     try:
         capture()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001  # pylint: disable=broad-exception-caught
+        # Batch runner records any capture failure and continues other languages.
         failed.append((label, str(exc)))
         print(f"{ok_prefix}FAILED: {exc}")
     else:

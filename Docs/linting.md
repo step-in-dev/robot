@@ -17,6 +17,16 @@ Pylint’s default limit is seven attributes per class. Prefer grouping real sta
 
 Flat value-object types that mirror JSON or a single job struct (`RobotEnvDto`, `FieldColors`, `LanguageCaptureJob`) and grouped helper dataclasses on `RobotWindow` may use a **class-level** `# pylint: disable=too-many-instance-attributes` with a short comment. `ViewerMixin` uses the same exception because viewer fields are stored on the host window instance.
 
+## Broad exception caught (W0718)
+
+Pylint flags `except Exception` as **W0718**. Use a **line-level** `# pylint: disable=broad-exception-caught` only when a broad catch is intentional and changing it would alter behavior.
+
+In [`robot/executor.py`](../robot/executor.py), student scripts are read, compiled, and `exec`’d. Failures must become a `RunResult` via `_map_exec_exception`, including arbitrary exceptions from student code. [`StepExecutionCancelled`](../robot/executor.py) inherits `BaseException` so step cancel is not swallowed by those handlers. Suppressions on the three existing `except Exception` blocks document that contract; do not refactor the step/batch paths just to satisfy W0718.
+
+In [`tools/capture_robot_task_screenshots.py`](../tools/capture_robot_task_screenshots.py), `_try_capture` records any per-language failure and continues the batch. A local suppression preserves that tool semantics; keep `# noqa: BLE001` if ruff still requires it.
+
+Do not disable W0718 globally in `lint/pylint-src.rc`.
+
 ## Comparisons to zero
 
 Neither profile checks `use-implicit-booleaness-not-comparison-to-zero` (**C1805**). Explicit comparisons such as `exit_code != 0` or `count == 0` are preferred for return codes, counters, and indices because they read clearly and do not rely on implicit truthiness when a value might not be a plain `int`.

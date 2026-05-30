@@ -287,7 +287,8 @@ class StepExecutionSession:
                 code = compile(
                     source, str(self._script.script_path), "exec"
                 )
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                # Map read/compile failures to RunResult without changing step semantics.
                 self._state.is_finished = True
                 return _map_exec_exception(
                     self._script.script_path, self.env, exc
@@ -313,7 +314,8 @@ class StepExecutionSession:
                     outcome = _handle_student_system_exit(
                         exc, self.env, self._script.script_path
                     )
-                except Exception as exc:
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    # Student exec may raise any Exception; StepExecutionCancelled is BaseException.
                     outcome = _map_exec_exception(
                         self._script.script_path, self.env, exc
                     )
@@ -351,7 +353,8 @@ def run_solution_on_env(
         return _map_exec_exception(script_path, env, exc)
     except SystemExit as exc:  # NOSONAR — student code may call sys.exit; mapped to RunResult
         return _handle_student_system_exit(exc, env, script_path)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        # Student exec may raise any Exception; map all to RunResult (batch path).
         return _map_exec_exception(script_path, env, exc)
     finally:
         end_solution_run(previous_delay)
