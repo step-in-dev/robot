@@ -299,7 +299,8 @@ class StepExecutionSession:
             try:
                 sys.settrace(self._trace)
                 try:
-                    exec(code, self._script.namespace)
+                    # Student solutions are compile+exec'd from disk, not importable modules.
+                    exec(code, self._script.namespace)  # pylint: disable=exec-used
                 except StepExecutionCancelled:
                     outcome = RunResult(
                         status="error",
@@ -348,7 +349,8 @@ def run_solution_on_env(
     try:
         source = script_path.read_text(encoding="utf-8")
         code = compile(source, str(script_path), "exec")
-        exec(code, namespace)
+        # Same compile+exec path as step mode; student scripts are not packages.
+        exec(code, namespace)  # pylint: disable=exec-used
     except RobotPathError as exc:
         return _map_exec_exception(script_path, env, exc)
     except SystemExit as exc:  # NOSONAR — student code may call sys.exit; mapped to RunResult
