@@ -17,6 +17,12 @@ Pylint’s default limit is seven attributes per class. Prefer grouping real sta
 
 Flat value-object types that mirror JSON or a single job struct (`RobotEnvDto`, `FieldColors`, `LanguageCaptureJob`) and grouped helper dataclasses on `RobotWindow` may use a **class-level** `# pylint: disable=too-many-instance-attributes` with a short comment. `ViewerMixin` uses the same exception because viewer fields are stored on the host window instance.
 
+## Too few public methods (R0903)
+
+Pylint’s default minimum is two public methods per class. `RobotWindow` mixins (`KeyboardHandlerMixin`, `ActionButtonMixin`, `ViewerMixin`) and the `RobotWindowViewerHost` `Protocol` are not full public APIs: they expose one setup hook, only `_`-prefixed helpers, or structural stubs for typing.
+
+Those types may use a **class-level** `# pylint: disable=too-few-public-methods`. Do not raise the global limit in `lint/pylint-src.rc` and do not add empty public methods just to satisfy the linter.
+
 ## Broad exception caught (W0718)
 
 Pylint flags `except Exception` as **W0718**. Use a **line-level** `# pylint: disable=broad-exception-caught` only when a broad catch is intentional and changing it would alter behavior.

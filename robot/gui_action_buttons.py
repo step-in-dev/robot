@@ -10,7 +10,7 @@ from .gui_theme import (
 )
 
 
-class ActionButtonMixin:
+class ActionButtonMixin:  # pylint: disable=too-few-public-methods
     """Run / Restore label and command transitions; step button pack visibility."""
 
     root: tk.Tk

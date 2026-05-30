@@ -328,41 +328,43 @@ def capture_for_language(job: LanguageCaptureJob) -> None:
     env["ROBOT_LANGUAGE"] = job.language
     env["PYTHONUNBUFFERED"] = "1"
 
-    proc: subprocess.Popen[bytes] | None = None
+    before_ids = _all_window_ids()
     try:
-        before_ids = _all_window_ids()
-        proc = subprocess.Popen(
+        with subprocess.Popen(
             [job.python_executable, str(script_path)],
             cwd=str(job.workdir),
             env=env,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-        )
-        main_window_id = _find_new_window_id(
-            before_ids=before_ids, proc=proc, timeout_seconds=12.0
-        )
-        subprocess.run(["wmctrl", "-ia", main_window_id], check=True)
-        time.sleep(job.settle_seconds)
+        ) as proc:
+            try:
+                main_window_id = _find_new_window_id(
+                    before_ids=before_ids, proc=proc, timeout_seconds=12.0
+                )
+                subprocess.run(["wmctrl", "-ia", main_window_id], check=True)
+                time.sleep(job.settle_seconds)
 
-        if job.capture_constraints_window:
-            time.sleep(0.55)
-            expected_title = _constraints_dialog_title_for_language(job.language)
-            constraints_id = _find_constraints_window_id(
-                exclude_ids=before_ids | {main_window_id},
-                expected_title=expected_title,
-                proc=proc,
-                timeout_seconds=12.0,
-            )
-            subprocess.run(["wmctrl", "-ia", constraints_id], check=True)
-            time.sleep(0.2)
+                if job.capture_constraints_window:
+                    time.sleep(0.55)
+                    expected_title = _constraints_dialog_title_for_language(
+                        job.language
+                    )
+                    constraints_id = _find_constraints_window_id(
+                        exclude_ids=before_ids | {main_window_id},
+                        expected_title=expected_title,
+                        proc=proc,
+                        timeout_seconds=12.0,
+                    )
+                    subprocess.run(["wmctrl", "-ia", constraints_id], check=True)
+                    time.sleep(0.2)
 
-        subprocess.run(
-            ["gnome-screenshot", "-w", "-f", str(job.output_path)],
-            check=True,
-        )
+                subprocess.run(
+                    ["gnome-screenshot", "-w", "-f", str(job.output_path)],
+                    check=True,
+                )
+            finally:
+                _stop_process(proc)
     finally:
-        if proc is not None:
-            _stop_process(proc)
         script_path.unlink(missing_ok=True)
 
 

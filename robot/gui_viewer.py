@@ -40,7 +40,7 @@ def _entry_pack_ipady(entry: tk.Entry, *, target_height: int) -> int:
     return max(0, (target_height - entry.winfo_reqheight()) // 2)
 
 
-class RobotWindowViewerHost(Protocol):
+class RobotWindowViewerHost(Protocol):  # pylint: disable=too-few-public-methods
     """Fields and hooks ``ViewerMixin`` expects on ``RobotWindow``."""
 
     root: tk.Tk
@@ -55,14 +55,14 @@ class RobotWindowViewerHost(Protocol):
         self, task_id: str, task_definition: RobotTask
     ) -> None:
         """Replace task environments and refresh chrome."""
-        pass
+        ...  # pylint: disable=unnecessary-ellipsis
 
     def _rebuild_todo_banner(self) -> None: ...
 
     def _rebuild_env_toolbar(self) -> None: ...
 
 
-class ViewerMixin:  # pylint: disable=too-many-instance-attributes
+class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     """Theme dropdown and task navigation for ``RobotWindow`` viewer mode."""
 
     def _init_viewer_state(self, catalog: TaskCatalog) -> None:
