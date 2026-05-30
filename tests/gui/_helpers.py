@@ -20,14 +20,26 @@ from tests.tk_display import GuiTestCase, requires_tk_display
 __all__ = [
     "GuiTestCase",
     "cell_1x1",
+    "clear_i18n_cache",
     "corridor",
     "env_dict",
     "make_env",
     "make_test_window",
     "minimal_env_dict",
+    "noop_success_run_env",
     "requires_tk_display",
     "test_window",
 ]
+
+
+def clear_i18n_cache() -> None:
+    from robot import i18n
+
+    i18n.clear_translation_cache()
+
+
+def noop_success_run_env(_env: RobotEnv) -> RunResult:
+    return RunResult(status="success", message="ok")
 
 
 def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
@@ -82,4 +94,3 @@ def test_window(
         yield window
     finally:
         window.close()
-

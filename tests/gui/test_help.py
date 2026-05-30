@@ -7,17 +7,15 @@ from unittest.mock import MagicMock, patch
 import tkinter as tk
 
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
-from robot.model import RobotEnv
 from robot.i18n import t
-from robot.results import RunResult
 
 from ._helpers import (
     GuiTestCase,
     _find_first_text_widget,
     cell_1x1,
+    clear_i18n_cache,
     make_env,
-    make_test_window,
-    minimal_env_dict,
+    noop_success_run_env,
     requires_tk_display,
     test_window,
 )
@@ -81,22 +79,15 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
 @requires_tk_display
 class RobotWindowHelpTest(GuiTestCase):
     def tearDown(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         super().tearDown()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_opens_toplevel_with_expected_title_and_body(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("help_win", envs, run_env) as window:
+        with test_window("help_win", envs, noop_success_run_env) as window:
             window.show_help()
             window.root.update()
             tops = _help_toplevel_children(window.root)
@@ -114,15 +105,10 @@ class RobotWindowHelpTest(GuiTestCase):
     @patch("robot.gui_help.webbrowser.open")
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_repo_link_click_opens_browser(self, open_mock: MagicMock) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("help_link", envs, run_env) as window:
+        with test_window("help_link", envs, noop_success_run_env) as window:
             window.show_help()
             window.root.update_idletasks()
             tops = _help_toplevel_children(window.root)
@@ -146,15 +132,10 @@ class RobotWindowHelpTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_escape_dismisses_help_but_not_main(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("help_escape", envs, run_env) as window:
+        with test_window("help_escape", envs, noop_success_run_env) as window:
             window.show_help()
             window.root.update()
             tops = _help_toplevel_children(window.root)
@@ -172,15 +153,10 @@ class RobotWindowHelpTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_second_open_lifts_same_window(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("help_reuse", envs, run_env) as window:
+        with test_window("help_reuse", envs, noop_success_run_env) as window:
             window.show_help()
             window.root.update()
             first = _help_toplevel_children(window.root)[0]
@@ -192,15 +168,10 @@ class RobotWindowHelpTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_help_reopens_after_wm_delete_window_handler(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("help_reopen", envs, run_env) as window:
+        with test_window("help_reopen", envs, noop_success_run_env) as window:
             window.show_help()
             window.root.update()
             first = window._help_window

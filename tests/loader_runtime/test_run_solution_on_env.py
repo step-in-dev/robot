@@ -13,7 +13,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import call, patch
 
-import robot.runtime as runtime
+from robot import runtime
 from robot.executor import run_solution_on_env
 from robot.i18n import t
 from tests.env_fixtures import cell_1x1, corridor, make_env
@@ -52,7 +52,12 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
                 "printn(7)\n",
                 encoding="utf-8",
             )
-            env = make_env(corridor(cellsToPaint=[{"r": 0, "c": 1}], cellsToPrint=[{"r": 0, "c": 1, "value": 7}]))
+            env = make_env(
+                corridor(
+                    cellsToPaint=[{"r": 0, "c": 1}],
+                    cellsToPrint=[{"r": 0, "c": 1, "value": 7}],
+                )
+            )
 
             with patch("robot.commands.time.sleep") as sleep:
                 result = run_solution_on_env(

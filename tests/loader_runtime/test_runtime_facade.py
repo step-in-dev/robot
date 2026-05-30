@@ -7,10 +7,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import robot.runtime as runtime
+from robot import runtime
 from robot.executor import run_solution_on_env
 from robot.i18n import clear_translation_cache, t
-from robot.model import RobotEnv, RobotEnvDto, RobotError
+from robot.model import RobotError
 
 from robot.loader import ScriptConstraints
 

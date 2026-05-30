@@ -62,7 +62,12 @@ class RobotEnvFinalStateTest(unittest.TestCase):
         self.assertFalse(env2.is_in_final_state())
 
     def test_true_when_all_conditions_met(self):
-        env = make_env(corridor(cellsToPaint=[{"r": 0, "c": 1}], cellsToPrint=[{"r": 0, "c": 1, "value": 3}]))
+        env = make_env(
+            corridor(
+                cellsToPaint=[{"r": 0, "c": 1}],
+                cellsToPrint=[{"r": 0, "c": 1, "value": 3}],
+            )
+        )
         env.robot.move_right()
         env.robot.paint()
         env.robot.print_number(3)

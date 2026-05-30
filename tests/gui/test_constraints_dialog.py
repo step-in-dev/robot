@@ -6,17 +6,16 @@ from unittest.mock import patch
 import tkinter as tk
 
 from robot.loader import ScriptConstraints
-from robot.model import RobotEnv
-from robot.results import RunResult
 from robot.i18n import t
 
 from ._helpers import (
     GuiTestCase,
     _find_first_text_widget,
     cell_1x1,
+    clear_i18n_cache,
     make_env,
     make_test_window,
-    minimal_env_dict,
+    noop_success_run_env,
     requires_tk_display,
     test_window,
 )
@@ -33,38 +32,26 @@ def _toplevels_with_title(root: tk.Misc, title: str) -> list[tk.Toplevel]:
 @requires_tk_display
 class RobotWindowConstraintsTest(GuiTestCase):
     def tearDown(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         super().tearDown()
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_no_constraints_no_top_toolbar_single_env(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("no_lim", envs, run_env) as window:
+        with test_window("no_lim", envs, noop_success_run_env) as window:
             self.assertIsNone(window.top_toolbar)
             self.assertIsNone(window.constraints_button)
             self.assertEqual(window.tab_buttons, [])
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_multi_env_without_constraints_has_top_bar_only_tabs(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         base = cell_1x1()
         envs = [make_env(dict(base)), make_env(dict(base))]
 
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
-
-        with test_window("two_env", envs, run_env) as window:
+        with test_window("two_env", envs, noop_success_run_env) as window:
             self.assertIsNotNone(window.top_toolbar)
             self.assertIsNotNone(window.tab_frame)
             self.assertIsNone(window.constraints_button)
@@ -72,18 +59,13 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_button_top_right_single_env(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         with test_window(
             "one_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(operators_limit=5),
         ) as window:
             self.assertIsNotNone(window.top_toolbar)
@@ -95,19 +77,14 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_with_multi_env_tabs_left_button_right(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         base = cell_1x1()
         envs = [make_env(dict(base)), make_env(dict(base))]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         window = make_test_window(
             "two_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(while_limit=0),
         )
         try:
@@ -120,18 +97,13 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_dialog_lists_only_active_limits(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         window = make_test_window(
             "dlg_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(
                 operators_limit=3,
                 required_keywords=("for", "def"),
@@ -162,18 +134,13 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_escape_dismisses_dialog_but_not_main(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         window = make_test_window(
             "esc_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(if_limit=1),
         )
         try:
@@ -195,18 +162,13 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_second_open_lifts_same_window(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         window = make_test_window(
             "reuse_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(banned_keywords=("while",)),
         )
         try:
@@ -223,18 +185,13 @@ class RobotWindowConstraintsTest(GuiTestCase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_constraints_reopens_after_wm_delete_window(self) -> None:
-        from robot import i18n
-
-        i18n.clear_translation_cache()
+        clear_i18n_cache()
         envs = [make_env(cell_1x1())]
-
-        def run_env(_env: RobotEnv) -> RunResult:
-            return RunResult(status="success", message="ok")
 
         window = make_test_window(
             "reopen_lim",
             envs,
-            run_env,
+            noop_success_run_env,
             constraints=ScriptConstraints(custom_function_call_count=2),
         )
         try:

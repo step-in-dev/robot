@@ -16,8 +16,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from robot.executor import StepExecutionCallbacks
-from tests.env_fixtures import corridor
 from robot.loader import TASKS_DIR_ENV, ScriptConstraints
+from tests.env_fixtures import corridor
 
 NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
     show_line=lambda _line: None,

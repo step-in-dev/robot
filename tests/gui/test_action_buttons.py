@@ -19,7 +19,6 @@ from ._helpers import (
     corridor,
     make_env,
     make_test_window,
-    minimal_env_dict,
     requires_tk_display,
     test_window,
 )

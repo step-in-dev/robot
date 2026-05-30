@@ -94,7 +94,14 @@ class FieldRendererTextPlacementTest(GuiTestCase):
         super().tearDown()
 
     def test_pollution_bottom_left_expected_top_printed_second_line(self) -> None:
-        env = make_env(env_dict(2, 2, pollutedCells=[{'r': 1, 'c': 0, 'value': 7}], cellsToPrint=[{'r': 0, 'c': 0, 'value': 42}]))
+        env = make_env(
+            env_dict(
+                2,
+                2,
+                pollutedCells=[{"r": 1, "c": 0, "value": 7}],
+                cellsToPrint=[{"r": 0, "c": 0, "value": 42}],
+            )
+        )
         env.print_number(ValuedCell(0, 0, 42))
 
         cell_size = 80

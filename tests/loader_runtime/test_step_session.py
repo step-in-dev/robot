@@ -22,7 +22,6 @@ from robot.executor import (
     StepExecutionTarget,
 )
 from robot.i18n import t
-from robot.model import RobotEnv
 from tests.env_fixtures import cell_1x1, corridor, env_dict, make_env
 
 from ._helpers import NOOP_STEP_CALLBACKS, LoaderRuntimeTestBase
