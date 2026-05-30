@@ -10,10 +10,13 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+# robot imports follow sys.path setup so this script runs without package install.
+# pylint: disable=wrong-import-position
 from robot.gui import RobotWindow, RobotWindowOptions
 from robot.i18n import t
 from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
+# pylint: enable=wrong-import-position
 
 
 def main() -> int:

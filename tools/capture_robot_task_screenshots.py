@@ -18,9 +18,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# robot imports follow sys.path setup so this tool runs without package install.
+# pylint: disable=wrong-import-position
 from robot.gui_constraints import task_has_any_constraints
 from robot.i18n import SUPPORTED_LANGUAGES, t
 from robot.loader import ScriptConstraints, TaskLoadError, load_task_definition
+# pylint: enable=wrong-import-position
 
 
 def _require_command(cmd: str) -> None:
