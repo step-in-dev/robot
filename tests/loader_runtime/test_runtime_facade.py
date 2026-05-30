@@ -12,7 +12,9 @@ from robot.executor import run_solution_on_env
 from robot.i18n import clear_translation_cache, t
 from robot.model import RobotEnv, RobotEnvDto, RobotError
 
-from ._helpers import LoaderRuntimeTestBase, make_capture_robot_window_cls
+from robot.loader import ScriptConstraints
+
+from ._helpers import LoaderRuntimeTestBase, TaskFileWrite, make_capture_robot_window_cls
 
 
 class RuntimeFacadeTest(LoaderRuntimeTestBase):
@@ -26,15 +28,19 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
             script.write_text("# student\n", encoding="utf-8")
             self.write_task(
                 temp_dir,
-                "trace_task",
-                [self._minimal_env_dto()],
-                todo_text={"en": "Note", "ru": "Записка"},
-                operators_limit=42,
-                custom_function_call_count=7,
-                if_limit=3,
-                while_limit=0,
-                required_keywords="for,def",
-                banned_keywords="while",
+                TaskFileWrite(
+                    task_id="trace_task",
+                    env_dtos=[self._minimal_env_dto()],
+                    todo_text={"en": "Note", "ru": "Записка"},
+                    constraints=ScriptConstraints(
+                        operators_limit=42,
+                        custom_function_call_count=7,
+                        if_limit=3,
+                        while_limit=0,
+                        required_keywords=("for", "def"),
+                        banned_keywords=("while",),
+                    ),
+                ),
             )
 
             fake_main = types.ModuleType("fake_main")

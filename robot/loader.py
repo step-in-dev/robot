@@ -23,6 +23,30 @@ class TaskLoadError(Exception):
 
 
 @dataclass(frozen=True)
+class ScriptConstraints:
+    """Static script limits loaded from a task ``.env`` file."""
+
+    operators_limit: int | None = None
+    custom_function_call_count: int | None = None
+    if_limit: int | None = None
+    while_limit: int | None = None
+    required_keywords: tuple[str, ...] | None = None
+    banned_keywords: tuple[str, ...] | None = None
+
+    @classmethod
+    def from_task(cls, task: RobotTask) -> ScriptConstraints:
+        """Copy constraint fields from a loaded task."""
+        return cls(
+            operators_limit=task.operators_limit,
+            custom_function_call_count=task.custom_function_call_count,
+            if_limit=task.if_limit,
+            while_limit=task.while_limit,
+            required_keywords=task.required_keywords,
+            banned_keywords=task.banned_keywords,
+        )
+
+
+@dataclass(frozen=True)
 class RobotTask:
     """Loaded task: environments, todo text, and constraint limits."""
 

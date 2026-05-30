@@ -10,6 +10,7 @@ from typing import Callable
 
 from .executor import (
     EXECUTION_CANCELLED_MESSAGE,
+    StepExecutionCallbacks,
     StepExecutionSession,
     StudentLine,
     check_limit_violations,
@@ -51,10 +52,10 @@ from .gui_theme import (
 )
 from ._version import __version__
 from .i18n import t
-from .loader import RobotTask
+from .loader import RobotTask, ScriptConstraints
 from .model import RobotEnv
 from .results import RunResult
-from .status_strip import StatusStrip
+from .status_strip import StatusStrip, StatusStripHost
 from .task_catalog import TaskCatalog
 
 # Pause between environments during Run so the user can see the final state
@@ -98,12 +99,7 @@ class RobotWindow(
         self.envs = list(task_definition.envs)
         self.run_env = run_env
         self.script_path = opts.script_path
-        self.operators_limit = task_definition.operators_limit
-        self.custom_function_call_count = task_definition.custom_function_call_count
-        self.if_limit = task_definition.if_limit
-        self.while_limit = task_definition.while_limit
-        self.required_keywords = task_definition.required_keywords
-        self.banned_keywords = task_definition.banned_keywords
+        self._script_constraints = ScriptConstraints.from_task(task_definition)
         self._open_constraints_on_startup = opts.open_constraints_on_startup
         self._viewer_catalog = opts.viewer_catalog
         self.viewer_toolbar: tk.Frame | None = None
@@ -138,22 +134,18 @@ class RobotWindow(
         task_id: str,
         task_definition: RobotTask,
         run_env: Callable[[RobotEnv], RunResult] | None,
-        initial_index: int = 0,
-        script_path: Path | None = None,
-        open_constraints_on_startup: bool = False,
-        viewer_catalog: TaskCatalog | None = None,
+        options: RobotWindowOptions | None = None,
     ) -> RobotWindow:
-        """Construct a window from a loaded task definition and options."""
+        """Construct a window from a loaded task definition and options.
+
+        Documented entry point for runtime, viewer, and tools (forwards to
+        ``__init__``).
+        """
         return cls(
             task_id=task_id,
             task_definition=task_definition,
             run_env=run_env,
-            options=RobotWindowOptions(
-                initial_index=initial_index,
-                script_path=script_path,
-                open_constraints_on_startup=open_constraints_on_startup,
-                viewer_catalog=viewer_catalog,
-            ),
+            options=options,
         )
 
     def _init_root_and_geometry(self) -> None:
@@ -236,14 +228,7 @@ class RobotWindow(
             self.constraints_button = None
 
         has_env_tabs = len(self.envs) > 1
-        has_constraints = task_has_any_constraints(
-            operators_limit=self.operators_limit,
-            custom_function_call_count=self.custom_function_call_count,
-            if_limit=self.if_limit,
-            while_limit=self.while_limit,
-            required_keywords=self.required_keywords,
-            banned_keywords=self.banned_keywords,
-        )
+        has_constraints = task_has_any_constraints(self._script_constraints)
         if not (has_env_tabs or has_constraints):
             return
         tab_top_pady = (2, 2) if self.todo_label is not None else (6, 2)
@@ -304,12 +289,7 @@ class RobotWindow(
         self.task_id = task_id
         self.envs = list(task_definition.envs)
         self.todo_text = task_definition.todo_text.strip()
-        self.operators_limit = task_definition.operators_limit
-        self.custom_function_call_count = task_definition.custom_function_call_count
-        self.if_limit = task_definition.if_limit
-        self.while_limit = task_definition.while_limit
-        self.required_keywords = task_definition.required_keywords
-        self.banned_keywords = task_definition.banned_keywords
+        self._script_constraints = ScriptConstraints.from_task(task_definition)
 
         self.root.title(t("window.title", task_id=self.task_id, version=__version__))
         if self._viewer_catalog is not None:
@@ -385,8 +365,10 @@ class RobotWindow(
         initial_status = STATUS_READY
         self._status_strip = StatusStrip(
             self.root,
-            get_canvas_width=lambda: self.canvas_width,
-            is_closed=lambda: self.is_closed,
+            StatusStripHost(
+                get_canvas_width=lambda: self.canvas_width,
+                is_closed=lambda: self.is_closed,
+            ),
             initial_text=initial_status,
             initial_bg=STATUS_BG_NEUTRAL,
         )
@@ -462,12 +444,7 @@ class RobotWindow(
         return check_limit_violations(
             source,
             filename=str(self.script_path),
-            operators_limit=self.operators_limit,
-            custom_function_call_count=self.custom_function_call_count,
-            if_limit=self.if_limit,
-            while_limit=self.while_limit,
-            required_keywords=self.required_keywords,
-            banned_keywords=self.banned_keywords,
+            constraints=self._script_constraints,
         )
 
     def _finish_step_run(self, result: RunResult) -> None:
@@ -524,8 +501,10 @@ class RobotWindow(
                 self.script_path,
                 self.task_id,
                 env,
-                show_line=self._show_step_line,
-                wait_for_next_step=self._wait_for_next_step_impl,
+                callbacks=StepExecutionCallbacks(
+                    show_line=self._show_step_line,
+                    wait_for_next_step=self._wait_for_next_step_impl,
+                ),
                 command_delay_seconds=0.0,
             )
             self._step_tabs_locked = True

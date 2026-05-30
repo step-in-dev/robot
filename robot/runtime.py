@@ -59,7 +59,7 @@ def _launch_student_robot_window(
 ) -> None:
     """Open the GUI for a loaded or synthetic task; never returns normally."""
     script_path = _detect_student_script()
-    from .gui import RobotWindow
+    from .gui import RobotWindow, RobotWindowOptions
 
     window = RobotWindow.from_task_definition(
         task_id=task_id,
@@ -70,9 +70,11 @@ def _launch_student_robot_window(
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
         ),
-        initial_index=initial_index,
-        script_path=script_path,
-        open_constraints_on_startup=open_constraints_on_startup,
+        options=RobotWindowOptions(
+            initial_index=initial_index,
+            script_path=script_path,
+            open_constraints_on_startup=open_constraints_on_startup,
+        ),
     )
     window.run()
     raise SystemExit(0)

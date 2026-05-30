@@ -10,6 +10,7 @@ from types import TracebackType
 from typing import Callable
 
 from .i18n import t
+from .loader import ScriptConstraints
 from .model import RobotEnv, RobotPathError
 from .operator_limits import (
     check_banned_keywords,
@@ -41,6 +42,14 @@ class StudentLine:
 
     lineno: int
     text: str
+
+
+@dataclass(frozen=True)
+class StepExecutionCallbacks:
+    """GUI hooks invoked while stepping through student source."""
+
+    show_line: Callable[[StudentLine], None]
+    wait_for_next_step: Callable[[], None]
 
 
 def _student_frame_lineno(script_path: Path, tb: TracebackType | None) -> int | None:
@@ -127,17 +136,13 @@ def check_limit_violations(
     source: str,
     *,
     filename: str,
-    operators_limit: int | None = None,
-    custom_function_call_count: int | None = None,
-    if_limit: int | None = None,
-    while_limit: int | None = None,
-    required_keywords: tuple[str, ...] | None = None,
-    banned_keywords: tuple[str, ...] | None = None,
+    constraints: ScriptConstraints | None = None,
 ) -> str | None:
     """Run static limit checks; return the first violation message or ``None``."""
+    c = constraints or ScriptConstraints()
     violation = check_operators_limit(
         source,
-        operators_limit,
+        c.operators_limit,
         filename=filename,
     )
     if violation is not None:
@@ -145,7 +150,7 @@ def check_limit_violations(
 
     custom_function_call_count_violation = check_custom_function_call_count(
         source,
-        custom_function_call_count,
+        c.custom_function_call_count,
         filename=filename,
     )
     if custom_function_call_count_violation is not None:
@@ -153,7 +158,7 @@ def check_limit_violations(
 
     if_limit_violation = check_if_limit(
         source,
-        if_limit,
+        c.if_limit,
         filename=filename,
     )
     if if_limit_violation is not None:
@@ -161,7 +166,7 @@ def check_limit_violations(
 
     while_limit_violation = check_while_limit(
         source,
-        while_limit,
+        c.while_limit,
         filename=filename,
     )
     if while_limit_violation is not None:
@@ -169,7 +174,7 @@ def check_limit_violations(
 
     required_keywords_violation = check_required_keywords(
         source,
-        required_keywords,
+        c.required_keywords,
         filename=filename,
     )
     if required_keywords_violation is not None:
@@ -177,7 +182,7 @@ def check_limit_violations(
 
     banned_keywords_violation = check_banned_keywords(
         source,
-        banned_keywords,
+        c.banned_keywords,
         filename=filename,
     )
     if banned_keywords_violation is not None:
@@ -195,8 +200,7 @@ class StepExecutionSession:
         task_id: str,
         env: RobotEnv,
         *,
-        show_line: Callable[[StudentLine], None],
-        wait_for_next_step: Callable[[], None],
+        callbacks: StepExecutionCallbacks,
         command_delay_seconds: float = 0.0,
     ) -> None:
         self._script_path = script_path
@@ -206,8 +210,8 @@ class StepExecutionSession:
             self._resolved_script = script_path
         self._task_id = task_id
         self.env = env
-        self._show_line = show_line
-        self._wait_for_next_step = wait_for_next_step
+        self._show_line = callbacks.show_line
+        self._wait_for_next_step = callbacks.wait_for_next_step
         self._command_delay_seconds = command_delay_seconds
         self._steps_allowed = 0
         self._cancelled = False

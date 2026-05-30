@@ -9,6 +9,7 @@ from .gui_constraints import constraints_body_lines
 from .gui_help import _populate_robot_help_text
 from .gui_theme import DIALOG_BODY_FONT
 from .i18n import t
+from .loader import ScriptConstraints
 
 HELP_TEXT_WIDTH = 65
 HELP_TEXT_HEIGHT = 32
@@ -42,12 +43,7 @@ class DialogManagerMixin:
     _help_window_close_handler: Callable[[], None] | None
     _constraints_window: tk.Toplevel | None
     _constraints_window_close_handler: Callable[[], None] | None
-    operators_limit: int | None
-    custom_function_call_count: int | None
-    if_limit: int | None
-    while_limit: int | None
-    required_keywords: tuple[str, ...] | None
-    banned_keywords: tuple[str, ...] | None
+    _script_constraints: ScriptConstraints
 
     def _init_dialog_manager(self) -> None:
         self._help_window = None
@@ -136,14 +132,7 @@ class DialogManagerMixin:
         self._focus_toplevel_dialog(help_win)
 
     def _constraints_body_lines(self) -> list[str]:
-        return constraints_body_lines(
-            operators_limit=self.operators_limit,
-            custom_function_call_count=self.custom_function_call_count,
-            if_limit=self.if_limit,
-            while_limit=self.while_limit,
-            required_keywords=self.required_keywords,
-            banned_keywords=self.banned_keywords,
-        )
+        return constraints_body_lines(self._script_constraints)
 
     def show_constraints(self) -> None:
         """Open or focus a window listing task limits that apply to this task."""

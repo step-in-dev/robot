@@ -11,6 +11,7 @@ import tempfile
 import textwrap
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +20,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from robot.gui_constraints import task_has_any_constraints
 from robot.i18n import SUPPORTED_LANGUAGES, t
-from robot.loader import TaskLoadError, load_task_definition
+from robot.loader import ScriptConstraints, TaskLoadError, load_task_definition
 
 
 def _require_command(cmd: str) -> None:
@@ -170,12 +171,16 @@ def _script_body_for_capture(
                 initial_index = 0
 
             catalog = TaskCatalog.discover()
+            from robot.gui import RobotWindowOptions
+
             window = RobotWindow.from_task_definition(
                 task_id=task_id,
                 task_definition=td,
                 run_env=None,
-                initial_index=initial_index,
-                viewer_catalog=catalog,
+                options=RobotWindowOptions(
+                    initial_index=initial_index,
+                    viewer_catalog=catalog,
+                ),
             )
             window.run()
             """
@@ -247,27 +252,56 @@ def _screenshot_stem(
     return f"{output_prefix}{task_id}_env{env_index}_{language}"
 
 
-def capture_for_language(
+@dataclass(frozen=True)
+class LanguageCaptureJob:
+    """Parameters for one language screenshot capture run."""
+
+    python_executable: str
+    task_id: str
+    language: str
+    output_path: Path
+    workdir: Path
+    env_index: int | None
+    capture_constraints_window: bool
+    viewer_mode: bool
+    settle_seconds: float
+
+
+def _language_capture_job(
     *,
-    python_executable: str,
-    task_id: str,
     language: str,
     output_path: Path,
+    task_id: str,
     workdir: Path,
     env_index: int | None,
+    settle_seconds: float,
     capture_constraints_window: bool,
     viewer_mode: bool,
-    settle_seconds: float,
-) -> None:
+) -> LanguageCaptureJob:
+    """Build a capture job from shared CLI parameters."""
+    return LanguageCaptureJob(
+        python_executable=sys.executable,
+        task_id=task_id,
+        language=language,
+        output_path=output_path,
+        workdir=workdir,
+        env_index=env_index,
+        capture_constraints_window=capture_constraints_window,
+        viewer_mode=viewer_mode,
+        settle_seconds=settle_seconds,
+    )
+
+
+def capture_for_language(job: LanguageCaptureJob) -> None:
     """Launch Robot for one language and save a window screenshot to ``output_path``."""
-    if viewer_mode and capture_constraints_window:
+    if job.viewer_mode and job.capture_constraints_window:
         raise RuntimeError("Constraints capture is not supported in --viewer mode")
 
     script_body, script_prefix = _script_body_for_capture(
-        task_id=task_id,
-        env_index=env_index,
-        viewer_mode=viewer_mode,
-        open_constraints_on_startup=capture_constraints_window,
+        task_id=job.task_id,
+        env_index=job.env_index,
+        viewer_mode=job.viewer_mode,
+        open_constraints_on_startup=job.capture_constraints_window,
     )
 
     with tempfile.NamedTemporaryFile(
@@ -276,21 +310,21 @@ def capture_for_language(
         suffix=".py",
         prefix=script_prefix,
         delete=False,
-        dir=workdir,
+        dir=job.workdir,
     ) as f:
         f.write(script_body)
         script_path = Path(f.name)
 
     env = os.environ.copy()
-    env["ROBOT_LANGUAGE"] = language
+    env["ROBOT_LANGUAGE"] = job.language
     env["PYTHONUNBUFFERED"] = "1"
 
     proc: subprocess.Popen[bytes] | None = None
     try:
         before_ids = _all_window_ids()
         proc = subprocess.Popen(
-            [python_executable, str(script_path)],
-            cwd=str(workdir),
+            [job.python_executable, str(script_path)],
+            cwd=str(job.workdir),
             env=env,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -299,11 +333,11 @@ def capture_for_language(
             before_ids=before_ids, proc=proc, timeout_seconds=12.0
         )
         subprocess.run(["wmctrl", "-ia", main_window_id], check=True)
-        time.sleep(settle_seconds)
+        time.sleep(job.settle_seconds)
 
-        if capture_constraints_window:
+        if job.capture_constraints_window:
             time.sleep(0.55)
-            expected_title = _constraints_dialog_title_for_language(language)
+            expected_title = _constraints_dialog_title_for_language(job.language)
             constraints_id = _find_constraints_window_id(
                 exclude_ids=before_ids | {main_window_id},
                 expected_title=expected_title,
@@ -314,7 +348,7 @@ def capture_for_language(
             time.sleep(0.2)
 
         subprocess.run(
-            ["gnome-screenshot", "-w", "-f", str(output_path)],
+            ["gnome-screenshot", "-w", "-f", str(job.output_path)],
             check=True,
         )
     finally:
@@ -426,14 +460,7 @@ def _validate_task_has_constraints_for_flag(task_id: str) -> int:
     except TaskLoadError as exc:
         print(f"Cannot load task {task_id!r}: {exc}", file=sys.stderr)
         return 1
-    if not task_has_any_constraints(
-        operators_limit=td.operators_limit,
-        custom_function_call_count=td.custom_function_call_count,
-        if_limit=td.if_limit,
-        while_limit=td.while_limit,
-        required_keywords=td.required_keywords,
-        banned_keywords=td.banned_keywords,
-    ):
+    if not task_has_any_constraints(ScriptConstraints.from_task(td)):
         print(
             f"Task {task_id!r} has no constraints (--constraints needs "
             "operatorsLimit, customFunctionCallCount, if/while limits, or "
@@ -506,15 +533,16 @@ def main() -> int:
             ok_prefix=f"[{language}] ",
             failed=failed,
             capture=lambda lang=language, path=output_path: capture_for_language(
-                python_executable=sys.executable,
-                task_id=args.task,
-                language=lang,
-                output_path=path,
-                workdir=workdir,
-                env_index=args.env_index,
-                capture_constraints_window=False,
-                viewer_mode=args.viewer,
-                settle_seconds=settle_seconds,
+                _language_capture_job(
+                    language=lang,
+                    output_path=path,
+                    task_id=args.task,
+                    workdir=workdir,
+                    env_index=args.env_index,
+                    settle_seconds=settle_seconds,
+                    capture_constraints_window=False,
+                    viewer_mode=args.viewer,
+                )
             ),
         )
 
@@ -526,15 +554,16 @@ def main() -> int:
                 ok_prefix=f"[{language}] constraints ",
                 failed=failed,
                 capture=lambda lang=language, path=constraints_path: capture_for_language(
-                    python_executable=sys.executable,
-                    task_id=args.task,
-                    language=lang,
-                    output_path=path,
-                    workdir=workdir,
-                    env_index=args.env_index,
-                    capture_constraints_window=True,
-                    viewer_mode=False,
-                    settle_seconds=settle_seconds,
+                    _language_capture_job(
+                        language=lang,
+                        output_path=path,
+                        task_id=args.task,
+                        workdir=workdir,
+                        env_index=args.env_index,
+                        settle_seconds=settle_seconds,
+                        capture_constraints_window=True,
+                        viewer_mode=False,
+                    )
                 ),
             )
 

@@ -9,10 +9,17 @@ import os
 import sys
 import types
 import unittest
+from dataclasses import dataclass
 from pathlib import Path
 from unittest.mock import patch
 
-from robot.loader import TASKS_DIR_ENV
+from robot.executor import StepExecutionCallbacks
+from robot.loader import TASKS_DIR_ENV, ScriptConstraints
+
+NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
+    show_line=lambda _line: None,
+    wait_for_next_step=lambda: None,
+)
 
 
 def minimal_env_dto(*, width: int = 1, height: int = 1) -> dict[str, int]:
@@ -83,21 +90,13 @@ def make_capture_robot_window_cls(captured: list) -> type:
             task_id: str,
             task_definition,
             run_env=None,
-            initial_index: int = 0,
-            script_path=None,
-            open_constraints_on_startup: bool = False,
-            viewer_catalog=None,
+            options: RobotWindowOptions | None = None,
         ):
             return cls(
                 task_id=task_id,
                 task_definition=task_definition,
                 run_env=run_env,
-                options=RobotWindowOptions(
-                    initial_index=initial_index,
-                    script_path=script_path,
-                    open_constraints_on_startup=open_constraints_on_startup,
-                    viewer_catalog=viewer_catalog,
-                ),
+                options=options,
             )
 
         def run(self) -> None:
@@ -111,6 +110,43 @@ def patched_tasks_dir(temp_dir: str | Path):
     """Keep ``ROBOT_TASKS_DIR`` set for catalog discovery and task loads."""
     with patch.dict(os.environ, {TASKS_DIR_ENV: str(temp_dir)}, clear=False):
         yield
+
+
+_SCALAR_CONSTRAINT_ENV_KEYS: tuple[tuple[str, str], ...] = (
+    ("operators_limit", "operatorsLimit"),
+    ("custom_function_call_count", "customFunctionCallCount"),
+    ("if_limit", "ifLimit"),
+    ("while_limit", "whileLimit"),
+)
+
+_KEYWORD_CONSTRAINT_ENV_KEYS: tuple[tuple[str, str], ...] = (
+    ("required_keywords", "requiredKeywords"),
+    ("banned_keywords", "bannedKeywords"),
+)
+
+
+def _constraints_to_env_payload(constraints: ScriptConstraints) -> dict[str, object]:
+    """Map ``ScriptConstraints`` fields to ``.env`` JSON keys."""
+    payload: dict[str, object] = {}
+    for attr, key in _SCALAR_CONSTRAINT_ENV_KEYS:
+        value = getattr(constraints, attr)
+        if value is not None:
+            payload[key] = value
+    for attr, key in _KEYWORD_CONSTRAINT_ENV_KEYS:
+        value = getattr(constraints, attr)
+        if value is not None:
+            payload[key] = ",".join(value)
+    return payload
+
+
+@dataclass
+class TaskFileWrite:
+    """Parameters for writing a test ``.env`` task file."""
+
+    task_id: str
+    env_dtos: list
+    todo_text: str | dict[str, str] | None = None
+    constraints: ScriptConstraints | None = None
 
 
 class LoaderRuntimeTestBase(unittest.TestCase):
@@ -133,36 +169,15 @@ class LoaderRuntimeTestBase(unittest.TestCase):
         with patch.dict(sys.modules, {"__main__": fake_main}):
             yield
 
-    def write_task(
-        self,
-        temp_dir,
-        task_id,
-        env_dtos,
-        todo_text=None,
-        operators_limit=None,
-        custom_function_call_count=None,
-        if_limit=None,
-        while_limit=None,
-        required_keywords=None,
-        banned_keywords=None,
-    ):
-        task_file = Path(temp_dir) / f"{task_id}.env"
-        payload = {"envDtos": env_dtos}
-        if todo_text is not None:
-            payload["todoText"] = todo_text
-        if operators_limit is not None:
-            payload["operatorsLimit"] = operators_limit
-        if custom_function_call_count is not None:
-            payload["customFunctionCallCount"] = custom_function_call_count
-        if if_limit is not None:
-            payload["ifLimit"] = if_limit
-        if while_limit is not None:
-            payload["whileLimit"] = while_limit
-        if required_keywords is not None:
-            payload["requiredKeywords"] = required_keywords
-        if banned_keywords is not None:
-            payload["bannedKeywords"] = banned_keywords
+    def write_task(self, temp_dir, spec: TaskFileWrite) -> Path:
+        task_file = Path(temp_dir) / f"{spec.task_id}.env"
+        payload: dict[str, object] = {"envDtos": spec.env_dtos}
+        if spec.todo_text is not None:
+            payload["todoText"] = spec.todo_text
+        if spec.constraints is not None:
+            payload.update(_constraints_to_env_payload(spec.constraints))
         task_file.write_text(
             json.dumps(payload),
             encoding="utf-8",
         )
+        return task_file

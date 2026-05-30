@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Callable
 
 import tkinter as tk
@@ -15,19 +16,26 @@ from .gui_theme import (
 )
 
 
+@dataclass(frozen=True)
+class StatusStripHost:
+    """Callbacks used by the status strip to query the main window."""
+
+    get_canvas_width: Callable[[], int]
+    is_closed: Callable[[], bool]
+
+
 class StatusStrip:
     """Status message row with optional hatched success background."""
 
     def __init__(
         self,
         parent: tk.Misc,
-        get_canvas_width: Callable[[], int],
-        is_closed: Callable[[], bool],
+        host: StatusStripHost,
         initial_text: str,
         initial_bg: str,
     ) -> None:
-        self._get_canvas_width = get_canvas_width
-        self._is_closed = is_closed
+        self._get_canvas_width = host.get_canvas_width
+        self._is_closed = host.is_closed
 
         self.status_var = tk.StringVar(value=initial_text)
         self.status_frame = tk.Frame(parent, bg=initial_bg)

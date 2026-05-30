@@ -48,6 +48,18 @@ def format_printable_value(value: int) -> str:
     return res[:2] + ".."
 
 
+@dataclass(frozen=True)
+class OutlinedTextSpec:
+    """Position and style for outlined canvas text."""
+
+    x: float
+    y: float
+    text: str
+    fill: str
+    font_size: int
+    anchor: str
+
+
 @dataclass
 class FieldColors:
     """Tkinter color palette for field rendering."""
@@ -84,32 +96,24 @@ class FieldRenderer:
         font = self._text_font(font_size)
         return int(font.measure(text))
 
-    def _draw_outlined_text(
-        self,
-        x: float,
-        y: float,
-        text: str,
-        fill: str,
-        font_size: int,
-        anchor: str,
-    ) -> None:
-        font = ("Arial", font_size,)
+    def _draw_outlined_text(self, spec: OutlinedTextSpec) -> None:
+        font = ("Arial", spec.font_size,)
         for dx, dy in _TEXT_OUTLINE_OFFSETS:
             self.canvas.create_text(
-                x + dx * TEXT_OUTLINE_OFFSET,
-                y + dy * TEXT_OUTLINE_OFFSET,
-                text=text,
+                spec.x + dx * TEXT_OUTLINE_OFFSET,
+                spec.y + dy * TEXT_OUTLINE_OFFSET,
+                text=spec.text,
                 fill=TEXT_OUTLINE_COLOR,
                 font=font,
-                anchor=anchor,
+                anchor=spec.anchor,
             )
         self.canvas.create_text(
-            x,
-            y,
-            text=text,
-            fill=fill,
+            spec.x,
+            spec.y,
+            text=spec.text,
+            fill=spec.fill,
             font=font,
-            anchor=anchor,
+            anchor=spec.anchor,
         )
 
     def draw_field(
@@ -314,12 +318,14 @@ class FieldRenderer:
             x = cell.c * self.cell_size + self.wall_width + half_wall_width
             y = (cell.r + 1) * self.cell_size - half_wall_width
             self._draw_outlined_text(
-                x,
-                y,
-                text=text,
-                fill=pollution_color,
-                font_size=font_size,
-                anchor="sw",
+                OutlinedTextSpec(
+                    x=x,
+                    y=y,
+                    text=text,
+                    fill=pollution_color,
+                    font_size=font_size,
+                    anchor="sw",
+                )
             )
 
     def _draw_print_values(self, env: RobotEnv, print_color: str) -> None:
@@ -365,10 +371,12 @@ class FieldRenderer:
                 + half_wall_width
             )
         self._draw_outlined_text(
-            x_left,
-            y_top,
-            text=text,
-            fill=print_color,
-            font_size=font_size,
-            anchor="nw",
+            OutlinedTextSpec(
+                x=x_left,
+                y=y_top,
+                text=text,
+                fill=print_color,
+                font_size=font_size,
+                anchor="nw",
+            )
         )

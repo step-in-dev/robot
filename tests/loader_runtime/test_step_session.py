@@ -15,11 +15,15 @@ import threading
 import unittest
 from pathlib import Path
 
-from robot.executor import EXECUTION_CANCELLED_MESSAGE, StepExecutionSession
+from robot.executor import (
+    EXECUTION_CANCELLED_MESSAGE,
+    StepExecutionCallbacks,
+    StepExecutionSession,
+)
 from robot.i18n import t
 from robot.model import RobotEnv, RobotEnvDto
 
-from ._helpers import LoaderRuntimeTestBase
+from ._helpers import NOOP_STEP_CALLBACKS, LoaderRuntimeTestBase
 
 
 class StepExecutionSessionTest(LoaderRuntimeTestBase):
@@ -48,8 +52,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -81,8 +84,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -115,8 +117,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -151,8 +152,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -189,8 +189,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -224,8 +223,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -259,8 +257,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=lambda: None,
+                callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
             )
             result = session.start()
@@ -306,8 +303,10 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=show_line,
-                wait_for_next_step=wait_next,
+                callbacks=StepExecutionCallbacks(
+                    show_line=show_line,
+                    wait_for_next_step=wait_next,
+                ),
                 command_delay_seconds=0.0,
             )
             result_holder: list = []
@@ -375,8 +374,10 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=show_line,
-                wait_for_next_step=wait_next,
+                callbacks=StepExecutionCallbacks(
+                    show_line=show_line,
+                    wait_for_next_step=wait_next,
+                ),
                 command_delay_seconds=0.0,
             )
             result_holder: list = []
@@ -433,8 +434,10 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=wait_next,
+                callbacks=StepExecutionCallbacks(
+                    show_line=lambda _line: None,
+                    wait_for_next_step=wait_next,
+                ),
                 command_delay_seconds=0.0,
             )
             result_holder: list = []
@@ -485,8 +488,10 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
                 script,
                 "noop",
                 env,
-                show_line=lambda _line: None,
-                wait_for_next_step=wait_next,
+                callbacks=StepExecutionCallbacks(
+                    show_line=lambda _line: None,
+                    wait_for_next_step=wait_next,
+                ),
                 command_delay_seconds=0.0,
             )
             result_holder: list = []

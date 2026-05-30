@@ -10,7 +10,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from robot.gui import RobotWindow
+from robot.gui import RobotWindow, RobotWindowOptions
 from robot.i18n import t
 from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
@@ -30,7 +30,7 @@ def main() -> int:
         task_id=first_task_id,
         task_definition=task_definition,
         run_env=None,
-        viewer_catalog=catalog,
+        options=RobotWindowOptions(viewer_catalog=catalog),
     )
     window.run()
     return 0

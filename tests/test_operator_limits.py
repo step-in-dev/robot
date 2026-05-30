@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from robot.executor import check_limit_violations
+from robot.loader import ScriptConstraints
 from robot.operator_limits import (
     BANNED_KEYWORDS_MESSAGE_TEMPLATE,
     CUSTOM_FUNCTION_CALL_COUNT_MESSAGE_TEMPLATE,
@@ -518,7 +519,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "move_right()\nmove_right()\n",
             filename="test.py",
-            operators_limit=1,
+            constraints=ScriptConstraints(operators_limit=1),
         )
         self.assertEqual(
             result,
@@ -529,7 +530,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "move_right()\n",
             filename="test.py",
-            custom_function_call_count=1,
+            constraints=ScriptConstraints(custom_function_call_count=1),
         )
         self.assertEqual(
             result,
@@ -540,7 +541,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "if True:\n    pass\nif False:\n    pass\n",
             filename="test.py",
-            if_limit=1,
+            constraints=ScriptConstraints(if_limit=1),
         )
         self.assertEqual(
             result,
@@ -551,7 +552,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "while False:\n    pass\nwhile False:\n    pass\n",
             filename="test.py",
-            while_limit=1,
+            constraints=ScriptConstraints(while_limit=1),
         )
         self.assertEqual(
             result,
@@ -562,7 +563,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "move_right()\n",
             filename="test.py",
-            required_keywords=("for", "if"),
+            constraints=ScriptConstraints(required_keywords=("for", "if")),
         )
         self.assertEqual(
             result,
@@ -573,7 +574,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "while True:\n    break\n",
             filename="test.py",
-            banned_keywords=("while",),
+            constraints=ScriptConstraints(banned_keywords=("while",)),
         )
         self.assertEqual(
             result,
@@ -585,8 +586,7 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "move_right()\nmove_right()\n",
             filename="test.py",
-            operators_limit=1,
-            if_limit=0,
+            constraints=ScriptConstraints(operators_limit=1, if_limit=0),
         )
         self.assertEqual(
             result,
@@ -597,10 +597,12 @@ class CheckLimitViolationsTest(unittest.TestCase):
         result = check_limit_violations(
             "if True:\n    move_right()\n",
             filename="test.py",
-            operators_limit=2,
-            if_limit=1,
-            required_keywords=("if",),
-            banned_keywords=("while",),
+            constraints=ScriptConstraints(
+                operators_limit=2,
+                if_limit=1,
+                required_keywords=("if",),
+                banned_keywords=("while",),
+            ),
         )
         self.assertIsNone(result)
 
