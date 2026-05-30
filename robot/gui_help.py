@@ -27,24 +27,8 @@ _HELP_TEXT_KP_NAV_KEYS = frozenset(
         "KP_Begin",
     }
 )
-
-
-def _help_text_readonly_key_action(event: tk.Event) -> str | None:
-    """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
-    if event.keysym == "Escape":
-        return None
-
-    state = event.state or 0
-    ctrl = bool(state & 0x0004)
-    meta = bool(state & 0x0008)
-    ks = event.keysym or ""
-
-    if (ctrl or meta) and ks.lower() in ("c", "a", "insert"):
-        return None
-    if (ctrl or meta) and ks.lower() in ("v", "x"):
-        return "break"
-
-    if ks in (
+_HELP_TEXT_BLOCK_KEYS = frozenset(
+    {
         "BackSpace",
         "Delete",
         "Return",
@@ -53,17 +37,38 @@ def _help_text_readonly_key_action(event: tk.Event) -> str | None:
         "Tab",
         "ISO_Left_Tab",
         "space",
-    ):
-        return "break"
+    }
+)
 
+
+def _help_text_should_block_edit(event: tk.Event) -> bool:
+    """Return whether the help ``Text`` should swallow this key (block editing)."""
+    if event.keysym == "Escape":
+        return False
+
+    state = event.state or 0
+    modifier = bool(state & 0x0004) or bool(state & 0x0008)
+    ks = event.keysym or ""
+
+    if modifier:
+        lower = ks.lower()
+        if lower in ("c", "a", "insert"):
+            return False
+        if lower in ("v", "x"):
+            return True
+
+    if ks in _HELP_TEXT_BLOCK_KEYS:
+        return True
     if ks.startswith("KP_") and ks not in _HELP_TEXT_KP_NAV_KEYS:
-        return "break"
+        return True
 
     ch = event.char
-    if ch and ch.isprintable() and not (ctrl or meta):
-        return "break"
+    return bool(ch and ch.isprintable() and not modifier)
 
-    return None
+
+def _help_text_readonly_key_action(event: tk.Event) -> str | None:
+    """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
+    return "break" if _help_text_should_block_edit(event) else None
 
 
 def _help_text_block_paste(_event: tk.Event) -> str:

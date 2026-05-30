@@ -140,54 +140,17 @@ def check_limit_violations(
 ) -> str | None:
     """Run static limit checks; return the first violation message or ``None``."""
     c = constraints or ScriptConstraints()
-    violation = check_operators_limit(
-        source,
-        c.operators_limit,
-        filename=filename,
-    )
-    if violation is not None:
-        return violation.message
-
-    custom_function_call_count_violation = check_custom_function_call_count(
-        source,
-        c.custom_function_call_count,
-        filename=filename,
-    )
-    if custom_function_call_count_violation is not None:
-        return custom_function_call_count_violation.message
-
-    if_limit_violation = check_if_limit(
-        source,
-        c.if_limit,
-        filename=filename,
-    )
-    if if_limit_violation is not None:
-        return if_limit_violation.message
-
-    while_limit_violation = check_while_limit(
-        source,
-        c.while_limit,
-        filename=filename,
-    )
-    if while_limit_violation is not None:
-        return while_limit_violation.message
-
-    required_keywords_violation = check_required_keywords(
-        source,
-        c.required_keywords,
-        filename=filename,
-    )
-    if required_keywords_violation is not None:
-        return required_keywords_violation.message
-
-    banned_keywords_violation = check_banned_keywords(
-        source,
-        c.banned_keywords,
-        filename=filename,
-    )
-    if banned_keywords_violation is not None:
-        return banned_keywords_violation.message
-
+    for checker, value in (
+        (check_operators_limit, c.operators_limit),
+        (check_custom_function_call_count, c.custom_function_call_count),
+        (check_if_limit, c.if_limit),
+        (check_while_limit, c.while_limit),
+        (check_required_keywords, c.required_keywords),
+        (check_banned_keywords, c.banned_keywords),
+    ):
+        violation = checker(source, value, filename=filename)
+        if violation is not None:
+            return violation.message
     return None
 
 

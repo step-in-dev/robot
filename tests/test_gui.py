@@ -1445,23 +1445,40 @@ class RobotWindowConstraintsTest(unittest.TestCase):
 class HelpReadonlyKeyFilterTest(unittest.TestCase):
     """Regression: help ``Text`` must stay read-only without blocking copy (``<Key>`` + ``break``)."""
 
-    def test_help_readonly_allows_copy_and_select_all(self) -> None:
+    @staticmethod
+    def _help_key(
+        keysym: str,
+        *,
+        state: int = 0,
+        char: str = "",
+    ) -> str | None:
         from types import SimpleNamespace
 
-        self.assertIsNone(
-            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="c", state=0x0004, char="")))
+        return _help_text_readonly_key_action(
+            cast(
+                tk.Event,
+                SimpleNamespace(keysym=keysym, state=state, char=char),
+            )
         )
-        self.assertIsNone(
-            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="a", state=0x0004, char="")))
-        )
+
+    def test_help_readonly_allows_copy_and_select_all(self) -> None:
+        for modifier_state in (0x0004, 0x0008):  # Ctrl, Meta
+            with self.subTest(modifier_state=modifier_state):
+                self.assertIsNone(self._help_key("c", state=modifier_state))
+                self.assertIsNone(self._help_key("a", state=modifier_state))
+
+    def test_help_readonly_allows_escape_and_keypad_navigation(self) -> None:
+        self.assertIsNone(self._help_key("Escape"))
+        self.assertIsNone(self._help_key("KP_Left"))
+
+    def test_help_readonly_blocks_paste_cut_and_editing_keys(self) -> None:
+        self.assertEqual(self._help_key("v", state=0x0004), "break")
+        self.assertEqual(self._help_key("x", state=0x0004), "break")
+        self.assertIsNone(self._help_key("Insert", state=0x0004))
+        self.assertEqual(self._help_key("KP_Enter"), "break")
 
     def test_help_readonly_blocks_plain_printable_keys(self) -> None:
-        from types import SimpleNamespace
-
-        self.assertEqual(
-            _help_text_readonly_key_action(cast(tk.Event, SimpleNamespace(keysym="x", state=0, char="x"))),
-            "break",
-        )
+        self.assertEqual(self._help_key("x", char="x"), "break")
 
 
 @unittest.skipUnless(

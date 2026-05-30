@@ -44,6 +44,20 @@ LANGUAGE_ENV_VAR = "ROBOT_LANGUAGE"
 _LOCALES_DIR = Path(__file__).resolve().parent / "locales"
 
 
+def _normalize_chinese_language(parts: list[str]) -> str:
+    """Map Chinese locale parts to ``zh-hans`` or ``zh-hant``."""
+    rest = "_".join(parts[1:]).lower()
+    if "hans" in rest:
+        return "zh-hans"
+    if "hant" in rest:
+        return "zh-hant"
+    if any(r in rest for r in ("cn", "sg")):
+        return "zh-hans"
+    if any(r in rest for r in ("tw", "hk", "mo")):
+        return "zh-hant"
+    return "zh-hans"
+
+
 def normalize_language(value: str | None) -> str | None:
     """Map locale strings to a supported language code; unsupported returns ``None``."""
     if value is None:
@@ -61,16 +75,7 @@ def normalize_language(value: str | None) -> str | None:
     primary = (parts[0] or "").lower()
 
     if primary == "zh":
-        rest = "_".join(parts[1:]).lower()
-        if "hans" in rest:
-            return "zh-hans"
-        if "hant" in rest:
-            return "zh-hant"
-        if any(r in rest for r in ("cn", "sg")):
-            return "zh-hans"
-        if any(r in rest for r in ("tw", "hk", "mo")):
-            return "zh-hant"
-        return "zh-hans"
+        return _normalize_chinese_language(parts)
 
     if primary in _SUPPORTED_SET:
         return primary

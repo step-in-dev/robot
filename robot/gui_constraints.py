@@ -11,19 +11,16 @@ def task_has_any_constraints(
 ) -> bool:
     """Return whether any static script constraint is configured for the task."""
     c = constraints or ScriptConstraints()
-    if c.operators_limit is not None:
-        return True
-    if c.custom_function_call_count is not None:
-        return True
-    if c.if_limit is not None:
-        return True
-    if c.while_limit is not None:
-        return True
-    if c.required_keywords:
-        return True
-    if c.banned_keywords:
-        return True
-    return False
+    return any(
+        (
+            c.operators_limit is not None,
+            c.custom_function_call_count is not None,
+            c.if_limit is not None,
+            c.while_limit is not None,
+            bool(c.required_keywords),
+            bool(c.banned_keywords),
+        )
+    )
 
 
 def constraints_body_lines(
