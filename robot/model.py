@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Iterable, Literal, TypeVar
+from typing import Callable, Iterable, Literal
 
 from .i18n import t
 
 
 Direction = Literal["up", "down", "left", "right"]
-CellType = TypeVar("CellType", bound="Cell")
 
 
 class RobotError(Exception):

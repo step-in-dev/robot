@@ -39,8 +39,13 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
+def _run_as_script() -> None:
+    """Entry point when executed as ``python viewer/viewer.py``."""
     exit_code = main()
     if exit_code != 0:
         print(t("viewer.no_tasks"))
     raise SystemExit(exit_code)
+
+
+if __name__ == "__main__":
+    _run_as_script()
