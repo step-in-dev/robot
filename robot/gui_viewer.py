@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
+from typing import Protocol
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
 from .i18n import t
@@ -39,8 +40,8 @@ def _entry_pack_ipady(entry: tk.Entry, *, target_height: int) -> int:
     return max(0, (target_height - entry.winfo_reqheight()) // 2)
 
 
-class ViewerMixin:
-    """Theme dropdown and task navigation for ``RobotWindow`` viewer mode."""
+class RobotWindowViewerHost(Protocol):
+    """Fields and hooks ``ViewerMixin`` expects on ``RobotWindow``."""
 
     root: tk.Tk
     is_closed: bool
@@ -49,13 +50,18 @@ class ViewerMixin:
     step_button: tk.Button
     viewer_toolbar: tk.Frame | None
     _viewer_catalog: TaskCatalog | None
-    _viewer_theme_var: tk.StringVar
-    _viewer_number_var: tk.StringVar
-    _viewer_last_valid_number: int
-    _viewer_switching: bool
-    _viewer_prev_button: tk.Button
-    _viewer_next_button: tk.Button
-    _viewer_task_count_label: tk.Label
+
+    def apply_task_payload(
+        self, task_id: str, task_definition: RobotTask
+    ) -> None: ...
+
+    def _rebuild_todo_banner(self) -> None: ...
+
+    def _rebuild_env_toolbar(self) -> None: ...
+
+
+class ViewerMixin:  # pylint: disable=too-many-instance-attributes
+    """Theme dropdown and task navigation for ``RobotWindow`` viewer mode."""
 
     def _init_viewer_state(self, catalog: TaskCatalog) -> None:
         theme = catalog.current_theme_for_task(self.task_id) or catalog.themes[0]

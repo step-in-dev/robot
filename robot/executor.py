@@ -191,6 +191,27 @@ def check_limit_violations(
     return None
 
 
+@dataclass
+class _StepScript:
+    """Script path, source, and exec namespace for one stepping run."""
+
+    script_path: Path
+    resolved_script: Path
+    task_id: str
+    source_lines: list[str]
+    namespace: dict[str, object]
+
+
+@dataclass
+class _StepState:
+    """Tracer gate and lifecycle flags for one stepping run."""
+
+    steps_allowed: int = 0
+    cancelled: bool = False
+    is_started: bool = False
+    is_finished: bool = False
+
+
 class StepExecutionSession:
     """Single exec() of the student script with sys.settrace pauses between lines."""
 
@@ -203,48 +224,63 @@ class StepExecutionSession:
         callbacks: StepExecutionCallbacks,
         command_delay_seconds: float = 0.0,
     ) -> None:
-        self._script_path = script_path
         try:
-            self._resolved_script = script_path.resolve()
+            resolved_script = script_path.resolve()
         except OSError:
-            self._resolved_script = script_path
-        self._task_id = task_id
+            resolved_script = script_path
         self.env = env
-        self._show_line = callbacks.show_line
-        self._wait_for_next_step = callbacks.wait_for_next_step
+        self._callbacks = callbacks
         self._command_delay_seconds = command_delay_seconds
-        self._steps_allowed = 0
-        self._cancelled = False
-        self.is_started = False
-        self.is_finished = False
-        self._source_lines: list[str] = []
-        self.namespace: dict[str, object] = {
-            "__name__": "__main__",
-            "__file__": str(script_path),
-        }
+        self._script = _StepScript(
+            script_path=script_path,
+            resolved_script=resolved_script,
+            task_id=task_id,
+            source_lines=[],
+            namespace={
+                "__name__": "__main__",
+                "__file__": str(script_path),
+            },
+        )
+        self._state = _StepState()
+
+    @property
+    def namespace(self) -> dict[str, object]:
+        """Student script globals built during stepping."""
+        return self._script.namespace
+
+    @property
+    def is_started(self) -> bool:
+        """Whether ``start()`` has been entered."""
+        return self._state.is_started
+
+    @property
+    def is_finished(self) -> bool:
+        """Whether the stepping run has completed."""
+        return self._state.is_finished
 
     def allow_one_step(self) -> None:
         """Allow the tracer to run past one more student line."""
-        self._steps_allowed += 1
+        self._state.steps_allowed += 1
 
     def cancel(self) -> None:
         """Request cancellation of the stepping session."""
-        self._cancelled = True
+        self._state.cancelled = True
 
     @property
     def cancelled(self) -> bool:
         """Whether the user cancelled stepping."""
-        return self._cancelled
+        return self._state.cancelled
 
     def _line_text(self, lineno: int) -> str:
         """Return stripped source text for a 1-based line number."""
-        if lineno < 1 or lineno > len(self._source_lines):
+        lines = self._script.source_lines
+        if lineno < 1 or lineno > len(lines):
             return ""
-        return self._source_lines[lineno - 1].strip()
+        return lines[lineno - 1].strip()
 
     def _trace(self, frame, event, arg):
         """``sys.settrace`` callback: pause on each student line until allowed."""
-        if self._cancelled:
+        if self._state.cancelled:
             raise StepExecutionCancelled
         if event != "line":
             return self._trace
@@ -252,48 +288,54 @@ class StepExecutionSession:
             frame_path = Path(frame.f_code.co_filename).resolve()
         except OSError:
             return self._trace
-        if frame_path != self._resolved_script:
+        if frame_path != self._script.resolved_script:
             return self._trace
 
         lineno = frame.f_lineno
-        self._show_line(StudentLine(lineno=lineno, text=self._line_text(lineno)))
+        self._callbacks.show_line(
+            StudentLine(lineno=lineno, text=self._line_text(lineno))
+        )
 
-        if self._cancelled:
+        if self._state.cancelled:
             raise StepExecutionCancelled
-        if self._steps_allowed > 0:
-            self._steps_allowed -= 1
+        if self._state.steps_allowed > 0:
+            self._state.steps_allowed -= 1
             return self._trace
 
-        self._wait_for_next_step()
+        self._callbacks.wait_for_next_step()
 
-        if self._cancelled:
+        if self._state.cancelled:
             raise StepExecutionCancelled
-        if self._steps_allowed > 0:
-            self._steps_allowed -= 1
+        if self._state.steps_allowed > 0:
+            self._state.steps_allowed -= 1
         return self._trace
 
     def start(self) -> RunResult:
         """Run the student script until completion, error, or cancel."""
-        self.is_started = True
+        self._state.is_started = True
         self.env.reset()
         previous_delay = begin_solution_run(
-            self.env, self._task_id, self._command_delay_seconds
+            self.env, self._script.task_id, self._command_delay_seconds
         )
         try:
             try:
-                source = self._script_path.read_text(encoding="utf-8")
-                self._source_lines = source.splitlines()
-                code = compile(source, str(self._script_path), "exec")
+                source = self._script.script_path.read_text(encoding="utf-8")
+                self._script.source_lines = source.splitlines()
+                code = compile(
+                    source, str(self._script.script_path), "exec"
+                )
             except Exception as exc:
-                self.is_finished = True
-                return _map_exec_exception(self._script_path, self.env, exc)
+                self._state.is_finished = True
+                return _map_exec_exception(
+                    self._script.script_path, self.env, exc
+                )
 
             outcome: RunResult | None = None
             old_trace = sys.gettrace()
             try:
                 sys.settrace(self._trace)
                 try:
-                    exec(code, self.namespace)
+                    exec(code, self._script.namespace)
                 except StepExecutionCancelled:
                     outcome = RunResult(
                         status="error",
@@ -301,17 +343,21 @@ class StepExecutionSession:
                         details="",
                     )
                 except RobotPathError as exc:  # NOSONAR — map to RunResult like run_solution_on_env
-                    outcome = _map_exec_exception(self._script_path, self.env, exc)
+                    outcome = _map_exec_exception(
+                        self._script.script_path, self.env, exc
+                    )
                 except SystemExit as exc:  # NOSONAR — student code may call sys.exit
                     outcome = _handle_student_system_exit(
-                        exc, self.env, self._script_path
+                        exc, self.env, self._script.script_path
                     )
                 except Exception as exc:
-                    outcome = _map_exec_exception(self._script_path, self.env, exc)
+                    outcome = _map_exec_exception(
+                        self._script.script_path, self.env, exc
+                    )
             finally:
                 sys.settrace(old_trace)
 
-            self.is_finished = True
+            self._state.is_finished = True
             if outcome is not None:
                 return outcome
             return check_final_state(self.env)

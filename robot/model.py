@@ -36,8 +36,8 @@ class ValuedCell(Cell):
 
 
 @dataclass
-class RobotEnvDto:
-    """Validated environment layout loaded from a task file."""
+class RobotEnvDto:  # pylint: disable=too-many-instance-attributes
+    """Validated environment layout loaded from a task file (flat ``.env`` JSON)."""
 
     width: int
     height: int

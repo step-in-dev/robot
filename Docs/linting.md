@@ -11,6 +11,12 @@ Test code is not checked for `missing-function-docstring` (**C0116**) or `missin
 
 Production code still requires a short one-line docstring on every function and method (including `@property` getters), per **C0116**, and on public classes, per **C0115**.
 
+## Too many instance attributes (R0902)
+
+Pylint’s default limit is seven attributes per class. Prefer grouping real state (for example `RobotTask.script_constraints`, `StepExecutionSession`’s `_StepScript` / `_StepState`, `RobotWindow`’s `_task` / `_layout` / `_chrome` / `_execution`) over raising the global limit.
+
+Flat value-object types that mirror JSON or a single job struct (`RobotEnvDto`, `FieldColors`, `LanguageCaptureJob`) and grouped helper dataclasses on `RobotWindow` may use a **class-level** `# pylint: disable=too-many-instance-attributes` with a short comment. `ViewerMixin` uses the same exception because viewer fields are stored on the host window instance.
+
 ## Comparisons to zero
 
 Neither profile checks `use-implicit-booleaness-not-comparison-to-zero` (**C1805**). Explicit comparisons such as `exit_code != 0` or `count == 0` are preferred for return codes, counters, and indices because they read clearly and do not rely on implicit truthiness when a value might not be a plain `int`.

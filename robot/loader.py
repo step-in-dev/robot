@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import keyword
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -36,14 +36,7 @@ class ScriptConstraints:
     @classmethod
     def from_task(cls, task: RobotTask) -> ScriptConstraints:
         """Copy constraint fields from a loaded task."""
-        return cls(
-            operators_limit=task.operators_limit,
-            custom_function_call_count=task.custom_function_call_count,
-            if_limit=task.if_limit,
-            while_limit=task.while_limit,
-            required_keywords=task.required_keywords,
-            banned_keywords=task.banned_keywords,
-        )
+        return task.script_constraints
 
 
 @dataclass(frozen=True)
@@ -52,12 +45,37 @@ class RobotTask:
 
     envs: list[RobotEnv]
     todo_text: str
-    operators_limit: int | None = None
-    custom_function_call_count: int | None = None
-    if_limit: int | None = None
-    while_limit: int | None = None
-    required_keywords: tuple[str, ...] | None = None
-    banned_keywords: tuple[str, ...] | None = None
+    script_constraints: ScriptConstraints = field(default_factory=ScriptConstraints)
+
+    @property
+    def operators_limit(self) -> int | None:
+        """Operator count limit from the task file."""
+        return self.script_constraints.operators_limit
+
+    @property
+    def custom_function_call_count(self) -> int | None:
+        """Minimum custom-function call count from the task file."""
+        return self.script_constraints.custom_function_call_count
+
+    @property
+    def if_limit(self) -> int | None:
+        """``if`` keyword use limit from the task file."""
+        return self.script_constraints.if_limit
+
+    @property
+    def while_limit(self) -> int | None:
+        """``while`` keyword use limit from the task file."""
+        return self.script_constraints.while_limit
+
+    @property
+    def required_keywords(self) -> tuple[str, ...] | None:
+        """Keywords that must appear in the solution."""
+        return self.script_constraints.required_keywords
+
+    @property
+    def banned_keywords(self) -> tuple[str, ...] | None:
+        """Keywords that must not appear in the solution."""
+        return self.script_constraints.banned_keywords
 
 
 def load_task(task_id: str) -> list[RobotEnv]:
@@ -106,12 +124,14 @@ def load_task_definition(task_id: str) -> RobotTask:
     return RobotTask(
         envs=environments,
         todo_text=todo_text,
-        operators_limit=operators_limit,
-        custom_function_call_count=custom_function_call_count,
-        if_limit=if_limit,
-        while_limit=while_limit,
-        required_keywords=required_keywords,
-        banned_keywords=banned_keywords,
+        script_constraints=ScriptConstraints(
+            operators_limit=operators_limit,
+            custom_function_call_count=custom_function_call_count,
+            if_limit=if_limit,
+            while_limit=while_limit,
+            required_keywords=required_keywords,
+            banned_keywords=banned_keywords,
+        ),
     )
 
 

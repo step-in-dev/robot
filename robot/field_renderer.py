@@ -61,8 +61,8 @@ class OutlinedTextSpec:
 
 
 @dataclass
-class FieldColors:
-    """Tkinter color palette for field rendering."""
+class FieldColors:  # pylint: disable=too-many-instance-attributes
+    """Tkinter color palette for field rendering (one field per drawn element)."""
 
     grid_color: str
     wall_color: str
@@ -74,6 +74,20 @@ class FieldColors:
     pollution_color: str
     print_color: str
     cell_background_color: str
+
+
+DEFAULT_FIELD_COLORS = FieldColors(
+    grid_color="#428bca",
+    wall_color="#428bca",
+    robot_color="#428bca",
+    robot_outline="#ffffff",
+    cell_to_paint_color="#f0ad4e",
+    cell_to_paint_when_painted_color="#ffffff",
+    home_color="#a93b20",
+    pollution_color="#404C51",
+    print_color="#712903",
+    cell_background_color="#ffffff",
+)
 
 
 class FieldRenderer:

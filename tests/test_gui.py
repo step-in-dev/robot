@@ -95,7 +95,7 @@ def make_test_window(
     c = constraints or ScriptConstraints()
     return RobotWindow(
         task_id,
-        RobotTask(envs=envs, todo_text="", **dataclasses.asdict(c)),
+        RobotTask(envs=envs, todo_text="", script_constraints=c),
         run_env,
         opts,
     )

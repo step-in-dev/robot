@@ -253,8 +253,8 @@ def _screenshot_stem(
 
 
 @dataclass(frozen=True)
-class LanguageCaptureJob:
-    """Parameters for one language screenshot capture run."""
+class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
+    """Flat parameter bundle for one language screenshot capture run."""
 
     python_executable: str
     task_id: str
