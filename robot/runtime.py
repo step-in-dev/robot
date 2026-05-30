@@ -33,6 +33,7 @@ from .executor import (
     DEFAULT_COMMAND_DELAY_SECONDS,
     ROBOT_PATH_COLLISION_USER_MESSAGE,
     StepExecutionSession,
+    StepExecutionTarget,
     StudentLine,
     check_limit_violations,
     run_solution_on_env,
@@ -166,5 +167,6 @@ __all__ = [
     "DEFAULT_COMMAND_DELAY_SECONDS",
     "ROBOT_PATH_COLLISION_USER_MESSAGE",
     "StepExecutionSession",
+    "StepExecutionTarget",
     "StudentLine",
 ]

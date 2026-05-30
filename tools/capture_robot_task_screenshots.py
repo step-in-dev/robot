@@ -270,29 +270,35 @@ class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
     settle_seconds: float
 
 
-def _language_capture_job(
-    *,
-    language: str,
-    output_path: Path,
-    task_id: str,
-    workdir: Path,
-    env_index: int | None,
-    settle_seconds: float,
-    capture_constraints_window: bool,
-    viewer_mode: bool,
-) -> LanguageCaptureJob:
-    """Build a capture job from shared CLI parameters."""
-    return LanguageCaptureJob(
-        python_executable=sys.executable,
-        task_id=task_id,
-        language=language,
-        output_path=output_path,
-        workdir=workdir,
-        env_index=env_index,
-        capture_constraints_window=capture_constraints_window,
-        viewer_mode=viewer_mode,
-        settle_seconds=settle_seconds,
-    )
+@dataclass(frozen=True)
+class _CaptureBatchContext:
+    """Shared parameters for all language/env captures in one CLI run."""
+
+    task_id: str
+    workdir: Path
+    env_index: int | None
+    settle_seconds: float
+
+    def language_job(
+        self,
+        language: str,
+        output_path: Path,
+        *,
+        capture_constraints_window: bool,
+        viewer_mode: bool,
+    ) -> LanguageCaptureJob:
+        """Build a capture job for one language using shared batch parameters."""
+        return LanguageCaptureJob(
+            python_executable=sys.executable,
+            task_id=self.task_id,
+            language=language,
+            output_path=output_path,
+            workdir=self.workdir,
+            env_index=self.env_index,
+            capture_constraints_window=capture_constraints_window,
+            viewer_mode=viewer_mode,
+            settle_seconds=self.settle_seconds,
+        )
 
 
 def capture_for_language(job: LanguageCaptureJob) -> None:
@@ -522,6 +528,13 @@ def main() -> int:
     )
     output_prefix = _effective_output_prefix(args.output_prefix, args.viewer)
 
+    batch = _CaptureBatchContext(
+        task_id=args.task,
+        workdir=workdir,
+        env_index=args.env_index,
+        settle_seconds=settle_seconds,
+    )
+
     failed: list[tuple[str, str]] = []
     for language in args.languages:
         stem = _screenshot_stem(
@@ -537,13 +550,9 @@ def main() -> int:
             ok_prefix=f"[{language}] ",
             failed=failed,
             capture=lambda lang=language, path=output_path: capture_for_language(
-                _language_capture_job(
-                    language=lang,
-                    output_path=path,
-                    task_id=args.task,
-                    workdir=workdir,
-                    env_index=args.env_index,
-                    settle_seconds=settle_seconds,
+                batch.language_job(
+                    lang,
+                    path,
                     capture_constraints_window=False,
                     viewer_mode=args.viewer,
                 )
@@ -558,13 +567,9 @@ def main() -> int:
                 ok_prefix=f"[{language}] constraints ",
                 failed=failed,
                 capture=lambda lang=language, path=constraints_path: capture_for_language(
-                    _language_capture_job(
-                        language=lang,
-                        output_path=path,
-                        task_id=args.task,
-                        workdir=workdir,
-                        env_index=args.env_index,
-                        settle_seconds=settle_seconds,
+                    batch.language_job(
+                        lang,
+                        path,
                         capture_constraints_window=True,
                         viewer_mode=False,
                     )

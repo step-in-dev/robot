@@ -52,6 +52,14 @@ class StepExecutionCallbacks:
     wait_for_next_step: Callable[[], None]
 
 
+@dataclass(frozen=True)
+class StepExecutionTarget:
+    """Script file and task id for one stepping session."""
+
+    script_path: Path
+    task_id: str
+
+
 def _student_frame_lineno(script_path: Path, tb: TracebackType | None) -> int | None:
     """Innermost lineno in *student* script (closest to the exception in that file)."""
     if tb is None:
@@ -180,13 +188,13 @@ class StepExecutionSession:
 
     def __init__(
         self,
-        script_path: Path,
-        task_id: str,
+        target: StepExecutionTarget,
         env: RobotEnv,
         *,
         callbacks: StepExecutionCallbacks,
         command_delay_seconds: float = 0.0,
     ) -> None:
+        script_path = target.script_path
         try:
             resolved_script = script_path.resolve()
         except OSError:
@@ -197,7 +205,7 @@ class StepExecutionSession:
         self._script = _StepScript(
             script_path=script_path,
             resolved_script=resolved_script,
-            task_id=task_id,
+            task_id=target.task_id,
             source_lines=[],
             namespace={
                 "__name__": "__main__",
