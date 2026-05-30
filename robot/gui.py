@@ -77,6 +77,15 @@ class RobotWindow(
 ):
     """Main tkinter window for student solutions and task viewer."""
 
+    cell_size: int
+    canvas_width: int
+    canvas_height: int
+    todo_label: tk.Label | None
+    top_toolbar: tk.Frame | None
+    tab_frame: tk.Frame | None
+    tab_buttons: list[tk.Button]
+    constraints_button: tk.Button | None
+
     def __init__(
         self,
         task_id: str,
@@ -173,11 +182,11 @@ class RobotWindow(
             self.envs, self.cell_size, self.wall_width
         )
 
-        self.todo_label: tk.Label | None = None
-        self.top_toolbar: tk.Frame | None = None
-        self.tab_frame: tk.Frame | None = None
-        self.tab_buttons: list[tk.Button] = []
-        self.constraints_button: tk.Button | None = None
+        self.todo_label = None
+        self.top_toolbar = None
+        self.tab_frame = None
+        self.tab_buttons = []
+        self.constraints_button = None
 
     def _top_section_pack_after(self) -> tk.Misc | None:
         if self.todo_label is not None:
