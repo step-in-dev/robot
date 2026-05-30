@@ -61,16 +61,16 @@ def _launch_student_robot_window(
     script_path = _detect_student_script()
     from .gui import RobotWindow, RobotWindowOptions
 
-    window = RobotWindow.from_task_definition(
-        task_id=task_id,
-        task_definition=task_definition,
-        run_env=lambda env: run_solution_on_env(
+    window = RobotWindow(
+        task_id,
+        task_definition,
+        lambda env: run_solution_on_env(
             script_path,
             task_id,
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
         ),
-        options=RobotWindowOptions(
+        RobotWindowOptions(
             initial_index=initial_index,
             script_path=script_path,
             open_constraints_on_startup=open_constraints_on_startup,

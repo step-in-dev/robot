@@ -173,11 +173,11 @@ def _script_body_for_capture(
             catalog = TaskCatalog.discover()
             from robot.gui import RobotWindowOptions
 
-            window = RobotWindow.from_task_definition(
-                task_id=task_id,
-                task_definition=td,
-                run_env=None,
-                options=RobotWindowOptions(
+            window = RobotWindow(
+                task_id,
+                td,
+                None,
+                RobotWindowOptions(
                     initial_index=initial_index,
                     viewer_catalog=catalog,
                 ),

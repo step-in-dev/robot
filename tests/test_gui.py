@@ -1628,11 +1628,11 @@ def _make_viewer_window(temp_dir: str) -> RobotWindow:
     first_id = catalog.first_task_id(catalog.themes[0])
     assert first_id is not None
     task_def = load_task_definition(first_id)
-    return RobotWindow.from_task_definition(
-        task_id=first_id,
-        task_definition=task_def,
-        run_env=None,
-        options=RobotWindowOptions(viewer_catalog=catalog),
+    return RobotWindow(
+        first_id,
+        task_def,
+        None,
+        RobotWindowOptions(viewer_catalog=catalog),
     )
 
 

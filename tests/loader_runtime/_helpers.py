@@ -83,22 +83,6 @@ def make_capture_robot_window_cls(captured: list) -> type:
                 options=options,
             )
 
-        @classmethod
-        def from_task_definition(
-            cls,
-            *,
-            task_id: str,
-            task_definition,
-            run_env=None,
-            options: RobotWindowOptions | None = None,
-        ):
-            return cls(
-                task_id=task_id,
-                task_definition=task_definition,
-                run_env=run_env,
-                options=options,
-            )
-
         def run(self) -> None:
             pass  # Skip Tk mainloop in unit tests.
 

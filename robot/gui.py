@@ -127,27 +127,6 @@ class RobotWindow(
         self._build_status_area()
         self._finish_initial_placement(opts.initial_index)
 
-    @classmethod
-    def from_task_definition(
-        cls,
-        *,
-        task_id: str,
-        task_definition: RobotTask,
-        run_env: Callable[[RobotEnv], RunResult] | None,
-        options: RobotWindowOptions | None = None,
-    ) -> RobotWindow:
-        """Construct a window from a loaded task definition and options.
-
-        Documented entry point for runtime, viewer, and tools (forwards to
-        ``__init__``).
-        """
-        return cls(
-            task_id=task_id,
-            task_definition=task_definition,
-            run_env=run_env,
-            options=options,
-        )
-
     def _init_root_and_geometry(self) -> None:
         self.grid_color = "#428bca"
         self.wall_color = "#428bca"

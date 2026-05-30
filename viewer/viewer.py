@@ -26,11 +26,11 @@ def main() -> int:
         return 1
 
     task_definition = load_task_definition(first_task_id)
-    window = RobotWindow.from_task_definition(
-        task_id=first_task_id,
-        task_definition=task_definition,
-        run_env=None,
-        options=RobotWindowOptions(viewer_catalog=catalog),
+    window = RobotWindow(
+        first_task_id,
+        task_definition,
+        None,
+        RobotWindowOptions(viewer_catalog=catalog),
     )
     window.run()
     return 0
