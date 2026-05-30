@@ -38,7 +38,7 @@ from .executor import (
     run_solution_on_env,
 )
 from .loader import RobotTask, load_task_definition
-from .model import RobotEnv, RobotEnvDto, RobotError
+from .model import RobotEnv, RobotEnvDto, RobotError, _is_plain_int
 from .results import RunResult, RunStatus
 
 
@@ -102,7 +102,7 @@ def _field_task_label(width: int, height: int) -> str:
 
 
 def _validate_field_dimensions(width: object, height: object) -> tuple[int, int]:
-    if type(width) is not int or type(height) is not int:
+    if not _is_plain_int(width) or not _is_plain_int(height):
         raise RobotError(t("runtime.error.field_integers"))
     if not (1 <= width <= 20):
         raise RobotError(t("runtime.error.field_width_range"))

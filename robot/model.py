@@ -19,6 +19,11 @@ class RobotPathError(RobotError):
     """Raised when the robot tries to move through a wall or field border."""
 
 
+def _is_plain_int(value: object) -> bool:
+    """Return whether *value* is an ``int`` but not ``bool``."""
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 @dataclass(frozen=True)
 class Cell:
     """Grid coordinates as row and column indices."""
@@ -435,7 +440,7 @@ class Robot:
 
     def print_number(self, value: object) -> None:
         """Print an integer at the current cell."""
-        if type(value) is not int:
+        if not _is_plain_int(value):
             raise RobotError(t("model.error.printn_integers"))
         self._env.print_number(ValuedCell(self._row, self._col, value))
         self._change_listener()

@@ -95,7 +95,7 @@ class RobotWindowViewerTest(unittest.TestCase):
                     entry = next(
                         w
                         for w in window.viewer_toolbar.winfo_children()
-                        if type(w) is tk.Entry
+                        if w.winfo_class() == "Entry"
                     )
                     entry.focus_set()
                     window._viewer_number_var.set("2")

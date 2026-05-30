@@ -182,6 +182,17 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                         getattr(runtime, "field")(1.5, 6)
             self.assertEqual(str(ctx.exception), t("runtime.error.field_integers"))
 
+    def test_field_rejects_bool_values(self) -> None:
+        with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
+            clear_translation_cache()
+            with tempfile.TemporaryDirectory() as temp_dir:
+                script = Path(temp_dir) / "bad.py"
+                script.write_text("#\n", encoding="utf-8")
+                with self._patched_main_as_script(script):
+                    with self.assertRaises(RobotError) as ctx:
+                        runtime.field(True, 3)
+            self.assertEqual(str(ctx.exception), t("runtime.error.field_integers"))
+
     def test_field_rejects_width_out_of_range(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
             clear_translation_cache()

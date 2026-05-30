@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
-from .model import RobotEnv, RobotEnvDto
+from .model import RobotEnv, RobotEnvDto, _is_plain_int
 
 
 TASKS_DIR_ENV = "ROBOT_TASKS_DIR"
@@ -228,7 +228,7 @@ def _parse_optional_non_negative_int(
     if json_key not in data:
         return None
     value = data[json_key]
-    if type(value) is not int or value < 0:
+    if not _is_plain_int(value) or value < 0:
         raise TaskLoadError(t(invalid_message_key, task_path=task_path))
     return value
 
