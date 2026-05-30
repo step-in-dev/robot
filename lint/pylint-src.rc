@@ -1,3 +1,4 @@
 # Production: full pylint rule set (see pylint --list-msgs-enabled).
 [MESSAGES CONTROL]
 enable=all
+disable=use-implicit-booleaness-not-comparison-to-zero

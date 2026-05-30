@@ -2,14 +2,18 @@
 
 Pylint configuration lives in `lint/`.
 
-- `lint/pylint-src.rc` — full pylint rule set (`enable=all`) on production paths, including `missing-function-docstring` (**C0116**).
-- `lint/pylint-tests.rc` — the same rule set on `tests/`, with **C0116** and **C0115** disabled.
+- `lint/pylint-src.rc` — full pylint rule set (`enable=all`) on production paths, including `missing-function-docstring` (**C0116**), with **C1805** disabled.
+- `lint/pylint-tests.rc` — the same rule set on `tests/`, with **C0116**, **C0115**, and **C1805** disabled.
 
 ## Docstrings in tests
 
 Test code is not checked for `missing-function-docstring` (**C0116**) or `missing-class-docstring` (**C0115**). Module docstrings, descriptive `unittest` class names (for example `RobotMovementTest`), and test method names (for example `test_robot_moves_right_when_cell_is_free`) already scope each file and scenario; a per-class or per-method docstring would mostly repeat those names.
 
 Production code still requires a short one-line docstring on every function and method (including `@property` getters), per **C0116**, and on public classes, per **C0115**.
+
+## Comparisons to zero
+
+Neither profile checks `use-implicit-booleaness-not-comparison-to-zero` (**C1805**). Explicit comparisons such as `exit_code != 0` or `count == 0` are preferred for return codes, counters, and indices because they read clearly and do not rely on implicit truthiness when a value might not be a plain `int`.
 
 ## Scope
 

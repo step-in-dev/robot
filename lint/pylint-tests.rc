@@ -1,5 +1,5 @@
-# Tests: same rule set as production, except missing-function-docstring (C0116)
-# and missing-class-docstring (C0115).
+# Tests: same rule set as production, except missing-function-docstring (C0116),
+# missing-class-docstring (C0115), and use-implicit-booleaness-not-comparison-to-zero (C1805).
 [MESSAGES CONTROL]
 enable=all
-disable=missing-function-docstring,missing-class-docstring
+disable=missing-function-docstring,missing-class-docstring,use-implicit-booleaness-not-comparison-to-zero
