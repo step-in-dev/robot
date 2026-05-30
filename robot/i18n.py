@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ctypes
 import json
 import locale
 import os
@@ -110,8 +111,6 @@ def _windows_ui_locale_string() -> str | None:
     if sys.platform != "win32":
         return None
     try:
-        import ctypes
-
         lang_id = int(ctypes.windll.kernel32.GetUserDefaultUILanguage())
     except (AttributeError, OSError, TypeError, ValueError):
         return None

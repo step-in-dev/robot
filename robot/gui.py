@@ -134,12 +134,12 @@ class _ExecutionState:
     is_run_all_active: bool = False
 
 
-class RobotWindow(
+class RobotWindow(  # pylint: disable=too-many-public-methods
     DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin, ViewerMixin
 ):
     """Main tkinter window for student solutions and task viewer.
 
-    Delegating properties expose grouped state to mixins and tests.
+    Delegating @property accessors for mixins and GUI tests.
     """
 
     def __init__(

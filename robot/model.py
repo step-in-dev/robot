@@ -199,8 +199,11 @@ class RobotEnvDto:  # pylint: disable=too-many-instance-attributes
             seen_walls.add(canonical)
 
 
-class RobotEnv:
-    """Mutable task environment: grid state, robot, and change listeners."""
+class RobotEnv:  # pylint: disable=too-many-public-methods
+    """Mutable task environment: grid state, robot, and change listeners.
+
+    Public surface: DTO properties, mutations, and change listeners.
+    """
 
     def __init__(self, dto: RobotEnvDto):
         """Create a mutable environment from a validated DTO."""

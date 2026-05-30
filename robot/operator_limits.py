@@ -11,19 +11,9 @@ from collections import deque
 from dataclasses import dataclass, field
 
 from .i18n import t
+from .student_api import COUNTED_OPERATOR_NAMES
 
 DEFAULT_STUDENT_FILENAME = "<student>"
-
-COUNTED_OPERATOR_NAMES = frozenset(
-    {
-        "move_right",
-        "move_left",
-        "move_up",
-        "move_down",
-        "paint",
-        "printn",
-    }
-)
 
 OPERATORS_LIMIT_MESSAGE_TEMPLATE = t("limit.operators")
 

@@ -23,6 +23,12 @@ Pylint’s default minimum is two public methods per class. `RobotWindow` mixins
 
 Those types may use a **class-level** `# pylint: disable=too-few-public-methods`. Do not raise the global limit in `lint/pylint-src.rc` and do not add empty public methods just to satisfy the linter.
 
+## Too many public methods (R0904)
+
+Pylint’s default limit is twenty public methods per class. `RobotEnv` and `RobotWindow` intentionally expose a larger stable API (DTO properties, listeners, and delegating accessors for mixins and GUI tests).
+
+Those types may use a **class-level** `# pylint: disable=too-many-public-methods` with a short comment. Do not raise the global limit in `lint/pylint-src.rc` and do not split the API only to satisfy the linter.
+
 ## Broad exception caught (W0718)
 
 Pylint flags `except Exception` as **W0718**. Use a **line-level** `# pylint: disable=broad-exception-caught` only when a broad catch is intentional and changing it would alter behavior.

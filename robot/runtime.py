@@ -41,6 +41,7 @@ from .executor import (
 from .loader import RobotTask, load_task_definition
 from .model import RobotEnv, RobotEnvDto, RobotError, _is_plain_int
 from .results import RunResult, RunStatus
+from .student_api import RUNTIME_EXTRA_EXPORT_NAMES, RUNTIME_STUDENT_EXPORT_NAMES
 
 
 def _detect_student_script() -> Path:
@@ -60,7 +61,11 @@ def _launch_student_robot_window(
 ) -> None:
     """Open the GUI for a loaded or synthetic task; never returns normally."""
     script_path = _detect_student_script()
-    from .gui import RobotWindow, RobotWindowOptions
+    # Deferred import so ``from robot import …`` does not load tkinter.
+    from .gui import (  # pylint: disable=import-outside-toplevel
+        RobotWindow,
+        RobotWindowOptions,
+    )
 
     window = RobotWindow(
         task_id,
@@ -140,33 +145,4 @@ def field(width: int = 8, height: int = 6) -> None:
     )
 
 
-__all__ = [
-    "task",
-    "field",
-    "move_right",
-    "move_left",
-    "move_up",
-    "move_down",
-    "paint",
-    "is_free_left",
-    "is_free_right",
-    "is_free_up",
-    "is_free_down",
-    "is_wall_left",
-    "is_wall_right",
-    "is_wall_up",
-    "is_wall_down",
-    "is_cell_painted",
-    "is_cell_not_painted",
-    "pol",
-    "printn",
-    "RunResult",
-    "RunStatus",
-    "run_solution_on_env",
-    "check_limit_violations",
-    "DEFAULT_COMMAND_DELAY_SECONDS",
-    "ROBOT_PATH_COLLISION_USER_MESSAGE",
-    "StepExecutionSession",
-    "StepExecutionTarget",
-    "StudentLine",
-]
+__all__ = [*RUNTIME_STUDENT_EXPORT_NAMES, *RUNTIME_EXTRA_EXPORT_NAMES]
