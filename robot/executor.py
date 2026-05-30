@@ -241,8 +241,11 @@ class StepExecutionSession:
             return ""
         return lines[lineno - 1].strip()
 
-    def _trace(self, frame, event, arg):
-        """``sys.settrace`` callback: pause on each student line until allowed."""
+    def _trace(self, frame, event, _arg):
+        """``sys.settrace`` callback: pause on each student line until allowed.
+
+        ``_arg`` is the trace protocol's third argument (exception info on other events).
+        """
         if self._state.cancelled:
             raise StepExecutionCancelled
         if event != "line":

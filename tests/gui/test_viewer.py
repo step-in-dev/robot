@@ -15,7 +15,7 @@ from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_
 from ._helpers import requires_tk_display
 
 
-def _make_viewer_window(temp_dir: str) -> RobotWindow:
+def _make_viewer_window() -> RobotWindow:
     """Build a viewer window; caller must keep ``patched_tasks_dir`` active."""
     catalog = TaskCatalog.discover()
     first_id = catalog.first_task_id(catalog.themes[0])
@@ -36,7 +36,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             base = Path(temp_dir)
             write_minimal_task_env(base / "intro1.env", "intro1")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     self.assertEqual(window.action_button.cget("state"), tk.DISABLED)
                     self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
@@ -51,7 +51,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "fun1.env", "fun1")
             write_minimal_task_env(base / "fun2.env", "fun2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     window._viewer_theme_var.set("fun")
                     window._on_viewer_theme_selected()
@@ -71,7 +71,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "intro1.env", "intro1")
             write_minimal_task_env(base / "intro2.env", "intro2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     window._viewer_show_task("intro2")
                     window.root.update()
@@ -89,7 +89,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "intro1.env", "intro1")
             write_minimal_task_env(base / "intro2.env", "intro2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     assert window.viewer_toolbar is not None
                     entry = next(
@@ -112,7 +112,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "урок 1.env", "урок 1")
             write_minimal_task_env(base / "урок 2.env", "урок 2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     window._viewer_theme_var.set("урок ")
                     window._viewer_number_var.set("2")
@@ -129,7 +129,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "intro1.env", "intro1")
             write_minimal_task_env(base / "intro2.env", "intro2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     window._viewer_show_relative(1)
                     window.root.update()
@@ -146,7 +146,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "intro1.env", "intro1")
             write_minimal_task_env(base / "intro2.env", "intro2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     self.assertEqual(
                         window._viewer_prev_button.cget("state"), tk.DISABLED
@@ -169,7 +169,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             base = Path(temp_dir)
             write_minimal_task_env(base / "intro1.env", "intro1")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     self.assertEqual(
                         window._viewer_prev_button.cget("state"), tk.DISABLED
@@ -187,7 +187,7 @@ class RobotWindowViewerTest(unittest.TestCase):
             write_minimal_task_env(base / "intro1.env", "intro1")
             write_minimal_task_env(base / "intro2.env", "intro2")
             with patched_tasks_dir(temp_dir):
-                window = _make_viewer_window(temp_dir)
+                window = _make_viewer_window()
                 try:
                     root_id = window.root.winfo_id()
                     self.assertEqual(window.root.wm_resizable(), (0, 0))

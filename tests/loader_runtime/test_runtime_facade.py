@@ -46,7 +46,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
             fake_main = types.ModuleType("fake_main")
             fake_main.__file__ = str(script)
 
-            def ide_global(frame, event, arg):
+            def ide_global(_frame, _event, _arg):
                 return ide_global
 
             old_trace = sys.gettrace()
