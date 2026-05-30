@@ -1,15 +1,12 @@
 """Tests for RobotWindow Step button and step execution."""
 
-import dataclasses
-import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 import tkinter as tk
 
-from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE, StudentLine
+from robot.executor import StudentLine
 from robot.gui import RobotWindowOptions
 from robot.model import RobotEnv
 from robot.gui_theme import (
@@ -20,7 +17,6 @@ from robot.gui_theme import (
     STATUS_BG_SUCCESS,
 )
 from robot.i18n import t
-from robot.operator_limits import OPERATORS_LIMIT_MESSAGE_TEMPLATE
 from robot.results import RunResult
 
 from ._helpers import (

@@ -30,7 +30,12 @@ class RobotWindowActionButtonTest(unittest.TestCase):
             env.robot.move_right()
             return RunResult(status="success", message="ok")
 
-        window = make_test_window("test_task", envs, run_env, options=RobotWindowOptions(initial_index=1))
+        window = make_test_window(
+            "test_task",
+            envs,
+            run_env,
+            options=RobotWindowOptions(initial_index=1),
+        )
         try:
             self.assertIsNotNone(window.action_button)
             self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RUN)

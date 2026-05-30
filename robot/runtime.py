@@ -105,9 +105,9 @@ def _field_task_label(width: int, height: int) -> str:
 def _validate_field_dimensions(width: object, height: object) -> tuple[int, int]:
     if not _is_plain_int(width) or not _is_plain_int(height):
         raise RobotError(t("runtime.error.field_integers"))
-    if not (1 <= width <= 20):
+    if not 1 <= width <= 20:
         raise RobotError(t("runtime.error.field_width_range"))
-    if not (1 <= height <= 15):
+    if not 1 <= height <= 15:
         raise RobotError(t("runtime.error.field_height_range"))
     return width, height
 

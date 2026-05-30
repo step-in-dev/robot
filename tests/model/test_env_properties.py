@@ -2,10 +2,7 @@
 
 import unittest
 
-from robot.model import (
-    Cell,
-    ValuedCell,
-)
+from robot.model import Cell
 
 from .helpers import make_env
 

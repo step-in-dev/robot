@@ -6,10 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import tkinter as tk
 
-from robot.gui import RobotWindowOptions
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
 from robot.model import RobotEnv
-from robot.gui_theme import ACTION_BUTTON_HELP
 from robot.i18n import t
 from robot.results import RunResult
 
@@ -36,7 +34,10 @@ def _help_window_body_text(help_top: tk.Toplevel) -> str:
 
 
 class HelpReadonlyKeyFilterTest(unittest.TestCase):
-    """Regression: help ``Text`` must stay read-only without blocking copy (``<Key>`` + ``break``)."""
+    """Regression: help ``Text`` stays read-only.
+
+    Copy must work (``<Key>`` handler must not use bare ``break``).
+    """
 
     @staticmethod
     def _help_key(

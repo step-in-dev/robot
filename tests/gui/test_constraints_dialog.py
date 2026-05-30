@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 import tkinter as tk
 
-from robot.gui import RobotWindowOptions
 from robot.loader import ScriptConstraints
 from robot.model import RobotEnv
 from robot.results import RunResult

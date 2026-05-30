@@ -52,7 +52,10 @@ def natural_sort_key(task_id: str) -> tuple[str, int]:
 
 
 def discover_task_groups(tasks_dir: Path | None = None) -> dict[str, list[str]]:
-    """Scan a tasks directory and group task IDs (stems of ``*.env``) by theme before trailing digits."""
+    """Scan a tasks directory and group task IDs (stems of ``*.env``).
+
+    Group by theme before trailing digits.
+    """
     directory = tasks_dir if tasks_dir is not None else resolve_tasks_dir()
     groups: dict[str, list[str]] = {}
     if not directory.is_dir():

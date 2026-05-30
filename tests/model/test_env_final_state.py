@@ -2,8 +2,6 @@
 
 import unittest
 
-from robot.model import Cell, ValuedCell
-
 from .helpers import make_env
 
 

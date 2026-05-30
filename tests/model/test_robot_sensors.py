@@ -2,7 +2,7 @@
 
 import unittest
 
-from robot.model import RobotError, Cell
+from robot.model import RobotError
 
 from .helpers import make_env
 

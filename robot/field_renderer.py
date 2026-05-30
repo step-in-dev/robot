@@ -41,7 +41,10 @@ def print_line_gap(font_size: int) -> int:
 
 
 def format_printable_value(value: int) -> str:
-    """Same rules as web `getPrintableValue`: floor, truncate to two chars + '..' outside (-100, 100)."""
+    """Same rules as web `getPrintableValue`: floor, truncate to two chars + '..'.
+
+    Applied outside the (-100, 100) range.
+    """
     res = str(math.floor(value))
     if value > -100 and value < 100:
         return res

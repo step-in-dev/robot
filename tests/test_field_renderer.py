@@ -177,7 +177,10 @@ class FieldRendererTextPlacementTest(unittest.TestCase):
         self.assertAlmostEqual(ys[1], y_printed, delta=0.001)
         self.assertLess(ys[0], ys[1])
 
-        x_rights = [float(t["coords"][0]) + _text_width(t["text"], font_size) for t in prints]  # type: ignore[arg-type]
+        x_rights = [
+            float(t["coords"][0]) + _text_width(t["text"], font_size)  # type: ignore[arg-type]
+            for t in prints
+        ]
         right_edge = (0 + 1) * cell_size - half
         for xr in x_rights:
             self.assertAlmostEqual(xr, right_edge, delta=0.001)
@@ -212,4 +215,3 @@ class FieldRendererTextPlacementTest(unittest.TestCase):
 def _text_width(text: str, font_size: int) -> float:
     f = tkfont.Font(family="Arial", size=font_size, weight="bold")
     return float(f.measure(text))
-

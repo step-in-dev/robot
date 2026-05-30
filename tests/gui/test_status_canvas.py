@@ -4,8 +4,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import tkinter as tk
-
 from robot.executor import ROBOT_PATH_COLLISION_USER_MESSAGE
 from robot.gui import RobotWindowOptions
 from robot.loader import ScriptConstraints
