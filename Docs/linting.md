@@ -2,8 +2,8 @@
 
 Pylint configuration lives in `lint/`.
 
-- `lint/pylint-src.rc` — full pylint rule set (`enable=all`) on production paths, including `missing-function-docstring` (**C0116**), with **C1805** disabled.
-- `lint/pylint-tests.rc` — the same rule set on `tests/`, with **C0116**, **C0115**, and **C1805** disabled.
+- `lint/pylint-src.rc` — pylint’s default enabled messages on production paths (no extra `enable`/`disable` in the rcfile), including `missing-function-docstring` (**C0116**) and `missing-class-docstring` (**C0115**).
+- `lint/pylint-tests.rc` — the same defaults on `tests/`, with **C0116** and **C0115** disabled.
 
 ## Docstrings in tests
 
@@ -26,10 +26,6 @@ In [`robot/executor.py`](../robot/executor.py), student scripts are read, compil
 In [`tools/capture_robot_task_screenshots.py`](../tools/capture_robot_task_screenshots.py), `_try_capture` records any per-language failure and continues the batch. A local suppression preserves that tool semantics; keep `# noqa: BLE001` if ruff still requires it.
 
 Do not disable W0718 globally in `lint/pylint-src.rc`.
-
-## Comparisons to zero
-
-Neither profile checks `use-implicit-booleaness-not-comparison-to-zero` (**C1805**). Explicit comparisons such as `exit_code != 0` or `count == 0` are preferred for return codes, counters, and indices because they read clearly and do not rely on implicit truthiness when a value might not be a plain `int`.
 
 ## Scope
 
