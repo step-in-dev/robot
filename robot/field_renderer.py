@@ -46,7 +46,7 @@ def format_printable_value(value: int) -> str:
     Applied outside the (-100, 100) range.
     """
     res = str(math.floor(value))
-    if value > -100 and value < 100:
+    if -100 < value < 100:
         return res
     return res[:2] + ".."
 

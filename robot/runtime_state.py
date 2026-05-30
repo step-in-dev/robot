@@ -22,14 +22,14 @@ _state = _SolutionRunState()
 
 
 def begin_solution_run(
-    env: RobotEnv, task_id: str, command_delay_seconds: float
+    env: RobotEnv, task_id: str, delay_seconds: float
 ) -> float:
     """Begin a GUI-driven solution run; returns previous command delay for ``end_solution_run``."""
     previous_delay = _state.command_delay_seconds
     _state.active_env = env
     _state.expected_task_id = task_id
     _state.is_executing_solution = True
-    _state.command_delay_seconds = command_delay_seconds
+    _state.command_delay_seconds = delay_seconds
     return previous_delay
 
 

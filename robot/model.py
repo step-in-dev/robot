@@ -492,18 +492,28 @@ def count_positions(target: Cell, cells: Iterable[Cell]) -> int:
 
 
 def _validate_cell_positions(
-    cells: Iterable[Cell], field: str, width: int, height: int
+    cells: Iterable[Cell], field_name: str, width: int, height: int
 ) -> None:
     seen: set[tuple[int, int]] = set()
     for cell in cells:
         if not (0 <= cell.r < height and 0 <= cell.c < width):
             raise ValueError(
-                t("model.error.cell_out_of_bounds", r=cell.r, c=cell.c, field=field)
+                t(
+                    "model.error.cell_out_of_bounds",
+                    r=cell.r,
+                    c=cell.c,
+                    field=field_name,
+                )
             )
         pos = (cell.r, cell.c)
         if pos in seen:
             raise ValueError(
-                t("model.error.duplicate_cell", r=cell.r, c=cell.c, field=field)
+                t(
+                    "model.error.duplicate_cell",
+                    r=cell.r,
+                    c=cell.c,
+                    field=field_name,
+                )
             )
         seen.add(pos)
 
