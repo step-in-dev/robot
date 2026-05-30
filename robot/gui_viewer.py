@@ -53,7 +53,9 @@ class RobotWindowViewerHost(Protocol):
 
     def apply_task_payload(
         self, task_id: str, task_definition: RobotTask
-    ) -> None: ...
+    ) -> None:
+        """Replace task environments and refresh chrome."""
+        ...
 
     def _rebuild_todo_banner(self) -> None: ...
 

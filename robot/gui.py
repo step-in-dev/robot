@@ -136,7 +136,10 @@ class _ExecutionState:
 class RobotWindow(
     DialogManagerMixin, KeyboardHandlerMixin, ActionButtonMixin, ViewerMixin
 ):
-    """Main tkinter window for student solutions and task viewer."""
+    """Main tkinter window for student solutions and task viewer.
+
+    Delegating properties expose grouped state to mixins and tests.
+    """
 
     def __init__(
         self,
@@ -183,244 +186,192 @@ class RobotWindow(
 
     @property
     def is_closed(self) -> bool:
+        """Whether the window has been destroyed."""
         return self._execution.is_closed
 
     @is_closed.setter
     def is_closed(self, value: bool) -> None:
+        """Record whether the window has been destroyed."""
         self._execution.is_closed = value
 
     @property
     def task_id(self) -> str:
+        """Current task identifier shown in the title bar."""
         return self._task.task_id
-
-    @task_id.setter
-    def task_id(self, value: str) -> None:
-        self._task.task_id = value
-
-    @property
-    def envs(self) -> list[RobotEnv]:
-        return self._task.envs
-
-    @envs.setter
-    def envs(self, value: list[RobotEnv]) -> None:
-        self._task.envs = value
 
     @property
     def run_env(self) -> Callable[[RobotEnv], RunResult] | None:
+        """Callback that runs the student script on one environment."""
         return self._task.run_env
 
     @run_env.setter
     def run_env(self, value: Callable[[RobotEnv], RunResult] | None) -> None:
+        """Replace the per-environment run callback (tests)."""
         self._task.run_env = value
 
     @property
     def script_path(self) -> Path | None:
+        """Student solution file, or ``None`` in viewer mode."""
         return self._task.script_path
 
     @property
     def _script_constraints(self) -> ScriptConstraints:
+        """Static limits for the loaded task."""
         return self._task.script_constraints
-
-    @_script_constraints.setter
-    def _script_constraints(self, value: ScriptConstraints) -> None:
-        self._task.script_constraints = value
 
     @property
     def _viewer_catalog(self) -> TaskCatalog | None:
+        """Task catalog when the window is in viewer mode."""
         return self._task.viewer_catalog
 
     @property
     def selected_index(self) -> int:
+        """Index of the environment tab currently shown."""
         return self._task.selected_index
 
     @selected_index.setter
     def selected_index(self, value: int) -> None:
+        """Select which environment tab is active."""
         self._task.selected_index = value
 
     @property
-    def todo_text(self) -> str:
-        return self._task.todo_text
-
-    @todo_text.setter
-    def todo_text(self, value: str) -> None:
-        self._task.todo_text = value
-
-    @property
-    def current_listener(self) -> Callable[[], None] | None:
-        return self._task.current_listener
-
-    @current_listener.setter
-    def current_listener(self, value: Callable[[], None] | None) -> None:
-        self._task.current_listener = value
-
-    @property
     def viewer_toolbar(self) -> tk.Frame | None:
+        """Viewer theme/number navigation bar, if present."""
         return self._chrome.viewer_toolbar
 
     @viewer_toolbar.setter
     def viewer_toolbar(self, value: tk.Frame | None) -> None:
+        """Store the viewer navigation bar frame."""
         self._chrome.viewer_toolbar = value
 
     @property
-    def todo_label(self) -> tk.Label | None:
-        return self._chrome.todo_label
-
-    @todo_label.setter
-    def todo_label(self, value: tk.Label | None) -> None:
-        self._chrome.todo_label = value
-
-    @property
     def top_toolbar(self) -> tk.Frame | None:
+        """Row with environment tabs and constraints button."""
         return self._chrome.top_toolbar
-
-    @top_toolbar.setter
-    def top_toolbar(self, value: tk.Frame | None) -> None:
-        self._chrome.top_toolbar = value
 
     @property
     def tab_frame(self) -> tk.Frame | None:
+        """Container for environment tab buttons."""
         return self._chrome.tab_frame
-
-    @tab_frame.setter
-    def tab_frame(self, value: tk.Frame | None) -> None:
-        self._chrome.tab_frame = value
 
     @property
     def tab_buttons(self) -> list[tk.Button]:
+        """Environment tab buttons in display order."""
         return self._chrome.tab_buttons
-
-    @tab_buttons.setter
-    def tab_buttons(self, value: list[tk.Button]) -> None:
-        self._chrome.tab_buttons = value
 
     @property
     def constraints_button(self) -> tk.Button | None:
+        """Button that opens the constraints dialog."""
         return self._chrome.constraints_button
-
-    @constraints_button.setter
-    def constraints_button(self, value: tk.Button | None) -> None:
-        self._chrome.constraints_button = value
 
     @property
     def canvas(self) -> tk.Canvas:
+        """Field drawing surface."""
         assert self._layout.canvas is not None
         return self._layout.canvas
 
     @property
     def controls(self) -> tk.Frame:
+        """Row containing Run/Step/Help controls."""
         assert self._chrome.controls is not None
         return self._chrome.controls
 
     @property
     def controls_left(self) -> tk.Frame:
+        """Left side of the control row (Run and Step)."""
         assert self._chrome.controls_left is not None
         return self._chrome.controls_left
 
     @property
     def controls_right(self) -> tk.Frame:
+        """Right side of the control row (Help)."""
         assert self._chrome.controls_right is not None
         return self._chrome.controls_right
 
     @property
     def action_button(self) -> tk.Button | None:
+        """Run or Restore main action button."""
         return self._chrome.action_button
-
-    @action_button.setter
-    def action_button(self, value: tk.Button | None) -> None:
-        self._chrome.action_button = value
 
     @property
     def step_button(self) -> tk.Button:
+        """Step-through control button."""
         assert self._chrome.step_button is not None
         return self._chrome.step_button
 
     @property
     def help_button(self) -> tk.Button:
+        """Help dialog launcher button."""
         assert self._chrome.help_button is not None
         return self._chrome.help_button
 
     @property
-    def cell_size(self) -> int:
-        return self._layout.cell_size
-
-    @cell_size.setter
-    def cell_size(self, value: int) -> None:
-        self._layout.cell_size = value
-
-    @property
-    def canvas_width(self) -> int:
-        return self._layout.canvas_width
-
-    @property
-    def canvas_height(self) -> int:
-        return self._layout.canvas_height
-
-    @property
-    def wall_width(self) -> int:
-        return self._layout.wall_width
-
-    @property
     def status_var(self):
+        """Status strip text variable."""
         return self._status_strip.status_var
 
     @property
     def status_frame(self) -> tk.Frame:
+        """Status strip container frame."""
         return self._status_strip.status_frame
 
     @property
     def status_canvas(self) -> tk.Canvas:
+        """Status strip canvas (border and hatched background)."""
         return self._status_strip.status_canvas
 
     @property
     def _step_session(self) -> StepExecutionSession | None:
+        """Active line-by-line execution session, if any."""
         return self._execution.step_session
 
     @_step_session.setter
     def _step_session(self, value: StepExecutionSession | None) -> None:
+        """Replace or clear the active stepping session."""
         self._execution.step_session = value
 
     @property
-    def _step_tabs_locked(self) -> bool:
-        return self._execution.step_tabs_locked
-
-    @_step_tabs_locked.setter
-    def _step_tabs_locked(self, value: bool) -> None:
-        self._execution.step_tabs_locked = value
-
-    @property
     def _step_release_token(self) -> int:
+        """Counter bumped to wake the step tracer after each Step press."""
         return self._execution.step_release_token
 
     @_step_release_token.setter
     def _step_release_token(self, value: int) -> None:
+        """Set the step-release wake counter."""
         self._execution.step_release_token = value
 
     @property
     def _ignore_action_enter_until_idle(self) -> bool:
+        """Whether Enter should be ignored until the UI is idle."""
         return self._execution.ignore_action_enter_until_idle
 
     @_ignore_action_enter_until_idle.setter
     def _ignore_action_enter_until_idle(self, value: bool) -> None:
+        """Set Enter-key ignore until idle."""
         self._execution.ignore_action_enter_until_idle = value
 
     @property
     def _is_run_all_active(self) -> bool:
+        """Whether a multi-environment Run-all sequence is in progress."""
         return self._execution.is_run_all_active
 
     @_is_run_all_active.setter
     def _is_run_all_active(self, value: bool) -> None:
+        """Mark Run-all as active or finished."""
         self._execution.is_run_all_active = value
 
     @property
     def _pending_restore_enable_after_id(self) -> str | None:
+        """``after`` id for deferred Restore-button enable, if scheduled."""
         return self._chrome.pending_restore_enable_after_id
 
     @_pending_restore_enable_after_id.setter
     def _pending_restore_enable_after_id(self, value: str | None) -> None:
+        """Store or clear the deferred Restore-button enable id."""
         self._chrome.pending_restore_enable_after_id = value
 
     def _init_root_and_geometry(self) -> None:
-        self._layout.cell_size = calculate_cell_size(self.envs)
+        self._layout.cell_size = calculate_cell_size(self._task.envs)
         self.root = tk.Tk()
         self.root.resizable(False, False)
         self._execution.step_release_token = 0
@@ -430,7 +381,9 @@ class RobotWindow(
         self.root.withdraw()
 
         self._layout.canvas_width, self._layout.canvas_height = calculate_canvas_size(
-            self.envs, self.cell_size, self.wall_width
+            self._task.envs,
+            self._layout.cell_size,
+            self._layout.wall_width,
         )
 
         self._chrome.todo_label = None
@@ -440,22 +393,22 @@ class RobotWindow(
         self._chrome.constraints_button = None
 
     def _top_section_pack_after(self) -> tk.Misc | None:
-        if self.todo_label is not None:
-            return self.todo_label
+        if self._chrome.todo_label is not None:
+            return self._chrome.todo_label
         return self.viewer_toolbar
 
     def _rebuild_todo_banner(self) -> None:
         if self._chrome.todo_label is not None:
             self._chrome.todo_label.destroy()
             self._chrome.todo_label = None
-        if not self.todo_text:
+        if not self._task.todo_text:
             return
         self._chrome.todo_label = tk.Label(
             self.root,
-            text=f"{self.todo_text}",
+            text=f"{self._task.todo_text}",
             anchor=tk.W,
             justify=tk.LEFT,
-            wraplength=max(self.canvas_width, 320),
+            wraplength=max(self._layout.canvas_width, 320),
             font=DIALOG_BODY_FONT,
             bg=TODO_TEXT_BG,
             fg="#000000",
@@ -486,7 +439,7 @@ class RobotWindow(
             self._chrome.tab_buttons = []
             self._chrome.constraints_button = None
 
-        has_env_tabs = len(self.envs) > 1
+        has_env_tabs = len(self._task.envs) > 1
         has_constraints = task_has_any_constraints(self._script_constraints)
         if not (has_env_tabs or has_constraints):
             return
@@ -504,7 +457,7 @@ class RobotWindow(
         self._chrome.tab_frame = tk.Frame(self._chrome.top_toolbar)
         self._chrome.tab_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
         if has_env_tabs:
-            for index in range(len(self.envs)):
+            for index in range(len(self._task.envs)):
                 button = tk.Button(
                     self._chrome.tab_frame,
                     text=str(index + 1),
@@ -529,20 +482,26 @@ class RobotWindow(
         self._rebuild_env_toolbar()
 
     def _update_task_canvas_geometry(self) -> None:
-        self._layout.cell_size = calculate_cell_size(self.envs)
+        self._layout.cell_size = calculate_cell_size(self._task.envs)
         self._layout.canvas_width, self._layout.canvas_height = calculate_canvas_size(
-            self.envs, self.cell_size, self.wall_width
+            self._task.envs,
+            self._layout.cell_size,
+            self._layout.wall_width,
         )
-        self.canvas.configure(width=self.canvas_width, height=self.canvas_height)
-        if self.todo_label is not None:
-            self.todo_label.configure(wraplength=max(self.canvas_width, 320))
+        self.canvas.configure(
+            width=self._layout.canvas_width, height=self._layout.canvas_height
+        )
+        if self._chrome.todo_label is not None:
+            self._chrome.todo_label.configure(
+                wraplength=max(self._layout.canvas_width, 320)
+            )
 
     def apply_task_payload(self, task_id: str, task_definition: RobotTask) -> None:
         """Replace the displayed task (viewer navigation)."""
         self.close_dialogs()
 
         if self._task.current_listener is not None:
-            self.envs[self.selected_index].remove_listener(
+            self._task.envs[self.selected_index].remove_listener(
                 self._task.current_listener
             )
             self._task.current_listener = None
@@ -573,13 +532,15 @@ class RobotWindow(
             self.root,
             bg=self.root.cget("bg"),
             highlightthickness=0,
-            width=self.canvas_width,
-            height=self.canvas_height,
+            width=self._layout.canvas_width,
+            height=self._layout.canvas_height,
         )
         self._layout.canvas.pack(padx=6, pady=6)
 
         self._layout.renderer = FieldRenderer(
-            self._layout.canvas, self.cell_size, self.wall_width
+            self._layout.canvas,
+            self._layout.cell_size,
+            self._layout.wall_width,
         )
 
     def _build_control_row(self) -> None:
@@ -627,7 +588,7 @@ class RobotWindow(
         self._status_strip = StatusStrip(
             self.root,
             StatusStripHost(
-                get_canvas_width=lambda: self.canvas_width,
+                get_canvas_width=lambda: self._layout.canvas_width,
                 is_closed=lambda: self.is_closed,
             ),
             initial_text=initial_status,
@@ -756,10 +717,10 @@ class RobotWindow(
         if self.is_closed or self.script_path is None or self._is_run_all_active:
             return
         if self._step_session is None:
-            env = self.envs[self.selected_index]
+            env = self._task.envs[self.selected_index]
             self._execution.step_session = StepExecutionSession(
                 self.script_path,
-                self.task_id,
+                self._task.task_id,
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=self._show_step_line,
@@ -797,13 +758,15 @@ class RobotWindow(
     def select_env(self, index: int) -> None:
         """Switch the visible environment tab and redraw the field."""
         if self._task.current_listener is not None:
-            self.envs[self.selected_index].remove_listener(
+            self._task.envs[self.selected_index].remove_listener(
                 self._task.current_listener
             )
 
         self._task.selected_index = index
         self._task.current_listener = self.on_env_change
-        self.envs[self.selected_index].add_listener(self.current_listener)
+        self._task.envs[self.selected_index].add_listener(
+            self._task.current_listener
+        )
 
         self.configure_tab_buttons()
 
@@ -813,8 +776,8 @@ class RobotWindow(
         """Update environment tab button relief and enabled state."""
         if self.is_closed:
             return
-        for tab_index, button in enumerate(self.tab_buttons):
-            if self._step_tabs_locked:
+        for tab_index, button in enumerate(self._chrome.tab_buttons):
+            if self._execution.step_tabs_locked:
                 state = tk.DISABLED
             else:
                 state = tk.DISABLED if tab_index == self.selected_index else tk.NORMAL
@@ -828,7 +791,7 @@ class RobotWindow(
     def restore(self) -> None:
         """Reset all environments and return the UI to the ready state."""
         self._cancel_step_wake_only()
-        for env in self.envs:
+        for env in self._task.envs:
             env.reset()
         self._set_status(STATUS_READY, STATUS_BG_NEUTRAL)
         self.select_env(0)
@@ -847,14 +810,14 @@ class RobotWindow(
             self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
             self.root.update_idletasks()
 
-            for index, env in enumerate(self.envs):
+            for index, env in enumerate(self._task.envs):
                 self.select_env(index)
                 result = self.run_env(env)
                 self.draw_field()
                 if not result.success:
                     self._show_failed_result(result)
                     return
-                if index + 1 < len(self.envs):
+                if index + 1 < len(self._task.envs):
                     self.root.update_idletasks()
                     time.sleep(INTER_ENV_PAUSE_SECONDS)
 
@@ -886,13 +849,15 @@ class RobotWindow(
         if self.is_closed:
             return
 
-        env = self.envs[self.selected_index]
+        env = self._task.envs[self.selected_index]
         assert self._layout.renderer is not None
-        self._layout.renderer.set_dimensions(self.cell_size, self.wall_width)
+        self._layout.renderer.set_dimensions(
+            self._layout.cell_size, self._layout.wall_width
+        )
         self._layout.renderer.draw_field(
             env,
-            self.canvas_width,
-            self.canvas_height,
+            self._layout.canvas_width,
+            self._layout.canvas_height,
             self._layout.colors,
         )
 
