@@ -70,4 +70,4 @@ Viewer-specific localized strings use the `viewer.*` keys in `robot/locales/*.js
 
 - `tests/test_task_catalog.py` — catalog discovery, theme order, `ROBOT_TASKS_DIR`, natural sort.
 - `tests/test_viewer_launcher.py` — viewer entry script behavior.
-- GUI viewer scenarios in `tests/test_gui.py` — disabled Run/Step, theme change, invalid number rollback, prev/next navigation, disabled prev/next at theme ends.
+- GUI viewer scenarios in `tests/gui/test_viewer.py` (other window/GUI tests live under `tests/gui/`) — disabled Run/Step, theme change, invalid number rollback, prev/next navigation, disabled prev/next at theme ends.

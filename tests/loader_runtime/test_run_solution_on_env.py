@@ -3,7 +3,7 @@
 ``run_solution_on_env`` compiles and ``exec``s the script, then checks final
 robot state. It does **not** call ``check_limit_violations``; limit checks run
 in the GUI after a successful ``run_env`` / step session (see
-``tests/test_gui.py``). Regression: ``test_run_solution_on_env_does_not_call_check_limit_violations``.
+``tests/gui/``). Regression: ``test_run_solution_on_env_does_not_call_check_limit_violations``.
 """
 
 
