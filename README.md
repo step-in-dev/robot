@@ -122,4 +122,4 @@ compound1, ..., compound11
 3. Save your solution file next to the `robot` package. Use **`sample_solution.py`** from the archive as a starting point.
 4. To run a different exercise, change the string passed to **`task()`** (see the **Available tasks for `task()`** section above).
 
-Requirements: **Python 3** with the standard library (the UI uses `tkinter`, which is included with most Python installations on desktop systems).
+Requirements: **Python 3.7+** with the standard library (the UI uses `tkinter`, which is included with most Python installations on desktop systems).

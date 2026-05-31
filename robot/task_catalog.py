@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Dict, List, Optional, Tuple
 import os
 import re
 from dataclasses import dataclass
@@ -10,7 +11,7 @@ from pathlib import Path
 from .loader import TASKS_DIR_ENV, TASK_FILE_EXTENSION
 
 # Ordered theme ids for bundled tasks; matches help task list order in command_help.
-KNOWN_TASK_GROUP_PREFIXES: tuple[str, ...] = (
+KNOWN_TASK_GROUP_PREFIXES: Tuple[str, ...] = (
     "intro",
     "fun",
     "for",
@@ -36,7 +37,7 @@ def resolve_tasks_dir() -> Path:
     return Path(__file__).resolve().parent / "tasks"
 
 
-def theme_from_task_id(task_id: str) -> str | None:
+def theme_from_task_id(task_id: str) -> Optional[str]:
     """Theme string before trailing digits, or ``None`` if stem has no numeric suffix."""
     match = _NUMBER_RE.search(task_id)
     if not match:
@@ -44,20 +45,20 @@ def theme_from_task_id(task_id: str) -> str | None:
     return task_id[: match.start()]
 
 
-def natural_sort_key(task_id: str) -> tuple[str, int]:
+def natural_sort_key(task_id: str) -> Tuple[str, int]:
     """Sort key that orders numbers numerically within the same theme."""
     match = _NUMBER_RE.search(task_id)
     num = int(match.group(1)) if match else 0
     return (task_id[: match.start()] if match else task_id, num)
 
 
-def discover_task_groups(tasks_dir: Path | None = None) -> dict[str, list[str]]:
+def discover_task_groups(tasks_dir: Optional[Path] = None) -> Dict[str, List[str]]:
     """Scan a tasks directory and group task IDs (stems of ``*.env``).
 
     Group by theme before trailing digits.
     """
     directory = tasks_dir if tasks_dir is not None else resolve_tasks_dir()
-    groups: dict[str, list[str]] = {}
+    groups: Dict[str, List[str]] = {}
     if not directory.is_dir():
         return groups
     for entry in os.scandir(directory):
@@ -70,7 +71,7 @@ def discover_task_groups(tasks_dir: Path | None = None) -> dict[str, list[str]]:
     return groups
 
 
-def ordered_theme_prefixes(groups: dict[str, list[str]]) -> list[str]:
+def ordered_theme_prefixes(groups: Dict[str, List[str]]) -> List[str]:
     """Known themes in help order, then unknown themes alphabetically; only non-empty."""
     known = [
         prefix
@@ -85,7 +86,7 @@ def ordered_theme_prefixes(groups: dict[str, list[str]]) -> list[str]:
     return known + unknown
 
 
-def task_number_from_id(task_id: str) -> int | None:
+def task_number_from_id(task_id: str) -> Optional[int]:
     """Trailing digits in a task id, e.g. ``intro8`` -> ``8``."""
     match = _NUMBER_RE.search(task_id)
     return int(match.group(1)) if match else None
@@ -100,11 +101,11 @@ def task_id_for_theme(prefix: str, number: int) -> str:
 class TaskCatalog:
     """Read-only index of available tasks grouped by theme."""
 
-    themes: tuple[str, ...]
-    groups: dict[str, tuple[str, ...]]
+    themes: Tuple[str, ...]
+    groups: Dict[str, Tuple[str, ...]]
 
     @classmethod
-    def discover(cls, tasks_dir: Path | None = None) -> TaskCatalog:
+    def discover(cls, tasks_dir: Optional[Path] = None) -> TaskCatalog:
         """Scan a tasks directory and build a catalog grouped by theme."""
         raw = discover_task_groups(tasks_dir)
         sorted_groups = {
@@ -116,16 +117,16 @@ class TaskCatalog:
         groups = {theme: sorted_groups[theme] for theme in themes}
         return cls(themes=themes, groups=groups)
 
-    def task_ids_for(self, prefix: str) -> tuple[str, ...]:
+    def task_ids_for(self, prefix: str) -> Tuple[str, ...]:
         """Return sorted task ids for a theme prefix."""
         return self.groups.get(prefix, ())
 
-    def first_task_id(self, prefix: str) -> str | None:
+    def first_task_id(self, prefix: str) -> Optional[str]:
         """Return the first task id in a theme, or ``None`` when empty."""
         ids = self.task_ids_for(prefix)
         return ids[0] if ids else None
 
-    def current_theme_for_task(self, task_id: str) -> str | None:
+    def current_theme_for_task(self, task_id: str) -> Optional[str]:
         """Return the theme prefix for ``task_id`` if it exists in the catalog."""
         theme = theme_from_task_id(task_id)
         if theme is None:

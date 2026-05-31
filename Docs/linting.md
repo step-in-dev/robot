@@ -1,5 +1,7 @@
 # Linting
 
+The Robot runtime supports **Python 3.7+**. Pylint in `requirements-dev.txt` (4.x) is intended for development on a recent Python (typically 3.10+); use a matching venv to run pylint even when testing the project under 3.7.
+
 Pylint configuration lives in `lint/`.
 
 - `lint/pylint-src.rc` — pylint’s default enabled messages on production paths (no extra `enable`/`disable` in the rcfile), including `missing-function-docstring` (**C0116**) and `missing-class-docstring` (**C0115**).
@@ -19,7 +21,7 @@ Flat value-object types that mirror JSON or a single job struct (`RobotEnvDto`, 
 
 ## Too few public methods (R0903)
 
-Pylint’s default minimum is two public methods per class. `RobotWindow` mixins (`KeyboardHandlerMixin`, `ActionButtonMixin`, `ViewerMixin`) and the `RobotWindowViewerHost` `Protocol` are not full public APIs: they expose one setup hook, only `_`-prefixed helpers, or structural stubs for typing.
+Pylint’s default minimum is two public methods per class. `RobotWindow` mixins (`KeyboardHandlerMixin`, `ActionButtonMixin`, `ViewerMixin`) are not full public APIs: they expose one setup hook or only `_`-prefixed helpers.
 
 Those types may use a **class-level** `# pylint: disable=too-few-public-methods`. Do not raise the global limit in `lint/pylint-src.rc` and do not add empty public methods just to satisfy the linter.
 

@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Dict, List
 from unittest.mock import patch
 
 from robot.loader import RobotTask
@@ -29,7 +30,7 @@ class ViewerLauncherTest(unittest.TestCase):
     def test_main_opens_viewer_window_on_first_task(self) -> None:
         from viewer import viewer
 
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         CaptureRobotWindow = make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import List, Tuple
 from .gui_theme import (
     COMPACT_CELL_MAX_HEIGHT,
     COMPACT_CELL_MAX_WIDTH,
@@ -12,7 +13,7 @@ from .gui_theme import (
 from .model import RobotEnv
 
 
-def calculate_cell_size(envs: list[RobotEnv]) -> int:
+def calculate_cell_size(envs: List[RobotEnv]) -> int:
     """Pixel side length for cells; compact when any env exceeds width/height thresholds."""
     max_width = max(env.width for env in envs)
     max_height = max(env.height for env in envs)
@@ -25,8 +26,8 @@ def calculate_cell_size(envs: list[RobotEnv]) -> int:
 
 
 def calculate_canvas_size(
-    envs: list[RobotEnv], cell_size: int, wall_width: int
-) -> tuple[int, int]:
+    envs: List[RobotEnv], cell_size: int, wall_width: int
+) -> Tuple[int, int]:
     """Pixel size of the canvas needed to show the largest environment in envs."""
     max_width = max(env.width for env in envs)
     max_height = max(env.height for env in envs)
@@ -43,7 +44,7 @@ def calculate_field_offset(
     env: RobotEnv,
     cell_size: int,
     wall_width: int,
-) -> tuple[int, int]:
+) -> Tuple[int, int]:
     """Pixel offset to center env's field inside a canvas for the largest env."""
     field_width = env.width * cell_size + wall_width
     field_height = env.height * cell_size + wall_width

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Tuple
 import math
 from dataclasses import dataclass
 
@@ -18,7 +19,7 @@ PRINT_LINE_GAP_RATIO = 0.20
 # Mimic browser canvas strokeText before fillText (white halo around digits).
 TEXT_OUTLINE_COLOR = "#ffffff"
 TEXT_OUTLINE_OFFSET = 1
-_TEXT_OUTLINE_OFFSETS: tuple[tuple[int, int], ...] = (
+_TEXT_OUTLINE_OFFSETS: Tuple[Tuple[int, int], ...] = (
     (-1, -1),
     (0, -1),
     (1, -1),
@@ -301,7 +302,7 @@ class FieldRenderer:
         size = half_cell_size - half_wall_width - 1
         scale = size / 24
 
-        def point(svg_x: float, svg_y: float) -> tuple[float, float]:
+        def point(svg_x: float, svg_y: float) -> Tuple[float, float]:
             return x + svg_x * scale, y + svg_y * scale
 
         points = [

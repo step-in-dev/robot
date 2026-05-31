@@ -1,6 +1,8 @@
 """Student-facing command names and export lists (no heavy imports)."""
 
-STUDENT_COMMAND_NAMES: tuple[str, ...] = (
+from typing import FrozenSet, Tuple
+
+STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
     "move_right",
     "move_left",
     "move_up",
@@ -20,7 +22,7 @@ STUDENT_COMMAND_NAMES: tuple[str, ...] = (
     "printn",
 )
 
-COUNTED_OPERATOR_NAMES: frozenset[str] = frozenset(
+COUNTED_OPERATOR_NAMES: FrozenSet[str] = frozenset(
     {
         "move_right",
         "move_left",
@@ -31,15 +33,15 @@ COUNTED_OPERATOR_NAMES: frozenset[str] = frozenset(
     }
 )
 
-INIT_EXPORT_NAMES: tuple[str, ...] = ("field", *STUDENT_COMMAND_NAMES, "task")
+INIT_EXPORT_NAMES: Tuple[str, ...] = ("field", *STUDENT_COMMAND_NAMES, "task")
 
-RUNTIME_STUDENT_EXPORT_NAMES: tuple[str, ...] = (
+RUNTIME_STUDENT_EXPORT_NAMES: Tuple[str, ...] = (
     "task",
     "field",
     *STUDENT_COMMAND_NAMES,
 )
 
-RUNTIME_EXTRA_EXPORT_NAMES: tuple[str, ...] = (
+RUNTIME_EXTRA_EXPORT_NAMES: Tuple[str, ...] = (
     "RunResult",
     "RunStatus",
     "run_solution_on_env",

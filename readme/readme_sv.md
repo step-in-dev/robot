@@ -120,4 +120,4 @@ compound1, ..., compound11
 3. Spara din lösningsfil bredvid `robot`-paketet. Använd **`sample_solution.py`** från arkivet som utgångspunkt.
 4. För att köra en annan övning, ändra strängen som skickas till **`task()`** (se avsnittet **Tillgängliga uppgifter för `task()`** ovan).
 
-Krav: **Python 3** med standardbiblioteket (användargränssnittet använder `tkinter`, som ingår i de flesta Python-installationer på datorsystem).
+Krav: **Python 3.7+** med standardbiblioteket (användargränssnittet använder `tkinter`, som ingår i de flesta Python-installationer på datorsystem).

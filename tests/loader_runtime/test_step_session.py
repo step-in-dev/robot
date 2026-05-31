@@ -7,6 +7,8 @@ from the task definition are enforced elsewhere (GUI). Tests using
 on a real constrained task.
 """
 
+from typing import List, Tuple
+
 
 import queue
 import re
@@ -187,7 +189,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
     def test_step_session_runs_assignments_line_by_line(self) -> None:
         """Each student-file line waits until allow_one_step + handshake release."""
         sync: queue.Queue[object] = queue.Queue()
-        captured: list[tuple[int, str]] = []
+        captured: List[Tuple[int, str]] = []
 
         def show_line(line) -> None:
             captured.append((line.lineno, line.text))
@@ -246,7 +248,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
 
     def test_step_session_enters_student_function_body(self) -> None:
         sync: queue.Queue[object] = queue.Queue()
-        captured: list[tuple[int, str]] = []
+        captured: List[Tuple[int, str]] = []
 
         def show_line(line) -> None:
             captured.append((line.lineno, line.text))

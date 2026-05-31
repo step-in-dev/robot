@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Iterable, Literal
+from typing import Callable, Iterable, List, Set, Tuple
 
 from .i18n import t
 
 
-Direction = Literal["up", "down", "left", "right"]
+Direction = str
 
 
 class RobotError(Exception):
@@ -49,11 +49,11 @@ class RobotEnvDto:  # pylint: disable=too-many-instance-attributes
     start_col: int
     final_row: int
     final_col: int
-    walls: list[tuple[Cell, Cell]] = field(default_factory=list)
-    painted_cells: list[Cell] = field(default_factory=list)
-    cells_to_paint: list[Cell] = field(default_factory=list)
-    polluted_cells: list[ValuedCell] = field(default_factory=list)
-    cells_to_print: list[ValuedCell] = field(default_factory=list)
+    walls: List[Tuple[Cell, Cell]] = field(default_factory=list)
+    painted_cells: List[Cell] = field(default_factory=list)
+    cells_to_paint: List[Cell] = field(default_factory=list)
+    polluted_cells: List[ValuedCell] = field(default_factory=list)
+    cells_to_print: List[ValuedCell] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict) -> "RobotEnvDto":
@@ -168,7 +168,7 @@ class RobotEnvDto:  # pylint: disable=too-many-instance-attributes
             )
 
     def _validate_walls(self) -> None:
-        seen_walls: set[tuple[tuple[int, int], tuple[int, int]]] = set()
+        seen_walls: Set[Tuple[Tuple[int, int], Tuple[int, int]]] = set()
         for first, second in self.walls:
             for cell in (first, second):
                 if not (0 <= cell.r < self.height and 0 <= cell.c < self.width):
@@ -208,9 +208,9 @@ class RobotEnv:  # pylint: disable=too-many-public-methods
     def __init__(self, dto: RobotEnvDto):
         """Create a mutable environment from a validated DTO."""
         self._dto = dto
-        self._listeners: list[Callable[[], None]] = []
-        self._newly_painted_cells: list[Cell] = []
-        self._printed_cells: list[ValuedCell] = []
+        self._listeners: List[Callable[[], None]] = []
+        self._newly_painted_cells: List[Cell] = []
+        self._printed_cells: List[ValuedCell] = []
         self._robot = Robot(self, self._notify_listeners)
 
     @property
@@ -249,32 +249,32 @@ class RobotEnv:  # pylint: disable=too-many-public-methods
         return self._dto.final_col
 
     @property
-    def walls(self) -> tuple[tuple[Cell, Cell], ...]:
+    def walls(self) -> Tuple[Tuple[Cell, Cell], ...]:
         """Wall segments as pairs of adjacent cells."""
         return tuple(self._dto.walls)
 
     @property
-    def painted_cells(self) -> tuple[Cell, ...]:
+    def painted_cells(self) -> Tuple[Cell, ...]:
         """Cells painted in the initial state."""
         return tuple(self._dto.painted_cells)
 
     @property
-    def cells_to_paint(self) -> tuple[Cell, ...]:
+    def cells_to_paint(self) -> Tuple[Cell, ...]:
         """Cells the solution must paint during the run."""
         return tuple(self._dto.cells_to_paint)
 
     @property
-    def polluted_cells(self) -> tuple[ValuedCell, ...]:
+    def polluted_cells(self) -> Tuple[ValuedCell, ...]:
         """Cells with fixed pollution values."""
         return tuple(self._dto.polluted_cells)
 
     @property
-    def cells_to_print(self) -> tuple[ValuedCell, ...]:
+    def cells_to_print(self) -> Tuple[ValuedCell, ...]:
         """Cells and values the solution must print."""
         return tuple(self._dto.cells_to_print)
 
     @property
-    def printed_cells(self) -> tuple[ValuedCell, ...]:
+    def printed_cells(self) -> Tuple[ValuedCell, ...]:
         """Values printed so far during the run."""
         return tuple(self._printed_cells)
 
@@ -286,7 +286,7 @@ class RobotEnv:  # pylint: disable=too-many-public-methods
         """Unregister a previously added change listener."""
         self._listeners.remove(listener)
 
-    def extract_painted_cells(self) -> tuple[Cell, ...]:
+    def extract_painted_cells(self) -> Tuple[Cell, ...]:
         """Return initial and newly painted cells."""
         return tuple(self._newly_painted_cells + self._dto.painted_cells)
 
@@ -448,7 +448,7 @@ class Robot:
         self._env.print_number(ValuedCell(self._row, self._col, value))
         self._change_listener()
 
-    def _create_wall_hash_table(self) -> set[tuple[Cell, Cell]]:
+    def _create_wall_hash_table(self) -> Set[Tuple[Cell, Cell]]:
         walls = set()
         for first, second in self._env.walls:
             walls.add((first, second))
@@ -497,7 +497,7 @@ def count_positions(target: Cell, cells: Iterable[Cell]) -> int:
 def _validate_cell_positions(
     cells: Iterable[Cell], field_name: str, width: int, height: int
 ) -> None:
-    seen: set[tuple[int, int]] = set()
+    seen: Set[Tuple[int, int]] = set()
     for cell in cells:
         if not (0 <= cell.r < height and 0 <= cell.c < width):
             raise ValueError(
@@ -523,7 +523,7 @@ def _validate_cell_positions(
 
 def _canonical_wall(
     first: Cell, second: Cell
-) -> tuple[tuple[int, int], tuple[int, int]]:
+) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     a = (first.r, first.c)
     b = (second.r, second.c)
     return (a, b) if a < b else (b, a)

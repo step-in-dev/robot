@@ -1,5 +1,7 @@
 """Tests for RobotWindow constraints dialog and top toolbar."""
 
+from typing import List
+
 import unittest
 from unittest.mock import patch
 
@@ -21,7 +23,7 @@ from ._helpers import (
 )
 
 
-def _toplevels_with_title(root: tk.Misc, title: str) -> list[tk.Toplevel]:
+def _toplevels_with_title(root: tk.Misc, title: str) -> List[tk.Toplevel]:
     return [
         w
         for w in root.winfo_children()

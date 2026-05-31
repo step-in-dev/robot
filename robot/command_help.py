@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import FrozenSet, Iterable, List, Tuple
 
 from .i18n import t
 from .task_catalog import (
@@ -13,7 +13,7 @@ from .task_catalog import (
 )
 
 # (i18n key suffix under help.command.*, display signature)
-COMMAND_HELP_SPECS: tuple[tuple[str, str], ...] = (
+COMMAND_HELP_SPECS: Tuple[Tuple[str, str], ...] = (
     ("task", "task(task_id)"),
     ("field", "field(width=8, height=6)"),
     ("move_right", "move_right()"),
@@ -36,12 +36,12 @@ COMMAND_HELP_SPECS: tuple[tuple[str, str], ...] = (
 )
 
 
-def command_help_public_keys() -> frozenset[str]:
+def command_help_public_keys() -> FrozenSet[str]:
     """Set of command names covered by the help dialog (matches public API names)."""
     return frozenset(key for key, _ in COMMAND_HELP_SPECS)
 
 
-def iter_command_help() -> list[tuple[str, str]]:
+def iter_command_help() -> List[Tuple[str, str]]:
     """Pairs of (signature, localized description)."""
     return [
         (signature, t(f"help.command.{command_key}"))

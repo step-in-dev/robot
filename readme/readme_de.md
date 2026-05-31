@@ -120,4 +120,4 @@ compound1, ..., compound11
 3. Speichern Sie Ihre Lösungsdatei neben dem `robot`-Paket. Verwenden Sie **`sample_solution.py`** aus dem Archiv als Ausgangspunkt.
 4. Um eine andere Übung auszuführen, ändern Sie die Zeichenkette, die an **`task()`** übergeben wird (siehe Abschnitt **Verfügbare Aufgaben für `task()`** oben).
 
-Voraussetzungen: **Python 3** mit der Standardbibliothek (die Benutzeroberfläche verwendet `tkinter`, das in den meisten Python-Installationen auf Desktop-Systemen enthalten ist).
+Voraussetzungen: **Python 3.7+** mit der Standardbibliothek (die Benutzeroberfläche verwendet `tkinter`, das in den meisten Python-Installationen auf Desktop-Systemen enthalten ist).

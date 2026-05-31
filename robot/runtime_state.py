@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 from dataclasses import dataclass
 
 from .i18n import t
@@ -12,8 +13,8 @@ from .model import Robot, RobotEnv, RobotError
 class _SolutionRunState:
     """Mutable globals for the active student solution run."""
 
-    active_env: RobotEnv | None = None
-    expected_task_id: str | None = None
+    active_env: Optional[RobotEnv] = None
+    expected_task_id: Optional[str] = None
     is_executing_solution: bool = False
     command_delay_seconds: float = 0.0
 
@@ -46,12 +47,12 @@ def is_executing_solution() -> bool:
     return _state.is_executing_solution
 
 
-def expected_task_id() -> str | None:
+def expected_task_id() -> Optional[str]:
     """Task id for the active solution run, or ``None`` outside a run."""
     return _state.expected_task_id
 
 
-def active_env() -> RobotEnv | None:
+def active_env() -> Optional[RobotEnv]:
     """Environment receiving robot commands during a run, or ``None``."""
     return _state.active_env
 

@@ -1,5 +1,7 @@
 """Tests for runtime facade (task, field, imports)."""
 
+from typing import Dict, List
+
 import sys
 import tempfile
 import types
@@ -22,7 +24,7 @@ from ._helpers import LoaderRuntimeTestBase, TaskFileWrite, make_capture_robot_w
 class RuntimeFacadeTest(LoaderRuntimeTestBase):
     def test_task_under_global_trace_uses_standard_gui_path(self) -> None:
         """IDE trace must not switch task(); localized todoText resolves before RobotWindow."""
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         CaptureRobotWindow = make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -85,7 +87,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(opts.script_path, Path(script).resolve())
 
     def test_field_wires_robot_window_and_sys_exit(self) -> None:
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         Capture = self._make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -123,7 +125,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(opts.script_path, Path(script).resolve())
 
     def test_field_defaults_eight_by_six(self) -> None:
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         Capture = self._make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -140,7 +142,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(env.height, 6)
 
     def test_field_positional_width_only(self) -> None:
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         Capture = self._make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -157,7 +159,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(env.height, 6)
 
     def test_field_keyword_height_only(self) -> None:
-        captured: list[dict[str, object]] = []
+        captured: List[Dict[str, object]] = []
         Capture = self._make_capture_robot_window_cls(captured)
 
         with tempfile.TemporaryDirectory() as temp_dir:

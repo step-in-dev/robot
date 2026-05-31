@@ -1,5 +1,7 @@
 """Tests for field grid rendering on Canvas."""
 
+from typing import Dict, List
+
 import unittest
 
 import tkinter as tk
@@ -21,8 +23,8 @@ from tests.env_fixtures import env_dict, make_env
 from tests.tk_display import GuiTestCase, requires_tk_display
 
 
-def _collect_text_items(canvas: tk.Canvas) -> list[dict[str, object]]:
-    out: list[dict[str, object]] = []
+def _collect_text_items(canvas: tk.Canvas) -> List[Dict[str, object]]:
+    out: List[Dict[str, object]] = []
     for iid in canvas.find_all():
         if canvas.type(iid) != "text":
             continue
@@ -39,7 +41,7 @@ def _collect_text_items(canvas: tk.Canvas) -> list[dict[str, object]]:
 
 
 def _outline_text_at(
-    items: list[dict[str, object]],
+    items: List[Dict[str, object]],
     *,
     text: str,
     anchor: str,

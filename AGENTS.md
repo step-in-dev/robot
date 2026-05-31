@@ -12,7 +12,7 @@ The target audience is school students who are learning introductory programming
 
 ## Technology Stack
 
-- Python 3 with standard-library modules such as `dataclasses`, `pathlib`, `json`, and `unittest`.
+- Python 3.7+ with standard-library modules such as `dataclasses`, `pathlib`, `json`, and `unittest`.
 - `tkinter` for the desktop graphical interface.
 - JSON task files for grid environments and validation data.
 - Built-in `unittest` tests for model, loader, and runtime behavior.

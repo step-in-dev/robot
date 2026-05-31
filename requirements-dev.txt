@@ -1,3 +1,4 @@
 # Development tools (use the project venv):
 #   python -m pip install -r requirements-dev.txt
+# Runtime supports Python 3.7+; see Docs/linting.md for pylint interpreter notes.
 pylint==4.0.5

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Callable, List, Optional, Set, Tuple
 import argparse
 import os
 import signal
@@ -37,7 +38,7 @@ def _require_command(cmd: str) -> None:
         raise RuntimeError(f"Required command not found: {cmd}")
 
 
-def _wmctrl_list_windows() -> list[tuple[str, str]]:
+def _wmctrl_list_windows() -> List[Tuple[str, str]]:
     """Return ``(window_id, title)`` entries from ``wmctrl -l``."""
     proc = subprocess.run(
         ["wmctrl", "-l"],
@@ -48,7 +49,7 @@ def _wmctrl_list_windows() -> list[tuple[str, str]]:
     if proc.returncode != 0:
         return []
 
-    rows: list[tuple[str, str]] = []
+    rows: List[Tuple[str, str]] = []
     for line in proc.stdout.splitlines():
         parts = line.split(None, 3)
         if len(parts) < 4:
@@ -58,14 +59,14 @@ def _wmctrl_list_windows() -> list[tuple[str, str]]:
     return rows
 
 
-def _all_window_ids() -> set[str]:
+def _all_window_ids() -> Set[str]:
     """Return window ids reported by ``wmctrl -l``."""
     return {win_id for win_id, _title in _wmctrl_list_windows()}
 
 
 def _find_new_window_id(
     *,
-    before_ids: set[str],
+    before_ids: Set[str],
     proc: subprocess.Popen[bytes],
     timeout_seconds: float = 10.0,
 ) -> str:
@@ -99,7 +100,7 @@ def _constraints_dialog_title_for_language(language: str) -> str:
 
 def _find_constraints_window_id(
     *,
-    exclude_ids: set[str],
+    exclude_ids: Set[str],
     expected_title: str,
     proc: subprocess.Popen[bytes],
     timeout_seconds: float = 12.0,
@@ -141,10 +142,10 @@ def _stop_process(proc: subprocess.Popen[bytes]) -> None:
 def _script_body_for_capture(
     *,
     task_id: str,
-    env_index: int | None,
+    env_index: Optional[int],
     viewer_mode: bool,
     open_constraints_on_startup: bool,
-) -> tuple[str, str]:
+) -> Tuple[str, str]:
     """Return subprocess script source and a tempfile prefix for the capture mode."""
     env_index_literal = "None" if env_index is None else str(env_index)
 
@@ -226,7 +227,7 @@ def _script_body_for_capture(
     return body, prefix
 
 
-def _default_settle_seconds(*, viewer_mode: bool, override: float | None) -> float:
+def _default_settle_seconds(*, viewer_mode: bool, override: Optional[float]) -> float:
     """Return screenshot settle time for viewer or student mode."""
     if override is not None:
         return override
@@ -247,7 +248,7 @@ def _screenshot_stem(
     output_prefix: str,
     task_id: str,
     language: str,
-    env_index: int | None,
+    env_index: Optional[int],
 ) -> str:
     """Build output filename stem for one language capture."""
     if env_index is None:
@@ -264,7 +265,7 @@ class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
     language: str
     output_path: Path
     workdir: Path
-    env_index: int | None
+    env_index: Optional[int]
     capture_constraints_window: bool
     viewer_mode: bool
     settle_seconds: float
@@ -276,7 +277,7 @@ class _CaptureBatchContext:
 
     task_id: str
     workdir: Path
-    env_index: int | None
+    env_index: Optional[int]
     settle_seconds: float
 
     def language_job(
@@ -446,7 +447,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _validate_env_index_for_task(task_id: str, env_index: int) -> int | None:
+def _validate_env_index_for_task(task_id: str, env_index: int) -> Optional[int]:
     """Return 0 on success, 1 if the task cannot be loaded or *env_index* is invalid."""
     try:
         td = load_task_definition(task_id)
@@ -487,7 +488,7 @@ def _try_capture(
     label: str,
     intro_line: str,
     ok_prefix: str,
-    failed: list[tuple[str, str]],
+    failed: List[Tuple[str, str]],
     capture: Callable[[], None],
 ) -> None:
     """Run ``capture()`` and record failures for the summary report."""
@@ -537,7 +538,7 @@ def main() -> int:
         settle_seconds=settle_seconds,
     )
 
-    failed: list[tuple[str, str]] = []
+    failed: List[Tuple[str, str]] = []
     for language in args.languages:
         stem = _screenshot_stem(
             output_prefix=output_prefix,

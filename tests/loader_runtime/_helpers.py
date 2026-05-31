@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from typing import Dict, List, Optional, Tuple, Union
 import contextlib
 import json
 import os
@@ -25,7 +26,7 @@ NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
 )
 
 
-def minimal_env_dto(*, width: int = 1, height: int = 1) -> dict[str, int]:
+def minimal_env_dto(*, width: int = 1, height: int = 1) -> Dict[str, int]:
     """Single-row environment used by viewer and loader tests."""
     return corridor(width=width, height=height)
 
@@ -39,10 +40,10 @@ def temp_script(body: str, *, name: str = "solution.py") -> Iterator[Path]:
 
 
 def write_minimal_task_env(
-    path: Path, task_id: str, *, width: int = 2, todo_text: str | None = None
+    path: Path, task_id: str, *, width: int = 2, todo_text: Optional[str] = None
 ) -> None:
     """Write a minimal valid ``.env`` task file."""
-    payload: dict[str, object] = {"envDtos": [minimal_env_dto(width=width, height=1)]}
+    payload: Dict[str, object] = {"envDtos": [minimal_env_dto(width=width, height=1)]}
     if todo_text is not None:
         payload["todoText"] = todo_text
     else:
@@ -77,7 +78,7 @@ def make_capture_robot_window_cls(captured: list) -> type:
             task_id: str,
             task_definition,
             run_env=None,
-            options: RobotWindowOptions | None = None,
+            options: Optional[RobotWindowOptions] = None,
         ):
             _capture_robot_window_call(
                 captured,
@@ -94,28 +95,28 @@ def make_capture_robot_window_cls(captured: list) -> type:
 
 
 @contextlib.contextmanager
-def patched_tasks_dir(temp_dir: str | Path):
+def patched_tasks_dir(temp_dir: Union[str, Path]):
     """Keep ``ROBOT_TASKS_DIR`` set for catalog discovery and task loads."""
     with patch.dict(os.environ, {TASKS_DIR_ENV: str(temp_dir)}, clear=False):
         yield
 
 
-_SCALAR_CONSTRAINT_ENV_KEYS: tuple[tuple[str, str], ...] = (
+_SCALAR_CONSTRAINT_ENV_KEYS: Tuple[Tuple[str, str], ...] = (
     ("operators_limit", "operatorsLimit"),
     ("custom_function_call_count", "customFunctionCallCount"),
     ("if_limit", "ifLimit"),
     ("while_limit", "whileLimit"),
 )
 
-_KEYWORD_CONSTRAINT_ENV_KEYS: tuple[tuple[str, str], ...] = (
+_KEYWORD_CONSTRAINT_ENV_KEYS: Tuple[Tuple[str, str], ...] = (
     ("required_keywords", "requiredKeywords"),
     ("banned_keywords", "bannedKeywords"),
 )
 
 
-def _constraints_to_env_payload(constraints: ScriptConstraints) -> dict[str, object]:
+def _constraints_to_env_payload(constraints: ScriptConstraints) -> Dict[str, object]:
     """Map ``ScriptConstraints`` fields to ``.env`` JSON keys."""
-    payload: dict[str, object] = {}
+    payload: Dict[str, object] = {}
     for attr, key in _SCALAR_CONSTRAINT_ENV_KEYS:
         value = getattr(constraints, attr)
         if value is not None:
@@ -132,16 +133,16 @@ class TaskFileWrite:
     """Parameters for writing a test ``.env`` task file."""
 
     task_id: str
-    env_dtos: list
-    todo_text: str | dict[str, str] | None = None
-    constraints: ScriptConstraints | None = None
+    env_dtos: List
+    todo_text: Optional[Union[str, Dict[str, str]]] = None
+    constraints: Optional[ScriptConstraints] = None
 
 
 class LoaderRuntimeTestBase(unittest.TestCase):
     """Helpers used across split loader-runtime test modules."""
 
     @staticmethod
-    def _minimal_env_dto() -> dict[str, int]:
+    def _minimal_env_dto() -> Dict[str, int]:
         """Single-cell environment used by several loader tests."""
         return minimal_env_dto()
 
@@ -159,7 +160,7 @@ class LoaderRuntimeTestBase(unittest.TestCase):
 
     def write_task(self, temp_dir, spec: TaskFileWrite) -> Path:
         task_file = Path(temp_dir) / f"{spec.task_id}.env"
-        payload: dict[str, object] = {"envDtos": spec.env_dtos}
+        payload: Dict[str, object] = {"envDtos": spec.env_dtos}
         if spec.todo_text is not None:
             payload["todoText"] = spec.todo_text
         if spec.constraints is not None:

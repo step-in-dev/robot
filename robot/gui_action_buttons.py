@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import tkinter as tk
 
 from .gui_theme import (
@@ -15,11 +16,11 @@ class ActionButtonMixin:  # pylint: disable=too-few-public-methods
 
     root: tk.Tk
     is_closed: bool
-    action_button: tk.Button | None
+    action_button: Optional[tk.Button]
     step_button: tk.Button
     controls_left: tk.Frame
-    script_path: object | None
-    _pending_restore_enable_after_id: str | None
+    script_path: Optional[object]
+    _pending_restore_enable_after_id: Optional[str]
 
     def _show_step_button_in_controls(self) -> None:
         """Pack the step button to the right of the main action button and set enabled state."""

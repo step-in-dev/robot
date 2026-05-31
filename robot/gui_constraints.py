@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from typing import List, Optional
 from .i18n import t
 from .loader import ScriptConstraints
 
 
 def task_has_any_constraints(
-    constraints: ScriptConstraints | None = None,
+    constraints: Optional[ScriptConstraints] = None,
 ) -> bool:
     """Return whether any static script constraint is configured for the task."""
     c = constraints or ScriptConstraints()
@@ -24,11 +25,11 @@ def task_has_any_constraints(
 
 
 def constraints_body_lines(
-    constraints: ScriptConstraints | None = None,
-) -> list[str]:
+    constraints: Optional[ScriptConstraints] = None,
+) -> List[str]:
     """Build localized lines describing configured script constraints."""
     c = constraints or ScriptConstraints()
-    lines: list[str] = []
+    lines: List[str] = []
     if c.operators_limit is not None:
         lines.append(
             t("constraints.operators_max", limit=c.operators_limit)

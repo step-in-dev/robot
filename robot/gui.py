@@ -6,7 +6,7 @@ import time
 import tkinter as tk
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
+from typing import Callable, List, Optional, Set
 
 from .executor import (
     EXECUTION_CANCELLED_MESSAGE,
@@ -70,9 +70,9 @@ class RobotWindowOptions:
     """Optional settings when opening a ``RobotWindow``."""
 
     initial_index: int = 0
-    script_path: Path | None = None
+    script_path: Optional[Path] = None
     open_constraints_on_startup: bool = False
-    viewer_catalog: TaskCatalog | None = None
+    viewer_catalog: Optional[TaskCatalog] = None
 
 
 @dataclass
@@ -80,15 +80,15 @@ class _TaskSession:  # pylint: disable=too-many-instance-attributes
     """Task identity, environments, and solution hooks (grouped on ``RobotWindow``)."""
 
     task_id: str
-    envs: list[RobotEnv]
-    run_env: Callable[[RobotEnv], RunResult] | None
-    script_path: Path | None
+    envs: List[RobotEnv]
+    run_env: Optional[Callable[[RobotEnv], RunResult]]
+    script_path: Optional[Path]
     script_constraints: ScriptConstraints
     open_constraints_on_startup: bool
-    viewer_catalog: TaskCatalog | None
+    viewer_catalog: Optional[TaskCatalog]
     selected_index: int
     todo_text: str
-    current_listener: Callable[[], None] | None
+    current_listener: Optional[Callable[[], None]]
 
 
 @dataclass
@@ -100,27 +100,27 @@ class _LayoutState:
     cell_size: int = 0
     canvas_width: int = 0
     canvas_height: int = 0
-    canvas: tk.Canvas | None = None
-    renderer: FieldRenderer | None = None
+    canvas: Optional[tk.Canvas] = None
+    renderer: Optional[FieldRenderer] = None
 
 
 @dataclass
 class _ChromeState:  # pylint: disable=too-many-instance-attributes
     """Toolbars, tabs, and Run/Step/Help controls (grouped on ``RobotWindow``)."""
 
-    viewer_toolbar: tk.Frame | None = None
-    todo_label: tk.Label | None = None
-    top_toolbar: tk.Frame | None = None
-    tab_frame: tk.Frame | None = None
-    tab_buttons: list[tk.Button] = field(default_factory=list)
-    constraints_button: tk.Button | None = None
-    controls: tk.Frame | None = None
-    controls_left: tk.Frame | None = None
-    controls_right: tk.Frame | None = None
-    action_button: tk.Button | None = None
-    step_button: tk.Button | None = None
-    help_button: tk.Button | None = None
-    pending_restore_enable_after_id: str | None = None
+    viewer_toolbar: Optional[tk.Frame] = None
+    todo_label: Optional[tk.Label] = None
+    top_toolbar: Optional[tk.Frame] = None
+    tab_frame: Optional[tk.Frame] = None
+    tab_buttons: List[tk.Button] = field(default_factory=list)
+    constraints_button: Optional[tk.Button] = None
+    controls: Optional[tk.Frame] = None
+    controls_left: Optional[tk.Frame] = None
+    controls_right: Optional[tk.Frame] = None
+    action_button: Optional[tk.Button] = None
+    step_button: Optional[tk.Button] = None
+    help_button: Optional[tk.Button] = None
+    pending_restore_enable_after_id: Optional[str] = None
 
 
 @dataclass
@@ -128,7 +128,7 @@ class _ExecutionState:
     """Step/run lifecycle flags and active stepping session."""
 
     is_closed: bool = False
-    step_session: StepExecutionSession | None = None
+    step_session: Optional[StepExecutionSession] = None
     step_tabs_locked: bool = False
     step_release_token: int = 0
     ignore_action_enter_until_idle: bool = False
@@ -147,8 +147,8 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self,
         task_id: str,
         task_definition: RobotTask,
-        run_env: Callable[[RobotEnv], RunResult] | None,
-        options: RobotWindowOptions | None = None,
+        run_env: Optional[Callable[[RobotEnv], RunResult]],
+        options: Optional[RobotWindowOptions] = None,
     ):
         opts = options or RobotWindowOptions()
         script_path = opts.script_path
@@ -202,17 +202,17 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._task.task_id
 
     @property
-    def run_env(self) -> Callable[[RobotEnv], RunResult] | None:
+    def run_env(self) -> Optional[Callable[[RobotEnv], RunResult]]:
         """Callback that runs the student script on one environment."""
         return self._task.run_env
 
     @run_env.setter
-    def run_env(self, value: Callable[[RobotEnv], RunResult] | None) -> None:
+    def run_env(self, value: Optional[Callable[[RobotEnv], RunResult]]) -> None:
         """Replace the per-environment run callback (tests)."""
         self._task.run_env = value
 
     @property
-    def script_path(self) -> Path | None:
+    def script_path(self) -> Optional[Path]:
         """Student solution file, or ``None`` in viewer mode."""
         return self._task.script_path
 
@@ -222,7 +222,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._task.script_constraints
 
     @property
-    def _viewer_catalog(self) -> TaskCatalog | None:
+    def _viewer_catalog(self) -> Optional[TaskCatalog]:
         """Task catalog when the window is in viewer mode."""
         return self._task.viewer_catalog
 
@@ -237,32 +237,32 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._task.selected_index = value
 
     @property
-    def viewer_toolbar(self) -> tk.Frame | None:
+    def viewer_toolbar(self) -> Optional[tk.Frame]:
         """Viewer theme/number navigation bar, if present."""
         return self._chrome.viewer_toolbar
 
     @viewer_toolbar.setter
-    def viewer_toolbar(self, value: tk.Frame | None) -> None:
+    def viewer_toolbar(self, value: Optional[tk.Frame]) -> None:
         """Store the viewer navigation bar frame."""
         self._chrome.viewer_toolbar = value
 
     @property
-    def top_toolbar(self) -> tk.Frame | None:
+    def top_toolbar(self) -> Optional[tk.Frame]:
         """Row with environment tabs and constraints button."""
         return self._chrome.top_toolbar
 
     @property
-    def tab_frame(self) -> tk.Frame | None:
+    def tab_frame(self) -> Optional[tk.Frame]:
         """Container for environment tab buttons."""
         return self._chrome.tab_frame
 
     @property
-    def tab_buttons(self) -> list[tk.Button]:
+    def tab_buttons(self) -> List[tk.Button]:
         """Environment tab buttons in display order."""
         return self._chrome.tab_buttons
 
     @property
-    def constraints_button(self) -> tk.Button | None:
+    def constraints_button(self) -> Optional[tk.Button]:
         """Button that opens the constraints dialog."""
         return self._chrome.constraints_button
 
@@ -291,7 +291,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._chrome.controls_right
 
     @property
-    def action_button(self) -> tk.Button | None:
+    def action_button(self) -> Optional[tk.Button]:
         """Run or Restore main action button."""
         return self._chrome.action_button
 
@@ -323,12 +323,12 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._status_strip.status_canvas
 
     @property
-    def _step_session(self) -> StepExecutionSession | None:
+    def _step_session(self) -> Optional[StepExecutionSession]:
         """Active line-by-line execution session, if any."""
         return self._execution.step_session
 
     @_step_session.setter
-    def _step_session(self, value: StepExecutionSession | None) -> None:
+    def _step_session(self, value: Optional[StepExecutionSession]) -> None:
         """Replace or clear the active stepping session."""
         self._execution.step_session = value
 
@@ -363,12 +363,12 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._execution.is_run_all_active = value
 
     @property
-    def _pending_restore_enable_after_id(self) -> str | None:
+    def _pending_restore_enable_after_id(self) -> Optional[str]:
         """``after`` id for deferred Restore-button enable, if scheduled."""
         return self._chrome.pending_restore_enable_after_id
 
     @_pending_restore_enable_after_id.setter
-    def _pending_restore_enable_after_id(self, value: str | None) -> None:
+    def _pending_restore_enable_after_id(self, value: Optional[str]) -> None:
         """Store or clear the deferred Restore-button enable id."""
         self._chrome.pending_restore_enable_after_id = value
 
@@ -394,7 +394,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._chrome.tab_buttons = []
         self._chrome.constraints_button = None
 
-    def _top_section_pack_after(self) -> tk.Misc | None:
+    def _top_section_pack_after(self) -> Optional[tk.Misc]:
         if self._chrome.todo_label is not None:
             return self._chrome.todo_label
         return self.viewer_toolbar
@@ -657,7 +657,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         else:
             self._set_status(result.message, STATUS_BG_ERROR)
 
-    def _check_script_constraints(self) -> str | None:
+    def _check_script_constraints(self) -> Optional[str]:
         if self.script_path is None:
             return None
         try:

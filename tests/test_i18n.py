@@ -65,48 +65,52 @@ class I18nTest(unittest.TestCase):
             self.assertEqual(i18n.detect_language(), "de")
 
     def test_detect_language_windows_ui_fallback(self) -> None:
-        with (
-            patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False),
-            patch("sys.platform", "win32"),
-            patch.object(i18n, "_windows_ui_locale_string", return_value="ru_RU"),
-            patch.object(i18n.locale, "getlocale", return_value=(None, None)),
+        with patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False), patch(
+            "sys.platform", "win32"
+        ), patch.object(
+            i18n, "_windows_ui_locale_string", return_value="ru_RU"
+        ), patch.object(
+            i18n.locale, "getlocale", return_value=(None, None)
         ):
             self.assertEqual(i18n.detect_language(), "ru")
 
     def test_detect_language_robot_language_overrides_windows_ui(self) -> None:
         env = {**_BLANK_LOCALE_ENV, "ROBOT_LANGUAGE": "ru"}
-        with (
-            patch.dict(os.environ, env, clear=False),
-            patch("sys.platform", "win32"),
-            patch.object(i18n, "_windows_ui_locale_string", return_value="de_DE"),
-            patch.object(i18n.locale, "getlocale", return_value=(None, None)),
+        with patch.dict(os.environ, env, clear=False), patch(
+            "sys.platform", "win32"
+        ), patch.object(
+            i18n, "_windows_ui_locale_string", return_value="de_DE"
+        ), patch.object(
+            i18n.locale, "getlocale", return_value=(None, None)
         ):
             self.assertEqual(i18n.detect_language(), "ru")
 
     def test_detect_language_lang_env_overrides_windows_ui(self) -> None:
         env = {**_BLANK_LOCALE_ENV, "LANG": "fr_FR.UTF-8"}
-        with (
-            patch.dict(os.environ, env, clear=False),
-            patch("sys.platform", "win32"),
-            patch.object(i18n, "_windows_ui_locale_string", return_value="ru_RU"),
-            patch.object(i18n.locale, "getlocale", return_value=(None, None)),
+        with patch.dict(os.environ, env, clear=False), patch(
+            "sys.platform", "win32"
+        ), patch.object(
+            i18n, "_windows_ui_locale_string", return_value="ru_RU"
+        ), patch.object(
+            i18n.locale, "getlocale", return_value=(None, None)
         ):
             self.assertEqual(i18n.detect_language(), "fr")
 
     def test_detect_language_windows_unsupported_falls_back_to_en(self) -> None:
-        with (
-            patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False),
-            patch("sys.platform", "win32"),
-            patch.object(i18n, "_windows_ui_locale_string", return_value="eo_EO"),
-            patch.object(i18n.locale, "getlocale", return_value=(None, None)),
+        with patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False), patch(
+            "sys.platform", "win32"
+        ), patch.object(
+            i18n, "_windows_ui_locale_string", return_value="eo_EO"
+        ), patch.object(
+            i18n.locale, "getlocale", return_value=(None, None)
         ):
             self.assertEqual(i18n.detect_language(), "en")
 
     def test_detect_language_getlocale_fallback_non_windows(self) -> None:
-        with (
-            patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False),
-            patch("sys.platform", "linux"),
-            patch.object(i18n.locale, "getlocale", return_value=("uk_UA", "UTF-8")),
+        with patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False), patch(
+            "sys.platform", "linux"
+        ), patch.object(
+            i18n.locale, "getlocale", return_value=("uk_UA", "UTF-8")
         ):
             self.assertEqual(i18n.detect_language(), "uk")
 

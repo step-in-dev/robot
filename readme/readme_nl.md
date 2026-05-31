@@ -120,4 +120,4 @@ compound1, ..., compound11
 3. Sla je oplossingsbestand op naast het `robot`-pakket. Gebruik **`sample_solution.py`** uit het archief als startpunt.
 4. Om een andere oefening uit te voeren, wijzig je de tekenreeks die aan **`task()`** wordt doorgegeven (zie de sectie **Beschikbare taken voor `task()`** hierboven).
 
-Vereisten: **Python 3** met de standaardbibliotheek (de interface gebruikt `tkinter`, dat bij de meeste Python-installaties op desktopsystemen is inbegrepen).
+Vereisten: **Python 3.7+** met de standaardbibliotheek (de interface gebruikt `tkinter`, dat bij de meeste Python-installaties op desktopsystemen is inbegrepen).

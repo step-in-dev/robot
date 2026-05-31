@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import tkinter as tk
 
 _ESCAPE_BINDING = "<Escape>"
@@ -12,7 +13,7 @@ class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
 
     root: tk.Tk
     is_closed: bool
-    action_button: tk.Button | None
+    action_button: Optional[tk.Button]
     _ignore_action_enter_until_idle: bool
     _is_run_all_active: bool
 
@@ -26,7 +27,7 @@ class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
         )
         self.root.bind(_ESCAPE_BINDING, self._handle_escape_close)
 
-    def _handle_action_enter_key(self, _event: tk.Event) -> str | None:
+    def _handle_action_enter_key(self, _event: tk.Event) -> Optional[str]:
         """Invoke the main action button like a mouse click when Enter is pressed."""
         if self.action_button is None:
             return None
@@ -39,7 +40,7 @@ class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
         self.action_button.invoke()
         return "break"
 
-    def _handle_action_enter_release(self, _event: tk.Event) -> str | None:
+    def _handle_action_enter_release(self, _event: tk.Event) -> Optional[str]:
         if self.action_button is None:
             return None
         if self._ignore_action_enter_until_idle:
@@ -47,7 +48,7 @@ class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
             return "break"
         return None
 
-    def _handle_escape_close(self, _event: tk.Event) -> str | None:
+    def _handle_escape_close(self, _event: tk.Event) -> Optional[str]:
         """Close the robot window like the window manager close button."""
         self.close()
         return "break"

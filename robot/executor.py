@@ -7,7 +7,7 @@ import traceback
 from dataclasses import dataclass
 from pathlib import Path
 from types import TracebackType
-from typing import Callable
+from typing import Callable, Dict, List, Optional
 
 from .i18n import t
 from .loader import ScriptConstraints
@@ -60,7 +60,7 @@ class StepExecutionTarget:
     task_id: str
 
 
-def _student_frame_lineno(script_path: Path, tb: TracebackType | None) -> int | None:
+def _student_frame_lineno(script_path: Path, tb: Optional[TracebackType]) -> Optional[int]:
     """Innermost lineno in *student* script (closest to the exception in that file)."""
     if tb is None:
         return None
@@ -80,9 +80,9 @@ def _student_frame_lineno(script_path: Path, tb: TracebackType | None) -> int | 
 
 def _message_with_line(
     script_path: Path,
-    tb: TracebackType | None,
+    tb: Optional[TracebackType],
     message: str,
-    exc: BaseException | None = None,
+    exc: Optional[BaseException] = None,
 ) -> str:
     lineno = _student_frame_lineno(script_path, tb)
     if lineno is None and isinstance(exc, SyntaxError):
@@ -144,8 +144,8 @@ def check_limit_violations(
     source: str,
     *,
     filename: str,
-    constraints: ScriptConstraints | None = None,
-) -> str | None:
+    constraints: Optional[ScriptConstraints] = None,
+) -> Optional[str]:
     """Run static limit checks; return the first violation message or ``None``."""
     c = constraints or ScriptConstraints()
     for checker, value in (
@@ -169,8 +169,8 @@ class _StepScript:
     script_path: Path
     resolved_script: Path
     task_id: str
-    source_lines: list[str]
-    namespace: dict[str, object]
+    source_lines: List[str]
+    namespace: Dict[str, object]
 
 
 @dataclass
@@ -215,7 +215,7 @@ class StepExecutionSession:
         self._state = _StepState()
 
     @property
-    def namespace(self) -> dict[str, object]:
+    def namespace(self) -> Dict[str, object]:
         """Student script globals built during stepping."""
         return self._script.namespace
 
@@ -305,7 +305,7 @@ class StepExecutionSession:
                     self._script.script_path, self.env, exc
                 )
 
-            outcome: RunResult | None = None
+            outcome: Optional[RunResult] = None
             old_trace = sys.gettrace()
             try:
                 sys.settrace(self._trace)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import webbrowser
 import tkinter as tk
 import tkinter.font as tkfont
@@ -66,7 +67,7 @@ def _help_text_should_block_edit(event: tk.Event) -> bool:
     return bool(ch and ch.isprintable() and not modifier)
 
 
-def _help_text_readonly_key_action(event: tk.Event) -> str | None:
+def _help_text_readonly_key_action(event: tk.Event) -> Optional[str]:
     """Return ``\"break\"`` to block edits; ``None`` to keep copy, selection, and navigation."""
     return "break" if _help_text_should_block_edit(event) else None
 

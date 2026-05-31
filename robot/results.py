@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
 
 from .model import RobotEnv
 
-RunStatus = Literal["success", "wrong", "crashed", "error"]
+RunStatus = str
 
 
 @dataclass(frozen=True)

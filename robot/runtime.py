@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import List, Tuple
 import sys
 from pathlib import Path
 
@@ -107,7 +108,7 @@ def _field_task_label(width: int, height: int) -> str:
     return f"field({width}, {height})"
 
 
-def _validate_field_dimensions(width: object, height: object) -> tuple[int, int]:
+def _validate_field_dimensions(width: object, height: object) -> Tuple[int, int]:
     if not _is_plain_int(width) or not _is_plain_int(height):
         raise RobotError(t("runtime.error.field_integers"))
     if not 1 <= width <= 20:
@@ -117,7 +118,7 @@ def _validate_field_dimensions(width: object, height: object) -> tuple[int, int]
     return width, height
 
 
-def _synthetic_field_envs(width: int, height: int) -> list[RobotEnv]:
+def _synthetic_field_envs(width: int, height: int) -> List[RobotEnv]:
     dto = RobotEnvDto(
         width=width,
         height=height,

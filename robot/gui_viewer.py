@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import tkinter as tk
 from tkinter import ttk
-from typing import Protocol
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
 from .i18n import t
@@ -38,28 +38,6 @@ def _configure_viewer_combobox_height(
 def _entry_pack_ipady(entry: tk.Entry, *, target_height: int) -> int:
     entry.update_idletasks()
     return max(0, (target_height - entry.winfo_reqheight()) // 2)
-
-
-class RobotWindowViewerHost(Protocol):  # pylint: disable=too-few-public-methods
-    """Fields and hooks ``ViewerMixin`` expects on ``RobotWindow``."""
-
-    root: tk.Tk
-    is_closed: bool
-    task_id: str
-    action_button: tk.Button | None
-    step_button: tk.Button
-    viewer_toolbar: tk.Frame | None
-    _viewer_catalog: TaskCatalog | None
-
-    def apply_task_payload(
-        self, task_id: str, task_definition: RobotTask
-    ) -> None:
-        """Replace task environments and refresh chrome."""
-        ...  # pylint: disable=unnecessary-ellipsis
-
-    def _rebuild_todo_banner(self) -> None: ...
-
-    def _rebuild_env_toolbar(self) -> None: ...
 
 
 class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
@@ -168,7 +146,7 @@ class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-publi
             self.action_button.configure(state=tk.DISABLED)
         self.step_button.configure(state=tk.DISABLED)
 
-    def _viewer_active_catalog(self) -> TaskCatalog | None:
+    def _viewer_active_catalog(self) -> Optional[TaskCatalog]:
         if self._viewer_switching or self.is_closed:
             return None
         return self._viewer_catalog
@@ -200,7 +178,7 @@ class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-publi
         if 0 <= target < len(task_ids):
             self._viewer_show_task(task_ids[target])
 
-    def _on_viewer_number_commit(self, _event: object = None) -> str | None:
+    def _on_viewer_number_commit(self, _event: object = None) -> Optional[str]:
         catalog = self._viewer_active_catalog()
         if catalog is None:
             return None

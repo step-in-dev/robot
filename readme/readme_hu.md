@@ -120,4 +120,4 @@ compound1, …, compound11
 3. Mentsd el a megoldásfájlt a `robot` csomag mellé. Kiindulásként használd az archívumban található **`sample_solution.py`** fájlt.
 4. Más feladat futtatásához változtasd meg a **`task()`**-nak átadott szöveget (lásd a fenti **Elérhető feladatok a `task()`-hoz** szakaszt).
 
-Követelmények: **Python 3** a standard könyvtárral (a felhasználói felület a `tkinter`-t használja, amely a legtöbb asztali Python-telepítés része).
+Követelmények: **Python 3.7+** a standard könyvtárral (a felhasználói felület a `tkinter`-t használja, amely a legtöbb asztali Python-telepítés része).

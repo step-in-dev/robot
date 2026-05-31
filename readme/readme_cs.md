@@ -120,4 +120,4 @@ compound1, …, compound11
 3. Uložte soubor s řešením vedle balíčku `robot`. Jako výchozí bod použijte soubor **`sample_solution.py`** z archivu.
 4. Pro spuštění jiného cvičení změňte řetězec předávaný funkci **`task()`** (viz sekce **Dostupné úlohy pro `task()`** výše).
 
-Požadavky: **Python 3** se standardní knihovnou (uživatelské rozhraní používá `tkinter`, který je součástí většiny instalací Pythonu na stolních počítačích).
+Požadavky: **Python 3.7+** se standardní knihovnou (uživatelské rozhraní používá `tkinter`, který je součástí většiny instalací Pythonu na stolních počítačích).

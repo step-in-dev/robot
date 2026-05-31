@@ -7,7 +7,7 @@ import keyword
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional, Tuple
 
 from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
 from .model import RobotEnv, RobotEnvDto, _is_plain_int
@@ -26,12 +26,12 @@ class TaskLoadError(Exception):
 class ScriptConstraints:
     """Static script limits loaded from a task ``.env`` file."""
 
-    operators_limit: int | None = None
-    custom_function_call_count: int | None = None
-    if_limit: int | None = None
-    while_limit: int | None = None
-    required_keywords: tuple[str, ...] | None = None
-    banned_keywords: tuple[str, ...] | None = None
+    operators_limit: Optional[int] = None
+    custom_function_call_count: Optional[int] = None
+    if_limit: Optional[int] = None
+    while_limit: Optional[int] = None
+    required_keywords: Optional[Tuple[str, ...]] = None
+    banned_keywords: Optional[Tuple[str, ...]] = None
 
     @classmethod
     def from_task(cls, task: RobotTask) -> ScriptConstraints:
@@ -43,42 +43,42 @@ class ScriptConstraints:
 class RobotTask:
     """Loaded task: environments, todo text, and constraint limits."""
 
-    envs: list[RobotEnv]
+    envs: List[RobotEnv]
     todo_text: str
     script_constraints: ScriptConstraints = field(default_factory=ScriptConstraints)
 
     @property
-    def operators_limit(self) -> int | None:
+    def operators_limit(self) -> Optional[int]:
         """Operator count limit from the task file."""
         return self.script_constraints.operators_limit
 
     @property
-    def custom_function_call_count(self) -> int | None:
+    def custom_function_call_count(self) -> Optional[int]:
         """Minimum custom-function call count from the task file."""
         return self.script_constraints.custom_function_call_count
 
     @property
-    def if_limit(self) -> int | None:
+    def if_limit(self) -> Optional[int]:
         """``if`` keyword use limit from the task file."""
         return self.script_constraints.if_limit
 
     @property
-    def while_limit(self) -> int | None:
+    def while_limit(self) -> Optional[int]:
         """``while`` keyword use limit from the task file."""
         return self.script_constraints.while_limit
 
     @property
-    def required_keywords(self) -> tuple[str, ...] | None:
+    def required_keywords(self) -> Optional[Tuple[str, ...]]:
         """Keywords that must appear in the solution."""
         return self.script_constraints.required_keywords
 
     @property
-    def banned_keywords(self) -> tuple[str, ...] | None:
+    def banned_keywords(self) -> Optional[Tuple[str, ...]]:
         """Keywords that must not appear in the solution."""
         return self.script_constraints.banned_keywords
 
 
-def load_task(task_id: str) -> list[RobotEnv]:
+def load_task(task_id: str) -> List[RobotEnv]:
     """Load all environments for a task id."""
     return load_task_definition(task_id).envs
 
@@ -160,7 +160,7 @@ def find_task_file(task_id: str) -> Path:
     )
 
 
-def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
+def parse_task_payload(data: Any, task_path: Path) -> Tuple[List[dict], str]:
     """Extract ``envDtos`` and resolved ``todoText`` from parsed task JSON."""
     if not isinstance(data, dict):
         raise TaskLoadError(
@@ -176,7 +176,7 @@ def parse_task_payload(data: Any, task_path: Path) -> tuple[list[dict], str]:
     raw_todo = data.get("todoText", "")
     todo_text = resolve_todo_text(raw_todo)
 
-    result: list[dict] = []
+    result: List[dict] = []
     for index, item in enumerate(env_dtos):
         if not isinstance(item, dict):
             raise TaskLoadError(
@@ -201,7 +201,7 @@ def resolve_todo_text(raw: Any) -> str:
         return raw
     if not isinstance(raw, dict):
         return ""
-    by_lang: dict[str, str] = {}
+    by_lang: Dict[str, str] = {}
     for key, value in raw.items():
         if not isinstance(key, str) or not isinstance(value, str):
             continue
@@ -224,7 +224,7 @@ def _parse_optional_non_negative_int(
     *,
     json_key: str,
     invalid_message_key: str,
-) -> int | None:
+) -> Optional[int]:
     if json_key not in data:
         return None
     value = data[json_key]
@@ -233,7 +233,7 @@ def _parse_optional_non_negative_int(
     return value
 
 
-def parse_operators_limit(data: dict, task_path: Path) -> int | None:
+def parse_operators_limit(data: dict, task_path: Path) -> Optional[int]:
     """Parse optional ``operatorsLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -243,7 +243,7 @@ def parse_operators_limit(data: dict, task_path: Path) -> int | None:
     )
 
 
-def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
+def parse_custom_function_call_count(data: dict, task_path: Path) -> Optional[int]:
     """Parse optional ``customFunctionCallCount`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -253,7 +253,7 @@ def parse_custom_function_call_count(data: dict, task_path: Path) -> int | None:
     )
 
 
-def parse_if_limit(data: dict, task_path: Path) -> int | None:
+def parse_if_limit(data: dict, task_path: Path) -> Optional[int]:
     """Parse optional ``ifLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -263,7 +263,7 @@ def parse_if_limit(data: dict, task_path: Path) -> int | None:
     )
 
 
-def parse_while_limit(data: dict, task_path: Path) -> int | None:
+def parse_while_limit(data: dict, task_path: Path) -> Optional[int]:
     """Parse optional ``whileLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -279,7 +279,7 @@ def parse_keyword_list(
     *,
     field_name: str,
     invalid_message_key: str,
-) -> tuple[str, ...] | None:
+) -> Optional[Tuple[str, ...]]:
     """Parse a comma-separated Python keyword list from task JSON."""
     if field_name not in data:
         return None
@@ -305,8 +305,8 @@ def parse_keyword_list(
 
 
 def validate_keyword_lists(
-    required_keywords: tuple[str, ...] | None,
-    banned_keywords: tuple[str, ...] | None,
+    required_keywords: Optional[Tuple[str, ...]],
+    banned_keywords: Optional[Tuple[str, ...]],
     task_path: Path,
 ) -> None:
     """Raise ``TaskLoadError`` when required and banned keyword sets overlap."""

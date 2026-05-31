@@ -1,5 +1,7 @@
 """Tests for loading task definitions from .env files."""
 
+from typing import Dict, List, Tuple
+
 import json
 import tempfile
 import unittest
@@ -315,7 +317,7 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
 
     def test_load_task_definition_localized_todo_text_resolves_by_language(self) -> None:
         base_env = self._minimal_env_dto()
-        cases: list[tuple[str, str, dict[str, str], str]] = [
+        cases: List[Tuple[str, str, Dict[str, str], str]] = [
             (
                 "loc_ru",
                 "ru",

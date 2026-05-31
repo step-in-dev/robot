@@ -1,7 +1,7 @@
 """Shared helpers for GUI unittest modules."""
 
 import contextlib
-from collections.abc import Callable, Iterator
+from typing import Callable, Iterator, List, Optional
 
 import tkinter as tk
 
@@ -42,7 +42,7 @@ def noop_success_run_env(_env: RobotEnv) -> RunResult:
     return RunResult(status="success", message="ok")
 
 
-def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
+def _find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:
     for child in parent.winfo_children():
         if isinstance(child, tk.Text):
             return child
@@ -54,11 +54,11 @@ def _find_first_text_widget(parent: tk.Misc) -> tk.Text | None:
 
 def make_test_window(
     task_id: str,
-    envs: list[RobotEnv],
-    run_env: Callable[[RobotEnv], RunResult] | None,
+    envs: List[RobotEnv],
+    run_env: Optional[Callable[[RobotEnv], RunResult]],
     *,
-    options: RobotWindowOptions | None = None,
-    constraints: ScriptConstraints | None = None,
+    options: Optional[RobotWindowOptions] = None,
+    constraints: Optional[ScriptConstraints] = None,
 ) -> RobotWindow:
     opts = options or RobotWindowOptions()
     c = constraints or ScriptConstraints()
@@ -77,11 +77,11 @@ def minimal_env_dict(width: int, height: int) -> dict:
 @contextlib.contextmanager
 def test_window(
     task_id: str,
-    envs: list[RobotEnv],
-    run_env: Callable[[RobotEnv], RunResult] | None,
+    envs: List[RobotEnv],
+    run_env: Optional[Callable[[RobotEnv], RunResult]],
     *,
-    options: RobotWindowOptions | None = None,
-    constraints: ScriptConstraints | None = None,
+    options: Optional[RobotWindowOptions] = None,
+    constraints: Optional[ScriptConstraints] = None,
 ) -> Iterator[RobotWindow]:
     window = make_test_window(
         task_id,

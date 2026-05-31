@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tkinter as tk
-from typing import Callable
+from typing import Callable, List, Optional
 
 from .gui_constraints import constraints_body_lines
 from .gui_help import _populate_robot_help_text
@@ -20,7 +20,7 @@ CONSTRAINTS_TEXT_WIDTH = 65
 _ESCAPE_BINDING = "<Escape>"
 
 
-def _try_focus_existing_toplevel(win: tk.Toplevel | None) -> bool:
+def _try_focus_existing_toplevel(win: Optional[tk.Toplevel]) -> bool:
     """If ``win`` still exists, raise and focus it and return True; else return False."""
     if win is None:
         return False
@@ -39,10 +39,10 @@ class DialogManagerMixin:
 
     root: tk.Tk
     is_closed: bool
-    _help_window: tk.Toplevel | None
-    _help_window_close_handler: Callable[[], None] | None
-    _constraints_window: tk.Toplevel | None
-    _constraints_window_close_handler: Callable[[], None] | None
+    _help_window: Optional[tk.Toplevel]
+    _help_window_close_handler: Optional[Callable[[], None]]
+    _constraints_window: Optional[tk.Toplevel]
+    _constraints_window_close_handler: Optional[Callable[[], None]]
     _script_constraints: ScriptConstraints
 
     def _init_dialog_manager(self) -> None:
@@ -105,7 +105,7 @@ class DialogManagerMixin:
         self._help_window_close_handler = _clear_help_ref
         help_win.protocol("WM_DELETE_WINDOW", self._help_window_close_handler)
 
-        def _handle_help_escape(_event: tk.Event) -> str | None:
+        def _handle_help_escape(_event: tk.Event) -> Optional[str]:
             _clear_help_ref()
             return "break"
 
@@ -131,7 +131,7 @@ class DialogManagerMixin:
         _populate_robot_help_text(text)
         self._focus_toplevel_dialog(help_win)
 
-    def _constraints_body_lines(self) -> list[str]:
+    def _constraints_body_lines(self) -> List[str]:
         return constraints_body_lines(self._script_constraints)
 
     def show_constraints(self) -> None:
@@ -164,7 +164,7 @@ class DialogManagerMixin:
         self._constraints_window_close_handler = _clear_constraints_ref
         c_win.protocol("WM_DELETE_WINDOW", self._constraints_window_close_handler)
 
-        def _handle_constraints_escape(_event: tk.Event) -> str | None:
+        def _handle_constraints_escape(_event: tk.Event) -> Optional[str]:
             _clear_constraints_ref()
             return "break"
 

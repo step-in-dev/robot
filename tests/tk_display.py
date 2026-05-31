@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import atexit
 import unittest
 
@@ -9,7 +10,7 @@ import tkinter as tk
 
 from robot.tk_util import destroy_tk_root
 
-_TK_DISPLAY_WORKS: bool | None = None
+_TK_DISPLAY_WORKS: Optional[bool] = None
 
 
 def tkinter_display_works() -> bool:

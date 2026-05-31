@@ -9,6 +9,7 @@ import token
 import tokenize
 from collections import deque
 from dataclasses import dataclass, field
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple
 
 from .i18n import t
 from .student_api import COUNTED_OPERATOR_NAMES
@@ -32,9 +33,9 @@ def _is_counted_operator_call(node: ast.Call) -> bool:
     )
 
 
-def _walk_nodes_skip_nested_scopes(body: list[ast.stmt]):
+def _walk_nodes_skip_nested_scopes(body: List[ast.stmt]):
     """Depth-first over *body*, skipping nested class/function/lambda subtrees."""
-    stack: list[ast.AST] = []
+    stack: List[ast.AST] = []
     for stmt in reversed(body):
         stack.append(stmt)
     while stack:
@@ -86,10 +87,10 @@ class OperatorsLimitViolation:
 
 def check_operators_limit(
     source: str,
-    operators_limit: int | None,
+    operators_limit: Optional[int],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> OperatorsLimitViolation | None:
+) -> Optional[OperatorsLimitViolation]:
     """Return a violation when operator count exceeds ``operators_limit``."""
     if operators_limit is None:
         return None
@@ -106,7 +107,7 @@ IF_LIMIT_MESSAGE_TEMPLATE = t("limit.if_keyword")
 WHILE_LIMIT_MESSAGE_TEMPLATE = t("limit.while_keyword")
 
 
-def _body_contains_robot_operator_excluding_nested_defs(body: list[ast.stmt]) -> bool:
+def _body_contains_robot_operator_excluding_nested_defs(body: List[ast.stmt]) -> bool:
     """True if a counted robot call appears in *body*, not inside a nested scope."""
     for node in _walk_nodes_skip_nested_scopes(body):
         if isinstance(node, ast.Call) and _is_counted_operator_call(node):
@@ -114,7 +115,7 @@ def _body_contains_robot_operator_excluding_nested_defs(body: list[ast.stmt]) ->
     return False
 
 
-def _name_call_ids_skip_nested_scopes(body: list[ast.stmt]) -> set[str]:
+def _name_call_ids_skip_nested_scopes(body: List[ast.stmt]) -> Set[str]:
     return {
         node.func.id
         for node in _walk_nodes_skip_nested_scopes(body)
@@ -122,12 +123,12 @@ def _name_call_ids_skip_nested_scopes(body: list[ast.stmt]) -> set[str]:
     }
 
 
-def _module_level_name_call_ids(body: list[ast.stmt]) -> set[str]:
+def _module_level_name_call_ids(body: List[ast.stmt]) -> Set[str]:
     """``f()`` names at module level, excluding calls inside top-level ``def``/``class``."""
     return _name_call_ids_skip_nested_scopes(body)
 
 
-def _top_level_function_defs(tree: ast.Module) -> dict[str, ast.FunctionDef]:
+def _top_level_function_defs(tree: ast.Module) -> Dict[str, ast.FunctionDef]:
     return {
         node.name: node
         for node in tree.body
@@ -136,10 +137,10 @@ def _top_level_function_defs(tree: ast.Module) -> dict[str, ast.FunctionDef]:
 
 
 def _reachable_user_function_names(
-    tree: ast.Module, function_defs: dict[str, ast.FunctionDef]
-) -> set[str]:
+    tree: ast.Module, function_defs: Dict[str, ast.FunctionDef]
+) -> Set[str]:
     roots = _module_level_name_call_ids(tree.body) & function_defs.keys()
-    reachable: set[str] = set()
+    reachable: Set[str] = set()
     queue: deque[str] = deque(roots)
 
     while queue:
@@ -157,8 +158,8 @@ def _reachable_user_function_names(
 
 
 def _qualifying_user_function_names(
-    function_defs: dict[str, ast.FunctionDef], reachable: set[str]
-) -> set[str]:
+    function_defs: Dict[str, ast.FunctionDef], reachable: Set[str]
+) -> Set[str]:
     return {
         name
         for name in reachable
@@ -169,7 +170,7 @@ def _qualifying_user_function_names(
 
 
 def _count_qualifying_calls_in_body(
-    body: list[ast.stmt], qualifying_function_names: set[str]
+    body: List[ast.stmt], qualifying_function_names: Set[str]
 ) -> int:
     return sum(
         1
@@ -223,10 +224,10 @@ class CustomFunctionCallCountViolation:
 
 def check_custom_function_call_count(
     source: str,
-    custom_function_call_count: int | None,
+    custom_function_call_count: Optional[int],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> CustomFunctionCallCountViolation | None:
+) -> Optional[CustomFunctionCallCountViolation]:
     """Return a violation when qualifying custom-function calls are below the minimum."""
     if custom_function_call_count is None:
         return None
@@ -243,10 +244,10 @@ def check_custom_function_call_count(
 
 def extract_python_keywords(
     source: str, *, filename: str = DEFAULT_STUDENT_FILENAME
-) -> frozenset[str]:
+) -> FrozenSet[str]:
     """Collect Python keyword tokens present in student source."""
     del filename  # Reserved for parity with other static checks.
-    keywords: set[str] = set()
+    keywords: Set[str] = set()
     tokens = tokenize.generate_tokens(io.StringIO(source).readline)
     for tok in tokens:
         if tok.type != token.NAME:
@@ -290,12 +291,12 @@ class PythonKeywordLimitViolation:
 
 def _check_python_keyword_token_limit(
     source: str,
-    limit: int | None,
+    limit: Optional[int],
     *,
     keyword_token: str,
     filename: str,
     message_template: str,
-) -> PythonKeywordLimitViolation | None:
+) -> Optional[PythonKeywordLimitViolation]:
     """Return a violation when a keyword token count exceeds ``limit``."""
     if limit is None:
         return None
@@ -313,10 +314,10 @@ def _check_python_keyword_token_limit(
 
 def check_if_limit(
     source: str,
-    if_limit: int | None,
+    if_limit: Optional[int],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> PythonKeywordLimitViolation | None:
+) -> Optional[PythonKeywordLimitViolation]:
     """Return a violation when ``if`` keyword uses exceed ``if_limit``."""
     return _check_python_keyword_token_limit(
         source,
@@ -329,10 +330,10 @@ def check_if_limit(
 
 def check_while_limit(
     source: str,
-    while_limit: int | None,
+    while_limit: Optional[int],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> PythonKeywordLimitViolation | None:
+) -> Optional[PythonKeywordLimitViolation]:
     """Return a violation when ``while`` keyword uses exceed ``while_limit``."""
     return _check_python_keyword_token_limit(
         source,
@@ -347,7 +348,7 @@ def check_while_limit(
 class RequiredKeywordsViolation:
     """Required Python keywords missing from the script."""
 
-    missing_keywords: tuple[str, ...]
+    missing_keywords: Tuple[str, ...]
 
     @property
     def message(self) -> str:
@@ -359,10 +360,10 @@ class RequiredKeywordsViolation:
 
 def check_required_keywords(
     source: str,
-    required_keywords: tuple[str, ...] | None,
+    required_keywords: Optional[Tuple[str, ...]],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> RequiredKeywordsViolation | None:
+) -> Optional[RequiredKeywordsViolation]:
     """Return a violation when any required keyword is absent from source."""
     if not required_keywords:
         return None
@@ -381,7 +382,7 @@ def check_required_keywords(
 class BannedKeywordsViolation:
     """Banned Python keywords found in the script."""
 
-    used_keywords: tuple[str, ...]
+    used_keywords: Tuple[str, ...]
 
     @property
     def message(self) -> str:
@@ -393,10 +394,10 @@ class BannedKeywordsViolation:
 
 def check_banned_keywords(
     source: str,
-    banned_keywords: tuple[str, ...] | None,
+    banned_keywords: Optional[Tuple[str, ...]],
     *,
     filename: str = DEFAULT_STUDENT_FILENAME,
-) -> BannedKeywordsViolation | None:
+) -> Optional[BannedKeywordsViolation]:
     """Return a violation when any banned keyword appears in source."""
     if not banned_keywords:
         return None

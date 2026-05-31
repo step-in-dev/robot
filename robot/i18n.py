@@ -9,7 +9,7 @@ import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Dict, List, Mapping, Optional
 
 SUPPORTED_LANGUAGES = (
     "en",
@@ -45,7 +45,7 @@ LANGUAGE_ENV_VAR = "ROBOT_LANGUAGE"
 _LOCALES_DIR = Path(__file__).resolve().parent / "locales"
 
 
-def _normalize_chinese_language(parts: list[str]) -> str:
+def _normalize_chinese_language(parts: List[str]) -> str:
     """Map Chinese locale parts to ``zh-hans`` or ``zh-hant``."""
     rest = "_".join(parts[1:]).lower()
     if "hans" in rest:
@@ -59,7 +59,7 @@ def _normalize_chinese_language(parts: list[str]) -> str:
     return "zh-hans"
 
 
-def normalize_language(value: str | None) -> str | None:
+def normalize_language(value: Optional[str]) -> Optional[str]:
     """Map locale strings to a supported language code; unsupported returns ``None``."""
     if value is None:
         return None
@@ -83,7 +83,7 @@ def normalize_language(value: str | None) -> str | None:
     return None
 
 
-def _language_from_locale_env() -> str | None:
+def _language_from_locale_env() -> Optional[str]:
     for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
         lang = normalize_language(os.environ.get(var))
         if lang is not None:
@@ -91,7 +91,7 @@ def _language_from_locale_env() -> str | None:
     return None
 
 
-def _language_from_getlocale_messages() -> str | None:
+def _language_from_getlocale_messages() -> Optional[str]:
     try:
         loc = locale.getlocale(locale.LC_MESSAGES)
     except (AttributeError, ValueError, OSError):
@@ -101,7 +101,7 @@ def _language_from_getlocale_messages() -> str | None:
     return normalize_language(loc[0])
 
 
-def _windows_ui_locale_string() -> str | None:
+def _windows_ui_locale_string() -> Optional[str]:
     """Return a locale-style string for the Windows UI language, or ``None``.
 
     Uses ``GetUserDefaultUILanguage`` (display language), not regional format
@@ -154,8 +154,8 @@ def detect_language() -> str:
 def _load_catalog(language: str) -> Mapping[str, str]:
     path = _LOCALES_DIR / f"{language}.json"
     with path.open(encoding="utf-8") as f:
-        data: dict[str, Any] = json.load(f)
-    out: dict[str, str] = {}
+        data: Dict[str, Any] = json.load(f)
+    out: Dict[str, str] = {}
     for k, v in data.items():
         if not isinstance(k, str) or not isinstance(v, str):
             raise TypeError(f"Invalid locale entry in {path}: {k!r}")

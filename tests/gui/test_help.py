@@ -1,7 +1,7 @@
 """Tests for help window and read-only key filter."""
 
 import unittest
-from typing import cast
+from typing import List, Optional, cast
 from unittest.mock import MagicMock, patch
 
 import tkinter as tk
@@ -23,7 +23,7 @@ from ._helpers import (
 _EXPECTED_HELP_PROJECT_REPO_URL = "https://github.com/step-in-dev/robot"
 
 
-def _help_toplevel_children(root: tk.Misc) -> list[tk.Toplevel]:
+def _help_toplevel_children(root: tk.Misc) -> List[tk.Toplevel]:
     return [w for w in root.winfo_children() if isinstance(w, tk.Toplevel)]
 
 
@@ -46,7 +46,7 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
         *,
         state: int = 0,
         char: str = "",
-    ) -> str | None:
+    ) -> Optional[str]:
         from types import SimpleNamespace
 
         return _help_text_readonly_key_action(
