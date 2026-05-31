@@ -779,6 +779,10 @@ code {
   max-width: 48rem;
 }
 
+.task-condition:empty {
+  display: none;
+}
+
 .task-envs {
   margin-bottom: 2rem;
 }

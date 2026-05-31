@@ -554,7 +554,7 @@ def build_task_page(
     if theme is None:
         raise ValueError(f"Task {task_id!r} not in catalog")
     task_def = load_task_definition(task_id)
-    todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang)
+    todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang).strip()
     number = task_number_from_id(task_id)
     theme_label = theme_title(theme)
     title = f"{task_id} – {theme_label} | Robot"
@@ -616,6 +616,9 @@ def build_task_page(
     )
 
     todo_html = escape(todo).replace("\n", "<br>\n        ")
+    condition_html = (
+        f"      <div class=\"task-condition\">{todo_html}</div>\n" if todo else ""
+    )
     h1 = f"<code>{escape(task_id)}</code> – {escape(theme_label)}"
     if number is not None:
         h1 = f'{h1} <span class="task-number">#{number}</span>'
@@ -652,8 +655,7 @@ def build_task_page(
       <header class="content-header">
         <h1>{h1}</h1>
       </header>
-      <div class="task-condition">{todo_html}</div>
-{env_html}{constraints_html}      <section class="code-showcase" aria-labelledby="example-heading">
+{condition_html}{env_html}{constraints_html}      <section class="code-showcase" aria-labelledby="example-heading">
         <h2 id="example-heading">{escape(_ui(lang, "example_heading"))}</h2>
         <pre class="code-block"><code>from robot import *
 
