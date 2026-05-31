@@ -8,7 +8,7 @@ from tkinter import ttk
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
 from .i18n import t
-from .loader import RobotTask, TaskLoadError, load_task_definition
+from .loader import TaskLoadError, load_task_definition
 from .task_catalog import TaskCatalog, task_id_for_theme, task_number_from_id
 
 _VIEWER_TOOLBAR_COMBO_STYLE = "Viewer.TCombobox"

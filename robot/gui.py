@@ -6,7 +6,7 @@ import time
 import tkinter as tk
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, List, Optional, Set
+from typing import Callable, List, Optional
 
 from .executor import (
     EXECUTION_CANCELLED_MESSAGE,

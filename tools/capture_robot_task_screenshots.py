@@ -11,7 +11,6 @@ import sys
 import tempfile
 import textwrap
 import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
