@@ -115,9 +115,10 @@
   closeBtn.addEventListener("click", closeLightbox);
 
   dialog.addEventListener("click", function (e) {
-    if (e.target === dialog) {
-      closeLightbox();
+    if (e.target === lightImg) {
+      return;
     }
+    closeLightbox();
   });
 
   dialog.addEventListener("close", function () {
