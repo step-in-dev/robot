@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
-import atexit
+import gc
 import unittest
 
 import tkinter as tk
@@ -35,15 +35,13 @@ def destroy_stray_tk_root() -> None:
         destroy_tk_root(root)
 
 
-def _shutdown_tk_at_exit() -> None:
-    destroy_stray_tk_root()
-
-
 class GuiTestCase(unittest.TestCase):
     """Base for tests that create Tk windows; tears down stray roots after each test."""
 
     def tearDown(self) -> None:
         destroy_stray_tk_root()
+        # Tkinter/Tcl objects must be collected on the main thread (Python 3.7 is strict).
+        gc.collect()
         super().tearDown()
 
 
@@ -51,5 +49,3 @@ requires_tk_display = unittest.skipUnless(
     tkinter_display_works(),
     "tkinter display not available (headless / no DISPLAY)",
 )
-
-atexit.register(_shutdown_tk_at_exit)
