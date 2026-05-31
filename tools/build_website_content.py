@@ -274,8 +274,12 @@ def task_screenshot_path(task_id: str, env_index: int) -> Path:
     return primary
 
 
-def theme_title(theme_prefix: str) -> str:
-    return t(f"help.task_group.{theme_prefix}")
+def theme_title(theme_prefix: str, lang: str) -> str:
+    previous = _set_language(lang)
+    try:
+        return t(f"help.task_group.{theme_prefix}")
+    finally:
+        _restore_language(previous)
 
 
 @dataclass(frozen=True)
@@ -556,7 +560,7 @@ def build_task_page(
     task_def = load_task_definition(task_id)
     todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang).strip()
     number = task_number_from_id(task_id)
-    theme_label = theme_title(theme)
+    theme_label = theme_title(theme, lang)
     title = f"{task_id} – {theme_label} | Robot"
     description = normalize_meta_description(todo or f"Robot task {task_id}.")
     canonical = task_page_relpath(task_id, lang)
@@ -670,7 +674,7 @@ task("{escape(task_id)}")</code></pre>
 
 def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     task_ids = catalog.task_ids_for(theme_prefix)
-    theme_label = theme_title(theme_prefix)
+    theme_label = theme_title(theme_prefix, lang)
     slug = theme_slug(theme_prefix)
     canonical = f"tasks/{slug}/{page_filename(lang)}"
     title = f"{theme_label} – Robot tasks"
@@ -788,7 +792,7 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
         task_ids = catalog.task_ids_for(theme_prefix)
         if not task_ids:
             continue
-        theme_label = theme_title(theme_prefix)
+        theme_label = theme_title(theme_prefix, lang)
         slug = theme_slug(theme_prefix)
         range_text = f"<code>{escape(task_ids[0])}</code> … <code>{escape(task_ids[-1])}</code>"
         theme_href = layout.href(f"tasks/{slug}/{page_filename(lang)}")
