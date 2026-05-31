@@ -89,6 +89,8 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "releases": "Releases",
         "environments_heading": "Environments",
         "environment_n": "Environment {n}",
+        "env_view_full": "View environment {n} full size",
+        "env_lightbox_close": "Close",
         "constraints_heading": "Constraints",
         "example_heading": "Example in Python",
         "prev_task": "Previous task",
@@ -118,6 +120,8 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "releases": "Релизы",
         "environments_heading": "Обстановки",
         "environment_n": "Обстановка {n}",
+        "env_view_full": "Открыть обстановку {n} в полном размере",
+        "env_lightbox_close": "Закрыть",
         "constraints_heading": "Ограничения",
         "example_heading": "Пример на Python",
         "prev_task": "Предыдущая задача",
@@ -523,7 +527,9 @@ def render_environment_figures(
             dim_attr = f' width="{width}" height="{height}"'
         blocks.append(
             f"""        <figure class="env-figure">
+          <button type="button" class="env-figure__open" aria-label="{escape(_ui(layout.lang, "env_view_full", n=env_index + 1))}">
           <img src="{layout.href(rel)}" alt="{alt}"{dim_attr} loading="lazy">
+          </button>
           <figcaption>{escape(_ui(layout.lang, "environment_n", n=env_index + 1))}</figcaption>
         </figure>"""
         )
