@@ -9,15 +9,22 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.9", "3.12"]
+        include:
+          # setup-python does not publish 3.7 for Ubuntu 24.04 (ubuntu-latest).
+          - python-version: "3.7"
+            runner: ubuntu-22.04
+          - python-version: "3.9"
+            runner: ubuntu-latest
+          - python-version: "3.12"
+            runner: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -31,9 +38,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -47,7 +54,7 @@ jobs:
         run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py viewer -x '*__pycache__*'
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           files: robot-${{ github.ref_name }}.zip
