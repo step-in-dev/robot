@@ -9,7 +9,6 @@ import signal
 import subprocess
 import sys
 import tempfile
-import textwrap
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -138,90 +137,120 @@ def _stop_process(proc: subprocess.Popen[bytes]) -> None:
     proc.wait(timeout=2.0)
 
 
+def _field_export_footer() -> str:
+    return """import os
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+export_path = os.environ.get("ROBOT_FIELD_SCREENSHOT_PATH")
+if not export_path:
+    print("ROBOT_FIELD_SCREENSHOT_PATH is not set", file=sys.stderr)
+    sys.exit(3)
+
+from tools.field_canvas_export import write_robot_window_field_canvas
+
+write_robot_window_field_canvas(window, Path(export_path))
+window.close()
+"""
+
+
+def _env_index_prelude() -> str:
+    return """td = load_task_definition(task_id)
+if env_index is not None:
+    if env_index < 0 or env_index >= len(td.envs):
+        print(
+            f"env_index must be in 0..{len(td.envs) - 1}, got {env_index}",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    initial_index = env_index
+else:
+    initial_index = 0
+"""
+
+
 def _script_body_for_capture(
     *,
     task_id: str,
     env_index: Optional[int],
     viewer_mode: bool,
     open_constraints_on_startup: bool,
+    field_canvas_only: bool,
 ) -> Tuple[str, str]:
     """Return subprocess script source and a tempfile prefix for the capture mode."""
     env_index_literal = "None" if env_index is None else str(env_index)
+    tail = _field_export_footer() if field_canvas_only else "window.run()\n"
+    prelude = _env_index_prelude()
 
     if viewer_mode:
         prefix = "tmp_robot_viewer_"
-        body = textwrap.dedent(
-            f"""
-            import sys
+        body = f"""import sys
 
-            from robot.gui import RobotWindow
-            from robot.loader import load_task_definition
-            from robot.task_catalog import TaskCatalog
+from robot.gui import RobotWindow, RobotWindowOptions
+from robot.loader import load_task_definition
+from robot.task_catalog import TaskCatalog
 
-            task_id = {task_id!r}
-            env_index = {env_index_literal}
+task_id = {task_id!r}
+env_index = {env_index_literal}
 
-            td = load_task_definition(task_id)
-            if env_index is not None:
-                if env_index < 0 or env_index >= len(td.envs):
-                    print(
-                        f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
-                        file=sys.stderr,
-                    )
-                    sys.exit(2)
-                initial_index = env_index
-            else:
-                initial_index = 0
+{prelude}
+catalog = TaskCatalog.discover()
 
-            catalog = TaskCatalog.discover()
-            from robot.gui import RobotWindowOptions
-
-            window = RobotWindow(
-                task_id,
-                td,
-                None,
-                RobotWindowOptions(
-                    initial_index=initial_index,
-                    viewer_catalog=catalog,
-                ),
-            )
-            window.run()
-            """
-        )
+window = RobotWindow(
+    task_id,
+    td,
+    None,
+    RobotWindowOptions(
+        initial_index=initial_index,
+        viewer_catalog=catalog,
+    ),
+)
+{tail}"""
     else:
         oc = "True" if open_constraints_on_startup else "False"
         prefix = "tmp_robot_task_"
-        body = textwrap.dedent(
-            f"""
-            import sys
+        if field_canvas_only:
+            body = f"""import sys
 
-            from robot.loader import load_task_definition
-            from robot.runtime import _launch_student_robot_window
+from robot.gui import RobotWindow, RobotWindowOptions
+from robot.loader import load_task_definition
 
-            task_id = {task_id!r}
-            env_index = {env_index_literal}
-            open_constraints_on_startup = {oc}
+task_id = {task_id!r}
+env_index = {env_index_literal}
 
-            td = load_task_definition(task_id)
-            if env_index is not None:
-                if env_index < 0 or env_index >= len(td.envs):
-                    print(
-                        f"env_index must be in 0..{{len(td.envs) - 1}}, got {{env_index}}",
-                        file=sys.stderr,
-                    )
-                    sys.exit(2)
-                initial_index = env_index
-            else:
-                initial_index = 0
+{prelude}
+window = RobotWindow(
+    task_id,
+    td,
+    None,
+    RobotWindowOptions(
+        initial_index=initial_index,
+        open_constraints_on_startup={oc},
+    ),
+)
+{tail}"""
+        else:
+            body = f"""import sys
 
-            _launch_student_robot_window(
-                task_id=task_id,
-                task_definition=td,
-                initial_index=initial_index,
-                open_constraints_on_startup=open_constraints_on_startup,
-            )
-            """
-        )
+from robot.loader import load_task_definition
+from robot.runtime import _launch_student_robot_window
+
+task_id = {task_id!r}
+env_index = {env_index_literal}
+open_constraints_on_startup = {oc}
+
+{prelude}
+_launch_student_robot_window(
+    task_id=task_id,
+    task_definition=td,
+    initial_index=initial_index,
+    open_constraints_on_startup=open_constraints_on_startup,
+)
+"""
 
     return body, prefix
 
@@ -267,6 +296,7 @@ class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
     env_index: Optional[int]
     capture_constraints_window: bool
     viewer_mode: bool
+    field_canvas_only: bool
     settle_seconds: float
 
 
@@ -286,6 +316,7 @@ class _CaptureBatchContext:
         *,
         capture_constraints_window: bool,
         viewer_mode: bool,
+        field_canvas_only: bool,
     ) -> LanguageCaptureJob:
         """Build a capture job for one language using shared batch parameters."""
         return LanguageCaptureJob(
@@ -297,20 +328,42 @@ class _CaptureBatchContext:
             env_index=self.env_index,
             capture_constraints_window=capture_constraints_window,
             viewer_mode=viewer_mode,
+            field_canvas_only=field_canvas_only,
             settle_seconds=self.settle_seconds,
         )
 
 
+def _require_field_canvas_converter() -> None:
+    """Raise when field canvas export tools are missing."""
+    for cmd in ("import", "convert", "magick", "gs"):
+        if subprocess.run(
+            ["bash", "-lc", f"command -v {cmd}"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        ).returncode == 0:
+            return
+    raise RuntimeError(
+        "Field canvas export requires ImageMagick (`import` for sharp captures, "
+        "or `convert`/`magick`/`gs` for PostScript fallback) on PATH"
+    )
+
+
 def capture_for_language(job: LanguageCaptureJob) -> None:
-    """Launch Robot for one language and save a window screenshot to ``output_path``."""
+    """Launch Robot for one language and save a screenshot to ``output_path``."""
     if job.viewer_mode and job.capture_constraints_window:
         raise RuntimeError("Constraints capture is not supported in --viewer mode")
+    if job.field_canvas_only and job.capture_constraints_window:
+        raise RuntimeError(
+            "Field canvas capture cannot be combined with --constraints"
+        )
 
     script_body, script_prefix = _script_body_for_capture(
         task_id=job.task_id,
         env_index=job.env_index,
         viewer_mode=job.viewer_mode,
         open_constraints_on_startup=job.capture_constraints_window,
+        field_canvas_only=job.field_canvas_only,
     )
 
     with tempfile.NamedTemporaryFile(
@@ -327,6 +380,28 @@ def capture_for_language(job: LanguageCaptureJob) -> None:
     env = os.environ.copy()
     env["ROBOT_LANGUAGE"] = job.language
     env["PYTHONUNBUFFERED"] = "1"
+    if job.field_canvas_only:
+        env["ROBOT_FIELD_SCREENSHOT_PATH"] = str(job.output_path)
+
+    if job.field_canvas_only:
+        proc = subprocess.run(
+            [job.python_executable, str(script_path)],
+            cwd=str(job.workdir),
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        script_path.unlink(missing_ok=True)
+        if proc.returncode != 0:
+            detail = (proc.stderr or proc.stdout or "").strip()
+            raise RuntimeError(
+                f"Robot field export exited with code {proc.returncode}"
+                + (f": {detail}" if detail else "")
+            )
+        if not job.output_path.is_file():
+            raise RuntimeError("Field canvas PNG was not written")
+        return
 
     before_ids = _all_window_ids()
     try:
@@ -372,8 +447,9 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line options for the screenshot capture tool."""
     parser = argparse.ArgumentParser(
         description=(
-            "Run robot task for each supported language and save "
-            "window screenshots (with OS title bar)."
+            "Run robot task for each supported language and save screenshots. "
+            "By default captures the whole window (with OS title bar); "
+            "use --field-canvas for the field grid canvas only."
         )
     )
     parser.add_argument(
@@ -440,7 +516,15 @@ def parse_args() -> argparse.Namespace:
         metavar="SEC",
         help=(
             "Seconds to wait after focusing the window before capture. "
-            "Default: 0.85 for --viewer, 0.25 otherwise."
+            "Default: 0.85 for --viewer, 0.25 otherwise. Ignored with --field-canvas."
+        ),
+    )
+    parser.add_argument(
+        "--field-canvas",
+        action="store_true",
+        help=(
+            "Export only the field grid canvas to PNG (no window chrome). "
+            "Uses ImageMagick `import` for a 1:1 screen crop when available."
         ),
     )
     return parser.parse_args()
@@ -506,8 +590,11 @@ def main() -> int:
     """Capture Robot window screenshots for each requested language."""
     args = parse_args()
 
-    _require_command("wmctrl")
-    _require_command("gnome-screenshot")
+    if args.field_canvas:
+        _require_field_canvas_converter()
+    else:
+        _require_command("wmctrl")
+        _require_command("gnome-screenshot")
 
     workdir = PROJECT_ROOT
     output_dir = (workdir / args.output_dir).resolve()
@@ -519,6 +606,10 @@ def main() -> int:
 
     if args.constraints and args.viewer:
         print("--constraints cannot be used with --viewer", file=sys.stderr)
+        return 1
+
+    if args.field_canvas and args.constraints:
+        print("--field-canvas cannot be used with --constraints", file=sys.stderr)
         return 1
 
     if args.constraints and _validate_task_has_constraints_for_flag(args.task) != 0:
@@ -557,6 +648,7 @@ def main() -> int:
                     path,
                     capture_constraints_window=False,
                     viewer_mode=args.viewer,
+                    field_canvas_only=args.field_canvas,
                 )
             ),
         )
@@ -574,6 +666,7 @@ def main() -> int:
                         path,
                         capture_constraints_window=True,
                         viewer_mode=False,
+                        field_canvas_only=False,
                     )
                 ),
             )

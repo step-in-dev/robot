@@ -47,6 +47,12 @@ def parse_args() -> argparse.Namespace:
         help="Capture only these task ids (repeatable). Default: all catalog tasks.",
     )
     parser.add_argument(
+        "--theme",
+        action="append",
+        metavar="PREFIX",
+        help="Capture all tasks in these theme prefixes (repeatable), e.g. intro, if.",
+    )
+    parser.add_argument(
         "--languages",
         nargs="*",
         default=list(SITE_LANGUAGES),
@@ -58,7 +64,57 @@ def parse_args() -> argparse.Namespace:
         default=0.85,
         help="Seconds to wait before each screenshot (default: 0.85).",
     )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip captures when the output PNG already exists.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print expected output paths without launching the GUI.",
+    )
     return parser.parse_args()
+
+
+def resolve_task_ids(catalog: TaskCatalog, args: argparse.Namespace) -> List[str]:
+    """Build ordered task id list from --task, --theme, or full catalog."""
+    if args.task or args.theme:
+        seen: set[str] = set()
+        ordered: List[str] = []
+        for task_id in args.task or []:
+            if task_id not in seen:
+                seen.add(task_id)
+                ordered.append(task_id)
+        for prefix in args.theme or []:
+            for task_id in catalog.task_ids_for(prefix):
+                if task_id not in seen:
+                    seen.add(task_id)
+                    ordered.append(task_id)
+        return ordered
+    return [
+        task_id
+        for theme in catalog.themes
+        for task_id in catalog.task_ids_for(theme)
+    ]
+
+
+def expected_output_paths(
+    task_ids: List[str],
+    output_dir: Path,
+    languages: List[str],
+) -> List[Path]:
+    """Return every PNG path the batch would attempt for *task_ids*."""
+    paths: List[Path] = []
+    for task_id in task_ids:
+        try:
+            task_def = load_task_definition(task_id)
+        except TaskLoadError:
+            continue
+        for env_index in range(len(task_def.envs)):
+            for language in languages:
+                paths.append(output_dir / f"{task_id}_env{env_index}_{language}.png")
+    return paths
 
 
 def capture_task_envs(
@@ -67,6 +123,7 @@ def capture_task_envs(
     output_dir: Path,
     languages: List[str],
     settle_seconds: float,
+    skip_existing: bool,
     failed: List[Tuple[str, str]],
 ) -> None:
     """Capture one PNG per environment for *task_id* in viewer mode."""
@@ -87,6 +144,9 @@ def capture_task_envs(
         for language in languages:
             output_path = output_dir / f"{task_id}_env{env_index}_{language}.png"
             label = f"{task_id}/env{env_index}/{language}"
+            if skip_existing and output_path.is_file():
+                print(f"[{label}] skip (exists)")
+                continue
             _try_capture(
                 label=label,
                 intro_line=f"[{label}] -> {output_path}",
@@ -102,6 +162,7 @@ def capture_task_envs(
                         env_index=b.env_index,
                         capture_constraints_window=False,
                         viewer_mode=True,
+                        field_canvas_only=True,
                         settle_seconds=b.settle_seconds,
                     )
                 ),
@@ -111,17 +172,19 @@ def capture_task_envs(
 def main() -> int:
     args = parse_args()
     output_dir = args.output_dir.resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
+    languages = list(args.languages)
 
     catalog = TaskCatalog.discover()
-    if args.task:
-        task_ids = list(args.task)
-    else:
-        task_ids = [
-            task_id
-            for theme in catalog.themes
-            for task_id in catalog.task_ids_for(theme)
-        ]
+    task_ids = resolve_task_ids(catalog, args)
+
+    if args.dry_run:
+        paths = expected_output_paths(task_ids, output_dir, languages)
+        for path in paths:
+            print(path)
+        print(f"\n{len(paths)} PNG(s) for {len(task_ids)} task(s)")
+        return 0
+
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     failed: List[Tuple[str, str]] = []
     for index, task_id in enumerate(task_ids, start=1):
@@ -129,8 +192,9 @@ def main() -> int:
         capture_task_envs(
             task_id=task_id,
             output_dir=output_dir,
-            languages=list(args.languages),
+            languages=languages,
             settle_seconds=args.settle_seconds,
+            skip_existing=args.skip_existing,
             failed=failed,
         )
 

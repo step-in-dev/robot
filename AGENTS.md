@@ -23,15 +23,14 @@ The target audience is school students who are learning introductory programming
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
 - `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
 - `Docs/linting.md` describes pylint usage.
+- `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).
 - UI string catalogs are JSON files in `robot/locales/`.
 
 ## Website
 
 The `website/` directory holds a static landing page for the Robot project: `index.html` (English), `index_ru.html` (Russian), shared `styles.css` and `script.js`, and images under `website/img/`.
 
-To capture window screenshots for the site (full window frame, including the title bar), use [`tools/capture_robot_task_screenshots.py`](tools/capture_robot_task_screenshots.py). It requires `wmctrl` and `gnome-screenshot` on Linux. Student mode opens a task via `task()`; `--viewer` opens teacher browse mode (`viewer_catalog`). Example for website viewer images: `python tools/capture_robot_task_screenshots.py --viewer --task if3 --output-dir website/img/viewer --languages ru en`.
-
-SEO task pages and the command reference are generated from bundled tasks and locales: `python tools/build_website_content.py` (writes `website/tasks/`, `website/commands*.html`, and `website/sitemap.xml`). Field screenshots for task pages: `python tools/capture_all_task_screenshots.py` (viewer mode, one PNG per environment, `website/img/tasks/`; long local run on Linux with `wmctrl` and `gnome-screenshot`).
+Generate SEO task pages and the command reference with `python tools/build_website_content.py` (writes `website/tasks/`, `website/commands*.html`, and `website/sitemap.xml`). For screenshot capture workflow, prerequisites, and batch commands, see [`Docs/website-screenshots.md`](Docs/website-screenshots.md).
 
 ## Architecture Overview
 
