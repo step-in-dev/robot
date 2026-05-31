@@ -259,8 +259,15 @@ def png_dimensions(path: Path) -> Optional[Tuple[int, int]]:
         return None
 
 
-def task_screenshot_path(task_id: str, env_index: int, lang: str) -> Path:
-    return TASKS_IMG_DIR / f"{task_id}_env{env_index}_{lang}.png"
+def task_screenshot_path(task_id: str, env_index: int) -> Path:
+    """Return path to a field PNG, with legacy ``_en`` fallback during migration."""
+    primary = TASKS_IMG_DIR / f"{task_id}_env{env_index}.png"
+    if primary.is_file():
+        return primary
+    legacy = TASKS_IMG_DIR / f"{task_id}_env{env_index}_en.png"
+    if legacy.is_file():
+        return legacy
+    return primary
 
 
 def theme_title(theme_prefix: str) -> str:
@@ -486,9 +493,9 @@ def write_page(path: Path, html_text: str) -> None:
     path.write_text(html_text, encoding="utf-8")
 
 
-def first_available_task_image(task_id: str, lang: str, env_count: int) -> Optional[str]:
+def first_available_task_image(task_id: str, env_count: int) -> Optional[str]:
     for env_index in range(env_count):
-        shot = task_screenshot_path(task_id, env_index, lang)
+        shot = task_screenshot_path(task_id, env_index)
         if shot.is_file():
             return f"img/tasks/{shot.name}"
     return None
@@ -502,7 +509,7 @@ def render_environment_figures(
 ) -> str:
     blocks: List[str] = []
     for env_index in range(env_count):
-        shot = task_screenshot_path(task_id, env_index, layout.lang)
+        shot = task_screenshot_path(task_id, env_index)
         if not shot.is_file():
             continue
         rel = f"img/tasks/{shot.name}"
@@ -547,7 +554,7 @@ def build_task_page(
     title = f"{task_id} – {theme_label} | Robot"
     description = normalize_meta_description(todo or f"Robot task {task_id}.")
     canonical = task_page_relpath(task_id, lang)
-    og_image = first_available_task_image(task_id, lang, len(task_def.envs))
+    og_image = first_available_task_image(task_id, len(task_def.envs))
 
     crumbs = [
         (_ui(lang, "home"), "index_ru.html" if lang == "ru" else "index.html"),

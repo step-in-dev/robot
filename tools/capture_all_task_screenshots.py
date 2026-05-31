@@ -1,4 +1,4 @@
-"""Capture viewer screenshots for every task environment (en + ru)."""
+"""Capture field-canvas PNGs for every task environment (one file per env)."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from capture_robot_task_screenshots import (  # noqa: E402
 # pylint: enable=wrong-import-position
 
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "website" / "img" / "tasks"
-SITE_LANGUAGES = ("en", "ru")
+SITE_CAPTURE_LANGUAGE = "en"
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,12 +51,6 @@ def parse_args() -> argparse.Namespace:
         action="append",
         metavar="PREFIX",
         help="Capture all tasks in these theme prefixes (repeatable), e.g. intro, if.",
-    )
-    parser.add_argument(
-        "--languages",
-        nargs="*",
-        default=list(SITE_LANGUAGES),
-        help="Language codes (default: en ru).",
     )
     parser.add_argument(
         "--settle-seconds",
@@ -99,11 +93,7 @@ def resolve_task_ids(catalog: TaskCatalog, args: argparse.Namespace) -> List[str
     ]
 
 
-def expected_output_paths(
-    task_ids: List[str],
-    output_dir: Path,
-    languages: List[str],
-) -> List[Path]:
+def expected_output_paths(task_ids: List[str], output_dir: Path) -> List[Path]:
     """Return every PNG path the batch would attempt for *task_ids*."""
     paths: List[Path] = []
     for task_id in task_ids:
@@ -112,8 +102,7 @@ def expected_output_paths(
         except TaskLoadError:
             continue
         for env_index in range(len(task_def.envs)):
-            for language in languages:
-                paths.append(output_dir / f"{task_id}_env{env_index}_{language}.png")
+            paths.append(output_dir / f"{task_id}_env{env_index}.png")
     return paths
 
 
@@ -121,7 +110,6 @@ def capture_task_envs(
     *,
     task_id: str,
     output_dir: Path,
-    languages: List[str],
     settle_seconds: float,
     skip_existing: bool,
     failed: List[Tuple[str, str]],
@@ -141,44 +129,42 @@ def capture_task_envs(
             env_index=env_index,
             settle_seconds=settle_seconds,
         )
-        for language in languages:
-            output_path = output_dir / f"{task_id}_env{env_index}_{language}.png"
-            label = f"{task_id}/env{env_index}/{language}"
-            if skip_existing and output_path.is_file():
-                print(f"[{label}] skip (exists)")
-                continue
-            _try_capture(
-                label=label,
-                intro_line=f"[{label}] -> {output_path}",
-                ok_prefix=f"[{label}] ",
-                failed=failed,
-                capture=lambda lang=language, path=output_path, b=batch: capture_for_language(
-                    LanguageCaptureJob(
-                        python_executable=sys.executable,
-                        task_id=b.task_id,
-                        language=lang,
-                        output_path=path,
-                        workdir=b.workdir,
-                        env_index=b.env_index,
-                        capture_constraints_window=False,
-                        viewer_mode=True,
-                        field_canvas_only=True,
-                        settle_seconds=b.settle_seconds,
-                    )
-                ),
-            )
+        output_path = output_dir / f"{task_id}_env{env_index}.png"
+        label = f"{task_id}/env{env_index}"
+        if skip_existing and output_path.is_file():
+            print(f"[{label}] skip (exists)")
+            continue
+        _try_capture(
+            label=label,
+            intro_line=f"[{label}] -> {output_path}",
+            ok_prefix=f"[{label}] ",
+            failed=failed,
+            capture=lambda path=output_path, b=batch: capture_for_language(
+                LanguageCaptureJob(
+                    python_executable=sys.executable,
+                    task_id=b.task_id,
+                    language=SITE_CAPTURE_LANGUAGE,
+                    output_path=path,
+                    workdir=b.workdir,
+                    env_index=b.env_index,
+                    capture_constraints_window=False,
+                    viewer_mode=True,
+                    field_canvas_only=True,
+                    settle_seconds=b.settle_seconds,
+                )
+            ),
+        )
 
 
 def main() -> int:
     args = parse_args()
     output_dir = args.output_dir.resolve()
-    languages = list(args.languages)
 
     catalog = TaskCatalog.discover()
     task_ids = resolve_task_ids(catalog, args)
 
     if args.dry_run:
-        paths = expected_output_paths(task_ids, output_dir, languages)
+        paths = expected_output_paths(task_ids, output_dir)
         for path in paths:
             print(path)
         print(f"\n{len(paths)} PNG(s) for {len(task_ids)} task(s)")
@@ -192,7 +178,6 @@ def main() -> int:
         capture_task_envs(
             task_id=task_id,
             output_dir=output_dir,
-            languages=languages,
             settle_seconds=args.settle_seconds,
             skip_existing=args.skip_existing,
             failed=failed,

@@ -1,6 +1,6 @@
 # Website screenshots
 
-The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. HTML is built separately from images: `tools/build_website_content.py` does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>_<lang>.png` when the files exist.
+The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. HTML is built separately from images: `tools/build_website_content.py` does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>.png` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels).
 
 ## Two capture modes
 
@@ -9,21 +9,21 @@ The static site under `website/` uses PNG images for marketing shots and for the
 | Task page field (Environments) | [`tools/capture_all_task_screenshots.py`](../tools/capture_all_task_screenshots.py) | `website/img/tasks/` | Field grid **canvas only** (no toolbar, todo, buttons, title bar, status) via [`tools/field_canvas_export.py`](../tools/field_canvas_export.py) |
 | Hero / viewer marketing | [`tools/capture_robot_task_screenshots.py`](../tools/capture_robot_task_screenshots.py) | e.g. `website/img/viewer/` | **Full window** including OS title bar (`gnome-screenshot -w`) |
 
-Field exports open the task in **viewer mode** (`viewer_catalog`) so the correct environment is selected, but the saved PNG is cropped to the `tkinter` field canvas. The `robot` package is not modified for this; export logic lives under `tools/`.
+Field exports open the task in **viewer mode** (`viewer_catalog`) so the correct environment is selected, but the saved PNG is cropped to the `tkinter` field canvas. The `robot` package is not modified for this; export logic lives under `tools/`. Capture uses `ROBOT_LANGUAGE=en` for the viewer session; grid content is the same for all site locales.
 
 Low-level single-task capture (both modes):
 
 ```bash
 # Field canvas (website task pages) — batch uses this automatically
 python tools/capture_robot_task_screenshots.py --viewer --field-canvas \
-  --task if3 --env-index 0 --output-dir website/img/tasks --languages en ru
+  --task if3 --env-index 0 --output-dir website/img/tasks --languages en
 
 # Full window (marketing)
 python tools/capture_robot_task_screenshots.py --viewer --task if3 \
   --output-dir website/img/viewer --languages ru en
 ```
 
-Use the **batch** script for all task environments and site languages (`en`, `ru`); do not rely on the default `viewer_` filename prefix from the low-level tool when naming files for the site.
+Use the **batch** script for all task environments; do not rely on the default `viewer_` filename prefix from the low-level tool when naming files for the site.
 
 ## Prerequisites (capture machine)
 
@@ -41,15 +41,15 @@ python tools/build_website_content.py
 
 ## Batch workflow (task field images)
 
-Rough scale: ~194 tasks, ~351 environments, **702** PNG files (`{task_id}_env{index}_{lang}.png` for `en` and `ru`). A full run often takes on the order of **1–2 hours**.
+Rough scale: ~194 tasks, ~351 environments, **351** PNG files (`{task_id}_env{index}.png`). A full run often takes on the order of **30–60 minutes**.
 
-1. **Pilot** — one task, both languages:
+1. **Pilot** — one task:
 
    ```bash
    python tools/capture_all_task_screenshots.py --task if3
    ```
 
-   Check `website/tasks/if3.html` and `if3_ru.html` via a local server (`python -m http.server` in `website/`): the Environments section should show sharp field images with correct `width` / `height`.
+   Expect `if3_env0.png`, `if3_env1.png`. Check `website/tasks/if3.html` and `if3_ru.html` via a local server (`python -m http.server` in `website/`): both pages should show the same `<img src="…/if3_envN.png">` with sharp field grids.
 
 2. **Theme pilot** — stability and file sizes:
 
@@ -71,7 +71,7 @@ Rough scale: ~194 tasks, ~351 environments, **702** PNG files (`{task_id}_env{in
    find website/img/tasks -name '*.png' | wc -l
    ```
 
-   Spot-check a few tasks (e.g. `if3`, multi-env tasks, Russian pages). Re-running overwrites existing PNGs; use `--skip-existing` to resume after a partial failure.
+   Expect **351** files. Spot-check a few tasks (e.g. `if3`, multi-env tasks, Russian pages). Re-running overwrites existing PNGs; use `--skip-existing` to resume after a partial failure.
 
 ### Batch options
 
@@ -81,7 +81,6 @@ Rough scale: ~194 tasks, ~351 environments, **702** PNG files (`{task_id}_env{in
 | `--theme PREFIX` | All tasks in a theme, e.g. `intro`, `if` (repeatable) |
 | `--dry-run` | Print expected PNG paths without opening the GUI |
 | `--skip-existing` | Skip files that already exist |
-| `--languages en ru` | Language codes (default: `en` `ru`) |
 | `--output-dir PATH` | Default: `website/img/tasks` |
 
 Exit code **1** if any capture failed; failures are listed at the end.
