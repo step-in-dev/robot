@@ -1,6 +1,6 @@
 # Website screenshots
 
-The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. HTML is built separately from images: `tools/build_website_content.py` does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>.png` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels).
+The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. HTML is built separately from images: `tools/build_website_content.py` does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>.png` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels). Theme hub pages (`website/tasks/<theme>/`) show the same PNG as the first available environment on the task page as a clickable list thumbnail linking to the task page; no separate capture is needed.
 
 ## Two capture modes
 

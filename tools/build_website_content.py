@@ -660,6 +660,49 @@ task("{escape(task_id)}")</code></pre>
     return wrap_page(layout, main)
 
 
+def render_task_list_item(layout: PageLayout, task_id: str, lang: str) -> str:
+    todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang)
+    snippet = normalize_meta_description(todo, limit=120)
+    task_href = layout.href(task_page_relpath(task_id, lang))
+    task_def = load_task_definition(task_id)
+
+    img_html = ""
+    for env_index in range(len(task_def.envs)):
+        shot = task_screenshot_path(task_id, env_index)
+        if not shot.is_file():
+            continue
+        rel = f"img/tasks/{shot.name}"
+        alt = escape(
+            f"{task_id} – {_ui(lang, 'environment_n', n=env_index + 1)}"
+        )
+        dim_attr = ""
+        dims = png_dimensions(shot)
+        if dims:
+            width, height = dims
+            dim_attr = f' width="{width}" height="{height}"'
+        img_html = (
+            f'              <a class="task-list__thumb-link" href="{escape(task_href)}">\n'
+            f'              <img class="task-list__thumb" src="{layout.href(rel)}" '
+            f'alt="{alt}"{dim_attr} loading="lazy" decoding="async">\n'
+            f"              </a>\n"
+        )
+        break
+
+    snippet_html = ""
+    if snippet:
+        snippet_html = (
+            f'                <p class="task-list__snippet">{escape(snippet)}</p>\n'
+        )
+
+    return f"""          <li class="task-list__item">
+            <div class="task-list__layout">
+{img_html}              <div class="task-list__body">
+                <h2 class="task-list__title"><a href="{escape(task_href)}"><code>{escape(task_id)}</code></a></h2>
+{snippet_html}              </div>
+            </div>
+          </li>"""
+
+
 def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     task_ids = catalog.task_ids_for(theme_prefix)
     theme_label = theme_title(theme_prefix, lang)
@@ -713,17 +756,9 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     )
     crumb_html = render_breadcrumbs(layout, crumbs)
 
-    items: List[str] = []
-    for task_id in task_ids:
-        todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang)
-        snippet = normalize_meta_description(todo, limit=120)
-        task_href = layout.href(task_page_relpath(task_id, lang))
-        items.append(
-            f"""          <li class="task-list__item">
-            <h2 class="task-list__title"><a href="{escape(task_href)}"><code>{escape(task_id)}</code></a></h2>
-            <p class="task-list__snippet">{escape(snippet)}</p>
-          </li>"""
-        )
+    items = [
+        render_task_list_item(layout, task_id, lang) for task_id in task_ids
+    ]
 
     main = f"""    <div class="hub-page">
       {crumb_html}
