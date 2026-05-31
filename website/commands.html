@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command reference | Robot</title>
+  <meta name="description" content="Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.">
+  <link rel="canonical" href="https://robot.stepindev.com/commands.html">
+  <link rel="alternate" hreflang="en" href="https://robot.stepindev.com/commands.html">
+  <link rel="alternate" hreflang="ru" href="https://robot.stepindev.com/commands_ru.html">
+  <link rel="alternate" hreflang="x-default" href="https://robot.stepindev.com/commands.html">
+  <meta property="og:title" content="Command reference | Robot">
+  <meta property="og:description" content="Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://robot.stepindev.com/commands.html">
+  <meta property="og:site_name" content="Robot">
+  <meta property="og:image" content="https://robot.stepindev.com/img/hero/intro19_en.png">
+  <meta property="og:image:alt" content="Robot desktop window showing a grid programming task.">
+  <meta property="og:image:width" content="542">
+  <meta property="og:image:height" content="443">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="ru_RU">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Command reference | Robot">
+  <meta name="twitter:description" content="Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.">
+  <meta name="twitter:image" content="https://robot.stepindev.com/img/hero/intro19_en.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://robot.stepindev.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Command reference",
+          "item": "https://robot.stepindev.com/commands.html"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "name": "Command reference",
+      "description": "Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.",
+      "inLanguage": "en",
+      "url": "https://robot.stepindev.com/commands.html"
+    }
+  ]
+}
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">Robot</span>
+      </a>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          <li><a href="tasks/index.html">Tasks</a></li>
+          <li><a href="commands.html">Command reference</a></li>
+          <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        </ul>
+        <p class="site-nav__lang">
+          <a href="commands.html" hreflang="en" class="is-active" aria-current="page">English</a>
+          <span class="site-nav__lang-sep" aria-hidden="true">·</span>
+          <a href="commands_ru.html" hreflang="ru">Русский</a>
+        </p>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="content-page">
+    <div class="hub-page commands-page">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+<ol>
+<li><a href="index.html">Home</a></li>
+<li aria-current="page">Command reference</li>
+</ol></nav>
+      <header class="content-header">
+        <h1>Command reference</h1>
+        <p class="section__intro">Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.</p>
+        <p><a href="tasks/index.html">Task catalog</a></p>
+      </header>
+      <div class="command-grid">
+          <article class="command-group">
+            <h2>Task or free field</h2>
+            <dl>
+              <dt><code>task(task_id)</code></dt><dd>Starts the selected task.</dd>
+              <dt><code>field(width=8, height=6)</code></dt><dd>Opens a grid of the given size without loading a task file. Robot starts at the top-left; the goal is the bottom-right.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h2>Movement</h2>
+            <dl>
+              <dt><code>move_right()</code></dt><dd>Moves the Robot one cell to the right.</dd>
+              <dt><code>move_left()</code></dt><dd>Moves the Robot one cell to the left.</dd>
+              <dt><code>move_up()</code></dt><dd>Moves the Robot one cell up.</dd>
+              <dt><code>move_down()</code></dt><dd>Moves the Robot one cell down.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h2>Cell &amp; walls</h2>
+            <dl>
+              <dt><code>paint()</code></dt><dd>Paints the current cell.</dd>
+              <dt><code>is_free_left()</code></dt><dd>Returns True if there is no wall on the left.</dd>
+              <dt><code>is_free_right()</code></dt><dd>Returns True if there is no wall on the right.</dd>
+              <dt><code>is_free_up()</code></dt><dd>Returns True if there is no wall above.</dd>
+              <dt><code>is_free_down()</code></dt><dd>Returns True if there is no wall below.</dd>
+              <dt><code>is_wall_left()</code></dt><dd>Returns True if there is a wall on the left.</dd>
+              <dt><code>is_wall_right()</code></dt><dd>Returns True if there is a wall on the right.</dd>
+              <dt><code>is_wall_up()</code></dt><dd>Returns True if there is a wall above.</dd>
+              <dt><code>is_wall_down()</code></dt><dd>Returns True if there is a wall below.</dd>
+              <dt><code>is_cell_painted()</code></dt><dd>Returns True if the current cell is painted.</dd>
+              <dt><code>is_cell_not_painted()</code></dt><dd>Returns True if the current cell is not painted.</dd>
+            </dl>
+          </article>
+          <article class="command-group">
+            <h2>Values &amp; output</h2>
+            <dl>
+              <dt><code>pol()</code></dt><dd>Returns the pollution value of the current cell.</dd>
+              <dt><code>printn(value)</code></dt><dd>Prints an integer in the current cell.</dd>
+            </dl>
+          </article>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__brand"><span class="brand__mark brand__mark--small" aria-hidden="true"></span> Robot – educational simulator</p>
+      <ul class="site-footer__links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="tasks/index.html">Task catalog</a></li>
+        <li><a href="commands.html">Command reference</a></li>
+        <li><a href="commands.html" hreflang="en">English</a></li>
+        <li><a href="commands_ru.html" hreflang="ru">Русский</a></li>
+        <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+        <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">Releases</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

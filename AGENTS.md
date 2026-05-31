@@ -31,6 +31,8 @@ The `website/` directory holds a static landing page for the Robot project: `ind
 
 To capture window screenshots for the site (full window frame, including the title bar), use [`tools/capture_robot_task_screenshots.py`](tools/capture_robot_task_screenshots.py). It requires `wmctrl` and `gnome-screenshot` on Linux. Student mode opens a task via `task()`; `--viewer` opens teacher browse mode (`viewer_catalog`). Example for website viewer images: `python tools/capture_robot_task_screenshots.py --viewer --task if3 --output-dir website/img/viewer --languages ru en`.
 
+SEO task pages and the command reference are generated from bundled tasks and locales: `python tools/build_website_content.py` (writes `website/tasks/`, `website/commands*.html`, and `website/sitemap.xml`). Field screenshots for task pages: `python tools/capture_all_task_screenshots.py` (viewer mode, one PNG per environment, `website/img/tasks/`; long local run on Linux with `wmctrl` and `gnome-screenshot`).
+
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
