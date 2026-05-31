@@ -79,6 +79,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "task_catalog": "Task catalog",
         "command_reference": "Command reference",
         "tasks_nav": "Tasks",
+        "commands_nav": "Commands",
         "github": "GitHub",
         "skip": "Skip to content",
         "open_menu": "Open menu",
@@ -95,8 +96,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Example in Python",
         "prev_task": "Previous task",
         "next_task": "Next task",
-        "all_tasks_in_theme": "All tasks in this theme",
-        "browse_catalog": "Browse the full task catalog",
         "theme_tasks_intro": "Tasks in this track, in lesson order.",
         "catalog_intro": "All bundled Robot tasks grouped by topic. Each page shows the task condition, field layouts, and limits.",
         "commands_intro": "Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.",
@@ -110,6 +109,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "task_catalog": "Каталог задач",
         "command_reference": "Справочник команд",
         "tasks_nav": "Задачи",
+        "commands_nav": "Команды",
         "github": "GitHub",
         "skip": "Перейти к содержанию",
         "open_menu": "Открыть меню",
@@ -126,8 +126,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Пример на Python",
         "prev_task": "Предыдущая задача",
         "next_task": "Следующая задача",
-        "all_tasks_in_theme": "Все задачи темы",
-        "browse_catalog": "Открыть полный каталог задач",
         "theme_tasks_intro": "Задачи темы в порядке, как на уроке.",
         "catalog_intro": "Все встроенные задачи Робота по темам. На странице задачи – условие, поля обстановок и ограничения.",
         "commands_intro": "Команды Python для учащихся в исполнителе «Робот». Можно подключить всё через from robot import * или импортировать отдельные имена.",
@@ -401,8 +399,6 @@ def render_header(layout: PageLayout) -> str:
         lang_en_class = ""
         lang_ru_class = ' class="is-active" aria-current="page"'
     brand_current = ""
-    catalog = layout.href(catalog_relpath(layout.lang))
-    commands = layout.href(commands_relpath(layout.lang))
     return f"""  <a class="skip-link" href="#main">{_ui(layout.lang, "skip")}</a>
   <header class="site-header">
     <div class="site-header__inner">
@@ -416,11 +412,6 @@ def render_header(layout: PageLayout) -> str:
         <span class="nav-toggle__bar"></span>
       </button>
       <nav class="site-nav" id="site-nav" aria-label="{escape(_ui(layout.lang, "primary_nav"))}">
-        <ul class="site-nav__list">
-          <li><a href="{catalog}">{escape(_ui(layout.lang, "tasks_nav"))}</a></li>
-          <li><a href="{commands}">{escape(_ui(layout.lang, "command_reference"))}</a></li>
-          <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">{escape(_ui(layout.lang, "github"))}</a></li>
-        </ul>
         <p class="site-nav__lang">
           <a href="{en_link}" hreflang="en"{lang_en_class}>{escape(_ui(layout.lang, "english"))}</a>
           <span class="site-nav__lang-sep" aria-hidden="true">·</span>
@@ -433,20 +424,18 @@ def render_header(layout: PageLayout) -> str:
 
 
 def render_footer(layout: PageLayout) -> str:
-    home_page = "index_ru.html" if layout.lang == "ru" else "index.html"
     catalog = layout.href(catalog_relpath(layout.lang))
     commands = layout.href(commands_relpath(layout.lang))
     return f"""  <footer class="site-footer">
     <div class="site-footer__inner">
       <p class="site-footer__brand"><span class="brand__mark brand__mark--small" aria-hidden="true"></span> {escape(_ui(layout.lang, "footer_tagline"))}</p>
       <ul class="site-footer__links">
-        <li><a href="{layout.href(home_page)}">{escape(_ui(layout.lang, "home"))}</a></li>
-        <li><a href="{catalog}">{escape(_ui(layout.lang, "task_catalog"))}</a></li>
-        <li><a href="{commands}">{escape(_ui(layout.lang, "command_reference"))}</a></li>
-        <li><a href="{layout.href(layout.alternate_en)}" hreflang="en">English</a></li>
-        <li><a href="{layout.href(layout.alternate_ru)}" hreflang="ru">Русский</a></li>
+        <li><a href="{catalog}">{escape(_ui(layout.lang, "tasks_nav"))}</a></li>
+        <li><a href="{commands}">{escape(_ui(layout.lang, "commands_nav"))}</a></li>
         <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
         <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">{escape(_ui(layout.lang, "releases"))}</a></li>
+        <li><a href="{layout.href(layout.alternate_en)}" hreflang="en">English</a></li>
+        <li><a href="{layout.href(layout.alternate_ru)}" hreflang="ru">Русский</a></li>
       </ul>
     </div>
   </footer>
@@ -666,7 +655,6 @@ def build_task_page(
 task("{escape(task_id)}")</code></pre>
       </section>
       {task_nav}
-      <p class="content-outro"><a href="{layout.href(theme_hub_relpath(theme, lang))}">{escape(_ui(lang, "all_tasks_in_theme"))}</a> · <a href="{layout.href(catalog_relpath(lang))}">{escape(_ui(lang, "browse_catalog"))}</a></p>
     </article>
 """
     return wrap_page(layout, main)
