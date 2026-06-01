@@ -77,7 +77,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "home": "Home",
         "task_catalog": "Task catalog",
         "command_reference": "Command reference",
-        "tasks_nav": "Tasks",
+        "tasks_nav": "Task catalog",
         "commands_nav": "Commands",
         "github": "GitHub",
         "skip": "Skip to content",
@@ -106,7 +106,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "home": "Главная",
         "task_catalog": "Каталог задач",
         "command_reference": "Справочник команд",
-        "tasks_nav": "Задачи",
+        "tasks_nav": "Каталог задач",
         "commands_nav": "Команды",
         "github": "GitHub",
         "skip": "Перейти к содержанию",
@@ -431,8 +431,6 @@ def render_footer(layout: PageLayout) -> str:
         <li><a href="{commands}">{escape(_ui(layout.lang, "commands_nav"))}</a></li>
         <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
         <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">{escape(_ui(layout.lang, "releases"))}</a></li>
-        <li><a href="{layout.href(layout.alternate_en)}" hreflang="en">English</a></li>
-        <li><a href="{layout.href(layout.alternate_ru)}" hreflang="ru">Русский</a></li>
       </ul>
     </div>
   </footer>
