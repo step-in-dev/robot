@@ -30,7 +30,7 @@ The target audience is school students who are learning introductory programming
 
 The `website/` directory holds a static landing page for the Robot project: `index.html` (English), `index_ru.html` (Russian), shared `styles.css` and `script.js`, and images under `website/img/`.
 
-Generate SEO task pages and the command reference with `python tools/build_website_content.py` (writes `website/tasks/`, `website/commands*.html`, and `website/sitemap.xml`). For screenshot capture workflow, prerequisites, and batch commands, see [`Docs/website-screenshots.md`](Docs/website-screenshots.md).
+The task catalog HTML (`website/tasks/`, `website/commands*.html`, `website/sitemap.xml`) is **not** committed; it is listed in `.gitignore` and built on deploy by [`.github/workflows/static.yml`](.github/workflows/static.yml) via `python tools/build_website_content.py`. Run the same command locally before browsing task pages with `python -m http.server` in `website/`. Field PNGs under `website/img/tasks/` remain in the repository. For screenshot capture workflow, prerequisites, and batch commands, see [`Docs/website-screenshots.md`](Docs/website-screenshots.md).
 
 ## Architecture Overview
 

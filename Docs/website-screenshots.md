@@ -1,6 +1,6 @@
 # Website screenshots
 
-The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. HTML is built separately from images: `tools/build_website_content.py` does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>.png` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels). Theme hub pages (`website/tasks/<theme>/`) show the same PNG as the first available environment on the task page as a clickable list thumbnail linking to the task page; no separate capture is needed.
+The static site under `website/` uses PNG images for marketing shots and for the **Environments** section on generated task pages. Task catalog HTML is generated at GitHub Pages deploy (see [`.github/workflows/static.yml`](../.github/workflows/static.yml)) or locally with `python tools/build_website_content.py`; it is not stored in git. HTML is built separately from images: the generator does not launch the GUI; task pages reference PNG paths such as `img/tasks/<task_id>_env<index>.png` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels). Theme hub pages (`website/tasks/<theme>/`) show the same PNG as the first available environment on the task page as a clickable list thumbnail linking to the task page; no separate capture is needed.
 
 ## Two capture modes
 
