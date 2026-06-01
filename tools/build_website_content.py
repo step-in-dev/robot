@@ -26,7 +26,6 @@ from robot.i18n import DEFAULT_LANGUAGE, normalize_language, t
 from robot.loader import ScriptConstraints, find_task_file, load_task_definition
 from robot.task_catalog import (
     TaskCatalog,
-    task_number_from_id,
     theme_from_task_id,
 )
 
@@ -96,7 +95,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Example in Python",
         "prev_task": "Previous task",
         "next_task": "Next task",
-        "theme_tasks_intro": "Tasks in this track, in lesson order.",
         "catalog_intro": "All bundled Robot tasks grouped by topic. Each page shows the task condition, field layouts, and limits.",
         "commands_intro": "Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.",
         "tasks_in_theme": "{count} tasks",
@@ -126,7 +124,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Пример на Python",
         "prev_task": "Предыдущая задача",
         "next_task": "Следующая задача",
-        "theme_tasks_intro": "Задачи темы в порядке, как на уроке.",
         "catalog_intro": "Все встроенные задачи Робота по темам. На странице задачи – условие, поля обстановок и ограничения.",
         "commands_intro": "Команды Python для учащихся в исполнителе «Робот». Можно подключить всё через from robot import * или импортировать отдельные имена.",
         "tasks_in_theme": "Задач: {count}",
@@ -548,7 +545,6 @@ def build_task_page(
         raise ValueError(f"Task {task_id!r} not in catalog")
     task_def = load_task_definition(task_id)
     todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang).strip()
-    number = task_number_from_id(task_id)
     theme_label = theme_title(theme, lang)
     title = f"{task_id} – {theme_label} | Robot"
     description = normalize_meta_description(todo or f"Robot task {task_id}.")
@@ -613,8 +609,6 @@ def build_task_page(
         f"      <div class=\"task-condition\">{todo_html}</div>\n" if todo else ""
     )
     h1 = f"<code>{escape(task_id)}</code> – {escape(theme_label)}"
-    if number is not None:
-        h1 = f'{h1} <span class="task-number">#{number}</span>'
 
     layout = PageLayout(
         lang=lang,
@@ -709,9 +703,7 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     slug = theme_slug(theme_prefix)
     canonical = f"tasks/{slug}/{page_filename(lang)}"
     title = f"{theme_label} – Robot tasks"
-    description = normalize_meta_description(
-        f"{theme_label}. {_ui(lang, 'theme_tasks_intro')}"
-    )
+    description = normalize_meta_description(theme_label)
     crumbs = [
         (_ui(lang, "home"), "index_ru.html" if lang == "ru" else "index.html"),
         (_ui(lang, "task_catalog"), catalog_relpath(lang)),
@@ -764,7 +756,7 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
       {crumb_html}
       <header class="content-header">
         <h1>{escape(theme_label)}</h1>
-        <p class="section__intro">{escape(_ui(lang, "theme_tasks_intro"))} {escape(_ui(lang, "tasks_in_theme", count=len(task_ids)))}</p>
+        <p class="section__intro">{escape(_ui(lang, "tasks_in_theme", count=len(task_ids)))}</p>
       </header>
       <ul class="task-list">
 {chr(10).join(items)}
@@ -831,7 +823,6 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
       <header class="content-header">
         <h1>{escape(_ui(lang, "task_catalog"))}</h1>
         <p class="section__intro">{escape(_ui(lang, "catalog_intro"))} {escape(_ui(lang, "task_count_total", count=total))}</p>
-        <p><a href="{layout.href(commands_relpath(lang))}">{escape(_ui(lang, "command_reference"))}</a></p>
       </header>
       <ul class="theme-card-list">
 {chr(10).join(theme_blocks)}
@@ -905,7 +896,6 @@ def build_commands_page(lang: str) -> str:
       <header class="content-header">
         <h1>{escape(_ui(lang, "command_reference"))}</h1>
         <p class="section__intro">{escape(_ui(lang, "commands_intro"))}</p>
-        <p><a href="{layout.href(catalog_relpath(lang))}">{escape(_ui(lang, "task_catalog"))}</a></p>
       </header>
       <div class="command-grid">
 {chr(10).join(groups_html)}
