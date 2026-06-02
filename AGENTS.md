@@ -21,7 +21,7 @@ The target audience is school students who are learning introductory programming
 
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
-- `Docs/localization-style.md` describes conventions for localized UI strings. Read it when you need to change localization.
+- `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
 - `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).
 - UI string catalogs are JSON files in `robot/locales/`.
@@ -35,7 +35,7 @@ The task catalog HTML (`website/tasks/`, `website/commands*.html`, `website/site
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
-- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText`, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
+- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText` — follow `Docs/localization-style.md` when writing localized task conditions, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
 - `robot/results.py` defines run outcome types (`RunResult`, `RunStatus`) and final-state checking.
 - `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so executor and commands avoid ad-hoc global access.
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
