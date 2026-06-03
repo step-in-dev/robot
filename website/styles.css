@@ -658,6 +658,25 @@ button:focus-visible {
   color: var(--color-muted);
 }
 
+/* Language list (localization section) */
+.language-list {
+  columns: 2;
+  column-gap: 2rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .language-list {
+    columns: 3;
+  }
+}
+
+.language-list li {
+  margin-bottom: 0.35rem;
+  break-inside: avoid;
+}
+
 /* Numbered list */
 .numbered-list {
   margin: 0 0 1.5rem;
