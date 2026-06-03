@@ -101,6 +101,8 @@ class RobotWindowHelpTest(GuiTestCase):
             self.assertIn(t("help.command.move_right"), body)
             self.assertIn("field(width=8, height=6)", body)
             self.assertIn(t("help.command.field"), body)
+            self.assertIn("20", body)
+            self.assertIn("15", body)
 
     @patch("robot.gui_help.webbrowser.open")
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)

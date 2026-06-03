@@ -67,7 +67,7 @@
   "help.command.is_cell_not_painted": "Returns True if the current cell is not painted.",
   "help.command.pol": "Returns the pollution value of the current cell.",
   "help.command.printn": "Prints an integer in the current cell.",
-  "help.command.field": "Opens a grid of the given size without loading a task file. Robot starts at the top-left; the goal is the bottom-right.",
+  "help.command.field": "Opens a grid of the given size without loading a task file. Width from 1 to 20, height from 1 to 15. Robot starts at the top-left; the goal is the bottom-right.",
   "runtime.error.field_integers": "field() width and height must be integers",
   "runtime.error.field_width_range": "field() width must be between 1 and 20",
   "runtime.error.field_height_range": "field() height must be between 1 and 15",

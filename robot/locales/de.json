@@ -65,7 +65,7 @@
   "help.command.is_cell_not_painted": "Gibt True zurück, wenn die aktuelle Zelle nicht gefärbt ist.",
   "help.command.pol": "Gibt den Verschmutzungswert der aktuellen Zelle zurück.",
   "help.command.printn": "Gibt eine Ganzzahl in der aktuellen Zelle aus.",
-  "help.command.field": "Öffnet ein Übungsfeld der gewählten Größe ohne Aufgabendatei. Roboter oben links, Ziel unten rechts.",
+  "help.command.field": "Öffnet ein Übungsfeld der gewählten Größe ohne Aufgabendatei. Breite zwischen 1 und 20, Höhe zwischen 1 und 15. Roboter oben links, Ziel unten rechts.",
   "runtime.error.field_integers": "field() Breite und Höhe müssen Ganzzahlen sein",
   "runtime.error.field_width_range": "field() Breite muss zwischen 1 und 20 liegen",
   "runtime.error.field_height_range": "field() Höhe muss zwischen 1 und 15 liegen",

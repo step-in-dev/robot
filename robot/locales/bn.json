@@ -65,7 +65,7 @@
   "help.command.is_cell_not_painted": "বর্তমান ঘর রাঙানো না থাকলে True দেয়।",
   "help.command.pol": "বর্তমান ঘরের দূষণ মান দেয়।",
   "help.command.printn": "বর্তমান ঘরে একটি পূর্ণসংখ্যা দেখায়।",
-  "help.command.field": "টাস্ক ফাইল ছাড়াই নির্দিষ্ট আকারের গ্রিড খোলে। রোবট উপরের বামে; লক্ষ্য নিচের ডানে।",
+  "help.command.field": "টাস্ক ফাইল ছাড়াই নির্দিষ্ট আকারের গ্রিড খোলে। প্রস্থ 1 থেকে 20, উচ্চতা 1 থেকে 15। রোবট উপরের বামে; লক্ষ্য নিচের ডানে।",
   "runtime.error.field_integers": "field() প্রস্থ ও উচ্চতা পূর্ণসংখ্যা হতে হবে",
   "runtime.error.field_width_range": "field() প্রস্থ 1 থেকে 20 এর মধ্যে হতে হবে",
   "runtime.error.field_height_range": "field() উচ্চতা 1 থেকে 15 এর মধ্যে হতে হবে",

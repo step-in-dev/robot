@@ -65,7 +65,7 @@
   "help.command.is_cell_not_painted": "Zwraca True, jeśli bieżąca komórka nie jest pomalowana.",
   "help.command.pol": "Zwraca poziom zanieczyszczenia bieżącej komórki.",
   "help.command.printn": "Wyświetla liczbę całkowitą w bieżącej komórce.",
-  "help.command.field": "Otwiera siatkę o podanym rozmiarze bez pliku zadania. Robot w lewym górnym rogu; cel w prawym dolnym.",
+  "help.command.field": "Otwiera siatkę o podanym rozmiarze bez pliku zadania. Szerokość od 1 do 20, wysokość od 1 do 15. Robot w lewym górnym rogu; cel w prawym dolnym.",
   "runtime.error.field_integers": "field() szerokość i wysokość muszą być liczbami całkowitymi",
   "runtime.error.field_width_range": "field() szerokość musi być od 1 do 20",
   "runtime.error.field_height_range": "field() wysokość musi być od 1 do 15",

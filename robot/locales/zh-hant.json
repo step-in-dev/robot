@@ -65,7 +65,7 @@
   "help.command.is_cell_not_painted": "若目前格子未著色則返回 True。",
   "help.command.pol": "返回目前格子的污染值。",
   "help.command.printn": "在目前格子中顯示整數。",
-  "help.command.field": "在不載入任務檔案的情況下開啟指定大小的網格。機器人從左上角出發，目標為右下角。",
+  "help.command.field": "在不載入任務檔案的情況下開啟指定大小的網格。寬度在1到20之間，高度在1到15之間。機器人從左上角出發，目標為右下角。",
   "runtime.error.field_integers": "field() 的寬度和高度必須是整數",
   "runtime.error.field_width_range": "field() 寬度必須在 1 到 20 之間",
   "runtime.error.field_height_range": "field() 高度必須在 1 到 15 之間",

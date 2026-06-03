@@ -67,7 +67,7 @@
   "help.command.is_cell_not_painted": "True-t ad vissza, ha az aktuális cella nincs festve.",
   "help.command.pol": "Visszaadja az aktuális cella szennyezettségi szintjét.",
   "help.command.printn": "Egy egész számot ír ki az aktuális cellában.",
-  "help.command.field": "Megadott méretű rácsot nyit meg feladatfájl betöltése nélkül. A Robot bal felső sarokban kezd; a cél a jobb alsó sarok.",
+  "help.command.field": "Megadott méretű rácsot nyit meg feladatfájl betöltése nélkül. Szélesség 1 és 20 között, magasság 1 és 15 között. A Robot bal felső sarokban kezd; a cél a jobb alsó sarok.",
   "runtime.error.field_integers": "A field() szélességének és magasságának egész számnak kell lennie",
   "runtime.error.field_width_range": "A field() szélességének 1 és 20 között kell lennie",
   "runtime.error.field_height_range": "A field() magasságának 1 és 15 között kell lennie",
