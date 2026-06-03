@@ -660,8 +660,7 @@ button:focus-visible {
   color: var(--color-muted);
 }
 
-/* Language list (localization section) */
-/* Language chips (localization section) */
+/* Soft language tags (localization section; not interactive) */
 .language-chips {
   display: flex;
   flex-wrap: wrap;
@@ -673,21 +672,19 @@ button:focus-visible {
 
 .language-chip {
   display: inline-block;
-  padding: 0.4rem 0.85rem;
-  font-size: 0.98rem;
-  font-weight: 500;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 400;
   line-height: 1.35;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: var(--shadow-card);
+  color: var(--color-muted);
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
 }
 
 @media (max-width: 480px) {
   .language-chip {
-    font-size: 0.94rem;
-    padding: 0.35rem 0.75rem;
+    font-size: 0.9rem;
+    padding: 0.2rem 0.5rem;
   }
 }
 
