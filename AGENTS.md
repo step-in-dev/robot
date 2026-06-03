@@ -4,7 +4,7 @@ This project implements an educational Robot simulator for learning basic progra
 
 ## Purpose
 
-The main purpose is to provide a simple, school-friendly programming environment around the classic "Robot" executor. Learners practice sequencing, loops, conditions, grid navigation, painting cells, reading cell values, and printing numbers while solving small algorithmic tasks.
+The main purpose is to provide a simple, school-friendly programming environment around the classic "Robot" simulator. Learners practice sequencing, loops, conditions, grid navigation, painting cells, reading cell values, and printing numbers while solving small algorithmic tasks.
 
 ## Target Audience
 
@@ -37,10 +37,10 @@ The task catalog HTML (`website/tasks/`, `website/commands*.html`, `website/site
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
 - `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText` — follow `Docs/localization-style.md` when writing localized task conditions, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
 - `robot/results.py` defines run outcome types (`RunResult`, `RunStatus`) and final-state checking.
-- `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so executor and commands avoid ad-hoc global access.
+- `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so the simulator and commands avoid ad-hoc global access.
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
 - `robot/executor.py` compiles and runs student scripts against an environment and maps exceptions to `RunResult`; static checks (operator limits, minimum qualifying custom-function call count) run before `exec`.
-- `robot/runtime.py` is a thin facade: `task()`, `field()`, compatibility re-exports, and script discovery; it wires loader, GUI, and executor (including synthetic environments for `field()` without reading a task file).
+- `robot/runtime.py` is a thin facade: `task()`, `field()`, compatibility re-exports, and script discovery; it wires loader, GUI, and simulator (including synthetic environments for `field()` without reading a task file).
 - `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Canvas`, optional hatched success background). The same window supports two modes: **solution mode** (opened from `task()` with a student script — Run/Step enabled) and **viewer mode** (opened via `viewer/viewer.py` with `viewer_catalog` — browse tasks by theme/number, Run/Step disabled). See `Docs/task-viewer.md`.
 - `viewer/viewer.py` is the teacher-facing launcher for viewer mode; `robot/task_catalog.py` indexes tasks for browsing; `robot/gui_viewer.py` implements the viewer toolbar and in-window task switching.
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
