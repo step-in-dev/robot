@@ -180,7 +180,7 @@ button:focus-visible {
 
 .site-nav {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 1.5rem;
 }
 
@@ -198,6 +198,7 @@ button:focus-visible {
   color: var(--color-text);
   font-weight: 600;
   font-size: 0.95rem;
+  line-height: 1;
 }
 
 .site-nav__list a:hover {
@@ -206,8 +207,9 @@ button:focus-visible {
 
 .site-nav__lang {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1;
 }
 
 .site-nav__lang a {
