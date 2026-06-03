@@ -77,8 +77,9 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "home": "Home",
         "task_catalog": "Task catalog",
         "command_reference": "Command reference",
+        "get_started_nav": "Get started",
         "tasks_nav": "Task catalog",
-        "commands_nav": "Commands",
+        "commands_nav": "Command reference",
         "github": "GitHub",
         "skip": "Skip to content",
         "open_menu": "Open menu",
@@ -106,8 +107,9 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "home": "Главная",
         "task_catalog": "Каталог задач",
         "command_reference": "Справочник команд",
+        "get_started_nav": "Как начать",
         "tasks_nav": "Каталог задач",
-        "commands_nav": "Команды",
+        "commands_nav": "Справочник команд",
         "github": "GitHub",
         "skip": "Перейти к содержанию",
         "open_menu": "Открыть меню",
@@ -234,6 +236,16 @@ def catalog_relpath(lang: str) -> str:
 
 def commands_relpath(lang: str) -> str:
     return page_filename(lang, "commands")
+
+
+def home_relpath(lang: str) -> str:
+    return "index_ru.html" if lang == "ru" else "index.html"
+
+
+def get_started_href(layout: PageLayout) -> str:
+    if layout.page_kind == "home":
+        return "#get-started"
+    return layout.href(f"{home_relpath(layout.lang)}#get-started")
 
 
 def task_page_relpath(task_id: str, lang: str) -> str:
@@ -385,8 +397,22 @@ def render_head(layout: PageLayout) -> str:
 """
 
 
+def render_site_nav_list(layout: PageLayout) -> str:
+    nav_items = (
+        ("get_started_nav", get_started_href(layout), None),
+        ("tasks_nav", layout.href(catalog_relpath(layout.lang)), "catalog"),
+        ("commands_nav", layout.href(commands_relpath(layout.lang)), "commands"),
+    )
+    lines = ["        <ul class=\"site-nav__list\">"]
+    for key, href, kind in nav_items:
+        current = ' aria-current="page"' if kind == layout.page_kind else ""
+        label = escape(_ui(layout.lang, key))
+        lines.append(f'          <li><a href="{href}"{current}>{label}</a></li>')
+    lines.append("        </ul>")
+    return "\n".join(lines)
+
+
 def render_header(layout: PageLayout) -> str:
-    home_page = "index_ru.html" if layout.lang == "ru" else "index.html"
     en_link = layout.href(layout.alternate_en)
     ru_link = layout.href(layout.alternate_ru)
     if layout.lang == "en":
@@ -399,7 +425,7 @@ def render_header(layout: PageLayout) -> str:
     return f"""  <a class="skip-link" href="#main">{_ui(layout.lang, "skip")}</a>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="{layout.href(home_page)}"{brand_current}>
+      <a class="brand" href="{layout.href(home_relpath(layout.lang))}"{brand_current}>
         <span class="brand__mark" aria-hidden="true"></span>
         <span class="brand__text">{escape(_ui(layout.lang, "site_name"))}</span>
       </a>
@@ -409,6 +435,7 @@ def render_header(layout: PageLayout) -> str:
         <span class="nav-toggle__bar"></span>
       </button>
       <nav class="site-nav" id="site-nav" aria-label="{escape(_ui(layout.lang, "primary_nav"))}">
+{render_site_nav_list(layout)}
         <p class="site-nav__lang">
           <a href="{en_link}" hreflang="en"{lang_en_class}>{escape(_ui(layout.lang, "english"))}</a>
           <span class="site-nav__lang-sep" aria-hidden="true">·</span>
