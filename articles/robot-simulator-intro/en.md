@@ -295,12 +295,6 @@ This is not a side game. It introduces the computer – simulator picture and mo
 
 **Requirements:** Python 3.7+ and the standard library; the Robot window needs `tkinter` (usually included with desktop Python).
 
-### Loops
-
-1. Give a "go down until the wall" task before you explain the `while` loop – many students arrive at "while the path below is free, step down" on their own.
-2. Then show the Python form.
-3. Move on to the [`while` loop](https://robot.stepindev.com/tasks/while/index.html) topic.
-
 ### Lesson prep for the teacher
 
 - Open task viewer mode – pick a topic, read the goal, flip through environments.
@@ -340,15 +334,6 @@ It is closer to a focus on algorithms than on language for its own sake. Python 
 - [Task catalog on the site](https://robot.stepindev.com/tasks/index.html) – goals, field images, topics.
 - [Command reference](https://robot.stepindev.com/commands.html).
 - [Download the module](https://github.com/step-in-dev/robot/releases) and the [GitHub repository](https://github.com/step-in-dev/robot).
-
----
-
-## Getting started
-
-1. Download an archive from the [releases page](https://github.com/step-in-dev/robot/releases).
-2. Unpack into a working folder. Next to the `robot` package, place your solution file (you can start from `sample_solution.py`).
-3. Call `task("intro1")`, run the program, and look at the result.
-4. Pick a topic in the catalog and choose tasks for your lesson.
 
 ---
 
