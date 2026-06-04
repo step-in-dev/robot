@@ -1,4 +1,6 @@
 # Website content generation (CI and local):
 #   python -m pip install -r requirements-build.txt
-markdown==3.7
-PyYAML==6.0.2
+markdown==3.7; python_version >= "3.8"
+markdown==3.4.4; python_version < "3.8"
+PyYAML==6.0.2; python_version >= "3.8"
+PyYAML==5.4.1; python_version < "3.8"
