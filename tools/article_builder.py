@@ -400,7 +400,7 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
             continue
         locale = article.locales[lang]
         items.append(_render_article_list_item(article, locale, layout, lang))
-    list_html = "\n".join(items) if items else f"          <p>{escape(_ui(lang, "articles_empty"))}</p>"
+    list_html = "\n".join(items) if items else f"          <p>{escape(_ui(lang, 'articles_empty'))}</p>"
     crumb_html = render_breadcrumbs(layout, crumbs)
     main = f"""    <div class="articles-index">
       {crumb_html}
