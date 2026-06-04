@@ -24,7 +24,7 @@ The target audience is school students who are learning introductory programming
 - `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
 - `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).
-- [`articles/`](articles/) holds long-form articles about the Robot simulator (for teachers and learners); read them when editing or adding similar content.
+- `Docs/articles.md` describes the `articles/` directory layout, `meta.yaml`, and locale markdown files for site publishing.
 - UI string catalogs are JSON files in `robot/locales/`.
 
 ## Website

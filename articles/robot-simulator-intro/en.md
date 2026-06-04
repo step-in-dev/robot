@@ -1,12 +1,8 @@
 ---
 title: "Robot: what it is, commands, and how to use in class"
 description: "The school Robot on a grid field: what it can do, the command set, sample Python programs, and practical tips for computer science teachers."
-slug: what-is-the-robot-executor
-lang: en
-date: 2026-06-03
-author: StepInDev
 keywords:
-  - robot executor school
+  - robot simulator school
   - robot computer science lesson
   - grid robot programming
   - algorithmic thinking
@@ -25,13 +21,13 @@ This article is for computer science teachers. It covers **what the classic scho
 
 ## Why Robot belongs in the lesson
 
-A school informatics course can aim at many things: office tools, language syntax, how a computer is built. In the classic curriculum built around **educational executors**, the main goal is different – **algorithmic thinking** as a skill worth teaching on its own.
+A school informatics course can aim at many things: office tools, language syntax, how a computer is built. In the classic curriculum built around **educational simulators**, the main goal is different – **algorithmic thinking** as a skill worth teaching on its own.
 
 That style shows up when a person has to:
 
 1. **Plan all steps ahead of time**, not decide on the fly.
 2. Write the plan **without ambiguity** – no "and so on," "roughly," or "if something goes wrong."
-3. Describe actions in a **formal language** the executor understands, without guessing the author's intent.
+3. Describe actions in a **formal language** the simulator understands, without guessing the author's intent.
 
 Robot was designed so the hard part stays **algorithmic**, not technical. The classic course strips away extra math, the file system, compilation, and similar noise. Students keep common sense, a clear field, and a small command set. In Python they use short language constructs (`while`, `if`), but **Robot's own commands** stay few, and all of them are about the grid.
 
@@ -50,9 +46,9 @@ In the school curriculum, Robot is described like this:
 - **Robot** sits in one cell – a machine with a control panel;
 - the panel has movement buttons: up, down, left, right.
 
-Teachers often picture Robot as a radio-controlled car with an antenna, motors, and suction cups. Before anyone builds a metal Robot, the teacher can **play the executor** on the board: the student dictates commands, the teacher carries them out.
+Teachers often picture Robot as a radio-controlled car with an antenna, motors, and suction cups. Before anyone builds a metal Robot, the teacher can **play the simulator** on the board: the student dictates commands, the teacher carries them out.
 
-What matters: Robot is an **executor**, not the programmer. It does **not** understand the whole algorithm and does **not** know about loops or conditions. It only runs single commands and answers questions about the scene (wall, paint, number in the cell). The **computer runs the program**: the Python interpreter reads the student's code and, one by one, "presses buttons" on the panel.
+What matters: Robot is a **simulator**, not the programmer. It does **not** understand the whole algorithm and does **not** know about loops or conditions. It only runs single commands and answers questions about the scene (wall, paint, number in the cell). The **computer runs the program**: the Python interpreter reads the student's code and, one by one, "presses buttons" on the panel.
 
 ### Two ways to control it
 
@@ -60,15 +56,15 @@ On early lessons it helps to contrast two modes all the time.
 
 **Direct control.** A person looks at the field, presses a button, sees the result, and chooses the next button. The plan grows while they work. Even a weaker student can walk around an obstacle on the board if they see Robot.
 
-**Program control.** A person **writes the algorithm first**. The computer runs it without the author: it sends commands to the executor, reads feedback, and decides by the rules in the program.
+**Program control.** A person **writes the algorithm first**. The computer runs it without the author: it sends commands to the simulator, reads feedback, and decides by the rules in the program.
 
 The move from the first mode to the second **is** the training in algorithmic thinking. Doing it yourself is easy; **writing** it so it works for every **environment** in the task is harder.
 
 ### Where the school Robot came from
 
-The model took shape in the late 1970s and early 1980s. At Moscow State University the first programming lesson used an executor called **Wanderer** (orientation, step forward, turns). For schools the model was simplified: move **right, left, up, down** without a "which way Robot faces" idea. A. Kh. Shen proposed that scheme; when screens appeared, walls were drawn **between cells** instead of occupying a whole cell.
+The model took shape in the late 1970s and early 1980s. At Moscow State University the first programming lesson used a simulator called **Wanderer** (orientation, step forward, turns). For schools the model was simplified: move **right, left, up, down** without a "which way Robot faces" idea. A. Kh. Shen proposed that scheme; when screens appeared, walls were drawn **between cells** instead of occupying a whole cell.
 
-Similar ideas appeared elsewhere – for example **Karel the Robot** in the United States. The point is the same: a **grid executor without extra math** is a natural first step toward algorithms.
+Similar ideas appeared elsewhere – for example **Karel the Robot** in the United States. The point is the same: a **grid simulator without extra math** is a natural first step toward algorithms.
 
 That Robot became part of Russian school informatics and entered the **Kumir** environment. The **Python** version keeps the **same teaching model**, but programs are written in **Python**, not in the school algorithmic language.
 
@@ -84,7 +80,7 @@ On screen you see a window with the grid. It shows:
 - the **task goal** and, when needed, **limits** (command cap, required loop, and so on);
 - **Run [Enter]**, **Step**, and a control to pick the **environment**.
 
-![Robot window: grid with Robot, walls, and painted cells.](../website/img/hero/intro19_en.png)
+![Robot window: grid with Robot, walls, and painted cells.](../../website/img/hero/intro19_en.png)
 
 *Robot window: field, walls, task goal, and the result of a run.*
 
@@ -96,7 +92,7 @@ A typical lesson flow:
 4. If the result does not match the goal, the simulator reports an error; the student fixes the program.
 5. Many tasks have several **environments** – one program must pass every variant of the field.
 
-![Robot window: success, all environments for the task completed.](../website/img/all_done/w45_en.png)
+![Robot window: success, all environments for the task completed.](../../website/img/all_done/w45_en.png)
 
 *All environments passed – one program worked for every field variant.*
 
@@ -196,9 +192,9 @@ These commands support harder tasks – finding a minimum on the field, printing
 
 Students often ask: there is `move_right()`, so why not `move_right(n)`? Behind that is a bigger question – **how to explain** that an action that feels natural ("go five cells right") needs an **algorithm**, not one ready-made button.
 
-In the classic methodology Robot is an **external** executor: it exists "in hardware" apart from the program. Such an executor only does **elementary** operations – one step, one question about the scene. Any "smart" command with a parameter makes Robot itself more complex. On the lesson, though, a **computer** still controls Robot, and it can run a loop "`n` times – step right" without trouble. There is little point making the executor heavier when the program can repeat a simple command. The useful split is "simple Robot + program with a loop," not "complex Robot + the same program."
+In the classic methodology Robot is an **external** simulator: it exists "in hardware" apart from the program. Such a simulator only does **elementary** operations – one step, one question about the scene. Any "smart" command with a parameter makes Robot itself more complex. On the lesson, though, a **computer** still controls Robot, and it can run a loop "`n` times – step right" without trouble. There is little point making the simulator heavier when the program can repeat a simple command. The useful split is "simple Robot + program with a loop," not "complex Robot + the same program."
 
-Besides, what feels "natural" depends on the **task**. Some fields want four-way steps; others might want knight moves on the grid. If Robot were rebuilt for every task family, you would keep **changing the executor**. The whole "computer + Robot with minimal commands" idea is the opposite: you tune for a class of tasks in the **algorithm** – loop, condition, your own function. That is why repetition belongs in the program, not in a new button on the panel.
+Besides, what feels "natural" depends on the **task**. Some fields want four-way steps; others might want knight moves on the grid. If Robot were rebuilt for every task family, you would keep **changing the simulator**. The whole "computer + Robot with minimal commands" idea is the opposite: you tune for a class of tasks in the **algorithm** – loop, condition, your own function. That is why repetition belongs in the program, not in a new button on the panel.
 
 ---
 
@@ -218,7 +214,7 @@ task("intro1")
 move_right()
 ```
 
-![Task intro1, first environment.](../website/img/tasks/intro1_env0.png)
+![Task intro1, first environment.](../../website/img/tasks/intro1_env0.png)
 
 Even this short program helps students learn the **shape of a program** – hand work to the computer, not "pressing buttons" in their head. Solve on the board by hand first, then write the same steps in a file.
 
@@ -242,7 +238,7 @@ paint()
 move_down()
 ```
 
-![Robot window for intro8: paint the marked cells.](../website/img/tasks/intro8_env0.png)
+![Robot window for intro8: paint the marked cells.](../../website/img/tasks/intro8_env0.png)
 
 Here a **sequence of commands** is already a full algorithm.
 
@@ -250,7 +246,7 @@ Here a **sequence of commands** is already a full algorithm.
 
 In task `w2` Robot stands at the top of a narrow vertical corridor; the **goal** is on the cell above the bottom edge. Two **environments** differ in height, so the number of steps down is not known in advance – hence the classic "while free below" pattern instead of a long chain of `move_down()`.
 
-![Task w2, first environment: vertical corridor.](../website/img/tasks/w2_env0.png)
+![Task w2, first environment: vertical corridor.](../../website/img/tasks/w2_env0.png)
 
 **Program:**
 
@@ -290,7 +286,7 @@ Both models are useful, but **they play different roles** in a course.
 4. Variant: student faces away from the board, class sees the field – same trick.
 5. If someone moves first and checks later – **"Robot crashed."** That fixes the rule: in a program you check the scene **before** the action.
 
-This is not a side game. It introduces the **computer – executor** picture and motivates writing an algorithm.
+This is not a side game. It introduces the **computer – simulator** picture and motivates writing an algorithm.
 
 ### First programs on a computer
 
@@ -314,7 +310,7 @@ This is not a side game. It introduces the **computer – executor** picture and
 
 ### How long to stay on Robot
 
-Early in informatics, a lot of time goes to **executors** (Robot, turtle, and similar); later the focus shifts to language features and broader problems. Robot is **not the whole course**, but a solid base for first algorithms. The **ideas** (algorithm, loop, branch, function, program vs executor) stay with students afterward. It may feel like a "toy" at first; what matters is that tasks **grow in algorithmic difficulty**, not that every week repeats the same trick.
+Early in informatics, a lot of time goes to **simulators** (Robot, turtle, and similar); later the focus shifts to language features and broader problems. Robot is **not the whole course**, but a solid base for first algorithms. The **ideas** (algorithm, loop, branch, function, program vs simulator) stay with students afterward. It may feel like a "toy" at first; what matters is that tasks **grow in algorithmic difficulty**, not that every week repeats the same trick.
 
 ---
 
@@ -357,4 +353,4 @@ It is closer to a **focus on algorithms** than on language for its own sake. Pyt
 
 ---
 
-*This article follows the classic school-executor methodology and describes the open educational [Robot](https://robot.stepindev.com/index.html) simulator for Python.*
+*This article follows the classic school-simulator methodology and describes the open educational [Robot](https://robot.stepindev.com/index.html) simulator for Python.*
