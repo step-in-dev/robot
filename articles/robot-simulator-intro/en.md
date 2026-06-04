@@ -1,5 +1,5 @@
 ---
-title: "Robot: what it is, commands, and how to use in class"
+title: "Robot: what it is, commands, and how to use it in class"
 description: "The school Robot on a grid field: what it can do, the command set, sample Python programs, and practical tips for computer science teachers."
 keywords:
   - robot simulator school
@@ -9,7 +9,7 @@ keywords:
   - python programming for schools
 ---
 
-# Robot: what it is, commands, and how to use in class
+# Robot: what it is, commands, and how to use it in class
 
 **Robot** is an educational simulator on a grid field. Students write short **Python** programs: they move Robot, paint cells, and check walls and cell values. The result shows up right away in the simulator window, and the solution is checked automatically.
 
@@ -21,7 +21,7 @@ This article is for computer science teachers. It covers **what the classic scho
 
 ## Why Robot belongs in the lesson
 
-A school informatics course can aim at many things: office tools, language syntax, how a computer is built. In the classic curriculum built around **educational simulators**, the main goal is different – **algorithmic thinking** as a skill worth teaching on its own.
+A school informatics course (computer science in the Russian curriculum) can cover many topics: office tools, language syntax, how a computer is built. In the classic curriculum built around **educational simulators**, the main goal is different – **algorithmic thinking** as a skill worth teaching on its own.
 
 That style shows up when a person has to:
 
@@ -52,7 +52,7 @@ What matters: Robot is a **simulator**, not the programmer. It does **not** unde
 
 ### Two ways to control it
 
-On early lessons it helps to contrast two modes all the time.
+In early lessons, it helps to contrast two modes all the time.
 
 **Direct control.** A person looks at the field, presses a button, sees the result, and chooses the next button. The plan grows while they work. Even a weaker student can walk around an obstacle on the board if they see Robot.
 
@@ -76,8 +76,8 @@ On screen you see a window with the grid. It shows:
 
 - **Robot** in the current cell;
 - **walls** between cells and along the border;
-- **marked** cells to paint and cells already **painted**, depending on the task;
-- the **task goal** and, when needed, **limits** (command cap, required loop, and so on);
+- cells **to paint** (highlighted on the field) and cells already **painted**, depending on the task;
+- the **task goal** and, when needed, **limits** (operator limit on robot commands and user function calls, limits on `while`/`if`, minimum required function calls, and so on);
 - **Run [Enter]**, **Step**, and a control to pick the **environment**.
 
 ![Robot window: grid with Robot, walls, and painted cells.](../../website/img/hero/intro19_en.png)
@@ -106,7 +106,7 @@ For teachers there is a **task viewer mode**: from the unpacked release archive 
 
 - move **one cell** in one of four directions;
 - **paint** the current cell;
-- **report** whether there is a wall in a given direction, and whether the current cell is painted;
+- **answer** whether there is a wall in a given direction, and whether the current cell is painted;
 - **return a number** – the "pollution" level in the current cell (the classic course also used radiation or temperature tasks);
 - **print a number** in the current cell (`printn`).
 
@@ -130,7 +130,7 @@ In the classic course Robot has a **fixed command set**: movement, paint, questi
 | Command | Purpose |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `task("name")` | Open a built-in task (for example `task("intro1")`). |
-| `field(width=8, height=6)` | Open an empty field of the given size without a task file. Start is the top-left corner, goal is the bottom-right; success is checked like in a task. |
+| `field(width=8, height=6)` | Open an empty field of the given size without a task file. The start is in the top-left corner; the goal is in the bottom-right corner. Success is checked like in a task. |
 
 Usually the file starts with:
 
@@ -138,7 +138,7 @@ Usually the file starts with:
 from robot import *
 ```
 
-You can import only the names you need, but on early lessons the short form is easier.
+You can import only the names you need, but in early lessons the short form is easier.
 
 ### Movement (4 commands)
 
@@ -159,8 +159,7 @@ Commands take **no arguments**: one call, one step. If the step is impossible (w
 
 ### Feedback: walls
 
-For each direction there is a **pair** of questions "free?" / "wall?". That makes conditions easier before students lean on negation.
-
+For each direction there is a **pair** of questions "free?" / "wall?". That makes conditions easier before students rely on negation.
 
 | Free path | Wall |
 | ----------------- | ----------------- |
@@ -192,7 +191,7 @@ These commands support harder tasks – finding a minimum on the field, printing
 
 Students often ask: there is `move_right()`, so why not `move_right(n)`? Behind that is a bigger question – **how to explain** that an action that feels natural ("go five cells right") needs an **algorithm**, not one ready-made button.
 
-In the classic methodology Robot is an **external** simulator: it exists "in hardware" apart from the program. Such a simulator only does **elementary** operations – one step, one question about the scene. Any "smart" command with a parameter makes Robot itself more complex. On the lesson, though, a **computer** still controls Robot, and it can run a loop "`n` times – step right" without trouble. There is little point making the simulator heavier when the program can repeat a simple command. The useful split is "simple Robot + program with a loop," not "complex Robot + the same program."
+In the classic methodology Robot is an **external** simulator: it exists "in hardware" apart from the program. Such a simulator only does **elementary** operations – one step, one question about the scene. Any "smart" command with a parameter makes Robot itself more complex. In class, though, a **computer** still controls Robot, and it can run a loop "`n` times – step right" without trouble. There is little point making the simulator heavier when the program can repeat a simple command. The useful split is "simple Robot + program with a loop," not "complex Robot + the same program."
 
 Besides, what feels "natural" depends on the **task**. Some fields want four-way steps; others might want knight moves on the grid. If Robot were rebuilt for every task family, you would keep **changing the simulator**. The whole "computer + Robot with minimal commands" idea is the opposite: you tune for a class of tasks in the **algorithm** – loop, condition, your own function. That is why repetition belongs in the program, not in a new button on the panel.
 
@@ -216,11 +215,11 @@ move_right()
 
 ![Task intro1, first environment.](../../website/img/tasks/intro1_env0.png)
 
-Even this short program helps students learn the **shape of a program** – hand work to the computer, not "pressing buttons" in their head. Solve on the board by hand first, then write the same steps in a file.
+Even this short program helps students learn the **shape of a program** – hand the work to the computer, not "pressing buttons" in their head. Solve on the board by hand first, then write the same steps in a file.
 
 ### Example 2. Painting cells
 
-Task: reach marked cells and paint them (typical "First steps" line, task `intro8`).
+Task: reach cells to paint and paint them (typical "First steps" theme, task `intro8`).
 
 ```python
 from robot import *
@@ -244,7 +243,7 @@ Here a **sequence of commands** is already a full algorithm.
 
 ### Example 3. Feedback and a `while` loop
 
-In task `w2` Robot stands at the top of a narrow vertical corridor; the **goal** is on the cell above the bottom edge. Two **environments** differ in height, so the number of steps down is not known in advance – hence the classic "while free below" pattern instead of a long chain of `move_down()`.
+In task `w2` Robot stands at the top of a narrow vertical corridor; the **goal** is on the **bottom cell** of the corridor. Two **environments** differ in height, so the number of steps down is not known in advance – hence the classic "while free below" pattern instead of a long chain of `move_down()`.
 
 ![Task w2, first environment: vertical corridor.](../../website/img/tasks/w2_env0.png)
 
@@ -298,19 +297,19 @@ This is not a side game. It introduces the **computer – simulator** picture an
 
 ### Loops
 
-1. Give a "go down until the wall" task **before** you explain the `while` loop – many students arrive at "while free – step" on their own.
+1. Give a "go down until the wall" task **before** you explain the `while` loop – many students arrive at "while the path below is free, step down" on their own.
 2. Then show the Python form.
 3. Move on to the [`while` loop](https://robot.stepindev.com/tasks/while/index.html) topic.
 
 ### Lesson prep for the teacher
 
 - Open **task viewer mode** – pick a topic, read the goal, flip through **environments**.
-- Note **limits** in the task: operator cap, required function call, banned constructs – they steer students toward the idea you want that day.
+- Note **limits** in the task: operator limit, minimum required function calls, forbidden keywords in the solution – they steer students toward the idea you want that day.
 - For hard bugs, debug **step by step** in the Robot window on a projector.
 
 ### How long to stay on Robot
 
-Early in informatics, a lot of time goes to **simulators** (Robot, turtle, and similar); later the focus shifts to language features and broader problems. Robot is **not the whole course**, but a solid base for first algorithms. The **ideas** (algorithm, loop, branch, function, program vs simulator) stay with students afterward. It may feel like a "toy" at first; what matters is that tasks **grow in algorithmic difficulty**, not that every week repeats the same trick.
+Early in the course, a lot of time goes to **simulators** (Robot, turtle, and similar); later the focus shifts to language features and broader problems. Robot is **not the whole course**, but a solid base for first algorithms. The **ideas** (algorithm, loop, branch, function, program vs simulator) stay with students afterward. It may feel like a "toy" at first; what matters is that tasks **grow in algorithmic difficulty**, not that every week repeats the same trick.
 
 ---
 
