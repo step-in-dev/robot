@@ -1,6 +1,6 @@
 # Robot Articles (`articles/`)
 
-Long-form articles about the Robot simulator for teachers and learners. Markdown sources in this directory are intended for automatic conversion to HTML when the static site is published.
+Long-form articles about the Robot simulator for teachers and learners. Markdown sources in this directory are converted to HTML when the static site is built.
 
 ## Directory layout
 
@@ -39,7 +39,7 @@ order: 1
 date: 2026-06-03
 author: StepInDev
 slug:
-  en: what-is-the-robot-executor
+  en: what-is-the-robot-simulator
   ru: chto-takoe-ispolnitel-robot
 ```
 
@@ -49,7 +49,7 @@ Rules:
 - **`slug`** values must be unique among all published locales (no two articles may share the same slug for the same language).
 - Every key under `slug` must have a matching locale file (`en` → `en.md`, `ru` → `ru.md`). Do not list a slug without a file, or ship a locale file without a `slug` entry.
 
-Optional (for a future site builder; not used yet):
+Optional:
 
 - `draft: true` — exclude the article from the published index and sitemap.
 
@@ -83,7 +83,7 @@ keywords:
 Body text…
 ```
 
-Keeping a `#` heading in the body that matches `title` is normal for Markdown editors and for renderers that show the article content below a site chrome title.
+Keeping a `#` heading in the body that matches `title` is normal for Markdown editors. The site builder hides that duplicate `h1` in the article body (the page header shows `title`).
 
 ### Images
 
@@ -93,15 +93,40 @@ Paths to assets under [`website/`](../website/) are relative to the locale file.
 ![Alt text.](../../website/img/hero/intro19_en.png)
 ```
 
+At build time these become paths relative to the generated HTML page (for example `../../img/hero/intro19_en.png` on an article page under `website/articles/<slug>/`).
+
+Absolute links to `https://robot.stepindev.com/...` for the task catalog and command reference are rewritten to locale-appropriate relative URLs during the build.
+
+## Published URLs
+
+| Page | English | Russian |
+| ---- | ------- | ------- |
+| Article index | `articles/index.html` | `articles/index_ru.html` |
+| Article body | `articles/<slug.en>/index.html` | `articles/<slug.ru>/index_ru.html` |
+
+Language alternates use `hreflang` and cross-link different slugs for the same article, like other generated site pages.
+
+## Building locally
+
+From the repository root:
+
+```bash
+python -m pip install -r requirements-build.txt
+python tools/build_website_content.py
+cd website && python -m http.server
+```
+
+Output is written to `website/articles/` (gitignored). The same command runs in CI before GitHub Pages deploy.
+
+Implementation: [`tools/article_builder.py`](../tools/article_builder.py), invoked from [`tools/build_website_content.py`](../tools/build_website_content.py).
+
 ## List order
 
-The site index (when implemented) should sort article folders by ascending `order`. If two folders share the same `order`, use the folder name (`article_id`) as a stable tie-breaker (lexicographic).
+The site index sorts article folders by ascending `order`. If two folders share the same `order`, the folder name (`article_id`) is the tie-breaker (lexicographic).
 
 ## Translations and language alternates
 
 All locales of one article live in the **same folder**. Translations are not separate `article_id` values.
-
-A future HTML builder should link language versions the same way task pages do: `alternate_en` / `alternate_ru` and `hreflang` tags derived from `slug` in `meta.yaml` (see `PageLayout` in [`tools/build_website_content.py`](../tools/build_website_content.py)).
 
 Supported site locales today are `en` and `ru`. Locale filenames are fixed: `en.md` and `ru.md` only.
 
@@ -112,8 +137,8 @@ Supported site locales today are `en` and `ru`. Locale filenames are fixed: `en.
 3. Create `articles/<article_id>/meta.yaml` with `order`, `date`, `author`, and `slug` entries for each locale you ship.
 4. Add `en.md` and/or `ru.md` with front matter (`title`, `description`, `keywords`) and body.
 5. Use `../../website/...` for images referenced from the new folder.
+6. Run `python tools/build_website_content.py` and spot-check the new pages.
 
-## What is out of scope here
+## Tests
 
-- HTML generation, `website/articles/` output, and CI wiring (handled separately when a builder is added).
-- Automatic validation tests for `meta.yaml` (may be added under `tests/` later).
+Validation and conversion helpers are covered in [`tests/test_article_builder.py`](../tests/test_article_builder.py).

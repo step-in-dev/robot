@@ -101,6 +101,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
         "og_default_alt": "Robot desktop window showing a grid programming task.",
+        "articles_nav": "Articles",
+        "articles_heading": "Articles",
+        "articles_intro": "Long-form guides about the Robot simulator for teachers and learners.",
+        "articles_empty": "No articles published yet.",
     },
     "ru": {
         "site_name": "Робот",
@@ -131,6 +135,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
+        "articles_nav": "Статьи",
+        "articles_heading": "Статьи",
+        "articles_intro": "Подробные материалы об исполнителе «Робот» для учителей и учащихся.",
+        "articles_empty": "Пока нет опубликованных статей.",
     },
 }
 
@@ -238,6 +246,10 @@ def commands_relpath(lang: str) -> str:
     return page_filename(lang, "commands")
 
 
+def articles_index_relpath(lang: str) -> str:
+    return f"articles/{page_filename(lang)}"
+
+
 def home_relpath(lang: str) -> str:
     return "index_ru.html" if lang == "ru" else "index.html"
 
@@ -301,6 +313,8 @@ class PageLayout:
     alternate_ru: str
     og_image_path: Optional[str] = None
     og_image_alt: Optional[str] = None
+    og_type: str = "website"
+    keywords: Optional[Sequence[str]] = None
     json_ld: Optional[dict] = None
 
     @property
@@ -367,6 +381,12 @@ def render_head(layout: PageLayout) -> str:
     locale = "ru_RU" if layout.lang == "ru" else "en_US"
     alt_locale = "en_US" if layout.lang == "ru" else "ru_RU"
     html_lang = "ru" if layout.lang == "ru" else "en"
+    keywords_block = ""
+    if layout.keywords:
+        keywords_text = ", ".join(layout.keywords)
+        keywords_block = (
+            f'  <meta name="keywords" content="{escape(keywords_text)}">\n'
+        )
     return f"""<!DOCTYPE html>
 <html lang="{html_lang}">
 <head>
@@ -374,13 +394,13 @@ def render_head(layout: PageLayout) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{escape(layout.title)}</title>
   <meta name="description" content="{escape(layout.description)}">
-  <link rel="canonical" href="{escape(layout.site_url(layout.canonical_path))}">
+{keywords_block}  <link rel="canonical" href="{escape(layout.site_url(layout.canonical_path))}">
   <link rel="alternate" hreflang="en" href="{escape(absolute_url(layout.alternate_en))}">
   <link rel="alternate" hreflang="ru" href="{escape(absolute_url(layout.alternate_ru))}">
   <link rel="alternate" hreflang="x-default" href="{escape(absolute_url(layout.alternate_en))}">
   <meta property="og:title" content="{escape(layout.title)}">
   <meta property="og:description" content="{escape(layout.description)}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="{escape(layout.og_type)}">
   <meta property="og:url" content="{escape(layout.site_url(layout.canonical_path))}">
   <meta property="og:site_name" content="Robot">
   <meta property="og:image" content="{escape(og_image_url)}">
@@ -402,6 +422,7 @@ def render_site_nav_list(layout: PageLayout) -> str:
         ("get_started_nav", get_started_href(layout), None),
         ("tasks_nav", layout.href(catalog_relpath(layout.lang)), "catalog"),
         ("commands_nav", layout.href(commands_relpath(layout.lang)), "commands"),
+        ("articles_nav", layout.href(articles_index_relpath(layout.lang)), "articles_index"),
     )
     lines = ["        <ul class=\"site-nav__list\">"]
     for key, href, kind in nav_items:
@@ -930,13 +951,19 @@ def build_commands_page(lang: str) -> str:
     return wrap_page(layout, main)
 
 
-def collect_sitemap_urls(catalog: TaskCatalog, lastmod: str) -> List[Tuple[str, str, str]]:
+def collect_sitemap_urls(
+    catalog: TaskCatalog,
+    lastmod: str,
+    article_groups: Optional[Sequence[Tuple[str, str, str]]] = None,
+) -> List[Tuple[str, str, str]]:
     """Return (en_path, ru_path, lastmod) tuples for alternate URL groups."""
     groups: List[Tuple[str, str, str]] = [
         ("index.html", "index_ru.html", lastmod),
         (commands_relpath("en"), commands_relpath("ru"), lastmod),
         (catalog_relpath("en"), catalog_relpath("ru"), lastmod),
     ]
+    if article_groups:
+        groups.extend(article_groups)
     for theme_prefix in catalog.themes:
         slug = theme_slug(theme_prefix)
         groups.append(
@@ -964,13 +991,19 @@ def _sitemap_loc(path: str) -> str:
     return absolute_url(path)
 
 
-def write_sitemap(catalog: TaskCatalog, lastmod: str) -> None:
+def write_sitemap(
+    catalog: TaskCatalog,
+    lastmod: str,
+    article_groups: Optional[Sequence[Tuple[str, str, str]]] = None,
+) -> None:
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
         '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
     ]
-    for en_path, ru_path, mod in collect_sitemap_urls(catalog, lastmod):
+    for en_path, ru_path, mod in collect_sitemap_urls(
+        catalog, lastmod, article_groups=article_groups
+    ):
         en_href = _sitemap_loc(en_path)
         ru_href = _sitemap_loc(ru_path)
         for loc_path in (en_path, ru_path):
@@ -1010,7 +1043,10 @@ def clean_generated_tasks_dir() -> None:
     tasks_dir.mkdir(parents=True)
 
 
-def generate_all() -> TaskCatalog:
+def generate_all() -> Tuple[TaskCatalog, list]:
+    # pylint: disable=import-outside-toplevel
+    from tools import article_builder
+
     catalog = TaskCatalog.discover()
     clean_generated_tasks_dir()
     TASKS_IMG_DIR.mkdir(parents=True, exist_ok=True)
@@ -1031,19 +1067,24 @@ def generate_all() -> TaskCatalog:
                 out = WEBSITE_DIR / "tasks" / task_page_filename(task_id, lang)
                 write_page(out, build_task_page(catalog, task_id, lang))
 
+    articles = article_builder.generate_articles()
+    article_groups = article_builder.collect_article_sitemap_groups(
+        articles, article_builder.articles_lastmod(articles)
+    )
     lastmod = tasks_lastmod(catalog)
-    write_sitemap(catalog, lastmod)
-    return catalog
+    write_sitemap(catalog, lastmod, article_groups=article_groups)
+    return catalog, articles
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
-    catalog = generate_all()
+    catalog, articles = generate_all()
     task_count = sum(len(catalog.task_ids_for(t)) for t in catalog.themes)
     print(
         f"Generated {task_count} task pages × {len(SUPPORTED_SITE_LANGS)} languages, "
-        f"{len(catalog.themes)} theme hubs, command reference, and sitemap."
+        f"{len(catalog.themes)} theme hubs, command reference, "
+        f"{len(articles)} article(s), and sitemap."
     )
     return 0
 

@@ -1,4 +1,6 @@
-# Development tools (use the project venv):
+# Development tools and website content generation (use the project venv):
 #   python -m pip install -r requirements-dev.txt
 # Runtime supports Python 3.7+; see Docs/linting.md for pylint interpreter notes.
+# CI installs requirements-build.txt only (included here via -r).
 pylint==4.0.5
+-r requirements-build.txt
