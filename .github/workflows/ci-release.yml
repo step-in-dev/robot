@@ -34,11 +34,6 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install -r requirements-build.txt
 
-      # PostScript→PNG fallback: ImageMagick `magick` + Ghostscript (no `import` on Windows).
-      - name: Install ImageMagick and Ghostscript (Windows field canvas export)
-        if: runner.os == 'Windows'
-        run: choco install imagemagick ghostscript --no-progress -y
-
       - name: Run tests
         run: python -m unittest discover -s tests -t .
 

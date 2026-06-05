@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 import gc
+import sys
 import unittest
 
 import tkinter as tk
@@ -48,4 +49,10 @@ class GuiTestCase(unittest.TestCase):
 requires_tk_display = unittest.skipUnless(
     tkinter_display_works(),
     "tkinter display not available (headless / no DISPLAY)",
+)
+
+# Screenshot/export tooling (ImageMagick, Ghostscript, …) is validated on Linux only.
+linux_only_tools = unittest.skipIf(
+    sys.platform == "win32",
+    "tooling tests run on Linux only",
 )

@@ -12,9 +12,11 @@ from tests.gui._helpers import (
     make_test_window,
     requires_tk_display,
 )
+from tests.tk_display import linux_only_tools
 from tools.field_canvas_export import write_robot_window_field_canvas
 
 
+@linux_only_tools
 @requires_tk_display
 class FieldCanvasExportTests(GuiTestCase):
     def test_export_field_canvas_writes_png(self) -> None:
