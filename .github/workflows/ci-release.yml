@@ -34,6 +34,11 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install -r requirements-build.txt
 
+      # PostScript→PNG fallback in tools/field_canvas_export.py (no `import` on Windows).
+      - name: Install ImageMagick (Windows field canvas export)
+        if: runner.os == 'Windows'
+        run: choco install imagemagick --no-progress -y
+
       - name: Run tests
         run: python -m unittest discover -s tests -t .
 

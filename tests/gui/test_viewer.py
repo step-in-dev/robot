@@ -12,7 +12,7 @@ from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
 from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 
-from ._helpers import GuiTestCase, requires_tk_display
+from ._helpers import GuiTestCase, emit_keypad_enter, requires_tk_display
 
 
 def _make_viewer_window() -> RobotWindow:
@@ -99,8 +99,7 @@ class RobotWindowViewerTest(GuiTestCase):
                     )
                     entry.focus_set()
                     window._viewer_number_var.set("2")
-                    entry.event_generate("<KP_Enter>", when="tail")
-                    window.root.update()
+                    emit_keypad_enter(entry, window.root)
                     self.assertEqual(window.task_id, "intro2")
                     self.assertEqual(window._viewer_number_var.get(), "2")
                 finally:

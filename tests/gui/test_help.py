@@ -123,6 +123,10 @@ class RobotWindowHelpTest(GuiTestCase):
             self.assertEqual(
                 text.get(ranges[0], ranges[1]), _EXPECTED_HELP_PROJECT_REPO_URL
             )
+            # bbox() is None for off-screen indices (Windows help layout).
+            text.see(ranges[0])
+            text.update_idletasks()
+            window.root.update_idletasks()
             bbox = text.bbox(ranges[0])
             self.assertIsNotNone(bbox)
             x = int(bbox[0] + max(bbox[2], 1) / 2)

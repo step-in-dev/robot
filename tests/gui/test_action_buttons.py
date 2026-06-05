@@ -17,6 +17,7 @@ from ._helpers import (
     GuiTestCase,
     cell_1x1,
     corridor,
+    emit_keypad_enter,
     make_env,
     make_test_window,
     requires_tk_display,
@@ -303,8 +304,7 @@ class RobotWindowActionButtonTest(GuiTestCase):
             btn = window.action_button
             self.assertIsNotNone(btn)
             window.canvas.focus_set()
-            window.canvas.event_generate("<KP_Enter>", when="tail")
-            window.root.update()
+            emit_keypad_enter(window.canvas, window.root)
             self.assertEqual(run_calls, 1)
             self.assertEqual(btn.cget("text"), ACTION_BUTTON_RESTORE)
 

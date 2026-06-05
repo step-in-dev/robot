@@ -106,6 +106,10 @@ def _postscript_to_png(
     size = f"{width}x{height}!"
     errors: list[str] = []
     for command in _png_converter_commands(ps_path, png_path, size=size):
+        # Skip missing converters (common on Windows) instead of FileNotFoundError.
+        if not _command_available(command[0]):
+            errors.append(f"{' '.join(command)}: command not found")
+            continue
         proc = subprocess.run(
             command,
             stdout=subprocess.DEVNULL,

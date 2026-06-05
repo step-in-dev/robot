@@ -1,6 +1,7 @@
 """Shared helpers for GUI unittest modules."""
 
 import contextlib
+import sys
 from typing import Callable, Iterator, List, Optional
 
 import tkinter as tk
@@ -22,6 +23,7 @@ __all__ = [
     "cell_1x1",
     "clear_i18n_cache",
     "corridor",
+    "emit_keypad_enter",
     "env_dict",
     "make_env",
     "make_test_window",
@@ -40,6 +42,16 @@ def clear_i18n_cache() -> None:
 
 def noop_success_run_env(_env: RobotEnv) -> RunResult:
     return RunResult(status="success", message="ok")
+
+
+def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
+    """Simulate numpad Enter in GUI tests."""
+    # Windows Tcl/Tk ignores synthetic <KP_Enter>; numpad Enter is <Return> there.
+    if sys.platform == "win32":
+        widget.event_generate("<Return>", when="tail")
+    else:
+        widget.event_generate("<KP_Enter>", when="tail")
+    root.update()
 
 
 def _find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:
