@@ -5,9 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import tkinter as tk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from robot.gui import RobotWindow
@@ -46,6 +47,22 @@ def write_field_canvas_png(canvas: tk.Canvas, path: Path) -> None:
 
 def _command_available(name: str) -> bool:
     return shutil.which(name) is not None
+
+
+def _imagemagick_cli() -> Optional[str]:
+    """Return ImageMagick CLI name; bare ``convert`` is a different tool on Windows."""
+    if _command_available("magick"):
+        return "magick"
+    if sys.platform != "win32" and _command_available("convert"):
+        return "convert"
+    return None
+
+
+def _ghostscript_cli() -> Optional[str]:
+    for name in ("gs", "gswin64c", "gswin32c"):
+        if _command_available(name):
+            return name
+    return None
 
 
 def _write_via_screen_crop(
@@ -106,7 +123,6 @@ def _postscript_to_png(
     size = f"{width}x{height}!"
     errors: list[str] = []
     for command in _png_converter_commands(ps_path, png_path, size=size):
-        # Skip missing converters (common on Windows) instead of FileNotFoundError.
         if not _command_available(command[0]):
             errors.append(f"{' '.join(command)}: command not found")
             continue
@@ -135,17 +151,22 @@ def _png_converter_commands(
     ps = str(ps_path)
     png = str(png_path)
     resize = ["-filter", "Point", "-resize", size]
-    return [
-        ["convert", "-density", "96", ps, *resize, png],
-        ["convert", ps, *resize, png],
-        ["magick", "convert", "-density", "96", ps, *resize, png],
-        [
-            "gs",
-            "-dNOPAUSE",
-            "-dBATCH",
-            "-dSAFER",
-            "-sDEVICE=pngalpha",
-            f"-sOutputFile={png}",
-            ps,
-        ],
-    ]
+    commands: list[list[str]] = []
+    magick = _imagemagick_cli()
+    if magick is not None:
+        commands.append([magick, "-density", "96", ps, *resize, png])
+        commands.append([magick, ps, *resize, png])
+    gs = _ghostscript_cli()
+    if gs is not None:
+        commands.append(
+            [
+                gs,
+                "-dNOPAUSE",
+                "-dBATCH",
+                "-dSAFER",
+                "-sDEVICE=pngalpha",
+                f"-sOutputFile={png}",
+                ps,
+            ]
+        )
+    return commands

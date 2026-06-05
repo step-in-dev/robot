@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -106,13 +107,12 @@ class I18nTest(unittest.TestCase):
         ):
             self.assertEqual(i18n.detect_language(), "en")
 
+    @unittest.skipIf(
+        sys.platform == "win32",
+        "getlocale(LC_MESSAGES) fallback is not used on Windows",
+    )
     def test_detect_language_getlocale_fallback_non_windows(self) -> None:
-        # Patch where i18n reads platform; on Windows runners real UI locale wins otherwise.
-        with patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False), patch(
-            "robot.i18n.sys.platform", "linux"
-        ), patch.object(
-            i18n, "_windows_ui_locale_string", return_value=None
-        ), patch.object(
+        with patch.dict(os.environ, _BLANK_LOCALE_ENV, clear=False), patch.object(
             i18n.locale, "getlocale", return_value=("uk_UA", "UTF-8")
         ):
             self.assertEqual(i18n.detect_language(), "uk")
