@@ -17,10 +17,11 @@ jobs:
           # setup-python does not publish 3.7 for Ubuntu 24.04 (ubuntu-latest).
           - python-version: "3.7"
             runner: ubuntu-22.04
-          - python-version: "3.9"
-            runner: ubuntu-latest
           - python-version: "3.12"
             runner: ubuntu-latest
+          # tkinter GUI tests need a display; Windows runners provide one (Linux CI skips them).
+          - python-version: "3.12"
+            runner: windows-latest
     steps:
       - uses: actions/checkout@v6
 
