@@ -4,6 +4,8 @@ Ten projekt to edukacyjny symulator **Robota** do nauki podstaw programowania i 
 
 Przeznaczony jest dla **uczniów** i wszystkich, którzy zaczynają naukę programowania: sekwencje, pętle, warunki i proste rozwiązywanie problemów w przyjaznym, przypominającym grę otoczeniu.
 
+**Strona:** [robot.stepindev.com](https://robot.stepindev.com) – katalog zadań, spis poleceń i artykuły.
+
 ## Przykład: zadanie `intro8`
 
 ![Zrzut ekranu zadania intro8 w interfejsie Robota](img/intro8_pl.png)

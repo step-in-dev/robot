@@ -4,6 +4,8 @@
 
 面向**学生**以及所有编程初学者，在友好的游戏式环境中练习顺序执行、循环、条件以及简单问题的求解。
 
+**网站：** [robot.stepindev.com](https://robot.stepindev.com) — 任务目录、命令参考和文章。
+
 ## 示例：任务 `intro8`
 
 ![intro8 任务在机器人桌面界面中的屏幕截图](img/intro8_zh-hans.png)

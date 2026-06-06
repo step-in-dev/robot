@@ -4,6 +4,8 @@ Ez a projekt egy oktatási **Robot**-szimulátor az alapvető programozás és a
 
 Iskolai **diákoknak** és mindenkinek készült, aki most kezd programozni tanulni: szekvenciák, ciklusok, feltételek és egyszerű problémamegoldás barátságos, játékszerű környezetben.
 
+**Weboldal:** [robot.stepindev.com](https://robot.stepindev.com) – feladatkatalógus, parancsreferencia és cikkek.
+
 ## Példa: `intro8` feladat
 
 ![Képernyőkép az intro8 feladatról a Robot felhasználói felületén](img/intro8_hu.png)

@@ -4,6 +4,8 @@ Bu proje, temel programlama ve algoritmaları öğrenmek için eğitim amaçlı 
 
 **Okul öğrencileri** ve programlamayı öğrenmeye yeni başlayan herkes için tasarlanmıştır: sıralama, döngüler, koşullar ve dostane, oyun benzeri bir ortamda basit problem çözme.
 
+**Web sitesi:** [robot.stepindev.com](https://robot.stepindev.com) – görev kataloğu, komut referansı ve makaleler.
+
 ## Örnek: `intro8` görevi
 
 ![intro8 görevinin Robot masaüstü arayüzünde ekran görüntüsü](img/intro8_tr.png)

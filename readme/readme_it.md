@@ -4,6 +4,8 @@ Questo progetto è un simulatore didattico **Robot** per imparare le basi della 
 
 È pensato per **studenti** e per chiunque inizi a programmare: sequenze, cicli, condizioni e semplici problemi da risolvere in un ambiente amichevole e simile a un gioco.
 
+**Sito web:** [robot.stepindev.com](https://robot.stepindev.com) – catalogo di compiti, riferimento comandi e articoli.
+
 ## Esempio: compito `intro8`
 
 ![Screenshot del compito intro8 nell'interfaccia utente desktop di Robot](img/intro8_it.png)

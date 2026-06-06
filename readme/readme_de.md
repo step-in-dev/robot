@@ -4,6 +4,8 @@ Dieses Projekt ist ein pädagogischer **Roboter**-Simulator zum Erlernen der Gru
 
 Es ist für **Schüler** und alle gedacht, die mit dem Programmieren beginnen: Sequenzen, Schleifen, Bedingungen und einfaches Problemlösen in einer freundlichen, spielähnlichen Umgebung.
 
+**Website:** [robot.stepindev.com](https://robot.stepindev.com) – Aufgabenkatalog, Befehlsreferenz und Artikel.
+
 ## Beispiel: Aufgabe `intro8`
 
 ![Screenshot der Aufgabe intro8 in der Roboter-Desktop-Benutzeroberfläche](img/intro8_de.png)

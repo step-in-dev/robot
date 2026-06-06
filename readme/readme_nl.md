@@ -4,6 +4,8 @@ Dit project is een educatieve **Robot**-simulator voor het leren van de basis va
 
 Het is bedoeld voor **leerlingen** en iedereen die begint met programmeren: sequenties, lussen, voorwaarden en eenvoudig probleemoplossen in een vriendelijke, spelachtige omgeving.
 
+**Website:** [robot.stepindev.com](https://robot.stepindev.com) – taakcatalogus, commandoreferentie en artikelen.
+
 ## Voorbeeld: taak `intro8`
 
 ![Schermafbeelding van de taak intro8 in de Robot-bureaubladinterface](img/intro8_nl.png)

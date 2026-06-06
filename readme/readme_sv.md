@@ -4,6 +4,8 @@ Detta projekt är en pedagogisk **Robot**-simulator för att lära sig grunderna
 
 Det är avsett för **skolelever** och alla som börjar lära sig programmering: sekvenser, loopar, villkor och enkel problemlösning i en vänlig, spelliknande miljö.
 
+**Webbplats:** [robot.stepindev.com](https://robot.stepindev.com) – uppgiftskatalog, kommandoreferens och artiklar.
+
 ## Exempel: uppgift `intro8`
 
 ![Skärmbild av uppgiften intro8 i Robot-användargränssnittet](img/intro8_sv.png)

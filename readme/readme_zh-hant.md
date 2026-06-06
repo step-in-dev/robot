@@ -4,6 +4,8 @@
 
 面向**學生**以及所有程式設計初學者，在友善的遊戲式環境中練習順序、迴圈、條件以及簡單問題的求解。
 
+**網站：** [robot.stepindev.com](https://robot.stepindev.com) — 任務目錄、命令參考和文章。
+
 ## 範例：課題 `intro8`
 
 ![intro8 課題在機器人桌面介面中的螢幕截圖](img/intro8_zh-hant.png)

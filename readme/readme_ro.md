@@ -4,6 +4,8 @@ Acest proiect este un simulator educațional **Robot** pentru învățarea progr
 
 Este destinat **elevilor** și oricui începe să învețe programare: secvențiere, bucle, condiții și rezolvarea simplă de probleme într-un cadru prietenos, de tip joc.
 
+**Site:** [robot.stepindev.com](https://robot.stepindev.com) – catalog de sarcini, referință de comenzi și articole.
+
 ## Exemplu: sarcina `intro8`
 
 ![Captură de ecran a sarcinii intro8 în interfața desktop Robot](img/intro8_ro.png)

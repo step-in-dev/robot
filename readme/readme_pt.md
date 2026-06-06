@@ -4,6 +4,8 @@ Este projeto é um simulador educacional do **Robô** para aprender os fundament
 
 Ele é destinado a **alunos de escola** e qualquer pessoa que esteja começando a aprender programação: sequências, laços, condições e resolução simples de problemas em um ambiente amigável, semelhante a um jogo.
 
+**Site:** [robot.stepindev.com](https://robot.stepindev.com) – catálogo de tarefas, referência de comandos e artigos.
+
 ## Exemplo: tarefa `intro8`
 
 ![Captura de tela da tarefa intro8 na interface de ambiente de trabalho do Robô](img/intro8_pt.png)

@@ -4,6 +4,8 @@ Tento projekt je vzdělávací simulátor **Robota** pro výuku základů progra
 
 Je určen pro **studenty** a všechny, kdo začínají s programováním: posloupnosti, cykly, podmínky a jednoduché řešení problémů v přívětivém, herním prostředí.
 
+**Web:** [robot.stepindev.com](https://robot.stepindev.com) – katalog úloh, přehled příkazů a články.
+
 ## Příklad: úloha `intro8`
 
 ![Snímek obrazovky úlohy intro8 v uživatelském rozhraní Robota](img/intro8_cs.png)
