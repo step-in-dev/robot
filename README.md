@@ -6,6 +6,8 @@ This project is an educational **Robot** simulator for learning basic programmin
 
 It is intended for **school students** and anyone beginning to learn programming: sequencing, loops, conditions, and simple problem solving in a friendly, game-like setting.
 
+**Website:** [robot.stepindev.com](https://robot.stepindev.com) – task catalog, command reference, and articles.
+
 ## Example: task `intro8`
 
 ![Screenshot of the intro8 task in the Robot desktop UI](readme/img/intro8_en.png)
