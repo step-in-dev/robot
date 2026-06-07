@@ -105,6 +105,21 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "articles_heading": "Articles",
         "articles_intro": "Long-form guides about the Robot simulator for teachers and learners.",
         "articles_empty": "No articles published yet.",
+        "editor_nav": "Environment editor",
+        "editor_intro": "Step-by-step instructions for adding custom Robot tasks with the online environment editor.",
+        "editor_step_1": "Open the {link}.",
+        "editor_step_2": "Create as many environments as the task needs.",
+        "editor_step_3": "Save the environments to a file. In the save dialog, choose Environment and enter a file name ending in .env.",
+        "editor_step_4": "Copy the .env file to the robot/tasks folder of the robot package.",
+        "editor_step_5": "In your Python program, call task() with the file name without the .env extension.",
+        "editor_note_heading": "Note",
+        "editor_note_p1": "The editor does not support task conditions (todoText) in more than one language. If you need localized conditions, edit the file manually.",
+        "editor_note_p2": "The editor does not support constraints such as operator limits, custom function call counts, or required or banned keywords. Add these fields manually following the {link}.",
+        "editor_format_link": "task .env file format",
+        "editor_online_editor": "online environment editor",
+        "editor_fig_editor": "Environment editor.",
+        "editor_fig_save": "Save environments dialog.",
+        "editor_example_task": "robot",
     },
     "ru": {
         "site_name": "Робот",
@@ -139,8 +154,29 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "articles_heading": "Статьи",
         "articles_intro": "Подробные материалы об исполнителе «Робот» для учителей и учащихся.",
         "articles_empty": "Пока нет опубликованных статей.",
+        "editor_nav": "Редактор обстановок",
+        "editor_intro": "Пошаговая инструкция по добавлению своих задач для исполнителя «Робот» с помощью онлайн-редактора обстановок.",
+        "editor_step_1": "Откройте {link}.",
+        "editor_step_2": "Создайте нужное количество обстановок для задачи.",
+        "editor_step_3": "Сохраните обстановки в файл. В диалоге сохранения выберите «Обстановка» и укажите имя файла с расширением .env.",
+        "editor_step_4": "Скопируйте файл .env в папку robot/tasks модуля robot.",
+        "editor_step_5": "В программе на Python вызовите task() с именем файла без расширения .env.",
+        "editor_note_heading": "Замечание",
+        "editor_note_p1": "Редактор не поддерживает условие задачи (todoText) более чем на одном языке. Если нужны переводы, отредактируйте файл вручную.",
+        "editor_note_p2": "Редактор не поддерживает ограничения: лимит действий Робота, число вызовов своих функций, обязательные и запрещённые ключевые слова и т.п. Добавьте такие поля вручную по {link}.",
+        "editor_format_link": "формату файла обстановки",
+        "editor_online_editor": "онлайн-редактор обстановок",
+        "editor_fig_editor": "Редактор обстановок.",
+        "editor_fig_save": "Диалог сохранения обстановки.",
+        "editor_example_task": "robot",
     },
 }
+
+EDITOR_PAGE_URL = {
+    "en": "https://stepindev.com/en/py-robot",
+    "ru": "https://stepindev.com/ru/py-robot",
+}
+ENV_FORMAT_DOC_URL = "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md"
 
 COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {
     "en": {
@@ -244,6 +280,10 @@ def catalog_relpath(lang: str) -> str:
 
 def commands_relpath(lang: str) -> str:
     return page_filename(lang, "commands")
+
+
+def editor_relpath(lang: str) -> str:
+    return page_filename(lang, "editor")
 
 
 def articles_index_relpath(lang: str) -> str:
@@ -422,6 +462,7 @@ def render_site_nav_list(layout: PageLayout) -> str:
         ("get_started_nav", get_started_href(layout), None),
         ("tasks_nav", layout.href(catalog_relpath(layout.lang)), "catalog"),
         ("commands_nav", layout.href(commands_relpath(layout.lang)), "commands"),
+        ("editor_nav", layout.href(editor_relpath(layout.lang)), "editor"),
         ("articles_nav", layout.href(articles_index_relpath(layout.lang)), "articles_index"),
     )
     lines = ["        <ul class=\"site-nav__list\">"]
@@ -471,12 +512,14 @@ def render_header(layout: PageLayout) -> str:
 def render_footer(layout: PageLayout) -> str:
     catalog = layout.href(catalog_relpath(layout.lang))
     commands = layout.href(commands_relpath(layout.lang))
+    editor = layout.href(editor_relpath(layout.lang))
     return f"""  <footer class="site-footer">
     <div class="site-footer__inner">
       <p class="site-footer__brand"><span class="brand__mark brand__mark--small" aria-hidden="true"></span> {escape(_ui(layout.lang, "footer_tagline"))}</p>
       <ul class="site-footer__links">
         <li><a href="{catalog}">{escape(_ui(layout.lang, "tasks_nav"))}</a></li>
         <li><a href="{commands}">{escape(_ui(layout.lang, "commands_nav"))}</a></li>
+        <li><a href="{editor}">{escape(_ui(layout.lang, "editor_nav"))}</a></li>
         <li><a href="https://github.com/step-in-dev/robot" rel="noopener noreferrer" target="_blank">GitHub</a></li>
         <li><a href="https://github.com/step-in-dev/robot/releases" rel="noopener noreferrer" target="_blank">{escape(_ui(layout.lang, "releases"))}</a></li>
       </ul>
@@ -951,6 +994,110 @@ def build_commands_page(lang: str) -> str:
     return wrap_page(layout, main)
 
 
+def _external_link(url: str, label: str) -> str:
+    return (
+        f'<a href="{escape(url)}" rel="noopener noreferrer" target="_blank">'
+        f"{escape(label)}</a>"
+    )
+
+
+def build_editor_page(lang: str) -> str:
+    canonical = editor_relpath(lang)
+    title = f"{_ui(lang, 'editor_nav')} | Robot"
+    description = normalize_meta_description(_ui(lang, "editor_intro"))
+    crumbs = [
+        (_ui(lang, "home"), home_relpath(lang)),
+        (_ui(lang, "editor_nav"), canonical),
+    ]
+
+    editor_url = EDITOR_PAGE_URL[lang]
+    editor_link = _external_link(editor_url, _ui(lang, "editor_online_editor"))
+    format_link = _external_link(ENV_FORMAT_DOC_URL, _ui(lang, "editor_format_link"))
+
+    step_1 = escape(_ui(lang, "editor_step_1", link="{link}")).replace(
+        "{link}", editor_link
+    )
+    step_2 = escape(_ui(lang, "editor_step_2"))
+    step_3 = escape(_ui(lang, "editor_step_3"))
+    step_4 = escape(_ui(lang, "editor_step_4"))
+    step_5 = escape(_ui(lang, "editor_step_5"))
+
+    save_img = "save_env_ru.png" if lang == "ru" else "save_env_en.png"
+    example_task = escape(_ui(lang, "editor_example_task"))
+
+    note_p2 = escape(_ui(lang, "editor_note_p2", link="{link}")).replace(
+        "{link}", format_link
+    )
+
+    layout = PageLayout(
+        lang=lang,
+        depth=0,
+        page_kind="editor",
+        title=title,
+        description=description,
+        canonical_path=canonical,
+        alternate_en=editor_relpath("en"),
+        alternate_ru=editor_relpath("ru"),
+        json_ld={
+            "@context": "https://schema.org",
+            "@graph": [
+                breadcrumb_json_ld(crumbs),
+                {
+                    "@type": "TechArticle",
+                    "name": _ui(lang, "editor_nav"),
+                    "description": description,
+                    "inLanguage": lang,
+                    "url": absolute_url(canonical),
+                },
+            ],
+        },
+    )
+    crumb_html = render_breadcrumbs(layout, crumbs)
+
+    main = f"""    <div class="hub-page editor-page">
+      {crumb_html}
+      <header class="content-header">
+        <h1>{escape(_ui(lang, "editor_nav"))}</h1>
+        <p class="section__intro">{escape(_ui(lang, "editor_intro"))}</p>
+      </header>
+      <ol class="editor-steps">
+        <li>
+          <p>{step_1}</p>
+        </li>
+        <li>
+          <p>{step_2}</p>
+          <figure class="inline-figure">
+            <img src="{layout.href("img/editor/editor.png")}" width="563" height="535" alt="{escape(_ui(lang, "editor_fig_editor"))}" loading="lazy">
+            <figcaption>{escape(_ui(lang, "editor_fig_editor"))}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <p>{step_3}</p>
+          <figure class="inline-figure">
+            <img src="{layout.href(f"img/editor/{save_img}")}" width="{561 if lang == "en" else 562}" height="{282 if lang == "en" else 283}" alt="{escape(_ui(lang, "editor_fig_save"))}" loading="lazy">
+            <figcaption>{escape(_ui(lang, "editor_fig_save"))}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <p>{step_4}</p>
+        </li>
+        <li>
+          <p>{step_5}</p>
+          <pre class="code-block"><code>from robot import *
+
+task("{example_task}")</code></pre>
+        </li>
+      </ol>
+      <div class="callout">
+        <h3>{escape(_ui(lang, "editor_note_heading"))}</h3>
+        <p>{escape(_ui(lang, "editor_note_p1"))}</p>
+        <p>{note_p2}</p>
+      </div>
+    </div>
+"""
+    return wrap_page(layout, main)
+
+
 def collect_sitemap_urls(
     catalog: TaskCatalog,
     lastmod: str,
@@ -960,6 +1107,7 @@ def collect_sitemap_urls(
     groups: List[Tuple[str, str, str]] = [
         ("index.html", "index_ru.html", lastmod),
         (commands_relpath("en"), commands_relpath("ru"), lastmod),
+        (editor_relpath("en"), editor_relpath("ru"), lastmod),
         (catalog_relpath("en"), catalog_relpath("ru"), lastmod),
     ]
     if article_groups:
@@ -1053,6 +1201,7 @@ def generate_all() -> Tuple[TaskCatalog, list]:
 
     for lang in SUPPORTED_SITE_LANGS:
         write_page(WEBSITE_DIR / commands_relpath(lang), build_commands_page(lang))
+        write_page(WEBSITE_DIR / editor_relpath(lang), build_editor_page(lang))
         write_page(WEBSITE_DIR / catalog_relpath(lang), build_catalog(catalog, lang))
 
     for theme_prefix in catalog.themes:
@@ -1083,7 +1232,7 @@ def main() -> int:
     task_count = sum(len(catalog.task_ids_for(t)) for t in catalog.themes)
     print(
         f"Generated {task_count} task pages × {len(SUPPORTED_SITE_LANGS)} languages, "
-        f"{len(catalog.themes)} theme hubs, command reference, "
+        f"{len(catalog.themes)} theme hubs, command reference, environment editor, "
         f"{len(articles)} article(s), and sitemap."
     )
     return 0
