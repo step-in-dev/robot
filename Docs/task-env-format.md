@@ -42,9 +42,13 @@ Non-string values inside the localization object are ignored.
 
 For **Arabic** (`ar`) and **Urdu** (`ur`) strings, follow the same Unicode bidirectional isolation rules as other UI copy: wrap embedded left-to-right fragments (Python tokens such as `"for"`, `paint()`, Latin identifiers, and Western digits) with U+2066 LRI … U+2069 PDI as described in [`localization-style.md`](localization-style.md#unicode-bidirectional-isolation-rtl-locales).
 
-## `customFunctionCallCount`
+## Script constraint checks
 
-`customFunctionCallCount` is checked statically from the student source code before execution.
+Fields `operatorsLimit`, `customFunctionCallCount`, `ifLimit`, `whileLimit`, `requiredKeywords`, and `bannedKeywords` are enforced by **static** analysis of the student source code (AST parsing or Python tokenization, not runtime tracing).
+
+The GUI invokes these checks in [`robot/gui.py`](../robot/gui.py) **after a successful run**: when **Run** completes all environments successfully, or when a **Step** session finishes with success. [`run_solution_on_env`](../robot/executor.py) does not perform them. If the program errors, crashes, or leaves a wrong final state, constraint violations are not reported.
+
+## `customFunctionCallCount`
 
 A call counts only when all of the following are true:
 
@@ -59,8 +63,6 @@ Examples:
 - `customFunctionCallCount: 2` is also satisfied by two different qualifying user-defined functions called once each.
 
 ## `operatorsLimit`
-
-`operatorsLimit` is checked statically from the student source code before execution.
 
 The checker parses the AST and counts:
 
@@ -85,8 +87,6 @@ This counts as 3: `move_right` (1) + `step` (2).
 
 ## `ifLimit` and `whileLimit`
 
-Both fields are checked statically from the student source code before execution, similar to `operatorsLimit`.
-
 - The value must be a non-negative integer.
 - The checker uses Python tokenization, so keywords inside comments or string literals do not count.
 - Each occurrence of the keyword as a real token counts, including the `if` in a conditional expression such as `x if cond else y`.
@@ -97,8 +97,6 @@ Examples:
 - `whileLimit: 0` rejects any solution that uses `while`.
 
 ## `requiredKeywords` and `bannedKeywords`
-
-Both fields are checked statically from the student source code before execution.
 
 - The value format is a comma-separated string such as `"for,def"` or `"while, if"`.
 - Spaces around items are ignored.
