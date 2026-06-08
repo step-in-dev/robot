@@ -54,7 +54,7 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn("https://stepindev.com/en/py-robot", html)
         self.assertIn('src="img/editor/editor.png"', html)
         self.assertIn('src="img/editor/save_env_en.png"', html)
-        self.assertIn("Docs/task-env-format.md", html)
+        self.assertIn("Docs/task-env-format.md#solution-constraints", html)
         self.assertIn('href="editor.html"', html)
         self.assertIn('task("robot")', html)
 
@@ -65,7 +65,10 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn("https://stepindev.com/ru/py-robot", html)
         self.assertIn('src="img/editor/save_env_ru.png"', html)
         self.assertIn('href="editor_ru.html"', html)
-        self.assertIn("Docs/task-env-format.ru.md", html)
+        self.assertIn(
+            "Docs/task-env-format.ru.md#%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
+            html,
+        )
 
 
 if __name__ == "__main__":

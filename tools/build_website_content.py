@@ -115,7 +115,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "editor_note_heading": "Note",
         "editor_note_p1": "The editor does not support task conditions (todoText) in more than one language. If you need localized conditions, edit the file manually.",
         "editor_note_p2": "The editor does not support constraints such as operator limits, custom function call counts, or required or banned keywords. Add these fields manually following the {link}.",
-        "editor_format_link": "task .env file format",
+        "editor_format_link": "solution constraints documentation",
         "editor_online_editor": "online environment editor",
         "editor_fig_editor": "Environment editor.",
         "editor_fig_save": "Save environments dialog.",
@@ -164,7 +164,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "editor_note_heading": "Замечание",
         "editor_note_p1": "Редактор не поддерживает условие задачи (todoText) более чем на одном языке. Если нужны переводы, отредактируйте файл вручную.",
         "editor_note_p2": "Редактор не поддерживает ограничения: лимит действий Робота, число вызовов своих функций, обязательные и запрещённые ключевые слова и т.п. Добавьте такие поля вручную по {link}.",
-        "editor_format_link": "формату файла обстановки",
+        "editor_format_link": "описанию ограничений",
         "editor_online_editor": "онлайн-редактор обстановок",
         "editor_fig_editor": "Редактор обстановок.",
         "editor_fig_save": "Диалог сохранения обстановки.",
@@ -177,8 +177,8 @@ EDITOR_PAGE_URL = {
     "ru": "https://stepindev.com/ru/py-robot",
 }
 ENV_FORMAT_DOC_URL = {
-    "en": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md",
-    "ru": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.ru.md",
+    "en": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md#solution-constraints",
+    "ru": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.ru.md#%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
 }
 
 COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {
