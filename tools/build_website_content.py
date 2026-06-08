@@ -176,7 +176,10 @@ EDITOR_PAGE_URL = {
     "en": "https://stepindev.com/en/py-robot",
     "ru": "https://stepindev.com/ru/py-robot",
 }
-ENV_FORMAT_DOC_URL = "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md"
+ENV_FORMAT_DOC_URL = {
+    "en": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md",
+    "ru": "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.ru.md",
+}
 
 COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {
     "en": {
@@ -1012,7 +1015,7 @@ def build_editor_page(lang: str) -> str:
 
     editor_url = EDITOR_PAGE_URL[lang]
     editor_link = _external_link(editor_url, _ui(lang, "editor_online_editor"))
-    format_link = _external_link(ENV_FORMAT_DOC_URL, _ui(lang, "editor_format_link"))
+    format_link = _external_link(ENV_FORMAT_DOC_URL[lang], _ui(lang, "editor_format_link"))
 
     step_1 = escape(_ui(lang, "editor_step_1", link="{link}")).replace(
         "{link}", editor_link

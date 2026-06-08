@@ -1,3 +1,5 @@
+> Canonical English version. Russian translation: [task-env-format.ru.md](task-env-format.ru.md). Update the RU file manually whenever you change this document.
+
 # Robot Task `.env` Format
 
 Task files use the `.env` extension, but their contents are UTF-8 JSON.

@@ -65,6 +65,7 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn("https://stepindev.com/ru/py-robot", html)
         self.assertIn('src="img/editor/save_env_ru.png"', html)
         self.assertIn('href="editor_ru.html"', html)
+        self.assertIn("Docs/task-env-format.ru.md", html)
 
 
 if __name__ == "__main__":

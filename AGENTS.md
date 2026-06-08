@@ -19,7 +19,8 @@ The target audience is school students who are learning introductory programming
 
 ## Documentation
 
-- `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py`.
+- `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py` (canonical English).
+- `Docs/task-env-format.ru.md` is the Russian translation; keep it in sync manually when the English doc changes.
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
 - `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
