@@ -99,7 +99,7 @@ Supported fields:
 
 ### When checks run
 
-The GUI invokes these checks in [`robot/gui.py`](../robot/gui.py) **after a successful run**: when **Run** completes all environments successfully, or when a **Step** session finishes with success. [`run_solution_on_env`](../robot/executor.py) does not perform them. If the program errors, crashes, or leaves a wrong final state, constraint violations are not reported.
+Checks run after the program finishes successfully on all environments when started with **Run**, or after the program completes successfully on one environment using **Step**. If the program ends with an error or leaves an incorrect final state, constraint violations are not reported.
 
 ### `customFunctionCallCount`
 
