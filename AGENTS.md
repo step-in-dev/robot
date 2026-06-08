@@ -47,3 +47,32 @@ Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.h
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).
 
+## Cursor Cloud specific instructions
+
+This repo has no backend server or Docker stack. Development is Python stdlib + a local `.venv` (see `Docs/linting.md`).
+
+### System packages (Ubuntu/Debian)
+
+On a minimal Linux image, install once (not covered by the VM update script):
+
+- `python3-tk` — required for the desktop UI and GUI tests
+- `python3-venv` — required to create `.venv`
+- `imagemagick` and `ghostscript` — optional; needed only for `tests/test_field_canvas_export.py` and screenshot tooling (`Docs/website-screenshots.md`)
+
+`DISPLAY` must be set for interactive GUI and GUI tests (Cloud Agent VMs provide `:1`).
+
+### Commands
+
+Use the project venv after the update script runs:
+
+| Task | Command |
+|------|---------|
+| Tests | `.venv/bin/python -m unittest discover -s tests -t .` |
+| Lint (src) | `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc robot viewer/viewer.py tools` |
+| Lint (tests) | `.venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc tests` |
+| Student app | `.venv/bin/python sample_solution.py` (opens tkinter window; calls `task("intro1")`) |
+| Teacher viewer | `.venv/bin/python viewer/viewer.py` |
+| Build website | `.venv/bin/python tools/build_website_content.py` |
+
+There is no dev server to keep running. `sample_solution.py` and `viewer/viewer.py` block on `mainloop()` until the window is closed.
+
