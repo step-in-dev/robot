@@ -22,6 +22,50 @@ Each task file must contain a JSON object with the following fields:
 
 Optional solution-constraint fields (`operatorsLimit`, `customFunctionCallCount`, `ifLimit`, `whileLimit`, `requiredKeywords`, `bannedKeywords`) — see [Solution constraints](#solution-constraints).
 
+## `envDtos` Entry Format
+
+Each item in `envDtos` must be an object with these required fields:
+
+- `width`: field width.
+- `height`: field height.
+- `startRow`: robot start row.
+- `startCol`: robot start column.
+- `finalRow`: target row.
+- `finalCol`: target column.
+
+Supported optional fields:
+
+- `walls`: array of wall segments.
+- `paintedCells`: array of already painted cells at start.
+- `cellsToPaint`: array of cells that must be painted by the solution.
+- `pollutedCells`: array of valued cells readable through `pol()`.
+- `cellsToPrint`: array of valued cells that must be printed by `printn()`.
+
+### Cell Formats
+
+Simple cell object:
+
+```json
+{ "r": 1, "c": 3 }
+```
+
+Valued cell object:
+
+```json
+{ "r": 1, "c": 4, "value": 7 }
+```
+
+Wall segment:
+
+```json
+[
+  { "r": 0, "c": 0 },
+  { "r": 0, "c": 1 }
+]
+```
+
+`walls` should describe a barrier between two neighboring cells.
+
 ## `todoText`
 
 `todoText` supports two forms:
@@ -121,50 +165,6 @@ Examples:
 - `requiredKeywords: "for,def"` requires the solution to use both `for` and `def`.
 - `bannedKeywords: "while"` rejects any solution that uses `while`.
 - `requiredKeywords: "for"` is satisfied by `for _ in range(3): ...`, but not by a comment like `# for`.
-
-## `envDtos` Entry Format
-
-Each item in `envDtos` must be an object with these required fields:
-
-- `width`: field width.
-- `height`: field height.
-- `startRow`: robot start row.
-- `startCol`: robot start column.
-- `finalRow`: target row.
-- `finalCol`: target column.
-
-Supported optional fields:
-
-- `walls`: array of wall segments.
-- `paintedCells`: array of already painted cells at start.
-- `cellsToPaint`: array of cells that must be painted by the solution.
-- `pollutedCells`: array of valued cells readable through `pol()`.
-- `cellsToPrint`: array of valued cells that must be printed by `printn()`.
-
-### Cell Formats
-
-Simple cell object:
-
-```json
-{ "r": 1, "c": 3 }
-```
-
-Valued cell object:
-
-```json
-{ "r": 1, "c": 4, "value": 7 }
-```
-
-Wall segment:
-
-```json
-[
-  { "r": 0, "c": 0 },
-  { "r": 0, "c": 1 }
-]
-```
-
-`walls` should describe a barrier between two neighboring cells.
 
 ## Minimal Example
 
