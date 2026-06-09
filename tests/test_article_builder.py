@@ -61,6 +61,13 @@ class ParseLocaleMdTest(unittest.TestCase):
         self.assertIn("# Test title", locale.body)
 
 
+class DiscoverArticlesTest(unittest.TestCase):
+    def test_sorts_by_descending_order(self) -> None:
+        articles = discover_articles()
+        ids = [article.article_id for article in articles]
+        self.assertEqual(ids, ["quick-task-selection", "robot-simulator-intro"])
+
+
 class ValidateArticlesTest(unittest.TestCase):
     def test_rejects_duplicate_order(self) -> None:
         articles = [

@@ -140,7 +140,7 @@ def discover_articles(articles_dir: Path = ARTICLES_DIR) -> List[Article]:
                 )
             article.locales[lang] = parse_locale_md(md_path)
         articles.append(article)
-    articles.sort(key=lambda item: (item.order, item.article_id))
+    articles.sort(key=lambda item: (-item.order, item.article_id))
     return articles
 
 

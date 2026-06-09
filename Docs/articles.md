@@ -27,7 +27,7 @@ Required fields:
 
 | Field | Type | Purpose |
 | ----- | ---- | ------- |
-| `order` | integer | Position in the site article index (must be unique across article folders) |
+| `order` | integer | Sort key for the article index; higher values appear first (must be unique across article folders) |
 | `date` | string | Publication date, `YYYY-MM-DD` |
 | `author` | string | Author name |
 | `slug` | object | Map of locale code → URL slug, e.g. `en` and `ru` |
@@ -122,7 +122,7 @@ Implementation: [`tools/article_builder.py`](../tools/article_builder.py), invok
 
 ## List order
 
-The site index sorts article folders by ascending `order`. If two folders share the same `order`, the folder name (`article_id`) is the tie-breaker (lexicographic).
+The site index sorts article folders by descending `order` (higher values appear first, so the newest article is at the top). If two folders share the same `order`, the folder name (`article_id`) is the tie-breaker (lexicographic).
 
 ## Translations and language alternates
 
