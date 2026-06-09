@@ -81,7 +81,7 @@ A typical lesson flow:
 
 *All environments passed. One program worked for every field variant.*
 
-For teachers there is a task viewer mode: from the unpacked release archive, run `python viewer/viewer.py`. Open the catalog, pick a topic and number, and show the goal and all environments on a projector without running a student solution.
+For teachers there is a task viewer: from the unpacked release archive, run `python viewer/viewer.py`. Open the catalog, pick a topic and number, and show the goal and all environments on a projector without running a student solution.
 
 ---
 
@@ -292,7 +292,7 @@ This is not a side game. It introduces the "computer, simulator" scheme.
 
 ### Lesson prep for the teacher
 
-- Open task viewer mode: pick a topic, read the goal, flip through environments.
+- Open the task viewer: pick a topic, read the goal, flip through environments.
 - Note limits in the task: operator limit, required function call, rules against extra constructs. They steer students toward the idea you want that day.
 - For difficult mistakes, debug step by step in the Robot window on a projector.
 
