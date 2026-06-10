@@ -898,6 +898,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         finally:
             try:
                 self._execution.is_run_all_active = False
+                self._ignore_action_enter_until_idle = False
                 if not self.is_closed:
                     self.configure_tab_buttons()
                     self._set_action_to_restore(

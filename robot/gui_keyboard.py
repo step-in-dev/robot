@@ -57,6 +57,7 @@ class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
         if self.is_closed:
             return
         if self._is_run_all_active:
-            self.root.after_idle(self._deferred_clear_enter_ignore)
+            # Run clears the flag in run_all() finally; do not reschedule idle work
+            # here because poll_run_events() calls root.update() during Run.
             return
         self._ignore_action_enter_until_idle = False

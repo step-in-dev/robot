@@ -21,6 +21,9 @@ from ._helpers import (
     GuiTestCase,
     cell_1x1,
     corridor,
+    emit_action_enter_press,
+    emit_action_enter_press_release,
+    emit_action_enter_release,
     emit_keypad_enter,
     make_env,
     make_test_window,
@@ -211,6 +214,57 @@ class RobotWindowActionButtonTest(GuiTestCase):
             finally:
                 window.close()
 
+    def test_enter_start_run_with_trace_polling_can_stop(self) -> None:
+        """Enter-started Run must stay cancellable when trace polls Tk events."""
+        envs = [make_env(cell_1x1())]
+        poll_calls = 0
+
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "stop_loop.py"
+            script.write_text(
+                "from robot import paint\n"
+                "paint()\n"
+                "while True:\n"
+                "    pass\n",
+                encoding="utf-8",
+            )
+            window = None
+
+            def run_env(env: RobotEnv) -> RunResult:
+                nonlocal poll_calls
+                assert window is not None
+
+                def poll_events() -> None:
+                    nonlocal poll_calls
+                    poll_calls += 1
+                    window._poll_run_events()
+
+                return run_solution_on_env(
+                    script,
+                    "stop_loop",
+                    env,
+                    should_cancel=lambda: poll_calls >= 3 and window._should_stop_run(),
+                    poll_events=poll_events,
+                )
+
+            window = make_test_window(
+                "enter_stop_loop",
+                envs,
+                run_env,
+                options=RobotWindowOptions(script_path=script),
+            )
+            try:
+                window.canvas.focus_set()
+                with patch("robot.executor.RUN_EVENT_POLL_INTERVAL_SECONDS", 0.0):
+                    window.root.after(0, window.stop_run)
+                    emit_action_enter_press_release(window.canvas, window.root)
+                self.assertGreater(poll_calls, 0)
+                self.assertEqual(window.status_var.get(), EXECUTION_CANCELLED_MESSAGE)
+                self.assertTrue(envs[0].robot.is_cell_painted())
+                self.assertEqual(window.action_button.cget("text"), ACTION_BUTTON_RESTORE)
+            finally:
+                window.close()
+
     def test_queued_invokes_during_run_do_not_restore_then_rerun(self) -> None:
         """Queued button invokes while disabled must not restore then start run_all."""
         envs = [make_env(cell_1x1())]
@@ -308,10 +362,8 @@ class RobotWindowActionButtonTest(GuiTestCase):
 
                 def enqueue_two_enters() -> None:
                     for _ in range(2):
-                        window.canvas.event_generate("<Return>", when="tail")
-                        window.canvas.event_generate(
-                            "<KeyRelease-Return>", when="tail"
-                        )
+                        emit_action_enter_press(window.canvas)
+                        emit_action_enter_release(window.canvas)
 
                 window.root.after(0, enqueue_two_enters)
                 return RunResult(status="success", message="ok")

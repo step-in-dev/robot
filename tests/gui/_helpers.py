@@ -23,6 +23,9 @@ __all__ = [
     "cell_1x1",
     "clear_i18n_cache",
     "corridor",
+    "emit_action_enter_press",
+    "emit_action_enter_press_release",
+    "emit_action_enter_release",
     "emit_keypad_enter",
     "env_dict",
     "make_env",
@@ -42,6 +45,23 @@ def clear_i18n_cache() -> None:
 
 def noop_success_run_env(_env: RobotEnv) -> RunResult:
     return RunResult(status="success", message="ok")
+
+
+def emit_action_enter_press(widget: tk.Misc) -> None:
+    """Simulate main Enter key press for action-button bindings."""
+    widget.event_generate("<Return>", when="tail")
+
+
+def emit_action_enter_release(widget: tk.Misc) -> None:
+    """Simulate main Enter key release for action-button bindings."""
+    widget.event_generate("<KeyRelease-Return>", when="tail")
+
+
+def emit_action_enter_press_release(widget: tk.Misc, root: tk.Misc) -> None:
+    """Simulate main Enter press and release, then flush Tk events."""
+    emit_action_enter_press(widget)
+    emit_action_enter_release(widget)
+    root.update()
 
 
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
