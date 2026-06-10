@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from robot import runtime
-from robot.executor import run_solution_on_env
+from robot.executor import StudentSolution, run_solution_on_env
 from robot.i18n import clear_translation_cache, t
 from robot.model import RobotError
 
@@ -245,8 +245,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 encoding="utf-8",
             )
             result = run_solution_on_env(
-                script,
-                "dummy_task",
+                StudentSolution(script, "dummy_task"),
                 one,
                 command_delay_seconds=0.0,
             )
@@ -264,8 +263,7 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                     encoding="utf-8",
                 )
                 result = run_solution_on_env(
-                    script,
-                    "dummy_task",
+                    StudentSolution(script, "dummy_task"),
                     one,
                     command_delay_seconds=0.0,
                 )

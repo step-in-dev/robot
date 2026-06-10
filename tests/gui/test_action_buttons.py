@@ -7,7 +7,12 @@ from unittest.mock import call, patch
 
 import tkinter as tk
 
-from robot.executor import EXECUTION_CANCELLED_MESSAGE, run_solution_on_env
+from robot.executor import (
+    EXECUTION_CANCELLED_MESSAGE,
+    RunExecutionCallbacks,
+    StudentSolution,
+    run_solution_on_env,
+)
 from robot.gui import INTER_ENV_PAUSE_SECONDS, RobotWindowOptions
 from robot.model import RobotEnv
 from robot.gui_theme import (
@@ -186,11 +191,13 @@ class RobotWindowActionButtonTest(GuiTestCase):
                     window._poll_run_events()
 
                 return run_solution_on_env(
-                    script,
-                    "stop_loop",
+                    StudentSolution(script, "stop_loop"),
                     env,
-                    should_cancel=lambda: poll_calls >= 3 and window._should_stop_run(),
-                    poll_events=poll_events,
+                    callbacks=RunExecutionCallbacks(
+                        should_cancel=lambda: poll_calls >= 3
+                        and window._should_stop_run(),
+                        poll_events=poll_events,
+                    ),
                 )
 
             window = make_test_window(
@@ -240,11 +247,13 @@ class RobotWindowActionButtonTest(GuiTestCase):
                     window._poll_run_events()
 
                 return run_solution_on_env(
-                    script,
-                    "stop_loop",
+                    StudentSolution(script, "stop_loop"),
                     env,
-                    should_cancel=lambda: poll_calls >= 3 and window._should_stop_run(),
-                    poll_events=poll_events,
+                    callbacks=RunExecutionCallbacks(
+                        should_cancel=lambda: poll_calls >= 3
+                        and window._should_stop_run(),
+                        poll_events=poll_events,
+                    ),
                 )
 
             window = make_test_window(

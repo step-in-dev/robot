@@ -12,8 +12,8 @@ from .executor import (
     EXECUTION_CANCELLED_MESSAGE,
     StepExecutionCallbacks,
     StepExecutionSession,
-    StepExecutionTarget,
     StudentLine,
+    StudentSolution,
     check_limit_violations,
 )
 
@@ -764,7 +764,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         if self._step_session is None:
             env = self._task.envs[self.selected_index]
             self._execution.step_session = StepExecutionSession(
-                StepExecutionTarget(self.script_path, self._task.task_id),
+                StudentSolution(self.script_path, self._task.task_id),
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=self._show_step_line,

@@ -59,8 +59,16 @@ class StepExecutionCallbacks:
 
 
 @dataclass(frozen=True)
-class StepExecutionTarget:
-    """Script file and task id for one stepping session."""
+class RunExecutionCallbacks:
+    """GUI hooks for a full Run (cancellation and Tk event polling)."""
+
+    should_cancel: Optional[Callable[[], bool]] = None
+    poll_events: Optional[Callable[[], None]] = None
+
+
+@dataclass(frozen=True)
+class StudentSolution:
+    """Student script file and task id for one solution run (Run or Step)."""
 
     script_path: Path
     task_id: str
@@ -171,12 +179,13 @@ def check_limit_violations(
 def _make_run_trace(
     script_path: Path,
     *,
-    should_cancel: Optional[Callable[[], bool]] = None,
-    poll_events: Optional[Callable[[], None]] = None,
+    callbacks: Optional[RunExecutionCallbacks] = None,
 ):
     """Build a trace hook that keeps Run responsive and cancellable."""
     script_filename = str(script_path)
     last_poll_at = time.monotonic()
+    should_cancel = None if callbacks is None else callbacks.should_cancel
+    poll_events = None if callbacks is None else callbacks.poll_events
 
     def raise_if_cancelled() -> None:
         if should_cancel is not None and should_cancel():
@@ -226,13 +235,13 @@ class StepExecutionSession:
 
     def __init__(
         self,
-        target: StepExecutionTarget,
+        solution: StudentSolution,
         env: RobotEnv,
         *,
         callbacks: StepExecutionCallbacks,
         command_delay_seconds: float = 0.0,
     ) -> None:
-        script_path = target.script_path
+        script_path = solution.script_path
         try:
             resolved_script = script_path.resolve()
         except OSError:
@@ -243,7 +252,7 @@ class StepExecutionSession:
         self._script = _StepScript(
             script_path=script_path,
             resolved_script=resolved_script,
-            task_id=target.task_id,
+            task_id=solution.task_id,
             source_lines=[],
             namespace={
                 "__name__": "__main__",
@@ -381,17 +390,18 @@ class StepExecutionSession:
 
 
 def run_solution_on_env(
-    script_path: Path,
-    task_id: str,
+    solution: StudentSolution,
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
     *,
-    should_cancel: Optional[Callable[[], bool]] = None,
-    poll_events: Optional[Callable[[], None]] = None,
+    callbacks: Optional[RunExecutionCallbacks] = None,
 ) -> RunResult:
     """Execute a student script on one environment and return the run outcome."""
+    script_path = solution.script_path
     env.reset()
-    previous_delay = begin_solution_run(env, task_id, command_delay_seconds)
+    previous_delay = begin_solution_run(
+        env, solution.task_id, command_delay_seconds
+    )
 
     namespace = {
         "__name__": "__main__",
@@ -401,14 +411,10 @@ def run_solution_on_env(
     try:
         source = script_path.read_text(encoding="utf-8")
         code = compile(source, str(script_path), "exec")
-        if should_cancel is None and poll_events is None:
+        if callbacks is None:
             exec(code, namespace)  # pylint: disable=exec-used
         else:
-            trace = _make_run_trace(
-                script_path,
-                should_cancel=should_cancel,
-                poll_events=poll_events,
-            )
+            trace = _make_run_trace(script_path, callbacks=callbacks)
             old_trace = sys.gettrace()
             try:
                 sys.settrace(trace)

@@ -14,7 +14,12 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 from robot import runtime
-from robot.executor import EXECUTION_CANCELLED_MESSAGE, run_solution_on_env
+from robot.executor import (
+    EXECUTION_CANCELLED_MESSAGE,
+    RunExecutionCallbacks,
+    StudentSolution,
+    run_solution_on_env,
+)
 from robot.i18n import t
 from tests.env_fixtures import cell_1x1, corridor, make_env
 
@@ -34,7 +39,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor(width=4))
 
-            result = run_solution_on_env(script, "while1", env)
+            result = run_solution_on_env(StudentSolution(script, "while1"), env)
 
         self.assertTrue(result.success)
         self.assertEqual((env.robot.row, env.robot.col), (0, 3))
@@ -61,8 +66,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
 
             with patch("robot.commands.time.sleep") as sleep:
                 result = run_solution_on_env(
-                    script,
-                    "delay",
+                    StudentSolution(script, "delay"),
                     env,
                     command_delay_seconds=0.05,
                 )
@@ -83,7 +87,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
 
-            result = run_solution_on_env(script, "while1", env)
+            result = run_solution_on_env(StudentSolution(script, "while1"), env)
 
         self.assertFalse(result.success)
         self.assertEqual(result.status, "wrong")
@@ -97,7 +101,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             with patch("robot.executor.check_limit_violations") as mock_check:
-                result = run_solution_on_env(script, "noop", env)
+                result = run_solution_on_env(StudentSolution(script, "noop"), env)
             mock_check.assert_not_called()
 
         self.assertTrue(result.success)
@@ -121,11 +125,12 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
 
             with patch("robot.executor.RUN_EVENT_POLL_INTERVAL_SECONDS", 0.0):
                 result = run_solution_on_env(
-                    script,
-                    "cancelled",
+                    StudentSolution(script, "cancelled"),
                     env,
-                    should_cancel=lambda: poll_calls >= 3,
-                    poll_events=poll_events,
+                    callbacks=RunExecutionCallbacks(
+                        should_cancel=lambda: poll_calls >= 3,
+                        poll_events=poll_events,
+                    ),
                 )
 
         self.assertEqual(result.status, "error")
@@ -144,7 +149,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
 
-            result = run_solution_on_env(script, "divtask", env)
+            result = run_solution_on_env(StudentSolution(script, "divtask"), env)
 
         self.assertEqual(result.status, "error")
         self.assertIn("ZeroDivisionError", result.message)
@@ -162,7 +167,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
 
-            result = run_solution_on_env(script, "printntest", env)
+            result = run_solution_on_env(StudentSolution(script, "printntest"), env)
 
         self.assertEqual(result.status, "error")
         self.assertIn("RobotError", result.message)
@@ -181,7 +186,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
 
-            result = run_solution_on_env(script, "walltask", env)
+            result = run_solution_on_env(StudentSolution(script, "walltask"), env)
 
         self.assertEqual(result.status, "crashed")
         expected = t(

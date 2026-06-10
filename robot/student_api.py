@@ -49,6 +49,6 @@ RUNTIME_EXTRA_EXPORT_NAMES: Tuple[str, ...] = (
     "DEFAULT_COMMAND_DELAY_SECONDS",
     "ROBOT_PATH_COLLISION_USER_MESSAGE",
     "StepExecutionSession",
-    "StepExecutionTarget",
+    "StudentSolution",
     "StudentLine",
 )

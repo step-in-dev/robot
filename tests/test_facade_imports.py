@@ -26,7 +26,7 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
             executor.ROBOT_PATH_COLLISION_USER_MESSAGE,
         )
         self.assertIs(runtime.StepExecutionSession, executor.StepExecutionSession)
-        self.assertIs(runtime.StepExecutionTarget, executor.StepExecutionTarget)
+        self.assertIs(runtime.StudentSolution, executor.StudentSolution)
         self.assertIs(runtime.StudentLine, executor.StudentLine)
 
     def test_gui_reexports_layout_and_theme(self) -> None:

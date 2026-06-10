@@ -1,6 +1,6 @@
 """Tests for ``StepExecutionSession`` (single exec with trace-based stepping).
 
-``StepExecutionSession`` does not read the task ``.env`` file: ``StepExecutionTarget.task_id``
+``StepExecutionSession`` does not read the task ``.env`` file: ``StudentSolution.task_id``
 is only stored for solution-run bookkeeping. Static script constraints
 from the task definition are enforced elsewhere (GUI). Tests using
 ``task_id="noop"`` therefore succeed even when the script would violate limits
@@ -21,7 +21,7 @@ from robot.executor import (
     EXECUTION_CANCELLED_MESSAGE,
     StepExecutionCallbacks,
     StepExecutionSession,
-    StepExecutionTarget,
+    StudentSolution,
 )
 from robot.i18n import t
 from tests.env_fixtures import cell_1x1, corridor, env_dict, make_env
@@ -41,7 +41,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -61,7 +61,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -82,7 +82,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -105,7 +105,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(env_dict(3, 1, final_col=2))
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -130,7 +130,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -152,7 +152,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -174,7 +174,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(corridor())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=NOOP_STEP_CALLBACKS,
                 command_delay_seconds=0.0,
@@ -208,7 +208,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=show_line,
@@ -267,7 +267,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=show_line,
@@ -315,7 +315,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=lambda _line: None,
@@ -357,7 +357,7 @@ class StepExecutionSessionTest(LoaderRuntimeTestBase):
             )
             env = make_env(cell_1x1())
             session = StepExecutionSession(
-                StepExecutionTarget(script, "noop"),
+                StudentSolution(script, "noop"),
                 env,
                 callbacks=StepExecutionCallbacks(
                     show_line=lambda _line: None,
