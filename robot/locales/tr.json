@@ -6,6 +6,7 @@
   "button.run": "Çalıştır [Enter]",
   "button.restore": "Geri Yükle [Enter]",
   "button.step": "Adım",
+  "button.stop": "Stop",
   "line.with_message": "Satır {lineno}: {message}",
   "step.line": "Satır {lineno}: {text}",
   "step.success_for_env": "Ortam {env_label} için tamamen doğru",

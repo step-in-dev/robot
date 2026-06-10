@@ -68,15 +68,23 @@ def _launch_student_robot_window(
         RobotWindowOptions,
     )
 
-    window = RobotWindow(
-        task_id,
-        task_definition,
-        lambda env: run_solution_on_env(
+    window = None
+
+    def run_env_with_window_callbacks(env: RobotEnv) -> RunResult:
+        assert window is not None
+        return run_solution_on_env(
             script_path,
             task_id,
             env,
             command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
-        ),
+            should_cancel=window._should_stop_run,  # pylint: disable=protected-access
+            poll_events=window._poll_run_events,  # pylint: disable=protected-access
+        )
+
+    window = RobotWindow(
+        task_id,
+        task_definition,
+        run_env_with_window_callbacks,
         RobotWindowOptions(
             initial_index=initial_index,
             script_path=script_path,

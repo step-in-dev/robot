@@ -8,6 +8,7 @@ import tkinter as tk
 from .gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
+    ACTION_BUTTON_STOP,
 )
 
 
@@ -18,6 +19,7 @@ class ActionButtonMixin:  # pylint: disable=too-few-public-methods
     is_closed: bool
     action_button: Optional[tk.Button]
     step_button: tk.Button
+    stop_button: tk.Button
     controls_left: tk.Frame
     script_path: Optional[object]
     _pending_restore_enable_after_id: Optional[str]
@@ -39,16 +41,44 @@ class ActionButtonMixin:  # pylint: disable=too-few-public-methods
             return
         self.step_button.pack_forget()
 
+    def _show_stop_button_in_controls(self) -> None:
+        """Pack the stop button to the right of the main action button and enable it."""
+        if self.stop_button is None:
+            return
+        if self.stop_button not in self.controls_left.pack_slaves():
+            self.stop_button.pack(side=tk.LEFT, padx=(4, 0))
+        self.stop_button.configure(state=tk.NORMAL)
+
+    def _hide_stop_button_from_controls(self) -> None:
+        """Hide the stop button outside of Run mode."""
+        if self.stop_button is None:
+            return
+        self.stop_button.pack_forget()
+
     def _set_action_to_run(self) -> None:
         self._cancel_pending_restore_enable_after()
-        if self.action_button is None:
+        if self.action_button is None or self.is_closed:
             return
         self.action_button.configure(
             text=ACTION_BUTTON_RUN,
             command=self.run_all,
             state=tk.NORMAL,
         )
+        self._hide_stop_button_from_controls()
         self._show_step_button_in_controls()
+
+    def _set_action_to_running(self) -> None:
+        """Main button becomes disabled Restore; Step hides and Stop becomes active."""
+        self._cancel_pending_restore_enable_after()
+        if self.action_button is None or self.is_closed:
+            return
+        self.action_button.configure(
+            text=ACTION_BUTTON_RESTORE,
+            command=self.restore,
+            state=tk.DISABLED,
+        )
+        self._hide_step_button_from_controls()
+        self._show_stop_button_in_controls()
 
     def _cancel_pending_restore_enable_after(self) -> None:
         if self._pending_restore_enable_after_id is None:
@@ -79,13 +109,14 @@ class ActionButtonMixin:  # pylint: disable=too-few-public-methods
     ) -> None:
         """Main button becomes Restore; optionally hide Step and defer enabling after idle."""
         self._cancel_pending_restore_enable_after()
-        if self.action_button is None:
+        if self.action_button is None or self.is_closed:
             return
         self.action_button.configure(
             text=ACTION_BUTTON_RESTORE,
             command=self.restore,
             state=tk.DISABLED if disabled else tk.NORMAL,
         )
+        self._hide_stop_button_from_controls()
         if hide_step:
             self._hide_step_button_from_controls()
         if enable_after_idle:

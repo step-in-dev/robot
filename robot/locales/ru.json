@@ -6,6 +6,7 @@
   "button.run": "Выполнить [Enter]",
   "button.restore": "Восстановить [Enter]",
   "button.step": "Шаг",
+  "button.stop": "Остановить",
   "line.with_message": "Строка {lineno}: {message}",
   "step.line": "Строка {lineno}: {text}",
   "step.success_for_env": "Все верно для обстановки {env_label}",

@@ -6,6 +6,7 @@
   "button.run": "চালান [Enter]",
   "button.restore": "পুনরুদ্ধার [Enter]",
   "button.step": "ধাপ",
+  "button.stop": "Stop",
   "line.with_message": "লাইন {lineno}: {message}",
   "step.line": "লাইন {lineno}: {text}",
   "step.success_for_env": "পরিবেশ {env_label}-এর জন্য সব ঠিক",

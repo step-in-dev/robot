@@ -32,6 +32,7 @@ from .gui_theme import (
     ACTION_BUTTON_HELP,
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
+    ACTION_BUTTON_STOP,
     ACTION_BUTTON_STEP,
     BUTTON_PAD_X,
     BUTTON_PAD_Y,
@@ -119,6 +120,7 @@ class _ChromeState:  # pylint: disable=too-many-instance-attributes
     controls_right: Optional[tk.Frame] = None
     action_button: Optional[tk.Button] = None
     step_button: Optional[tk.Button] = None
+    stop_button: Optional[tk.Button] = None
     help_button: Optional[tk.Button] = None
     pending_restore_enable_after_id: Optional[str] = None
 
@@ -133,6 +135,7 @@ class _ExecutionState:
     step_release_token: int = 0
     ignore_action_enter_until_idle: bool = False
     is_run_all_active: bool = False
+    run_stop_requested: bool = False
 
 
 class RobotWindow(  # pylint: disable=too-many-public-methods
@@ -302,6 +305,12 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._chrome.step_button
 
     @property
+    def stop_button(self) -> tk.Button:
+        """Run cancellation control button."""
+        assert self._chrome.stop_button is not None
+        return self._chrome.stop_button
+
+    @property
     def help_button(self) -> tk.Button:
         """Help dialog launcher button."""
         assert self._chrome.help_button is not None
@@ -371,6 +380,16 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
     def _pending_restore_enable_after_id(self, value: Optional[str]) -> None:
         """Store or clear the deferred Restore-button enable id."""
         self._chrome.pending_restore_enable_after_id = value
+
+    @property
+    def _run_stop_requested(self) -> bool:
+        """Whether the user asked to interrupt the active Run."""
+        return self._execution.run_stop_requested
+
+    @_run_stop_requested.setter
+    def _run_stop_requested(self, value: bool) -> None:
+        """Record whether the active Run should stop at the next trace poll."""
+        self._execution.run_stop_requested = value
 
     def _init_root_and_geometry(self) -> None:
         self._layout.cell_size = calculate_cell_size(self._task.envs)
@@ -571,6 +590,13 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             pady=BUTTON_PAD_Y,
         )
         self.step_button.pack(side=tk.LEFT, padx=(4, 0))
+        self._chrome.stop_button = tk.Button(
+            self.controls_left,
+            text=ACTION_BUTTON_STOP,
+            command=self.stop_run,
+            padx=BUTTON_PAD_X,
+            pady=BUTTON_PAD_Y,
+        )
         if self.script_path is None:
             self.step_button.configure(state=tk.DISABLED)
         if self._viewer_catalog is not None:
@@ -652,10 +678,27 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self.root.update_idletasks()
 
     def _show_failed_result(self, result: RunResult) -> None:
+        if self.is_closed:
+            return
         if result.status == "wrong":
             self._set_status(result.message or STATUS_WRONG, STATUS_BG_NEUTRAL)
         else:
             self._set_status(result.message, STATUS_BG_ERROR)
+
+    def _should_stop_run(self) -> bool:
+        """Return whether the active Run should stop as soon as possible."""
+        return self.is_closed or self._run_stop_requested
+
+    def _poll_run_events(self) -> None:
+        """Let Tk process pending events while the Run trace hook stays active."""
+        if self.is_closed:
+            return
+        try:
+            self.root.update_idletasks()
+            self.root.update()
+        except tk.TclError:
+            self._execution.is_closed = True
+            self._execution.run_stop_requested = True
 
     def _check_script_constraints(self) -> Optional[str]:
         if self.script_path is None:
@@ -750,6 +793,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         """Tear down stepping, dialogs, and the root window."""
         if self.is_closed:
             return
+        self._run_stop_requested = True
         self._cancel_step_wake_only()
         self._cancel_pending_restore_enable_after()
         self.close_dialogs()
@@ -797,11 +841,12 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
                 relief=tk.SUNKEN
                 if tab_index == self.selected_index
                 else tk.RAISED,
-                state=state,
+                state=tk.DISABLED if self._is_run_all_active else state,
             )
 
     def restore(self) -> None:
         """Reset all environments and return the UI to the ready state."""
+        self._run_stop_requested = False
         self._cancel_step_wake_only()
         for env in self._task.envs:
             env.reset()
@@ -809,22 +854,34 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self.select_env(0)
         self._set_action_to_run()
 
+    def stop_run(self) -> None:
+        """Request cancellation of the active Run; the trace hook will stop it soon."""
+        if not self._is_run_all_active:
+            return
+        self._run_stop_requested = True
+        if not self.is_closed:
+            self.stop_button.configure(state=tk.DISABLED)
+
     def run_all(self) -> None:
         """Run the student script on every environment in sequence."""
         if self.run_env is None:
             raise RuntimeError("run_env is required")
 
+        self._run_stop_requested = False
         self._execution.is_run_all_active = True
         try:
             if self.step_button is not None:
                 self.step_button.configure(state=tk.DISABLED)
-            self._set_action_to_restore(disabled=True, hide_step=False)
+            self._set_action_to_running()
             self._set_status(STATUS_RUNNING, STATUS_BG_NEUTRAL)
+            self.configure_tab_buttons()
             self.root.update_idletasks()
 
             for index, env in enumerate(self._task.envs):
                 self.select_env(index)
                 result = self.run_env(env)
+                if self.is_closed:
+                    return
                 self.draw_field()
                 if not result.success:
                     self._show_failed_result(result)
@@ -840,11 +897,14 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
                 self._set_status(STATUS_ALL_CORRECT, STATUS_BG_SUCCESS)
         finally:
             try:
-                self._set_action_to_restore(
-                    disabled=True, hide_step=True, enable_after_idle=True
-                )
-            finally:
                 self._execution.is_run_all_active = False
+                if not self.is_closed:
+                    self.configure_tab_buttons()
+                    self._set_action_to_restore(
+                        disabled=True, hide_step=True, enable_after_idle=True
+                    )
+            finally:
+                self._run_stop_requested = False
 
     def on_env_change(self) -> None:
         """Redraw the field when robot state changes."""
@@ -879,6 +939,7 @@ __all__ = [
     "ACTION_BUTTON_HELP",
     "ACTION_BUTTON_RESTORE",
     "ACTION_BUTTON_RUN",
+    "ACTION_BUTTON_STOP",
     "ACTION_BUTTON_STEP",
     "COMPACT_CELL_SIZE",
     "DEFAULT_CELL_SIZE",

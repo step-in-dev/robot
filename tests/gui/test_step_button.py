@@ -13,6 +13,7 @@ from robot.gui_theme import (
     ACTION_BUTTON_HELP,
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
+    ACTION_BUTTON_STOP,
     ACTION_BUTTON_STEP,
     STATUS_BG_SUCCESS,
 )
@@ -97,7 +98,7 @@ class RobotWindowStepButtonTest(GuiTestCase):
             finally:
                 window.close()
 
-    def test_run_all_disables_step_button_while_running(self) -> None:
+    def test_run_all_shows_stop_button_while_running(self) -> None:
         envs = [make_env(cell_1x1())]
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -111,7 +112,10 @@ class RobotWindowStepButtonTest(GuiTestCase):
             ) as window:
 
                 def run_env(_env: RobotEnv) -> RunResult:
-                    self.assertEqual(window.step_button.cget("state"), tk.DISABLED)
+                    self.assertNotIn(window.step_button, window.controls_left.pack_slaves())
+                    self.assertIn(window.stop_button, window.controls_left.pack_slaves())
+                    self.assertEqual(window.stop_button.cget("text"), ACTION_BUTTON_STOP)
+                    self.assertEqual(window.stop_button.cget("state"), tk.NORMAL)
                     self.assertEqual(
                         window.action_button.cget("text"), ACTION_BUTTON_RESTORE
                     )
@@ -127,6 +131,7 @@ class RobotWindowStepButtonTest(GuiTestCase):
                     window.controls_left.pack_slaves(),
                     "Step button must be hidden after run_all completes",
                 )
+                self.assertNotIn(window.stop_button, window.controls_left.pack_slaves())
                 self.assertIn(window.help_button, window.controls_right.pack_slaves())
                 self.assertEqual(window.help_button.cget("state"), tk.NORMAL)
 

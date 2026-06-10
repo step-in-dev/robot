@@ -6,6 +6,7 @@
   "button.run": "चलाएँ [Enter]",
   "button.restore": "पुनर्स्थापित करें [Enter]",
   "button.step": "चरण",
+  "button.stop": "Stop",
   "line.with_message": "पंक्ति {lineno}: {message}",
   "step.line": "पंक्ति {lineno}: {text}",
   "step.success_for_env": "परिवेश {env_label} के लिए सब सही",

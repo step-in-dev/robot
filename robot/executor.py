@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import time
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,6 +25,7 @@ from .results import RunResult, check_final_state
 from .runtime_state import begin_solution_run, end_solution_run
 
 DEFAULT_COMMAND_DELAY_SECONDS = 0.1
+RUN_EVENT_POLL_INTERVAL_SECONDS = 0.01
 
 ROBOT_PATH_COLLISION_USER_MESSAGE = t("error.path_collision")
 EXECUTION_CANCELLED_MESSAGE = t("error.execution_cancelled")
@@ -34,6 +36,10 @@ class StepExecutionCancelled(BaseException):  # NOSONAR — must not inherit Exc
 
     Inherits ``BaseException`` so ``except Exception`` in ``start()`` does not swallow it.
     """
+
+
+class RunExecutionCancelled(BaseException):  # NOSONAR — must not inherit Exception
+    """Raised inside sys.settrace when the user cancels a full Run."""
 
 
 @dataclass(frozen=True)
@@ -160,6 +166,38 @@ def check_limit_violations(
         if violation is not None:
             return violation.message
     return None
+
+
+def _make_run_trace(
+    script_path: Path,
+    *,
+    should_cancel: Optional[Callable[[], bool]] = None,
+    poll_events: Optional[Callable[[], None]] = None,
+):
+    """Build a trace hook that keeps Run responsive and cancellable."""
+    script_filename = str(script_path)
+    last_poll_at = time.monotonic()
+
+    def raise_if_cancelled() -> None:
+        if should_cancel is not None and should_cancel():
+            raise RunExecutionCancelled
+
+    def trace(frame, event, _arg):
+        nonlocal last_poll_at
+        if event != "line":
+            return trace
+        if frame.f_code.co_filename != script_filename:
+            return trace
+        raise_if_cancelled()
+        if poll_events is not None:
+            now = time.monotonic()
+            if now - last_poll_at >= RUN_EVENT_POLL_INTERVAL_SECONDS:
+                poll_events()
+                last_poll_at = time.monotonic()
+        raise_if_cancelled()
+        return trace
+
+    return trace
 
 
 @dataclass
@@ -347,6 +385,9 @@ def run_solution_on_env(
     task_id: str,
     env: RobotEnv,
     command_delay_seconds: float = 0.0,
+    *,
+    should_cancel: Optional[Callable[[], bool]] = None,
+    poll_events: Optional[Callable[[], None]] = None,
 ) -> RunResult:
     """Execute a student script on one environment and return the run outcome."""
     env.reset()
@@ -360,8 +401,26 @@ def run_solution_on_env(
     try:
         source = script_path.read_text(encoding="utf-8")
         code = compile(source, str(script_path), "exec")
-        # Same compile+exec path as step mode; student scripts are not packages.
-        exec(code, namespace)  # pylint: disable=exec-used
+        if should_cancel is None and poll_events is None:
+            exec(code, namespace)  # pylint: disable=exec-used
+        else:
+            trace = _make_run_trace(
+                script_path,
+                should_cancel=should_cancel,
+                poll_events=poll_events,
+            )
+            old_trace = sys.gettrace()
+            try:
+                sys.settrace(trace)
+                exec(code, namespace)  # pylint: disable=exec-used
+            except RunExecutionCancelled:
+                return RunResult(
+                    status="error",
+                    message=EXECUTION_CANCELLED_MESSAGE,
+                    details="",
+                )
+            finally:
+                sys.settrace(old_trace)
     except RobotPathError as exc:
         return _map_exec_exception(script_path, env, exc)
     except SystemExit as exc:  # NOSONAR — student code may call sys.exit; mapped to RunResult

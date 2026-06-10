@@ -6,6 +6,7 @@
   "button.run": "运行 [Enter]",
   "button.restore": "恢复 [Enter]",
   "button.step": "单步",
+  "button.stop": "Stop",
   "line.with_message": "第 {lineno} 行：{message}",
   "step.line": "第 {lineno} 行：{text}",
   "step.success_for_env": "环境 {env_label} 全部正确",

@@ -11,6 +11,7 @@ STATUS_ALL_CORRECT = t("status.all_correct")
 ACTION_BUTTON_RUN = t("button.run")
 ACTION_BUTTON_RESTORE = t("button.restore")
 ACTION_BUTTON_STEP = t("button.step")
+ACTION_BUTTON_STOP = t("button.stop")
 ACTION_BUTTON_HELP = t("button.help")
 
 # tk.Button internal padding (text ↔ border). Omitting padx/pady lets the platform

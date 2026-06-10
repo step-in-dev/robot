@@ -6,6 +6,7 @@
   "button.run": "تنفيذ ⁦[Enter]⁩",
   "button.restore": "استعادة ⁦[Enter]⁩",
   "button.step": "خطوة",
+  "button.stop": "Stop",
   "line.with_message": "السطر ⁦{lineno}⁩: ⁨{message}⁩",
   "step.line": "السطر ⁦{lineno}⁩: ⁨{text}⁩",
   "step.success_for_env": "كل شيء صحيح للبيئة ⁨{env_label}⁩",

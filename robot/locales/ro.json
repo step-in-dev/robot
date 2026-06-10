@@ -6,6 +6,7 @@
   "button.run": "Execută [Enter]",
   "button.restore": "Restabilește [Enter]",
   "button.step": "Pas",
+  "button.stop": "Stop",
   "line.with_message": "Linia {lineno}: {message}",
   "step.line": "Linia {lineno}: {text}",
   "step.success_for_env": "Tot corect pentru mediul {env_label}",

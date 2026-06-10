@@ -6,6 +6,7 @@
   "button.run": "Εκτέλεση [Enter]",
   "button.restore": "Επαναφορά [Enter]",
   "button.step": "Βήμα",
+  "button.stop": "Stop",
   "line.with_message": "Γραμμή {lineno}: {message}",
   "step.line": "Γραμμή {lineno}: {text}",
   "step.success_for_env": "Όλα σωστά για το περιβάλλον {env_label}",

@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 from robot import runtime
-from robot.executor import run_solution_on_env
+from robot.executor import EXECUTION_CANCELLED_MESSAGE, run_solution_on_env
 from robot.i18n import t
 from tests.env_fixtures import cell_1x1, corridor, make_env
 
@@ -101,6 +101,37 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
             mock_check.assert_not_called()
 
         self.assertTrue(result.success)
+
+    def test_run_solution_on_env_can_cancel_infinite_loop_via_callback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "solution.py"
+            script.write_text(
+                "from robot import paint\n"
+                "paint()\n"
+                "while True:\n"
+                "    pass\n",
+                encoding="utf-8",
+            )
+            env = make_env(cell_1x1())
+            poll_calls = 0
+
+            def poll_events() -> None:
+                nonlocal poll_calls
+                poll_calls += 1
+
+            with patch("robot.executor.RUN_EVENT_POLL_INTERVAL_SECONDS", 0.0):
+                result = run_solution_on_env(
+                    script,
+                    "cancelled",
+                    env,
+                    should_cancel=lambda: poll_calls >= 3,
+                    poll_events=poll_events,
+                )
+
+        self.assertEqual(result.status, "error")
+        self.assertEqual(result.message, EXECUTION_CANCELLED_MESSAGE)
+        self.assertGreaterEqual(poll_calls, 3)
+        self.assertTrue(env.robot.is_cell_painted())
 
     def test_runtime_error_message_includes_student_line_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:

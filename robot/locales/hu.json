@@ -6,6 +6,7 @@
   "button.run": "Futtatás [Enter]",
   "button.restore": "Visszaállítás [Enter]",
   "button.step": "Lépés",
+  "button.stop": "Stop",
   "line.with_message": "{lineno}. sor: {message}",
   "step.line": "{lineno}. sor: {text}",
   "step.success_for_env": "Minden helyes a(z) {env_label} környezetben",

@@ -6,6 +6,7 @@
   "button.run": "Run [Enter]",
   "button.restore": "Restore [Enter]",
   "button.step": "Step",
+  "button.stop": "Stop",
   "line.with_message": "Line {lineno}: {message}",
   "step.line": "Line {lineno}: {text}",
   "step.success_for_env": "All correct for environment {env_label}",

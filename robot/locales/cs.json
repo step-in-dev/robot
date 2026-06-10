@@ -6,6 +6,7 @@
   "button.run": "Spustit [Enter]",
   "button.restore": "Obnovit [Enter]",
   "button.step": "Krok",
+  "button.stop": "Stop",
   "line.with_message": "Řádek {lineno}: {message}",
   "step.line": "Řádek {lineno}: {text}",
   "step.success_for_env": "Vše správně pro prostředí {env_label}",

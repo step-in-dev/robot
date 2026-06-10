@@ -6,6 +6,7 @@
   "button.run": "実行 [Enter]",
   "button.restore": "復元 [Enter]",
   "button.step": "ステップ",
+  "button.stop": "Stop",
   "line.with_message": "{lineno} 行目：{message}",
   "step.line": "{lineno} 行目：{text}",
   "step.success_for_env": "環境 {env_label} はすべて正しい",

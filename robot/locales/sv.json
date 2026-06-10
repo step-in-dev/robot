@@ -6,6 +6,7 @@
   "button.run": "Kör [Enter]",
   "button.restore": "Återställ [Enter]",
   "button.step": "Steg",
+  "button.stop": "Stop",
   "line.with_message": "Rad {lineno}: {message}",
   "step.line": "Rad {lineno}: {text}",
   "step.success_for_env": "Helt korrekt för miljö {env_label}",

@@ -6,6 +6,7 @@
   "button.run": "چلائیں ⁦[Enter]⁩",
   "button.restore": "بحال کریں ⁦[Enter]⁩",
   "button.step": "مرحلہ",
+  "button.stop": "Stop",
   "line.with_message": "سطر ⁦{lineno}⁩: ⁨{message}⁩",
   "step.line": "سطر ⁦{lineno}⁩: ⁨{text}⁩",
   "step.success_for_env": "ماحول ⁨{env_label}⁩ کے لیے سب درست",

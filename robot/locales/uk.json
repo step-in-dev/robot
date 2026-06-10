@@ -6,6 +6,7 @@
   "button.run": "Запустити [Enter]",
   "button.restore": "Відновити [Enter]",
   "button.step": "Крок",
+  "button.stop": "Stop",
   "line.with_message": "Рядок {lineno}: {message}",
   "step.line": "Рядок {lineno}: {text}",
   "step.success_for_env": "Усе правильно для середовища {env_label}",

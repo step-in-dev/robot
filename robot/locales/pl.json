@@ -6,6 +6,7 @@
   "button.run": "Uruchom [Enter]",
   "button.restore": "Przywróć [Enter]",
   "button.step": "Krok",
+  "button.stop": "Stop",
   "line.with_message": "Wiersz {lineno}: {message}",
   "step.line": "Wiersz {lineno}: {text}",
   "step.success_for_env": "Wszystko poprawnie dla środowiska {env_label}",

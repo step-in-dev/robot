@@ -6,6 +6,7 @@
   "button.run": "실행 [Enter]",
   "button.restore": "복원 [Enter]",
   "button.step": "단계",
+  "button.stop": "Stop",
   "line.with_message": "{lineno}번 줄: {message}",
   "step.line": "{lineno}번 줄: {text}",
   "step.success_for_env": "환경 {env_label}에 대해 모두 정답",
