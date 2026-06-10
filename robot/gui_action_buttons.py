@@ -8,7 +8,6 @@ import tkinter as tk
 from .gui_theme import (
     ACTION_BUTTON_RESTORE,
     ACTION_BUTTON_RUN,
-    ACTION_BUTTON_STOP,
 )
 
 
