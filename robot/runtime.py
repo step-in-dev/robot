@@ -33,7 +33,6 @@ from .commands import (
 from .executor import (
     DEFAULT_COMMAND_DELAY_SECONDS,
     ROBOT_PATH_COLLISION_USER_MESSAGE,
-    RunExecutionCallbacks,
     StepExecutionSession,
     StudentLine,
     StudentSolution,
@@ -73,15 +72,7 @@ def _launch_student_robot_window(
 
     def run_env_with_window_callbacks(env: RobotEnv) -> RunResult:
         assert window is not None
-        return run_solution_on_env(
-            StudentSolution(script_path, task_id),
-            env,
-            command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
-            callbacks=RunExecutionCallbacks(
-                should_cancel=window._should_stop_run,  # pylint: disable=protected-access
-                poll_events=window._poll_run_events,  # pylint: disable=protected-access
-            ),
-        )
+        return window.execute_solution_on_env(env)
 
     window = RobotWindow(
         task_id,

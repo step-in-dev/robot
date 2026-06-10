@@ -9,12 +9,15 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from .executor import (
+    DEFAULT_COMMAND_DELAY_SECONDS,
     EXECUTION_CANCELLED_MESSAGE,
+    RunExecutionCallbacks,
     StepExecutionCallbacks,
     StepExecutionSession,
     StudentLine,
     StudentSolution,
     check_limit_violations,
+    run_solution_on_env,
 )
 
 from .field_renderer import DEFAULT_FIELD_COLORS, FieldColors, FieldRenderer
@@ -699,6 +702,20 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         except tk.TclError:
             self._execution.is_closed = True
             self._execution.run_stop_requested = True
+
+    def execute_solution_on_env(self, env: RobotEnv) -> RunResult:
+        """Run the student script on one environment with GUI cancel/poll hooks."""
+        if self.script_path is None:
+            raise RuntimeError("script_path is required")
+        return run_solution_on_env(
+            StudentSolution(self.script_path, self.task_id),
+            env,
+            command_delay_seconds=DEFAULT_COMMAND_DELAY_SECONDS,
+            callbacks=RunExecutionCallbacks(
+                should_cancel=self._should_stop_run,
+                poll_events=self._poll_run_events,
+            ),
+        )
 
     def _check_script_constraints(self) -> Optional[str]:
         if self.script_path is None:
