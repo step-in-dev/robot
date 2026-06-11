@@ -186,7 +186,7 @@ button:focus-visible {
 
 .site-nav__list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.25rem 1.25rem;
   list-style: none;
@@ -199,6 +199,7 @@ button:focus-visible {
   font-weight: 600;
   font-size: 0.95rem;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .site-nav__list a:hover {
@@ -226,7 +227,7 @@ button:focus-visible {
   color: var(--color-border);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1040px) {
   .nav-toggle {
     display: flex;
   }
