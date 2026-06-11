@@ -113,6 +113,13 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
+        "theme_hub_meta_description": (
+            "{count} Robot tasks on {theme}: {range}. "
+            "Browse task conditions, field layouts, and limits."
+        ),
+        "theme_hub_og_image_alt": (
+            "Robot tasks on {theme} ({range}): grid field previews from the task catalog."
+        ),
         "og_default_alt": "Robot desktop window showing a grid programming task.",
         "articles_nav": "Articles",
         "articles_heading": "Articles",
@@ -175,6 +182,13 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
+        "theme_hub_meta_description": (
+            "{count} задач Робота по теме «{theme}»: {range}. "
+            "Условия, поля обстановок и ограничения."
+        ),
+        "theme_hub_og_image_alt": (
+            "Задачи Робота по теме «{theme}» ({range}): превью полей из каталога задач."
+        ),
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
         "articles_nav": "Статьи",
         "articles_heading": "Статьи",
@@ -238,6 +252,21 @@ COMMAND_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "task робот",
         "справочник команд робот",
         "paint робот",
+    ),
+}
+
+THEME_HUB_KEYWORDS: Dict[str, Tuple[str, ...]] = {
+    "en": (
+        "robot tasks",
+        "python programming",
+        "grid robot simulator",
+        "educational programming",
+    ),
+    "ru": (
+        "задачи робот",
+        "python программирование",
+        "исполнитель робот",
+        "учебное программирование",
     ),
 }
 
@@ -490,7 +519,7 @@ def render_head(layout: PageLayout) -> str:
   <meta property="og:description" content="{escape(layout.description)}">
   <meta property="og:type" content="{escape(layout.og_type)}">
   <meta property="og:url" content="{escape(layout.site_url(layout.canonical_path))}">
-  <meta property="og:site_name" content="Robot">
+  <meta property="og:site_name" content="{escape(_ui(layout.lang, "site_name"))}">
   <meta property="og:image" content="{escape(og_image_url)}">
   <meta property="og:image:alt" content="{og_alt}">
 {dim_tags}  <meta property="og:locale" content="{locale}">
@@ -834,13 +863,60 @@ def render_task_list_item(layout: PageLayout, task_id: str, lang: str) -> str:
           </li>"""
 
 
+def theme_task_id_range(task_ids: Sequence[str]) -> str:
+    if not task_ids:
+        return ""
+    if len(task_ids) == 1:
+        return task_ids[0]
+    return f"{task_ids[0]}\u2013{task_ids[-1]}"
+
+
+def theme_hub_page_title(theme_label: str) -> str:
+    return f"{theme_label} | Robot"
+
+
+def theme_hub_meta_description(
+    theme_label: str, task_ids: Sequence[str], lang: str
+) -> str:
+    return normalize_meta_description(
+        _ui(
+            lang,
+            "theme_hub_meta_description",
+            theme=theme_label,
+            count=len(task_ids),
+            range=theme_task_id_range(task_ids),
+        )
+    )
+
+
+def theme_hub_og_image_alt(theme_label: str, task_ids: Sequence[str], lang: str) -> str:
+    return _ui(
+        lang,
+        "theme_hub_og_image_alt",
+        theme=theme_label,
+        range=theme_task_id_range(task_ids),
+    )
+
+
+def theme_hub_keywords(theme_label: str, lang: str) -> Tuple[str, ...]:
+    return (theme_label,) + THEME_HUB_KEYWORDS[lang]
+
+
+def theme_hub_og_image(task_ids: Sequence[str]) -> Optional[str]:
+    if not task_ids:
+        return None
+    first_task = task_ids[0]
+    task_def = load_task_definition(first_task)
+    return first_available_task_image(first_task, len(task_def.envs))
+
+
 def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     task_ids = catalog.task_ids_for(theme_prefix)
     theme_label = theme_title(theme_prefix, lang)
     slug = theme_slug(theme_prefix)
     canonical = f"tasks/{slug}/{page_filename(lang)}"
-    title = f"{theme_label} – Robot tasks"
-    description = normalize_meta_description(theme_label)
+    title = theme_hub_page_title(theme_label)
+    description = theme_hub_meta_description(theme_label, task_ids, lang)
     crumbs = [
         (_ui(lang, "home"), "index_ru.html" if lang == "ru" else "index.html"),
         (_ui(lang, "task_catalog"), catalog_relpath(lang)),
@@ -868,6 +944,9 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
         canonical_path=canonical,
         alternate_en=f"tasks/{slug}/{page_filename('en')}",
         alternate_ru=f"tasks/{slug}/{page_filename('ru')}",
+        og_image_path=theme_hub_og_image(task_ids),
+        og_image_alt=theme_hub_og_image_alt(theme_label, task_ids, lang),
+        keywords=theme_hub_keywords(theme_label, lang),
         json_ld={
             "@context": "https://schema.org",
             "@graph": [
