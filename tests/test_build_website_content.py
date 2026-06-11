@@ -81,7 +81,7 @@ class BuildCommandsPageTest(unittest.TestCase):
             html,
         )
         self.assertIn(
-            'meta name="description" content="Справочник команд исполнителя «Робот» '
+            'meta name="description" content="Справочник команд исполнителя Робот '
             "на Python: движение, закраска, проверка стен и клеток, task(), "
             'field(), pol() и printn()."',
             html,
@@ -92,7 +92,7 @@ class BuildCommandsPageTest(unittest.TestCase):
         )
         self.assertIn(
             "<p class=\"section__intro\">Ниже — все команды, доступные учащимся "
-            "в исполнителе «Робот». В программе подключите модуль: "
+            "в исполнителе Робот. В программе подключите модуль: "
             "<code>from robot import *</code> или импортируйте только нужные "
             "имена.</p>",
             html,
