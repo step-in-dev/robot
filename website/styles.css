@@ -458,6 +458,10 @@ button:focus-visible {
   margin-bottom: 2.5rem;
 }
 
+.section__inner > .media-block:last-child {
+  margin-bottom: 0;
+}
+
 .media-block--reverse .media-block__text {
   order: 2;
 }
@@ -524,7 +528,6 @@ button:focus-visible {
 
 .media-block__figures figure {
   margin: 0;
-  flex: 1 1 200px;
 }
 
 .media-block__figures figcaption {
