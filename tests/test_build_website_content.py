@@ -14,6 +14,70 @@ from tools.build_website_content import (
 
 
 class BuildThemeHubTest(unittest.TestCase):
+    def test_theme_hub_en_meta(self) -> None:
+        catalog = TaskCatalog.discover()
+        html = build_theme_hub(catalog, "intro", "en")
+
+        self.assertIn("<title>First steps | Robot</title>", html)
+        self.assertIn(
+            'meta name="description" content="24 Robot tasks on First steps: '
+            "intro1\u2013intro24. Browse task conditions, field layouts, and limits.\"",
+            html,
+        )
+        self.assertIn(
+            'meta name="keywords" content="First steps, robot tasks, '
+            "python programming, grid robot simulator, educational programming\"",
+            html,
+        )
+        self.assertIn(
+            'meta property="og:site_name" content="Robot"',
+            html,
+        )
+        self.assertIn(
+            'meta property="og:image" content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            html,
+        )
+        self.assertIn(
+            'meta property="og:image:alt" content="Robot tasks on First steps '
+            "(intro1\u2013intro24): grid field previews from the task catalog.\"",
+            html,
+        )
+        self.assertIn(
+            '"description": "24 Robot tasks on First steps: '
+            'intro1\u2013intro24. Browse task conditions, field layouts, and limits."',
+            html,
+        )
+
+    def test_theme_hub_ru_meta(self) -> None:
+        catalog = TaskCatalog.discover()
+        html = build_theme_hub(catalog, "intro", "ru")
+
+        self.assertIn("<title>Первые шаги | Robot</title>", html)
+        self.assertNotIn("Robot tasks", html)
+        self.assertIn(
+            'meta name="description" content="24 задач Робота по теме «Первые шаги»: '
+            "intro1\u2013intro24. Условия, поля обстановок и ограничения.\"",
+            html,
+        )
+        self.assertIn(
+            'meta name="keywords" content="Первые шаги, задачи робот, '
+            "python программирование, исполнитель робот, учебное программирование\"",
+            html,
+        )
+        self.assertIn(
+            'meta property="og:site_name" content="Робот"',
+            html,
+        )
+        self.assertIn(
+            'meta property="og:image" content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            html,
+        )
+        self.assertIn(
+            'meta property="og:image:alt" content="Задачи Робота по теме «Первые шаги» '
+            "(intro1\u2013intro24): превью полей из каталога задач.\"",
+            html,
+        )
+
     def test_theme_hub_renders_task_thumbnail(self) -> None:
         catalog = TaskCatalog.discover()
         html = build_theme_hub(catalog, "intro", "en")
