@@ -97,7 +97,20 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "prev_task": "Previous task",
         "next_task": "Next task",
         "catalog_intro": "All bundled Robot tasks grouped by topic. Each page shows the task condition, field layouts, and limits.",
-        "commands_intro": "Student-facing Python API for the Robot simulator. Use from robot import * or import only the names you need.",
+        "commands_page_title": "Robot command reference (Python) | Robot",
+        "commands_meta_description": (
+            "Robot Python command reference: movement, painting, walls, cell values, "
+            "task(), field(), pol(), and printn(), each with a short description."
+        ),
+        "commands_intro": (
+            "Below are all commands available to students in the Robot simulator. "
+            "Use {code} in your program, or import only the names you need."
+        ),
+        "commands_schema_name": "Robot Python command reference",
+        "commands_og_image_alt": (
+            "Robot command reference page listing move, paint, task(), "
+            "and other student commands."
+        ),
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
         "og_default_alt": "Robot desktop window showing a grid programming task.",
@@ -146,7 +159,20 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "prev_task": "Предыдущая задача",
         "next_task": "Следующая задача",
         "catalog_intro": "Все встроенные задачи Робота по темам. На странице задачи – условие, поля обстановок и ограничения.",
-        "commands_intro": "Команды Python для учащихся в исполнителе «Робот». Можно подключить всё через from robot import * или импортировать отдельные имена.",
+        "commands_page_title": "Справочник команд Робота на Python | Robot",
+        "commands_meta_description": (
+            "Справочник команд исполнителя «Робот» на Python: движение, закраска, "
+            "проверка стен и клеток, task(), field(), pol() и printn()."
+        ),
+        "commands_intro": (
+            "Ниже — все команды, доступные учащимся в исполнителе «Робот». "
+            "В программе подключите модуль: {code} или импортируйте только нужные имена."
+        ),
+        "commands_schema_name": "Справочник команд Робота на Python",
+        "commands_og_image_alt": (
+            "Справочник команд исполнителя «Робот»: сигнатуры и описания move, paint, "
+            "task() и других команд."
+        ),
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
@@ -194,6 +220,25 @@ COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {
         "cell_walls": "Клетка и стены",
         "values": "Значения и вывод",
     },
+}
+
+COMMAND_KEYWORDS: Dict[str, Tuple[str, ...]] = {
+    "en": (
+        "robot simulator commands",
+        "robot python API",
+        "move_right robot",
+        "task() robot",
+        "robot command reference",
+        "grid robot programming",
+    ),
+    "ru": (
+        "исполнитель робот команды",
+        "робот python команды",
+        "move_right робот",
+        "task робот",
+        "справочник команд робот",
+        "paint робот",
+    ),
 }
 
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -926,8 +971,9 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
 
 def build_commands_page(lang: str) -> str:
     canonical = commands_relpath(lang)
-    title = f"{_ui(lang, 'command_reference')} | Robot"
-    description = normalize_meta_description(_ui(lang, "commands_intro"))
+    title = _ui(lang, "commands_page_title")
+    description = normalize_meta_description(_ui(lang, "commands_meta_description"))
+    intro_html = _ui(lang, "commands_intro", code="<code>from robot import *</code>")
     crumbs = [
         (_ui(lang, "home"), "index_ru.html" if lang == "ru" else "index.html"),
         (_ui(lang, "command_reference"), canonical),
@@ -967,13 +1013,15 @@ def build_commands_page(lang: str) -> str:
         canonical_path=canonical,
         alternate_en=commands_relpath("en"),
         alternate_ru=commands_relpath("ru"),
+        og_image_alt=_ui(lang, "commands_og_image_alt"),
+        keywords=COMMAND_KEYWORDS[lang],
         json_ld={
             "@context": "https://schema.org",
             "@graph": [
                 breadcrumb_json_ld(crumbs),
                 {
                     "@type": "TechArticle",
-                    "name": _ui(lang, "command_reference"),
+                    "name": _ui(lang, "commands_schema_name"),
                     "description": description,
                     "inLanguage": lang,
                     "url": absolute_url(canonical),
@@ -987,7 +1035,7 @@ def build_commands_page(lang: str) -> str:
       {crumb_html}
       <header class="content-header">
         <h1>{escape(_ui(lang, "command_reference"))}</h1>
-        <p class="section__intro">{escape(_ui(lang, "commands_intro"))}</p>
+        <p class="section__intro">{intro_html}</p>
       </header>
       <div class="command-grid">
 {chr(10).join(groups_html)}
