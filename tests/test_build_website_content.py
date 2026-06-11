@@ -6,7 +6,11 @@ import re
 import unittest
 
 from robot.task_catalog import TaskCatalog
-from tools.build_website_content import build_editor_page, build_theme_hub
+from tools.build_website_content import (
+    build_commands_page,
+    build_editor_page,
+    build_theme_hub,
+)
 
 
 class BuildThemeHubTest(unittest.TestCase):
@@ -37,6 +41,63 @@ class BuildThemeHubTest(unittest.TestCase):
             r'<a class="task-list__thumb-link" href="[^"]*intro1\.html">\s*'
             r'<img class="task-list__thumb"',
         )
+
+
+class BuildCommandsPageTest(unittest.TestCase):
+    def test_commands_page_en_meta_and_intro(self) -> None:
+        html = build_commands_page("en")
+
+        self.assertIn(
+            "<title>Robot command reference (Python) | Robot</title>",
+            html,
+        )
+        self.assertIn(
+            'meta name="description" content="Robot Python command reference: '
+            "movement, painting, walls, cell values, task(), field(), pol(), "
+            'and printn(), each with a short description."',
+            html,
+        )
+        self.assertIn('meta name="keywords" content="robot simulator commands', html)
+        self.assertIn(
+            'meta property="og:image:alt" content="Robot command reference page '
+            "listing move, paint, task(), and other student commands.",
+            html,
+        )
+        self.assertIn("<h1>Command reference</h1>", html)
+        self.assertIn(
+            "<p class=\"section__intro\">Below are all commands available to "
+            "students in the Robot simulator. Use "
+            "<code>from robot import *</code> in your program, or import only "
+            "the names you need.</p>",
+            html,
+        )
+        self.assertIn('"name": "Robot Python command reference"', html)
+
+    def test_commands_page_ru_meta_and_intro(self) -> None:
+        html = build_commands_page("ru")
+
+        self.assertIn(
+            "<title>Справочник команд Робота на Python | Robot</title>",
+            html,
+        )
+        self.assertIn(
+            'meta name="description" content="Справочник команд исполнителя Робот '
+            "на Python: движение, закраска, проверка стен и клеток, task(), "
+            'field(), pol() и printn()."',
+            html,
+        )
+        self.assertIn(
+            'meta name="keywords" content="исполнитель робот команды',
+            html,
+        )
+        self.assertIn(
+            "<p class=\"section__intro\">Ниже — все команды, доступные учащимся "
+            "в исполнителе Робот. В программе подключите модуль: "
+            "<code>from robot import *</code> или импортируйте только нужные "
+            "имена.</p>",
+            html,
+        )
+        self.assertIn('"name": "Справочник команд Робота на Python"', html)
 
 
 class BuildEditorPageTest(unittest.TestCase):
