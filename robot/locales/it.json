@@ -66,7 +66,7 @@
   "help.command.is_cell_not_painted": "Restituisce True se la cella corrente non è colorata.",
   "help.command.pol": "Restituisce il livello di inquinamento della cella corrente.",
   "help.command.printn": "Stampa un intero nella cella corrente.",
-  "help.command.field": "Apre una griglia delle dimensioni indicate senza file di compito. Larghezza tra 1 e 20, altezza tra 1 e 15. Robot in alto a sinistra; obiettivo in basso a destra.",
+  "help.command.field": "Apre una griglia delle dimensioni indicate senza associarla a un compito. Larghezza tra 1 e 20, altezza tra 1 e 15. Robot in alto a sinistra; obiettivo in basso a destra.",
   "runtime.error.field_integers": "field(): larghezza e altezza devono essere interi",
   "runtime.error.field_width_range": "field(): la larghezza deve essere tra 1 e 20",
   "runtime.error.field_height_range": "field(): l'altezza deve essere tra 1 e 15",

@@ -68,7 +68,7 @@
   "help.command.is_cell_not_painted": "Returnerar True om den aktuella cellen inte är målad.",
   "help.command.pol": "Returnerar föroreningsvärdet för den aktuella cellen.",
   "help.command.printn": "Skriver ut ett heltal i den aktuella cellen.",
-  "help.command.field": "Öppnar ett rutnät med given storlek utan att läsa in en uppgiftsfil. Bredd mellan 1 och 20, höjd mellan 1 och 15. Roboten startar längst upp till vänster; målet är längst ner till höger.",
+  "help.command.field": "Öppnar ett rutnät med given storlek utan koppling till en uppgift. Bredd mellan 1 och 20, höjd mellan 1 och 15. Roboten startar längst upp till vänster; målet är längst ner till höger.",
   "runtime.error.field_integers": "field() bredd och höjd måste vara heltal",
   "runtime.error.field_width_range": "field() bredd måste vara mellan 1 och 20",
   "runtime.error.field_height_range": "field() höjd måste vara mellan 1 och 15",

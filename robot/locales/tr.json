@@ -68,7 +68,7 @@
   "help.command.is_cell_not_painted": "Mevcut hücre boyanmamışsa True döner.",
   "help.command.pol": "Mevcut hücrenin kirlilik değerini döner.",
   "help.command.printn": "Mevcut hücrede bir tamsayı yazdırır.",
-  "help.command.field": "Bir görev dosyası yüklemeden belirtilen boyutta bir ızgara açar. Genişlik 1 ile 20, yükseklik 1 ile 15 arasında. Robot sol üstte başlar; hedef sağ alttadır.",
+  "help.command.field": "Bir göreve bağlamadan belirtilen boyutta bir ızgara açar. Genişlik 1 ile 20, yükseklik 1 ile 15 arasında. Robot sol üstte başlar; hedef sağ alttadır.",
   "runtime.error.field_integers": "field() genişlik ve yükseklik tamsayı olmalıdır",
   "runtime.error.field_width_range": "field() genişliği 1 ile 20 arasında olmalıdır",
   "runtime.error.field_height_range": "field() yüksekliği 1 ile 15 arasında olmalıdır",

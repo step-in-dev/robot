@@ -68,7 +68,7 @@
   "help.command.is_cell_not_painted": "Returnează True dacă celula curentă nu este vopsită.",
   "help.command.pol": "Returnează nivelul de poluare al celulei curente.",
   "help.command.printn": "Afișează un număr întreg în celula curentă.",
-  "help.command.field": "Deschide o grilă de dimensiune dată fără a încărca un fișier de sarcină. Lățimea între 1 și 20, înălțimea între 1 și 15. Robotul începe din stânga sus; ținta este dreapta jos.",
+  "help.command.field": "Deschide o grilă de dimensiune dată fără a o lega de o sarcină. Lățimea între 1 și 20, înălțimea între 1 și 15. Robotul începe din stânga sus; ținta este dreapta jos.",
   "runtime.error.field_integers": "field() lățimea și înălțimea trebuie să fie numere întregi",
   "runtime.error.field_width_range": "field() lățimea trebuie să fie între 1 și 20",
   "runtime.error.field_height_range": "field() înălțimea trebuie să fie între 1 și 15",
