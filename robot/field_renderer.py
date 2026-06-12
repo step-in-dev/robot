@@ -302,13 +302,30 @@ class FieldRenderer:
         size = half_cell_size - half_wall_width - 1
         scale = size / 24
 
-        def point(svg_x: float, svg_y: float) -> Tuple[float, float]:
-            return x + svg_x * scale, y + svg_y * scale
+        # Snap every vertex to whole pixels, measuring offsets from the roof
+        # apex (svg 12, 2). The icon is symmetric about the apex, so mirrored
+        # vertices land at equal integer distances on both sides, and the
+        # 45-degree roof slopes (10 units across, 10 down) keep |dx| == |dy|
+        # in pixels. With raw fractional coordinates the rasterizer produced
+        # uneven stair steps (a visible kink) on one of the slopes.
+        apex_x = round(x + 12 * scale)
+        apex_y = round(y + 2 * scale)
 
+        def point(
+            svg_x: float, svg_y: float, shift_x: int = 0, shift_y: int = 0
+        ) -> Tuple[int, int]:
+            return (
+                apex_x + round((svg_x - 12) * scale) + shift_x,
+                apex_y + round((svg_y - 2) * scale) + shift_y,
+            )
+
+        # Eave vertices get an extra one-pixel shift continuing the 45-degree
+        # slope (and lowering the eave underside to match), so the roof
+        # overhang reads more clearly at small sizes.
         points = [
             point(12, 2),
-            point(1, 12),
-            point(4, 12),
+            point(2, 12, -1, 1),
+            point(4, 12, 0, 1),
             point(4, 20),
             point(5, 21),
             point(9, 21),
@@ -319,8 +336,8 @@ class FieldRenderer:
             point(15, 21),
             point(19, 21),
             point(20, 20),
-            point(20, 12),
-            point(23, 12),
+            point(20, 12, 0, 1),
+            point(22, 12, 1, 1),
         ]
         self.canvas.create_polygon(
             points,
