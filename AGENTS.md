@@ -48,6 +48,17 @@ Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.h
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).
 
+## Linting after code changes
+
+After every code change, run pylint on the files you modified and fix **all new** linter findings before finishing the task.
+
+- Production paths (`robot/`, `viewer/viewer.py`, `tools/`): `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc <changed-files>`
+- Tests (`tests/`): `.venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc <changed-files>`
+
+Use the rcfile that matches the path. See `Docs/linting.md` for project conventions and existing suppressions.
+
+Do **not** add `# pylint: disable=…`, `# noqa`, or rcfile `disable`/`enable` changes to silence warnings unless the user explicitly asks you to. Fix the code instead, or follow an already-documented exception in `Docs/linting.md`.
+
 ## Cursor Cloud specific instructions
 
 This repo has no backend server or Docker stack. Development is Python stdlib + a local `.venv` (see `Docs/linting.md`).
