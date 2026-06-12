@@ -113,6 +113,7 @@ class _ChromeState:  # pylint: disable=too-many-instance-attributes
     """Toolbars, tabs, and Run/Step/Help controls (grouped on ``RobotWindow``)."""
 
     viewer_toolbar: Optional[tk.Frame] = None
+    todo_frame: Optional[tk.Frame] = None
     todo_label: Optional[tk.Label] = None
     top_toolbar: Optional[tk.Frame] = None
     tab_frame: Optional[tk.Frame] = None
@@ -335,6 +336,16 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._status_strip.status_canvas
 
     @property
+    def todo_frame(self) -> Optional[tk.Frame]:
+        """todoText banner border frame, if the task has a condition."""
+        return self._chrome.todo_frame
+
+    @property
+    def todo_label(self) -> Optional[tk.Label]:
+        """todoText banner label inside ``todo_frame``."""
+        return self._chrome.todo_label
+
+    @property
     def _step_session(self) -> Optional[StepExecutionSession]:
         """Active line-by-line execution session, if any."""
         return self._execution.step_session
@@ -410,6 +421,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             self._layout.wall_width,
         )
 
+        self._chrome.todo_frame = None
         self._chrome.todo_label = None
         self._chrome.top_toolbar = None
         self._chrome.tab_frame = None
@@ -417,18 +429,25 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._chrome.constraints_button = None
 
     def _top_section_pack_after(self) -> Optional[tk.Misc]:
-        if self._chrome.todo_label is not None:
-            return self._chrome.todo_label
+        if self._chrome.todo_frame is not None:
+            return self._chrome.todo_frame
         return self.viewer_toolbar
 
     def _rebuild_todo_banner(self) -> None:
-        if self._chrome.todo_label is not None:
-            self._chrome.todo_label.destroy()
+        if self._chrome.todo_frame is not None:
+            self._chrome.todo_frame.destroy()
+            self._chrome.todo_frame = None
             self._chrome.todo_label = None
         if not self._task.todo_text:
             return
-        self._chrome.todo_label = tk.Label(
+        self._chrome.todo_frame = tk.Frame(
             self.root,
+            bg=TODO_TEXT_BORDER,
+            bd=0,
+            highlightthickness=0,
+        )
+        self._chrome.todo_label = tk.Label(
+            self._chrome.todo_frame,
             text=f"{self._task.todo_text}",
             anchor=tk.W,
             justify=tk.LEFT,
@@ -440,17 +459,16 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             pady=6,
             bd=0,
             relief=tk.FLAT,
-            highlightthickness=1,
-            highlightbackground=TODO_TEXT_BORDER,
-            highlightcolor=TODO_TEXT_BORDER,
+            highlightthickness=0,
         )
+        self._chrome.todo_label.pack(side=tk.TOP, fill=tk.X, padx=1, pady=1)
         pack_after = self.viewer_toolbar
         if pack_after is not None:
-            self._chrome.todo_label.pack(
+            self._chrome.todo_frame.pack(
                 side=tk.TOP, fill=tk.X, padx=6, pady=(2, 2), after=pack_after
             )
         else:
-            self._chrome.todo_label.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
+            self._chrome.todo_frame.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
 
     def _build_todo_banner(self) -> None:
         self._rebuild_todo_banner()
@@ -467,7 +485,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         has_constraints = task_has_any_constraints(self._script_constraints)
         if not (has_env_tabs or has_constraints):
             return
-        tab_top_pady = (2, 2) if self._chrome.todo_label is not None else (6, 2)
+        tab_top_pady = (2, 2) if self._chrome.todo_frame is not None else (6, 2)
         self._chrome.top_toolbar = tk.Frame(self.root)
         pack_after = self._top_section_pack_after()
         if pack_after is not None:
