@@ -61,13 +61,14 @@ def discover_task_groups(tasks_dir: Optional[Path] = None) -> Dict[str, List[str
     groups: Dict[str, List[str]] = {}
     if not directory.is_dir():
         return groups
-    for entry in os.scandir(directory):
-        if not entry.name.endswith(TASK_FILE_EXTENSION):
-            continue
-        task_id = entry.name[: -len(TASK_FILE_EXTENSION)]
-        theme = theme_from_task_id(task_id)
-        if theme is not None:
-            groups.setdefault(theme, []).append(task_id)
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            if not entry.name.endswith(TASK_FILE_EXTENSION):
+                continue
+            task_id = entry.name[: -len(TASK_FILE_EXTENSION)]
+            theme = theme_from_task_id(task_id)
+            if theme is not None:
+                groups.setdefault(theme, []).append(task_id)
     return groups
 
 
