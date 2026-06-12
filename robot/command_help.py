@@ -2,15 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import FrozenSet, Iterable, List, Tuple
 
 from .i18n import t
-from .task_catalog import (
-    KNOWN_TASK_GROUP_PREFIXES,
-    discover_task_groups,
-    natural_sort_key,
-)
 
 # (i18n key suffix under help.command.*, display signature)
 COMMAND_HELP_SPECS: Tuple[Tuple[str, str], ...] = (
@@ -56,26 +50,4 @@ def iter_command_help_lines() -> Iterable[str]:
     for signature, description in iter_command_help():
         yield signature
         yield f"  {description}"
-        yield ""
-
-
-def iter_task_list_lines() -> Iterable[str]:
-    """Yield localized lines listing available task IDs grouped by topic."""
-    bundled_tasks = Path(__file__).resolve().parent / "tasks"
-    groups = discover_task_groups(bundled_tasks)
-
-    yield t("help.tasks_title")
-    yield ""
-
-    for prefix in KNOWN_TASK_GROUP_PREFIXES:
-        task_ids = groups.get(prefix)
-        if not task_ids:
-            continue
-        task_ids.sort(key=natural_sort_key)
-        if len(task_ids) > 2:
-            id_list = f"{task_ids[0]}, ..., {task_ids[-1]}"
-        else:
-            id_list = ", ".join(task_ids)
-        yield t(f"help.task_group.{prefix}")
-        yield id_list
         yield ""

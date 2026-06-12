@@ -25,7 +25,7 @@ Viewer mode is selected by passing a non-`None` `viewer_catalog` in `RobotWindow
 
 ## Task Catalog
 
-`robot/task_catalog.py` provides a read-only index shared by the viewer and help task lists (`command_help.py` uses the same ordering constants).
+`robot/task_catalog.py` provides a read-only index shared by the viewer and help task lists (`task_help.py` uses the same ordering constants).
 
 **Task directory** (same rules as `robot/loader.py`):
 

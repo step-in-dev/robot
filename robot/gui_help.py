@@ -7,7 +7,8 @@ import webbrowser
 import tkinter as tk
 import tkinter.font as tkfont
 
-from .command_help import iter_command_help_lines, iter_task_list_lines
+from .command_help import iter_command_help_lines
+from .task_help import iter_task_list_lines
 from .i18n import t
 
 # Source repository URL (shown as a clickable link in the help dialog).

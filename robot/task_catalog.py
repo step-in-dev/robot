@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .loader import TASKS_DIR_ENV, TASK_FILE_EXTENSION
 
-# Ordered theme ids for bundled tasks; matches help task list order in command_help.
+# Ordered theme ids for bundled tasks; matches help task list order in task_help.
 KNOWN_TASK_GROUP_PREFIXES: Tuple[str, ...] = (
     "intro",
     "fun",
