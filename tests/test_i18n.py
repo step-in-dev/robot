@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from robot import i18n
+from robot import executor, gui_theme, i18n, operator_limits
 
 _BLANK_LOCALE_ENV = {
     "ROBOT_LANGUAGE": "",
@@ -154,10 +154,6 @@ class I18nTest(unittest.TestCase):
                 self.assertEqual(keys_en, keys_lang)
 
     def test_public_text_constants_are_plain_str(self) -> None:
-        from robot import executor
-        from robot import gui_theme
-        from robot import operator_limits
-
         self.assertIsInstance(gui_theme.STATUS_READY, str)
         self.assertIsInstance(executor.ROBOT_PATH_COLLISION_USER_MESSAGE, str)
         self.assertIsInstance(executor.EXECUTION_CANCELLED_MESSAGE, str)

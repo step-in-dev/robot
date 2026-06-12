@@ -22,6 +22,7 @@ The target audience is school students who are learning introductory programming
 - `Docs/task-env-format.md` describes the `.env` task-file format loaded by `robot/loader.py` (canonical English).
 - `Docs/task-env-format.ru.md` is the Russian translation; keep it in sync manually when the English doc changes.
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
+- `Docs/task-editor.md` describes the environment editor (`editor/editor.py`) for creating and editing `.env` task files.
 - `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
 - `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).
@@ -45,6 +46,7 @@ Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.h
 - `robot/runtime.py` is a thin facade: `task()`, `field()`, compatibility re-exports, and script discovery; it wires loader, GUI, and simulator (including synthetic environments for `field()` without reading a task file).
 - `robot/gui.py` provides the `tkinter` `RobotWindow` and re-exports layout/theme helpers for tests; `robot/gui_theme.py` and `robot/gui_layout.py` hold UI constants and pure geometry; `robot/field_renderer.py` draws the grid; `robot/status_strip.py` implements the status row (`Canvas`, optional hatched success background). The same window supports two modes: **solution mode** (opened from `task()` with a student script — Run/Step enabled; after a successful Run or step session, static script-constraint checks run on the student source) and **viewer mode** (opened via `viewer/viewer.py` with `viewer_catalog` — browse tasks by theme/number, Run/Step disabled). See `Docs/task-viewer.md`.
 - `viewer/viewer.py` is the teacher-facing launcher for viewer mode; `robot/task_catalog.py` indexes tasks for browsing; `robot/gui_viewer.py` implements the viewer toolbar and in-window task switching.
+- `editor/editor.py` is the environment editor launcher; `robot/gui_editor.py` provides the standalone editor window; `robot/task_serializer.py` and `robot/editor_env.py` handle `.env` round-trip and editing logic.
 - `robot/__init__.py` re-exports the student-facing API for `from robot import *` usage.
 - `tests/` at the repository root covers core model behavior, task loading, runtime execution, GUI behavior, and facade import compatibility (`tests/test_facade_imports.py`).
 
@@ -84,7 +86,8 @@ Use the project venv after the update script runs:
 | Lint (tests) | `.venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc tests` |
 | Student app | `.venv/bin/python sample_solution.py` (opens tkinter window; calls `task("intro1")`) |
 | Teacher viewer | `.venv/bin/python viewer/viewer.py` |
+| Environment editor | `.venv/bin/python editor/editor.py` |
 | Build website | `.venv/bin/python tools/build_website_content.py` |
 
-There is no dev server to keep running. `sample_solution.py` and `viewer/viewer.py` block on `mainloop()` until the window is closed.
+There is no dev server to keep running. `sample_solution.py`, `viewer/viewer.py`, and `editor/editor.py` block on `mainloop()` until the window is closed.
 
