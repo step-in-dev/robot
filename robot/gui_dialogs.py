@@ -99,6 +99,22 @@ def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) 
     child.after_idle(_apply_focus)
 
 
+def _ensure_mapped_before_grab(child: tk.Toplevel, parent: tk.Misc) -> None:
+    """Prepare *child* for grab_set on Windows without blocking on a hidden parent."""
+    if sys.platform != "win32":
+        return
+    try:
+        child.update_idletasks()
+        child.update()
+        if child.winfo_viewable():
+            return
+        # wait_visibility() blocks forever when the parent root is withdrawn.
+        if parent.winfo_toplevel().winfo_viewable():
+            child.wait_visibility()
+    except tk.TclError:
+        pass
+
+
 def reveal_centered_toplevel(
     child: tk.Toplevel,
     parent: tk.Misc,
@@ -119,12 +135,7 @@ def reveal_centered_toplevel(
     center_toplevel_on_parent(child, parent)
     _nudge_toplevel_visual_center(child, parent)
     child.lift()
-    if sys.platform == "win32":
-        try:
-            # grab_set requires a mapped window on Windows (see wait_visibility in Tk docs).
-            child.wait_visibility()
-        except tk.TclError:
-            pass
+    _ensure_mapped_before_grab(child, parent)
     if modal:
         child.grab_set()
     _focus_toplevel_widget(child, focus_widget)
