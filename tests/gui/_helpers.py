@@ -28,6 +28,7 @@ __all__ = [
     "emit_action_enter_press_release",
     "emit_action_enter_release",
     "emit_keypad_enter",
+    "emit_return",
     "env_dict",
     "make_env",
     "make_test_window",
@@ -74,14 +75,23 @@ def emit_action_enter_press_release(widget: tk.Misc, root: tk.Misc) -> None:
     root.update()
 
 
+def emit_return(widget: tk.Misc, root: tk.Misc) -> None:
+    """Simulate main Enter key in GUI tests."""
+    # Windows Tcl/Tk does not deliver synthetic <Return> to Entry bindings; use KeyPress/Release.
+    widget.event_generate("<KeyPress-Return>", when="tail")
+    widget.event_generate("<KeyRelease-Return>", when="tail")
+    # Flush events on the toplevel that owns the widget (grab_set dialogs on Windows).
+    root.winfo_toplevel().update()
+
+
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
     """Simulate numpad Enter in GUI tests."""
     # Windows Tcl/Tk ignores synthetic <KP_Enter>; numpad Enter is <Return> there.
     if sys.platform == "win32":
-        widget.event_generate("<Return>", when="tail")
-    else:
-        widget.event_generate("<KP_Enter>", when="tail")
-    root.update()
+        emit_return(widget, root)
+        return
+    widget.event_generate("<KP_Enter>", when="tail")
+    root.winfo_toplevel().update()
 
 
 def _find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:

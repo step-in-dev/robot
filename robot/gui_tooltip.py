@@ -60,6 +60,10 @@ def bind_tooltip(widget: tk.Widget, text: str, *, delay_ms: int = _DEFAULT_DELAY
     def schedule_show(_event: object) -> None:
         nonlocal after_id
         hide()
+        # after(0, …) is not always processed in one update() on Windows.
+        if delay_ms <= 0:
+            show()
+            return
         after_id = widget.after(delay_ms, show)
 
     widget.bind("<Enter>", schedule_show, add="+")

@@ -35,7 +35,13 @@ from ._editor_harness import (
     open_task_via_menu,
     write_task_env_file,
 )
-from ._helpers import GuiTestCase, emit_keypad_enter, requires_tk_display, withdrawn_root
+from ._helpers import (
+    GuiTestCase,
+    emit_keypad_enter,
+    emit_return,
+    requires_tk_display,
+    withdrawn_root,
+)
 
 
 def _find_first_entry_widget(parent: tk.Misc) -> tk.Entry | None:
@@ -569,8 +575,7 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                     return
                 entry.focus_set()
                 dialog_self.update_idletasks()
-                entry.event_generate("<Return>", when="tail")
-                root.update()
+                emit_return(entry, dialog_self)
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_press_return):
                 result = prompt_edit_constraints(

@@ -197,6 +197,8 @@ class EditorWindow(EditorFileMixin):
         self._lock_window_size()
         self.root.deiconify()
         self.root.update_idletasks()
+        # update_idletasks alone leaves toolbar/canvas at 1 px on Windows until update().
+        self.root.update()
         self._sync_toolbar_spinbox_heights()
         self.root.lift()
 
