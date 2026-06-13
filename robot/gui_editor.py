@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 
 from ._version import __version__
 from .editor_env import (
@@ -45,6 +45,7 @@ from .gui_theme import (
     TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from .gui_dialogs import prompt_string_dialog
 from .gui_editor_constraints import (
     _ConstraintsDialogState,
     prompt_edit_constraints,
@@ -892,11 +893,11 @@ class EditorWindow(EditorFileMixin):
 
     def _edit_todo_text(self) -> None:
         resolved = resolve_todo_text_for_ui(self._state.document.todo_text)
-        new_text = simpledialog.askstring(
-            t("editor.edit_todo_title"),
-            t("editor.edit_todo_prompt"),
+        new_text = prompt_string_dialog(
+            self.root,
+            title=t("editor.edit_todo_title"),
+            prompt=t("editor.edit_todo_prompt"),
             initialvalue=resolved.text,
-            parent=self.root,
         )
         if new_text is None:
             return

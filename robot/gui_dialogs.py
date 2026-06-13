@@ -18,6 +18,170 @@ CONSTRAINTS_TEXT_WIDTH = 65
 
 
 _ESCAPE_BINDING = "<Escape>"
+_RETURN_BINDINGS = ("<Return>", "<KP_Enter>")
+
+
+def _widget_size(widget: tk.Misc) -> tuple[int, int]:
+    widget.update_idletasks()
+    width = widget.winfo_width()
+    height = widget.winfo_height()
+    if width <= 1:
+        width = widget.winfo_reqwidth()
+    if height <= 1:
+        height = widget.winfo_reqheight()
+    return width, height
+
+
+def center_toplevel_on_parent(child: tk.Toplevel, parent: tk.Misc) -> None:
+    """Place *child* at the visual center of *parent*."""
+    child_width, child_height = _widget_size(child)
+    parent_width, parent_height = _widget_size(parent)
+    parent_x = parent.winfo_rootx()
+    parent_y = parent.winfo_rooty()
+    x = parent_x + (parent_width - child_width) // 2
+    y = parent_y + (parent_height - child_height) // 2
+    screen_width = child.winfo_screenwidth()
+    screen_height = child.winfo_screenheight()
+    x = max(0, min(x, screen_width - child_width))
+    y = max(0, min(y, screen_height - child_height))
+    child.wm_geometry(f"{child_width}x{child_height}+{x}+{y}")
+
+
+def reveal_centered_toplevel(
+    child: tk.Toplevel,
+    parent: tk.Misc,
+    *,
+    modal: bool = False,
+) -> None:
+    """Map a withdrawn toplevel centered over *parent*."""
+    child.transient(parent)
+    center_toplevel_on_parent(child, parent)
+    child.deiconify()
+    child.update_idletasks()
+    center_toplevel_on_parent(child, parent)
+    child.lift()
+    child.focus_set()
+    if modal:
+        child.grab_set()
+        child.wait_window()
+
+
+def _bind_return(widget: tk.Misc, handler: Callable[[tk.Event], str]) -> None:
+    for sequence in _RETURN_BINDINGS:
+        widget.bind(sequence, handler)
+
+
+def pack_ok_cancel_buttons(
+    button_row: tk.Misc,
+    *,
+    on_ok: Callable[[], None],
+    on_cancel: Callable[[], None],
+) -> None:
+    """Pack localized OK and Cancel buttons into *button_row*."""
+    tk.Button(
+        button_row,
+        text=t("editor.constraints.ok"),
+        width=10,
+        command=on_ok,
+    ).pack(side=tk.LEFT, padx=(0, 6))
+    tk.Button(
+        button_row,
+        text=t("editor.constraints.cancel"),
+        width=10,
+        command=on_cancel,
+    ).pack(side=tk.LEFT)
+
+
+def bind_dialog_cancel(dialog: tk.Toplevel, on_cancel: Callable[[], None]) -> None:
+    """Wire WM close and Escape on *dialog* to *on_cancel*."""
+    dialog.protocol("WM_DELETE_WINDOW", on_cancel)
+
+    def _handle_escape(_event: tk.Event) -> str:
+        on_cancel()
+        return "break"
+
+    dialog.bind(_ESCAPE_BINDING, _handle_escape)
+
+
+def _pack_string_prompt_form(
+    dialog: tk.Toplevel,
+    *,
+    prompt: str,
+    initialvalue: str,
+    on_ok: Callable[[], None],
+    on_cancel: Callable[[], None],
+) -> tk.StringVar:
+    frame = tk.Frame(dialog, padx=12, pady=12)
+    frame.pack(fill=tk.BOTH, expand=True)
+
+    label = tk.Label(
+        frame,
+        text=prompt,
+        font=DIALOG_BODY_FONT,
+        anchor=tk.W,
+        justify=tk.LEFT,
+    )
+    label.pack(fill=tk.X, pady=(0, 8))
+
+    variable = tk.StringVar(dialog, value=initialvalue)
+    entry = tk.Entry(frame, textvariable=variable, width=40, font=DIALOG_BODY_FONT)
+    entry.pack(fill=tk.X)
+    entry.focus_set()
+    entry.select_range(0, tk.END)
+
+    button_row = tk.Frame(frame)
+    button_row.pack(fill=tk.X, pady=(12, 0), anchor=tk.E)
+    pack_ok_cancel_buttons(button_row, on_ok=on_ok, on_cancel=on_cancel)
+
+    def _handle_return(_event: tk.Event) -> str:
+        on_ok()
+        return "break"
+
+    _bind_return(dialog, _handle_return)
+    _bind_return(entry, _handle_return)
+    return variable
+
+
+def prompt_string_dialog(
+    parent: tk.Misc,
+    *,
+    title: str,
+    prompt: str,
+    initialvalue: str = "",
+) -> Optional[str]:
+    """Open a centered modal string-entry dialog and return the entered value."""
+    result: dict[str, Optional[str]] = {"value": None}
+
+    dialog = tk.Toplevel(parent)
+    dialog.withdraw()
+    dialog.title(title)
+    dialog.resizable(False, False)
+
+    def _close_dialog() -> None:
+        try:
+            dialog.destroy()
+        except tk.TclError:
+            pass
+
+    def _on_ok() -> None:
+        result["value"] = variable.get()
+        _close_dialog()
+
+    def _on_cancel() -> None:
+        _close_dialog()
+
+    bind_dialog_cancel(dialog, _on_cancel)
+
+    variable = _pack_string_prompt_form(
+        dialog,
+        prompt=prompt,
+        initialvalue=initialvalue,
+        on_ok=_on_ok,
+        on_cancel=_on_cancel,
+    )
+
+    reveal_centered_toplevel(dialog, parent, modal=True)
+    return result["value"]
 
 
 def _try_focus_existing_toplevel(win: Optional[tk.Toplevel]) -> bool:
@@ -57,10 +221,7 @@ class DialogManagerMixin:
         Secondary windows are created with ``withdraw()`` so the WM does not
         briefly show an empty default-sized frame before widgets are packed.
         """
-        win.update_idletasks()
-        win.deiconify()
-        win.lift()
-        win.focus_set()
+        reveal_centered_toplevel(win, self.root)
 
     def close_dialogs(self) -> None:
         """Destroy help and constraints dialogs if they are open."""
@@ -92,7 +253,6 @@ class DialogManagerMixin:
         help_win.withdraw()
         self._help_window = help_win
         help_win.title(t("help.title"))
-        help_win.transient(self.root)
 
         def _clear_help_ref() -> None:
             try:
@@ -151,7 +311,6 @@ class DialogManagerMixin:
         c_win.withdraw()
         self._constraints_window = c_win
         c_win.title(t("constraints.title"))
-        c_win.transient(self.root)
 
         def _clear_constraints_ref() -> None:
             try:

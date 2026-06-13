@@ -7,6 +7,11 @@ from typing import Dict, List, Optional, Tuple
 import tkinter as tk
 from tkinter import messagebox
 
+from .gui_dialogs import (
+    bind_dialog_cancel,
+    pack_ok_cancel_buttons,
+    reveal_centered_toplevel,
+)
 from .gui_theme import DIALOG_BODY_FONT
 from .i18n import t
 from .task_serializer import (
@@ -80,18 +85,7 @@ def _pack_constraint_buttons(
 ) -> None:
     button_row = tk.Frame(parent)
     button_row.grid(row=row, column=0, columnspan=2, sticky=tk.E, pady=(8, 0))
-    tk.Button(
-        button_row,
-        text=t("editor.constraints.ok"),
-        width=10,
-        command=on_ok,
-    ).pack(side=tk.LEFT, padx=(0, 6))
-    tk.Button(
-        button_row,
-        text=t("editor.constraints.cancel"),
-        width=10,
-        command=on_cancel,
-    ).pack(side=tk.LEFT)
+    pack_ok_cancel_buttons(button_row, on_ok=on_ok, on_cancel=on_cancel)
 
 
 def prompt_edit_constraints(
@@ -115,7 +109,6 @@ def prompt_edit_constraints(
     dialog.withdraw()
     state.dialog = dialog
     dialog.title(t("editor.edit_constraints_title"))
-    dialog.transient(root)
     dialog.resizable(False, False)
 
     result: Dict[str, Optional[ConstraintFieldInput]] = {"values": None}
@@ -149,13 +142,7 @@ def prompt_edit_constraints(
     def _on_cancel() -> None:
         _close_dialog()
 
-    dialog.protocol("WM_DELETE_WINDOW", _on_cancel)
-
-    def _handle_escape(_event: tk.Event) -> str:
-        _on_cancel()
-        return "break"
-
-    dialog.bind("<Escape>", _handle_escape)
+    bind_dialog_cancel(dialog, _on_cancel)
 
     def _handle_return(_event: tk.Event) -> str:
         _on_ok()
@@ -172,10 +159,5 @@ def prompt_edit_constraints(
         on_cancel=_on_cancel,
     )
 
-    dialog.update_idletasks()
-    dialog.deiconify()
-    dialog.lift()
-    dialog.focus_set()
-    dialog.grab_set()
-    dialog.wait_window()
+    reveal_centered_toplevel(dialog, root, modal=True)
     return result["values"]

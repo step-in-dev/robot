@@ -253,7 +253,7 @@ class EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-meth
 
     def edit_todo_text(self, new_text: str) -> None:
         with patch(
-            "robot.gui_editor.simpledialog.askstring",
+            "robot.gui_editor.prompt_string_dialog",
             return_value=new_text,
         ):
             self._edit_todo_text()
