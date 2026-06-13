@@ -150,13 +150,20 @@ class TaskSerializerTest(unittest.TestCase):
         self.assertEqual(constraints.custom_function_call_count, 1)
         self.assertEqual(constraints.required_keywords, ("for",))
 
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_parse_constraint_field_input_rejects_invalid_operators_limit(
         self,
     ) -> None:
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             parse_constraint_field_input(
                 ConstraintFieldInput(operators_limit="bad")
             )
+        self.assertEqual(
+            str(ctx.exception),
+            f"{t('editor.constraints.field.operators_limit')} "
+            "must be a non-negative integer",
+        )
+        self.assertNotIn("<editor>", str(ctx.exception))
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
     def test_parse_constraint_field_input_unknown_keyword_uses_field_label(

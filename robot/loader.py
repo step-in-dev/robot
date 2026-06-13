@@ -226,19 +226,21 @@ def _format_task_path_suffix(task_path: Optional[Path]) -> str:
 
 def _parse_optional_non_negative_int(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
     *,
     json_key: str,
     invalid_message_key: str,
+    field_name: Optional[str] = None,
 ) -> Optional[int]:
     if json_key not in data:
         return None
+    display_name = field_name if field_name is not None else json_key
     value = data[json_key]
     if not _is_plain_int(value) or value < 0:
         raise TaskLoadError(
             t(
                 invalid_message_key,
-                field_name=json_key,
+                field_name=display_name,
                 task_path_suffix=_format_task_path_suffix(task_path),
             )
         )
@@ -247,7 +249,9 @@ def _parse_optional_non_negative_int(
 
 def parse_operators_limit(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
+    *,
+    field_name: Optional[str] = None,
 ) -> Optional[int]:
     """Parse optional ``operatorsLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
@@ -255,12 +259,15 @@ def parse_operators_limit(
         task_path,
         json_key="operatorsLimit",
         invalid_message_key="loader.operators_limit_invalid",
+        field_name=field_name,
     )
 
 
 def parse_custom_function_call_count(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
+    *,
+    field_name: Optional[str] = None,
 ) -> Optional[int]:
     """Parse optional ``customFunctionCallCount`` from task JSON."""
     return _parse_optional_non_negative_int(
@@ -268,12 +275,15 @@ def parse_custom_function_call_count(
         task_path,
         json_key="customFunctionCallCount",
         invalid_message_key="loader.custom_function_call_count_invalid",
+        field_name=field_name,
     )
 
 
 def parse_if_limit(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
+    *,
+    field_name: Optional[str] = None,
 ) -> Optional[int]:
     """Parse optional ``ifLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
@@ -281,12 +291,15 @@ def parse_if_limit(
         task_path,
         json_key="ifLimit",
         invalid_message_key="loader.if_limit_invalid",
+        field_name=field_name,
     )
 
 
 def parse_while_limit(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
+    *,
+    field_name: Optional[str] = None,
 ) -> Optional[int]:
     """Parse optional ``whileLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
@@ -294,6 +307,7 @@ def parse_while_limit(
         task_path,
         json_key="whileLimit",
         invalid_message_key="loader.while_limit_invalid",
+        field_name=field_name,
     )
 
 

@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from robot.i18n import clear_translation_cache
 from robot.loader import TaskLoadError, load_task, load_task_definition
 
 from tests.env_fixtures import cell_1x1, corridor
@@ -150,6 +151,30 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 for name in invalid_cases:
                     with self.assertRaises(TaskLoadError):
                         load_task_definition(name)
+
+    def test_load_task_definition_invalid_operators_limit_uses_locale_suffix(
+        self,
+    ) -> None:
+        clear_translation_cache()
+        self.addCleanup(clear_translation_cache)
+        base_env = cell_1x1()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_path = Path(temp_dir) / "ja_invalid.env"
+            task_path.write_text(
+                json.dumps({"envDtos": [base_env], "operatorsLimit": "3"}),
+                encoding="utf-8",
+            )
+            with patch.dict(
+                "os.environ",
+                {"ROBOT_TASKS_DIR": temp_dir, "ROBOT_LANGUAGE": "ja"},
+                clear=False,
+            ):
+                with self.assertRaises(TaskLoadError) as ctx:
+                    load_task_definition("ja_invalid")
+        self.assertEqual(
+            str(ctx.exception),
+            f"operatorsLimit は負でない整数である必要があります：{task_path}",
+        )
 
     def test_load_task_definition_rejects_invalid_custom_function_call_count(
         self,

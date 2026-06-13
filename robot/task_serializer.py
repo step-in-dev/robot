@@ -12,8 +12,12 @@ from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
 from .loader import (
     ScriptConstraints,
     TaskLoadError,
+    parse_custom_function_call_count,
+    parse_if_limit,
     parse_keyword_list,
+    parse_operators_limit,
     parse_task_payload,
+    parse_while_limit,
     validate_keyword_lists,
 )
 from .model import (
@@ -274,34 +278,14 @@ def _constraint_field_labels() -> Dict[str, str]:
     }
 
 
-def _parse_optional_dialog_int(
-    raw: str,
-    *,
-    field_name: str,
-    invalid_message_key: str,
-) -> Optional[int]:
+def _optional_dialog_int_payload(raw: str) -> Optional[Any]:
     stripped = raw.strip()
     if not stripped:
         return None
     try:
-        value = int(stripped)
-    except ValueError as exc:
-        raise ValueError(
-            t(
-                invalid_message_key,
-                field_name=field_name,
-                task_path_suffix="",
-            )
-        ) from exc
-    if value < 0:
-        raise ValueError(
-            t(
-                invalid_message_key,
-                field_name=field_name,
-                task_path_suffix="",
-            )
-        )
-    return value
+        return int(stripped)
+    except ValueError:
+        return stripped
 
 
 def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstraints:
@@ -310,40 +294,43 @@ def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstrai
     Raises :class:`ValueError` with a localized message when validation fails.
     """
     labels = _constraint_field_labels()
-    int_values: Dict[str, Optional[int]] = {}
-    for json_key, raw, invalid_message_key in (
-        ("operatorsLimit", fields.operators_limit, "loader.operators_limit_invalid"),
-        (
-            "customFunctionCallCount",
-            fields.custom_function_call_count,
-            "loader.custom_function_call_count_invalid",
-        ),
-        ("ifLimit", fields.if_limit, "loader.if_limit_invalid"),
-        ("whileLimit", fields.while_limit, "loader.while_limit_invalid"),
+    data: Dict[str, Any] = {}
+    for json_key, raw in (
+        ("operatorsLimit", fields.operators_limit),
+        ("customFunctionCallCount", fields.custom_function_call_count),
+        ("ifLimit", fields.if_limit),
+        ("whileLimit", fields.while_limit),
     ):
-        int_values[json_key] = _parse_optional_dialog_int(
-            raw,
-            field_name=labels[json_key],
-            invalid_message_key=invalid_message_key,
-        )
-    keyword_data: Dict[str, Any] = {}
+        value = _optional_dialog_int_payload(raw)
+        if value is not None:
+            data[json_key] = value
     for json_key, raw in (
         ("requiredKeywords", fields.required_keywords),
         ("bannedKeywords", fields.banned_keywords),
     ):
         stripped = raw.strip()
         if stripped:
-            keyword_data[json_key] = stripped
+            data[json_key] = stripped
     try:
+        operators_limit = parse_operators_limit(
+            data, None, field_name=labels["operatorsLimit"]
+        )
+        custom_function_call_count = parse_custom_function_call_count(
+            data, None, field_name=labels["customFunctionCallCount"]
+        )
+        if_limit = parse_if_limit(data, None, field_name=labels["ifLimit"])
+        while_limit = parse_while_limit(
+            data, None, field_name=labels["whileLimit"]
+        )
         required_keywords = parse_keyword_list(
-            keyword_data,
+            data,
             None,
             json_key="requiredKeywords",
             field_name=labels["requiredKeywords"],
             invalid_message_key="loader.required_keywords_invalid",
         )
         banned_keywords = parse_keyword_list(
-            keyword_data,
+            data,
             None,
             json_key="bannedKeywords",
             field_name=labels["bannedKeywords"],
@@ -359,10 +346,10 @@ def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstrai
     except TaskLoadError as exc:
         raise ValueError(str(exc)) from exc
     return ScriptConstraints(
-        operators_limit=int_values["operatorsLimit"],
-        custom_function_call_count=int_values["customFunctionCallCount"],
-        if_limit=int_values["ifLimit"],
-        while_limit=int_values["whileLimit"],
+        operators_limit=operators_limit,
+        custom_function_call_count=custom_function_call_count,
+        if_limit=if_limit,
+        while_limit=while_limit,
         required_keywords=required_keywords,
         banned_keywords=banned_keywords,
     )
