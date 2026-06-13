@@ -124,8 +124,6 @@ def prompt_edit_constraints(
     frame.pack(fill=tk.BOTH, expand=True)
 
     variables, entries = _constraint_field_rows(frame, display)
-    if entries:
-        entries[0].focus_set()
 
     def _on_ok() -> None:
         fields = _read_constraint_fields(variables)
@@ -159,5 +157,10 @@ def prompt_edit_constraints(
         on_cancel=_on_cancel,
     )
 
-    reveal_centered_toplevel(dialog, root, modal=True)
+    reveal_centered_toplevel(
+        dialog,
+        root,
+        modal=True,
+        focus_widget=entries[0] if entries else None,
+    )
     return result["values"]

@@ -47,11 +47,27 @@ def center_toplevel_on_parent(child: tk.Toplevel, parent: tk.Misc) -> None:
     child.wm_geometry(f"{child_width}x{child_height}+{x}+{y}")
 
 
+def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) -> None:
+    """Raise focus to *focus_widget* after the toplevel is mapped, or to *child*."""
+    if focus_widget is None:
+        child.focus_set()
+        return
+
+    def _apply_focus() -> None:
+        focus_widget.focus_set()
+        if isinstance(focus_widget, tk.Entry):
+            focus_widget.select_range(0, tk.END)
+
+    # Defer until after deiconify/grab_set so the WM does not steal focus back.
+    child.after_idle(_apply_focus)
+
+
 def reveal_centered_toplevel(
     child: tk.Toplevel,
     parent: tk.Misc,
     *,
     modal: bool = False,
+    focus_widget: Optional[tk.Misc] = None,
 ) -> None:
     """Map a withdrawn toplevel centered over *parent*."""
     child.transient(parent)
@@ -60,9 +76,10 @@ def reveal_centered_toplevel(
     child.update_idletasks()
     center_toplevel_on_parent(child, parent)
     child.lift()
-    child.focus_set()
     if modal:
         child.grab_set()
+    _focus_toplevel_widget(child, focus_widget)
+    if modal:
         child.wait_window()
 
 
@@ -110,7 +127,7 @@ def _pack_string_prompt_form(
     initialvalue: str,
     on_ok: Callable[[], None],
     on_cancel: Callable[[], None],
-) -> tk.StringVar:
+) -> tuple[tk.StringVar, tk.Entry]:
     frame = tk.Frame(dialog, padx=12, pady=12)
     frame.pack(fill=tk.BOTH, expand=True)
 
@@ -126,11 +143,9 @@ def _pack_string_prompt_form(
     variable = tk.StringVar(dialog, value=initialvalue)
     entry = tk.Entry(frame, textvariable=variable, width=40, font=DIALOG_BODY_FONT)
     entry.pack(fill=tk.X)
-    entry.focus_set()
-    entry.select_range(0, tk.END)
 
     button_row = tk.Frame(frame)
-    button_row.pack(fill=tk.X, pady=(12, 0), anchor=tk.E)
+    button_row.pack(pady=(12, 0), anchor=tk.E)
     pack_ok_cancel_buttons(button_row, on_ok=on_ok, on_cancel=on_cancel)
 
     def _handle_return(_event: tk.Event) -> str:
@@ -139,7 +154,7 @@ def _pack_string_prompt_form(
 
     _bind_return(dialog, _handle_return)
     _bind_return(entry, _handle_return)
-    return variable
+    return variable, entry
 
 
 def prompt_string_dialog(
@@ -172,7 +187,7 @@ def prompt_string_dialog(
 
     bind_dialog_cancel(dialog, _on_cancel)
 
-    variable = _pack_string_prompt_form(
+    variable, entry = _pack_string_prompt_form(
         dialog,
         prompt=prompt,
         initialvalue=initialvalue,
@@ -180,7 +195,9 @@ def prompt_string_dialog(
         on_cancel=_on_cancel,
     )
 
-    reveal_centered_toplevel(dialog, parent, modal=True)
+    reveal_centered_toplevel(
+        dialog, parent, modal=True, focus_widget=entry
+    )
     return result["value"]
 
 
