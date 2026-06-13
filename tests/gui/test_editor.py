@@ -16,7 +16,7 @@ from robot.gui_editor_constraints import (
     _ConstraintsDialogState,
     prompt_edit_constraints,
 )
-from robot.i18n import clear_translation_cache, t
+from robot.i18n import t
 from robot._version import __version__
 from robot.task_serializer import (
     ConstraintFieldInput,
@@ -632,7 +632,6 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False)
     def test_edit_todo_text_updates_current_ui_locale(self) -> None:
-        clear_translation_cache()
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Old", "ru": "Старое"},
@@ -647,7 +646,6 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False)
     def test_edit_todo_text_updates_fallback_locale_only(self) -> None:
-        clear_translation_cache()
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Old English", "ru": "Старое"},

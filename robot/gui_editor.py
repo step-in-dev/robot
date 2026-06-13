@@ -52,7 +52,7 @@ from .gui_editor_constraints import (
 from .gui_editor_file import EditorFileMixin
 from .gui_tooltip import bind_tooltip
 from .i18n import t
-from .loader import resolve_todo_text, resolve_todo_text_for_ui
+from .loader import resolve_todo_text_for_ui
 from .model import RobotEnv
 from .task_serializer import (
     EditorDocument,
@@ -323,7 +323,7 @@ class EditorWindow(EditorFileMixin):
         self._chrome.todo_section = tk.Frame(self.root)
 
     def _sync_todo_banner(self) -> None:
-        display_text = resolve_todo_text(self._state.document.todo_text)
+        display_text = resolve_todo_text_for_ui(self._state.document.todo_text).text
         wraplength = max(self._layout.canvas_width, 320)
         if not display_text:
             if self._chrome.todo_frame is not None:

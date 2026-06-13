@@ -461,7 +461,6 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False)
     def test_resolve_todo_text_for_ui_uses_current_language(self) -> None:
-        clear_translation_cache()
         resolved = resolve_todo_text_for_ui(
             {"en": "English", "ru": "Русский"}
         )
@@ -470,7 +469,6 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False)
     def test_resolve_todo_text_for_ui_falls_back_to_en(self) -> None:
-        clear_translation_cache()
         resolved = resolve_todo_text_for_ui(
             {"en": "English", "ru": "Русский"}
         )
