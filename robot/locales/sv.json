@@ -105,6 +105,7 @@
   "editor.window.title_file": "Robot v{version}: {filename}",
   "editor.menu.file": "Arkiv",
   "editor.menu.edit": "Redigera",
+  "editor.menu.new": "Ny uppgift",
   "editor.menu.open": "Öppna",
   "editor.menu.save": "Spara",
   "editor.menu.save_as": "Spara som",

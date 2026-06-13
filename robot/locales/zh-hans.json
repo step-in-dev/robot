@@ -105,6 +105,7 @@
   "editor.window.title_file": "机器人v{version}：{filename}",
   "editor.menu.file": "文件",
   "editor.menu.edit": "编辑",
+  "editor.menu.new": "新建任务",
   "editor.menu.open": "打开",
   "editor.menu.save": "保存",
   "editor.menu.save_as": "另存为",

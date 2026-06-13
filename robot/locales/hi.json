@@ -105,6 +105,7 @@
   "editor.window.title_file": "रोबोट v{version}: {filename}",
   "editor.menu.file": "फ़ाइल",
   "editor.menu.edit": "संपादन",
+  "editor.menu.new": "नया कार्य",
   "editor.menu.open": "खोलें",
   "editor.menu.save": "सहेजें",
   "editor.menu.save_as": "इस नाम से सहेजें",

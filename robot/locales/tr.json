@@ -105,6 +105,7 @@
   "editor.window.title_file": "Robot v{version}: {filename}",
   "editor.menu.file": "Dosya",
   "editor.menu.edit": "Düzenle",
+  "editor.menu.new": "Yeni görev",
   "editor.menu.open": "Aç",
   "editor.menu.save": "Kaydet",
   "editor.menu.save_as": "Farklı kaydet",

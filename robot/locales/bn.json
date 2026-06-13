@@ -105,6 +105,7 @@
   "editor.window.title_file": "রোবট v{version}: {filename}",
   "editor.menu.file": "ফাইল",
   "editor.menu.edit": "সম্পাদনা",
+  "editor.menu.new": "নতুন কাজ",
   "editor.menu.open": "খুলুন",
   "editor.menu.save": "সংরক্ষণ",
   "editor.menu.save_as": "নতুন নামে সংরক্ষণ",

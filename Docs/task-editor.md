@@ -8,7 +8,7 @@ The environment editor is a standalone desktop tool for creating and editing Rob
 python editor/editor.py
 ```
 
-The editor opens with a new empty environment (5×5 field, robot start at the top-left corner, goal at the bottom-right corner). Use the **File** menu to open an existing task file or save your work.
+The editor opens with a new empty environment (5×5 field, robot start at the top-left corner, goal at the bottom-right corner). Use **File → New Task** to start another empty task at any time, or use the **File** menu to open an existing task file or save your work.
 
 ## Features
 
@@ -18,7 +18,7 @@ The editor opens with a new empty environment (5×5 field, robot start at the to
 - Edit the task condition (`todoText`) shown above the field.
 - Edit solution constraints (`operatorsLimit`, `customFunctionCallCount`, `ifLimit`, `whileLimit`, `requiredKeywords`, `bannedKeywords`) via the toolbar constraints button (icon after the task-condition button).
 - Undo and redo recent changes (Edit menu or toolbar buttons).
-- Open, Save, and Save As via the **File** menu.
+- New Task, Open, Save, and Save As via the **File** menu.
 - Field size is limited to 25 columns by 16 rows; a task file may contain up to 7 environments.
 - Saving over a bundled task under `robot/tasks/` asks for confirmation (both **Save** and **Save As**).
 
@@ -26,6 +26,7 @@ Constraint edits use the same validation rules as task loading. Empty fields rem
 
 ## Keyboard shortcuts
 
+- `Ctrl+N` — New Task
 - `Ctrl+O` — Open
 - `Ctrl+S` — Save
 - `Ctrl+Shift+S` — Save As

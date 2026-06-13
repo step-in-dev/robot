@@ -12,6 +12,7 @@ from .task_serializer import (
     TASK_FILE_EXTENSION,
     EditorDocument,
     TaskSaveError,
+    create_empty_document,
     is_bundled_task_path,
     load_task_file,
     save_task_file,
@@ -47,6 +48,12 @@ class EditorFileMixin:
         menubar = tk.Menu(self.root)
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(
+            label=t("editor.menu.new"),
+            command=self._menu_new,
+            accelerator="Ctrl+N",
+        )
+        file_menu.add_separator()
+        file_menu.add_command(
             label=t("editor.menu.open"),
             command=self._menu_open,
             accelerator="Ctrl+O",
@@ -79,6 +86,8 @@ class EditorFileMixin:
         menubar.add_cascade(label=t("editor.menu.edit"), menu=self._chrome.edit_menu)
         self.root.config(menu=menubar)
 
+        self.root.bind("<Control-n>", lambda _event: self._menu_new())
+        self.root.bind("<Control-N>", lambda _event: self._menu_new())
         self.root.bind("<Control-o>", lambda _event: self._menu_open())
         self.root.bind("<Control-O>", lambda _event: self._menu_open())
         self.root.bind("<Control-s>", lambda _event: self._menu_save())
@@ -102,6 +111,11 @@ class EditorFileMixin:
             t("editor.confirm.overwrite_bundled"),
             parent=self.root,
         )
+
+    def _menu_new(self) -> None:
+        if self.is_closed:
+            return
+        self._load_document(create_empty_document())
 
     def _menu_open(self) -> None:
         if self.is_closed:

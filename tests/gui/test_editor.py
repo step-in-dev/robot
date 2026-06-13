@@ -16,6 +16,8 @@ from robot.gui_editor_constraints import (
     _ConstraintsDialogState,
     prompt_edit_constraints,
 )
+from robot.i18n import t
+from robot._version import __version__
 from robot.task_serializer import (
     ConstraintFieldInput,
     EditorDocument,
@@ -76,6 +78,9 @@ class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-met
 
     def open_via_menu(self) -> None:
         self._menu_open()
+
+    def new_via_menu(self) -> None:
+        self._menu_new()
 
     def save_via_menu(self) -> None:
         self._menu_save()
@@ -329,6 +334,52 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 self.assertEqual(window.document.file_path, path)
                 self.assertEqual(
                     window.document.env_dtos[0]["paintedCells"], [{"r": 0, "c": 0}]
+                )
+            finally:
+                window.close()
+
+    def test_new_via_menu_resets_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "task.env"
+            path.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [
+                            {
+                                "width": 2,
+                                "height": 2,
+                                "startRow": 0,
+                                "startCol": 0,
+                                "finalRow": 1,
+                                "finalCol": 1,
+                                "paintedCells": [{"r": 0, "c": 0}],
+                            }
+                        ],
+                        "todoText": "Paint",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            window = _make_editor_window()
+            try:
+                with patch(
+                    "robot.gui_editor_file.filedialog.askopenfilename",
+                    return_value=str(path),
+                ):
+                    window.open_via_menu()
+                window.root.update()
+                self.assertEqual(window.document.file_path, path)
+
+                window.new_via_menu()
+                window.root.update()
+
+                expected = create_empty_document()
+                self.assertIsNone(window.document.file_path)
+                self.assertEqual(window.document.env_dtos, expected.env_dtos)
+                self.assertEqual(window.document.todo_text, expected.todo_text)
+                self.assertEqual(
+                    window.root.title(),
+                    t("editor.window.title_new", version=__version__),
                 )
             finally:
                 window.close()

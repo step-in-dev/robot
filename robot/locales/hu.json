@@ -105,6 +105,7 @@
   "editor.window.title_file": "Robot v{version}: {filename}",
   "editor.menu.file": "Fájl",
   "editor.menu.edit": "Szerkesztés",
+  "editor.menu.new": "Új feladat",
   "editor.menu.open": "Megnyitás",
   "editor.menu.save": "Mentés",
   "editor.menu.save_as": "Mentés másként",

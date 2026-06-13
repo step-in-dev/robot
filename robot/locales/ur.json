@@ -105,6 +105,7 @@
   "editor.window.title_file": "روبوٹ ⁦v{version}⁩: ⁨{filename}⁩",
   "editor.menu.file": "فائل",
   "editor.menu.edit": "ترمیم",
+  "editor.menu.new": "نیا ٹاسک",
   "editor.menu.open": "کھولیں",
   "editor.menu.save": "محفوظ کریں",
   "editor.menu.save_as": "بطور محفوظ کریں",

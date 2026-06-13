@@ -105,6 +105,7 @@
   "editor.window.title_file": "Robot v{version}: {filename}",
   "editor.menu.file": "File",
   "editor.menu.edit": "Modifica",
+  "editor.menu.new": "Nuova attività",
   "editor.menu.open": "Apri",
   "editor.menu.save": "Salva",
   "editor.menu.save_as": "Salva con nome",
