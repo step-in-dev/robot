@@ -27,9 +27,12 @@ from tools.build_website_content import (  # noqa: E402
     PageLayout,
     _ui,
     absolute_url,
+    articles_index_relpath,
     breadcrumb_json_ld,
     escape,
     home_relpath,
+    iso_date_from_mtime,
+    newest_mtime,
     normalize_meta_description,
     page_filename,
     render_breadcrumbs,
@@ -69,6 +72,8 @@ _SITE_PATH_BY_LANG = _build_site_path_by_lang()
 
 @dataclass(frozen=True)
 class LocaleContent:
+    """Parsed front matter and Markdown body for one article locale."""
+
     title: str
     description: str
     keywords: Tuple[str, ...]
@@ -77,6 +82,8 @@ class LocaleContent:
 
 @dataclass
 class Article:
+    """One article directory with shared metadata and per-locale content."""
+
     article_id: str
     order: int
     date: str
@@ -86,65 +93,72 @@ class Article:
     draft: bool = False
 
     def slug_for(self, lang: str) -> str:
+        """Return the URL slug for ``lang``."""
         return self.slug[lang]
 
     def locale_path(self, lang: str) -> Path:
+        """Return the Markdown source path for ``lang``."""
         return ARTICLES_DIR / self.article_id / f"{lang}.md"
 
     def page_relpath(self, lang: str) -> str:
+        """Return the generated HTML path under ``website/articles/``."""
         slug = self.slug_for(lang)
         return f"articles/{slug}/{page_filename(lang)}"
 
-def articles_index_relpath(lang: str) -> str:
-    return f"articles/{page_filename(lang)}"
+
+def _load_article_from_meta(meta_path: Path) -> Optional[Article]:
+    """Load one article from ``meta.yaml`` and its locale files; skip drafts."""
+    article_id = meta_path.parent.name
+    with meta_path.open("r", encoding="utf-8") as stream:
+        raw = yaml.safe_load(stream)
+    if not isinstance(raw, dict):
+        raise SystemExit(f"Invalid meta.yaml in {article_id!r}: expected mapping")
+    if bool(raw.get("draft", False)):
+        return None
+    try:
+        order = int(raw["order"])
+        article_date = str(raw["date"])
+        author = str(raw["author"])
+        slug_raw = raw["slug"]
+    except KeyError as exc:
+        raise SystemExit(
+            f"Missing required field {exc.args[0]!r} in {meta_path}"
+        ) from exc
+    if not isinstance(slug_raw, dict):
+        raise SystemExit(f"meta.yaml slug must be a mapping in {article_id!r}")
+    slug = {str(k): str(v) for k, v in slug_raw.items()}
+    article = Article(
+        article_id=article_id,
+        order=order,
+        date=article_date,
+        author=author,
+        slug=slug,
+    )
+    for lang in slug:
+        md_path = article.locale_path(lang)
+        if not md_path.is_file():
+            raise SystemExit(
+                f"Missing locale file {md_path.name} for slug.{lang} in {article_id!r}"
+            )
+        article.locales[lang] = parse_locale_md(md_path)
+    return article
 
 
 def discover_articles(articles_dir: Path = ARTICLES_DIR) -> List[Article]:
-    articles: List[Article] = []
+    """Return all published articles under ``articles_dir``, highest order first."""
     if not articles_dir.is_dir():
-        return articles
+        return []
+    articles: List[Article] = []
     for meta_path in sorted(articles_dir.glob("*/meta.yaml")):
-        article_id = meta_path.parent.name
-        with meta_path.open("r", encoding="utf-8") as stream:
-            raw = yaml.safe_load(stream)
-        if not isinstance(raw, dict):
-            raise SystemExit(f"Invalid meta.yaml in {article_id!r}: expected mapping")
-        draft = bool(raw.get("draft", False))
-        if draft:
-            continue
-        try:
-            order = int(raw["order"])
-            article_date = str(raw["date"])
-            author = str(raw["author"])
-            slug_raw = raw["slug"]
-        except KeyError as exc:
-            raise SystemExit(
-                f"Missing required field {exc.args[0]!r} in {meta_path}"
-            ) from exc
-        if not isinstance(slug_raw, dict):
-            raise SystemExit(f"meta.yaml slug must be a mapping in {article_id!r}")
-        slug = {str(k): str(v) for k, v in slug_raw.items()}
-        article = Article(
-            article_id=article_id,
-            order=order,
-            date=article_date,
-            author=author,
-            slug=slug,
-            draft=draft,
-        )
-        for lang in slug:
-            md_path = article.locale_path(lang)
-            if not md_path.is_file():
-                raise SystemExit(
-                    f"Missing locale file {md_path.name} for slug.{lang} in {article_id!r}"
-                )
-            article.locales[lang] = parse_locale_md(md_path)
-        articles.append(article)
+        article = _load_article_from_meta(meta_path)
+        if article is not None:
+            articles.append(article)
     articles.sort(key=lambda item: (-item.order, item.article_id))
     return articles
 
 
 def validate_articles(articles: Sequence[Article]) -> None:
+    """Ensure article orders and per-locale slugs are unique."""
     orders: Dict[int, str] = {}
     slugs_by_lang: Dict[str, Dict[str, str]] = {lang: {} for lang in SUPPORTED_SITE_LANGS}
     for article in articles:
@@ -169,6 +183,7 @@ def validate_articles(articles: Sequence[Article]) -> None:
 
 
 def parse_locale_md(path: Path) -> LocaleContent:
+    """Parse YAML front matter and Markdown body from a locale ``.md`` file."""
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise SystemExit(f"Locale file {path} must start with YAML front matter (---)")
@@ -197,6 +212,7 @@ def parse_locale_md(path: Path) -> LocaleContent:
 
 
 def markdown_to_html(body: str) -> str:
+    """Convert article Markdown body to HTML5."""
     return markdown.markdown(
         body,
         extensions=["tables", "fenced_code", "nl2br"],
@@ -213,6 +229,7 @@ def _localized_site_path(path: str, lang: str) -> Optional[str]:
 
 
 def rewrite_article_html(html_text: str, layout: PageLayout, lang: str) -> str:
+    """Rewrite site-root and cross-locale links inside generated article HTML."""
     def replace_attr(match: re.Match[str]) -> str:
         attr = match.group("attr")
         url = match.group("url")
@@ -230,6 +247,7 @@ def rewrite_article_html(html_text: str, layout: PageLayout, lang: str) -> str:
 
 
 def first_image_path(html_text: str) -> Optional[str]:
+    """Return the first ``img/...`` path from article HTML, if any."""
     match = _FIRST_IMG_RE.search(html_text)
     if match is None:
         return None
@@ -241,23 +259,20 @@ def first_image_path(html_text: str) -> Optional[str]:
     return None
 
 
+def _article_source_paths(article: Article) -> List[Path]:
+    paths = [ARTICLES_DIR / article.article_id / "meta.yaml"]
+    paths.extend(article.locale_path(lang) for lang in article.locales)
+    return paths
+
+
 def article_lastmod(article: Article) -> str:
-    newest = 0.0
-    for path in [ARTICLES_DIR / article.article_id / "meta.yaml"]:
-        paths = [path] + [
-            article.locale_path(lang) for lang in article.locales
-        ]
-        for file_path in paths:
-            try:
-                newest = max(newest, file_path.stat().st_mtime)
-            except OSError:
-                continue
-    if newest > 0:
-        return date.fromtimestamp(newest).isoformat()
-    return article.date
+    """Return ISO date of the newest source file for ``article``."""
+    newest = newest_mtime(_article_source_paths(article))
+    return iso_date_from_mtime(newest, article.date)
 
 
 def build_article_page(article: Article, lang: str) -> str:
+    """Render one localized article page as a full HTML document."""
     locale = article.locales[lang]
     canonical = article.page_relpath(lang)
     depth = 2
@@ -365,10 +380,11 @@ def _render_article_list_item(
         )
     meta = escape(f"{article.date} · {article.author}")
     snippet = escape(normalize_meta_description(locale.description, limit=200))
+    title_link = f'<a href="{escape(href)}">{escape(locale.title)}</a>'
     return f"""          <li class="article-list__item">
             <div class="article-list__layout">
 {img_html}              <div class="article-list__body">
-                <h2 class="article-list__title"><a href="{escape(href)}">{escape(locale.title)}</a></h2>
+                <h2 class="article-list__title">{title_link}</h2>
                 <p class="article-list__meta">{meta}</p>
                 <p class="article-list__snippet">{snippet}</p>
               </div>
@@ -377,6 +393,7 @@ def _render_article_list_item(
 
 
 def build_articles_index(articles: Sequence[Article], lang: str) -> str:
+    """Render the localized articles index page."""
     canonical = articles_index_relpath(lang)
     title = _ui(lang, "articles_heading")
     description = normalize_meta_description(_ui(lang, "articles_intro"))
@@ -400,7 +417,11 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
             continue
         locale = article.locales[lang]
         items.append(_render_article_list_item(article, locale, layout, lang))
-    list_html = "\n".join(items) if items else f"          <p>{escape(_ui(lang, 'articles_empty'))}</p>"
+    if items:
+        list_html = "\n".join(items)
+    else:
+        empty_text = escape(_ui(lang, "articles_empty"))
+        list_html = f"          <p>{empty_text}</p>"
     crumb_html = render_breadcrumbs(layout, crumbs)
     main = f"""    <div class="articles-index">
       {crumb_html}
@@ -417,12 +438,14 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
 
 
 def clean_generated_articles_dir() -> None:
+    """Remove previously generated pages under ``website/articles/``."""
     articles_dir = WEBSITE_DIR / "articles"
     if articles_dir.is_dir():
         shutil.rmtree(articles_dir)
 
 
 def generate_articles(articles_dir: Path = ARTICLES_DIR) -> List[Article]:
+    """Build article index and detail pages into ``website/articles/``."""
     articles = discover_articles(articles_dir)
     validate_articles(articles)
     clean_generated_articles_dir()
@@ -442,6 +465,7 @@ def collect_article_sitemap_groups(
     articles: Sequence[Article],
     lastmod: str,
 ) -> List[Tuple[str, str, str]]:
+    """Return ``(en_path, ru_path, lastmod)`` tuples for article sitemap entries."""
     groups: List[Tuple[str, str, str]] = [
         (articles_index_relpath("en"), articles_index_relpath("ru"), lastmod),
     ]
@@ -460,15 +484,9 @@ def collect_article_sitemap_groups(
 
 
 def articles_lastmod(articles: Sequence[Article]) -> str:
-    newest = 0.0
+    """Return ISO date of the newest article source file across ``articles``."""
+    paths: List[Path] = []
     for article in articles:
-        for path in [
-            ARTICLES_DIR / article.article_id / "meta.yaml",
-        ] + [article.locale_path(lang) for lang in article.locales]:
-            try:
-                newest = max(newest, path.stat().st_mtime)
-            except OSError:
-                continue
-    if newest <= 0:
-        return date.today().isoformat()
-    return date.fromtimestamp(newest).isoformat()
+        paths.extend(_article_source_paths(article))
+    newest = newest_mtime(paths)
+    return iso_date_from_mtime(newest, date.today().isoformat())

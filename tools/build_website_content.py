@@ -1300,18 +1300,33 @@ def write_sitemap(
     (WEBSITE_DIR / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def tasks_lastmod(catalog: TaskCatalog) -> str:
+def newest_mtime(paths: Iterable[Path]) -> float:
+    """Return the largest mtime among ``paths``, ignoring unreadable files."""
     newest = 0.0
-    for theme_prefix in catalog.themes:
-        for task_id in catalog.task_ids_for(theme_prefix):
-            path = find_task_file(task_id)
-            try:
-                newest = max(newest, path.stat().st_mtime)
-            except OSError:
-                continue
+    for path in paths:
+        try:
+            newest = max(newest, path.stat().st_mtime)
+        except OSError:
+            continue
+    return newest
+
+
+def iso_date_from_mtime(newest: float, fallback: str) -> str:
+    """Format ``newest`` as an ISO date, or return ``fallback`` when it is zero."""
     if newest <= 0:
-        return date.today().isoformat()
+        return fallback
     return date.fromtimestamp(newest).isoformat()
+
+
+def tasks_lastmod(catalog: TaskCatalog) -> str:
+    """Return ISO date of the newest bundled task ``.env`` file in ``catalog``."""
+    paths = [
+        find_task_file(task_id)
+        for theme_prefix in catalog.themes
+        for task_id in catalog.task_ids_for(theme_prefix)
+    ]
+    newest = newest_mtime(paths)
+    return iso_date_from_mtime(newest, date.today().isoformat())
 
 
 def clean_generated_tasks_dir() -> None:
