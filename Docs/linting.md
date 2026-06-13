@@ -43,7 +43,7 @@ Do not disable W0718 globally in `lint/pylint-src.rc`.
 
 ## Scope
 
-**Production** (`lint/pylint-src.rc`): `robot/`, `viewer/viewer.py` (not bare `viewer/` — there is no `viewer/__init__.py`), `tools/`.
+**Production** (`lint/pylint-src.rc`): `robot/`, `viewer/viewer.py` (not bare `viewer/` — there is no `viewer/__init__.py`), `editor/editor.py` (not bare `editor/`), `tools/`.
 
 **Tests** (`lint/pylint-tests.rc`): `tests/`.
 
@@ -55,7 +55,7 @@ From the repository root:
 
 ```bash
 .venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc robot viewer/viewer.py tools
+.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc robot viewer/viewer.py editor/editor.py tools
 .venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc tests
 ```
 

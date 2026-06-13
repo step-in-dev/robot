@@ -55,7 +55,7 @@ Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.h
 
 After every code change, run pylint on the files you modified and fix **all new** linter findings before finishing the task.
 
-- Production paths (`robot/`, `viewer/viewer.py`, `tools/`): `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc <changed-files>`
+- Production paths (`robot/`, `viewer/viewer.py`, `editor/editor.py`, `tools/`): `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc <changed-files>`
 - Tests (`tests/`): `.venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc <changed-files>`
 
 Use the rcfile that matches the path. See `Docs/linting.md` for project conventions and existing suppressions.
@@ -83,7 +83,7 @@ Use the project venv after the update script runs:
 | Task | Command |
 |------|---------|
 | Tests | `.venv/bin/python -m unittest discover -s tests -t .` |
-| Lint (src) | `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc robot viewer/viewer.py tools` |
+| Lint (src) | `.venv/bin/python -m pylint --rcfile=lint/pylint-src.rc robot viewer/viewer.py editor/editor.py tools` |
 | Lint (tests) | `.venv/bin/python -m pylint --rcfile=lint/pylint-tests.rc tests` |
 | Student app | `.venv/bin/python sample_solution.py` (opens tkinter window; calls `task("intro1")`) |
 | Teacher viewer | `.venv/bin/python viewer/viewer.py` |
