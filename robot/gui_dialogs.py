@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 import tkinter as tk
 from typing import Callable, List, Optional
 
@@ -11,7 +10,6 @@ from .gui_help import _populate_robot_help_text
 from .gui_theme import DIALOG_BODY_FONT
 from .i18n import t
 from .loader import ScriptConstraints
-from .tk_util import flush_tk_events
 
 HELP_TEXT_WIDTH = 65
 HELP_TEXT_HEIGHT = 32
@@ -20,7 +18,8 @@ CONSTRAINTS_TEXT_WIDTH = 65
 
 
 _ESCAPE_BINDING = "<Escape>"
-# Windows tests synthesize KeyPress-Return; include it so modal Entry dialogs commit on Enter.
+# <KeyPress-Return> is for Windows GUI tests that synthesize Enter via tk.call.
+# Real keyboards use <Return>.
 _RETURN_BINDINGS = ("<Return>", "<KP_Enter>", "<KeyPress-Return>")
 
 
@@ -50,35 +49,6 @@ def center_toplevel_on_parent(child: tk.Toplevel, parent: tk.Misc) -> None:
     child.wm_geometry(f"{child_width}x{child_height}+{x}+{y}")
 
 
-def _nudge_toplevel_visual_center(child: tk.Toplevel, parent: tk.Misc) -> None:
-    """Align mapped *child* to the visual center of *parent*.
-
-    On Windows, ``wm_geometry`` size/position and ``winfo_*`` client metrics can
-    disagree by a few pixels after the WM adds the toplevel border; nudge X so
-    the mapped window looks centered (see ``test_centers_child_horizontally_on_parent``).
-    """
-    try:
-        parent.update_idletasks()
-        child.update_idletasks()
-        parent.update()
-        child.update()
-    except tk.TclError:
-        pass
-    for _ in range(4):
-        parent_width, _ = _widget_size(parent)
-        child_width, _ = _widget_size(child)
-        parent_center_x = parent.winfo_rootx() + parent_width // 2
-        child_center_x = child.winfo_rootx() + child_width // 2
-        dx = parent_center_x - child_center_x
-        if abs(dx) <= 1:
-            break
-        child.wm_geometry(f"+{child.winfo_rootx() + dx}+{child.winfo_rooty()}")
-        try:
-            child.update_idletasks()
-        except tk.TclError:
-            break
-
-
 def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) -> None:
     """Raise focus to *focus_widget* after the toplevel is mapped, or to *child*."""
     if focus_widget is None:
@@ -86,44 +56,12 @@ def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) 
         return
 
     def _apply_focus() -> None:
-        child.focus_set()
         focus_widget.focus_set()
-        if sys.platform == "win32":
-            # focus_set alone often leaves focus_get() as None on Windows CI.
-            focus_widget.focus_force()
         if isinstance(focus_widget, tk.Entry):
             focus_widget.select_range(0, tk.END)
 
-    # Windows WM may steal focus after grab_set/deiconify; retry on idle as well.
-    _apply_focus()
+    # Defer until after deiconify/grab_set so the WM does not steal focus back.
     child.after_idle(_apply_focus)
-
-
-def _ensure_mapped_before_grab(child: tk.Toplevel, parent: tk.Misc) -> None:
-    """Prepare *child* for grab_set on Windows without blocking on a hidden parent."""
-    if sys.platform != "win32":
-        return
-    try:
-        child.update_idletasks()
-        child.update()
-        if child.winfo_viewable():
-            return
-        # wait_visibility() blocks forever when the parent root is withdrawn.
-        if parent.winfo_toplevel().winfo_viewable():
-            child.wait_visibility()
-    except tk.TclError:
-        pass
-
-
-def _set_modal_grab(child: tk.Toplevel, parent: tk.Misc) -> None:
-    """Apply modal grab when the platform allows it."""
-    if sys.platform == "win32" and not parent.winfo_toplevel().winfo_viewable():
-        # grab_set on a dialog whose parent is withdrawn breaks focus and key routing on Windows.
-        return
-    try:
-        child.grab_set()
-    except tk.TclError:
-        pass
 
 
 def reveal_centered_toplevel(
@@ -144,17 +82,10 @@ def reveal_centered_toplevel(
     except tk.TclError:
         pass
     center_toplevel_on_parent(child, parent)
-    _nudge_toplevel_visual_center(child, parent)
     child.lift()
-    _ensure_mapped_before_grab(child, parent)
-    _focus_toplevel_widget(child, focus_widget)
-    flush_rounds = 10 if sys.platform == "win32" else 3
-    flush_tk_events(child, max_rounds=flush_rounds)
     if modal:
-        _set_modal_grab(child, parent)
-        _focus_toplevel_widget(child, focus_widget)
-        flush_tk_events(child, max_rounds=flush_rounds)
-    _nudge_toplevel_visual_center(child, parent)
+        child.grab_set()
+    _focus_toplevel_widget(child, focus_widget)
     if modal:
         child.wait_window()
 
