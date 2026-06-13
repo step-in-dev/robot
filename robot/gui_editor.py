@@ -70,6 +70,29 @@ _WALL_WIDTH = 4
 _EDITOR_ERROR_TITLE_KEY = "editor.error.title"
 
 
+def _parse_spinbox_int(variable: tk.IntVar) -> Optional[int]:
+    """Return the spinbox integer value, or ``None`` when the text is invalid."""
+    try:
+        return int(variable.get())
+    except (tk.TclError, ValueError):
+        return None
+
+
+def _commit_bounded_spinbox(
+    variable: tk.IntVar,
+    *,
+    minimum: int,
+    maximum: int,
+    last_valid: int,
+) -> int:
+    """Validate spinbox input and roll back to the last valid value when needed."""
+    parsed = _parse_spinbox_int(variable)
+    if parsed is None or not minimum <= parsed <= maximum:
+        variable.set(last_valid)
+        return last_valid
+    return parsed
+
+
 @dataclass
 class _EditorState:
     """Mutable editor document, history, and active tool."""
@@ -136,6 +159,8 @@ class _EditorVars:
     print_value: tk.IntVar
     width_var: tk.IntVar
     height_var: tk.IntVar
+    last_valid_pollution: int = 1
+    last_valid_print: int = 0
 
 
 class EditorWindow(EditorFileMixin):
@@ -414,9 +439,12 @@ class EditorWindow(EditorFileMixin):
                     to=POLLUTION_VALUE_MAX,
                     width=4,
                     textvariable=self._vars.pollution_value,
+                    command=self._on_pollution_commit,
                 )
                 self._chrome.pollution_spin = pollution_spin
                 self._chrome.pollution_spin_host = pollution_host
+                pollution_spin.bind("<Return>", self._on_pollution_commit)
+                pollution_spin.bind("<FocusOut>", self._on_pollution_commit)
                 bind_tooltip(
                     self._chrome.pollution_spin, t("editor.tooltip.pollution_value")
                 )
@@ -428,9 +456,12 @@ class EditorWindow(EditorFileMixin):
                     to=PRINT_VALUE_MAX,
                     width=4,
                     textvariable=self._vars.print_value,
+                    command=self._on_print_commit,
                 )
                 self._chrome.print_spin = print_spin
                 self._chrome.print_spin_host = print_host
+                print_spin.bind("<Return>", self._on_print_commit)
+                print_spin.bind("<FocusOut>", self._on_print_commit)
                 bind_tooltip(self._chrome.print_spin, t("editor.tooltip.print_value"))
 
         first_tool_button = self._chrome.tool_buttons[EnvEditTool.START]
@@ -801,18 +832,48 @@ class EditorWindow(EditorFileMixin):
 
         self._mutate(reset)
 
+    def _rollback_field_size_spinboxes(self) -> None:
+        current = self._current_env_dict()
+        self._vars.width_var.set(current["width"])
+        self._vars.height_var.set(current["height"])
+
+    def _commit_pollution_value(self) -> int:
+        self._vars.last_valid_pollution = _commit_bounded_spinbox(
+            self._vars.pollution_value,
+            minimum=POLLUTION_VALUE_MIN,
+            maximum=POLLUTION_VALUE_MAX,
+            last_valid=self._vars.last_valid_pollution,
+        )
+        return self._vars.last_valid_pollution
+
+    def _commit_print_value(self) -> int:
+        self._vars.last_valid_print = _commit_bounded_spinbox(
+            self._vars.print_value,
+            minimum=PRINT_VALUE_MIN,
+            maximum=PRINT_VALUE_MAX,
+            last_valid=self._vars.last_valid_print,
+        )
+        return self._vars.last_valid_print
+
+    def _on_pollution_commit(self, _event: object = None) -> None:
+        self._commit_pollution_value()
+
+    def _on_print_commit(self, _event: object = None) -> None:
+        self._commit_print_value()
+
     def _on_size_commit(self, _event: object = None) -> None:
-        try:
-            width = int(self._vars.width_var.get())
-            height = int(self._vars.height_var.get())
-        except (tk.TclError, ValueError):
-            self._vars.width_var.set(self._current_env_dict()["width"])
-            self._vars.height_var.set(self._current_env_dict()["height"])
-            return
+        width = _parse_spinbox_int(self._vars.width_var)
+        height = _parse_spinbox_int(self._vars.height_var)
         if (
-            width == self._current_env_dict()["width"]
-            and height == self._current_env_dict()["height"]
+            width is None
+            or height is None
+            or not 1 <= width <= MAX_FIELD_WIDTH
+            or not 1 <= height <= MAX_FIELD_HEIGHT
         ):
+            self._rollback_field_size_spinboxes()
+            return
+        current = self._current_env_dict()
+        if width == current["width"] and height == current["height"]:
             return
         index = self._state.document.selected_env_index
 
@@ -822,6 +883,12 @@ class EditorWindow(EditorFileMixin):
             )
 
         self._mutate(resize)
+
+    def _committed_pollution_value(self) -> int:
+        return self._commit_pollution_value()
+
+    def _committed_print_value(self) -> int:
+        return self._commit_print_value()
 
     def _edit_todo_text(self) -> None:
         resolved = resolve_todo_text_for_ui(self._state.document.todo_text)
@@ -902,8 +969,8 @@ class EditorWindow(EditorFileMixin):
                     self._state.document.env_dtos[index],
                     tool,
                     cell,
-                    pollution_value=self._vars.pollution_value.get(),
-                    print_value=self._vars.print_value.get(),
+                    pollution_value=self._committed_pollution_value(),
+                    print_value=self._committed_print_value(),
                 )
 
         self._mutate(apply_click, full_refresh=False)

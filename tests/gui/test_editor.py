@@ -338,6 +338,49 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
         finally:
             close_editor_for_teardown(window)
 
+    def test_out_of_range_field_size_rolls_back_without_error_dialog(self) -> None:
+        window = make_editor_window()
+        try:
+            original_width = window.document.env_dtos[0]["width"]
+            original_height = window.document.env_dtos[0]["height"]
+            window.set_field_size_spinboxes(99, original_height)
+            with patch("robot.gui_editor.messagebox.showerror") as showerror:
+                window.commit_field_size()
+            showerror.assert_not_called()
+            self.assertEqual(window.field_size_spinbox_values(), (original_width, original_height))
+            self.assertEqual(window.document.env_dtos[0]["width"], original_width)
+            self.assertEqual(window.document.env_dtos[0]["height"], original_height)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_out_of_range_pollution_value_rolls_back(self) -> None:
+        window = make_editor_window()
+        try:
+            window.select_tool(EnvEditTool.POLLUTION)
+            window.set_pollution_spinbox_value(5)
+            window.commit_pollution_value()
+            with patch("robot.gui_editor.messagebox.showerror") as showerror:
+                window.set_pollution_spinbox_value(500)
+                window.commit_pollution_value()
+            showerror.assert_not_called()
+            self.assertEqual(window.pollution_spinbox_value(), 5)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_out_of_range_print_value_rolls_back(self) -> None:
+        window = make_editor_window()
+        try:
+            window.select_tool(EnvEditTool.NUMBER)
+            window.set_print_spinbox_value(-7)
+            window.commit_print_value()
+            with patch("robot.gui_editor.messagebox.showerror") as showerror:
+                window.set_print_spinbox_value(500)
+                window.commit_print_value()
+            showerror.assert_not_called()
+            self.assertEqual(window.print_spinbox_value(), -7)
+        finally:
+            close_editor_for_teardown(window)
+
     def test_todo_wraplength_updates_on_resize(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],

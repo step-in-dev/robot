@@ -186,6 +186,34 @@ class EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-meth
         self._vars.height_var.set(height)
         self._on_size_commit()
 
+    def commit_field_size(self) -> None:
+        self._on_size_commit()
+
+    def set_field_size_spinboxes(self, width: object, height: object) -> None:
+        self._vars.width_var.set(width)
+        self._vars.height_var.set(height)
+
+    def field_size_spinbox_values(self) -> tuple[int, int]:
+        return self._vars.width_var.get(), self._vars.height_var.get()
+
+    def set_pollution_spinbox_value(self, value: object) -> None:
+        self._vars.pollution_value.set(value)
+
+    def commit_pollution_value(self) -> None:
+        self._on_pollution_commit()
+
+    def pollution_spinbox_value(self) -> int:
+        return self._vars.pollution_value.get()
+
+    def set_print_spinbox_value(self, value: object) -> None:
+        self._vars.print_value.set(value)
+
+    def commit_print_value(self) -> None:
+        self._on_print_commit()
+
+    def print_spinbox_value(self) -> int:
+        return self._vars.print_value.get()
+
     def todo_label_id(self) -> int:
         assert self._chrome.todo_label is not None
         return self._chrome.todo_label.winfo_id()
