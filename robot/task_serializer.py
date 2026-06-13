@@ -8,10 +8,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
+from .i18n import DEFAULT_LANGUAGE, detect_language, t
 from .loader import (
     ScriptConstraints,
     TaskLoadError,
+    normalized_todo_text_map,
     parse_custom_function_call_count,
     parse_if_limit,
     parse_keyword_list,
@@ -391,16 +392,23 @@ def apply_constraint_fields_to_preserved(
     _write_parsed_constraints_to_preserved(preserved_fields, constraints)
 
 
-def update_todo_text(todo_raw: Any, new_text: str) -> Any:
-    """Update display todo text while preserving localized maps when possible."""
+def update_todo_text(
+    todo_raw: Any,
+    new_text: str,
+    *,
+    target_lang: Optional[str] = None,
+) -> Any:
+    """Update task condition text while preserving its JSON shape.
+
+    Plain strings stay plain strings. For localized maps, update
+    *target_lang* when provided (the locale that supplied the displayed
+    text); otherwise use the current UI language.
+    """
     if isinstance(todo_raw, dict):
-        updated: Dict[str, str] = {}
-        for key, value in todo_raw.items():
-            if isinstance(key, str) and isinstance(value, str):
-                norm = normalize_language(key)
-                if norm is not None:
-                    updated[norm] = value
-        lang = detect_language() or DEFAULT_LANGUAGE
+        updated = dict(normalized_todo_text_map(todo_raw))
+        lang = target_lang if target_lang is not None else (
+            detect_language() or DEFAULT_LANGUAGE
+        )
         updated[lang] = new_text
         return updated
     return new_text

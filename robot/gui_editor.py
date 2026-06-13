@@ -52,7 +52,7 @@ from .gui_editor_constraints import (
 from .gui_editor_file import EditorFileMixin
 from .gui_tooltip import bind_tooltip
 from .i18n import t
-from .loader import resolve_todo_text
+from .loader import resolve_todo_text, resolve_todo_text_for_ui
 from .model import RobotEnv
 from .task_serializer import (
     EditorDocument,
@@ -820,11 +820,11 @@ class EditorWindow(EditorFileMixin):
         self._mutate(resize)
 
     def _edit_todo_text(self) -> None:
-        current = resolve_todo_text(self._state.document.todo_text)
+        resolved = resolve_todo_text_for_ui(self._state.document.todo_text)
         new_text = simpledialog.askstring(
             t("editor.edit_todo_title"),
             t("editor.edit_todo_prompt"),
-            initialvalue=current,
+            initialvalue=resolved.text,
             parent=self.root,
         )
         if new_text is None:
@@ -832,7 +832,9 @@ class EditorWindow(EditorFileMixin):
 
         def edit() -> None:
             self._state.document.todo_text = update_todo_text(
-                self._state.document.todo_text, new_text
+                self._state.document.todo_text,
+                new_text,
+                target_lang=resolved.source_lang,
             )
 
         self._mutate(edit)

@@ -16,6 +16,7 @@ The editor opens with a new empty environment (5×5 field, robot start at the to
 - Switch between multiple environments in one task file.
 - Resize the field, reset the current environment, add or remove environments.
 - Edit the task condition (`todoText`) shown above the field.
+- `todoText` is saved as a plain string for new tasks and for files that already use a plain string. Localized files keep their dictionary shape; the editor shows the condition for the current UI language (or English as a fallback) and updates only that locale when you edit the condition.
 - Edit solution constraints (`operatorsLimit`, `customFunctionCallCount`, `ifLimit`, `whileLimit`, `requiredKeywords`, `bannedKeywords`) via the toolbar constraints button (icon after the task-condition button).
 - Undo and redo recent changes (Edit menu or toolbar buttons).
 - New Task, Open, Save, and Save As via the **File** menu.

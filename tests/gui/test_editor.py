@@ -16,7 +16,7 @@ from robot.gui_editor_constraints import (
     _ConstraintsDialogState,
     prompt_edit_constraints,
 )
-from robot.i18n import t
+from robot.i18n import clear_translation_cache, t
 from robot._version import __version__
 from robot.task_serializer import (
     ConstraintFieldInput,
@@ -240,6 +240,13 @@ class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-met
             return_value=None,
         ):
             self._edit_constraints()
+
+    def edit_todo_text(self, new_text: str) -> None:
+        with patch(
+            "robot.gui_editor.simpledialog.askstring",
+            return_value=new_text,
+        ):
+            self._edit_todo_text()
 
     def toolbar_slaves_after_todo(self) -> list:
         assert self._chrome.task_toolbar is not None
@@ -607,6 +614,50 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
         try:
             following = window.toolbar_slaves_after_todo()
             self.assertEqual(following[0], window.constraints_button())
+        finally:
+            window.close()
+
+    def test_edit_todo_text_preserves_plain_string_shape(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text="Old condition",
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.edit_todo_text("New condition")
+            self.assertEqual(window.document.todo_text, "New condition")
+            self.assertIsInstance(window.document.todo_text, str)
+        finally:
+            window.close()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False)
+    def test_edit_todo_text_updates_current_ui_locale(self) -> None:
+        clear_translation_cache()
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Old", "ru": "Старое"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.edit_todo_text("Новое")
+            self.assertEqual(window.document.todo_text["ru"], "Новое")
+            self.assertEqual(window.document.todo_text["en"], "Old")
+        finally:
+            window.close()
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False)
+    def test_edit_todo_text_updates_fallback_locale_only(self) -> None:
+        clear_translation_cache()
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Old English", "ru": "Старое"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.edit_todo_text("New English")
+            self.assertEqual(window.document.todo_text["en"], "New English")
+            self.assertEqual(window.document.todo_text["ru"], "Старое")
+            self.assertNotIn("de", window.document.todo_text)
         finally:
             window.close()
 

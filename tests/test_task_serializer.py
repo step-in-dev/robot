@@ -87,10 +87,51 @@ class TaskSerializerTest(unittest.TestCase):
             self.assertFalse(is_bundled_task_path(Path(temp_dir) / "custom.env"))
 
     def test_update_todo_text_updates_localized_map(self) -> None:
-        with patch("robot.task_serializer.detect_language", return_value="ru"):
-            updated = update_todo_text({"en": "Old", "ru": "Старое"}, "Новое")
+        updated = update_todo_text(
+            {"en": "Old", "ru": "Старое"},
+            "Новое",
+            target_lang="ru",
+        )
         self.assertEqual(updated["en"], "Old")
         self.assertEqual(updated["ru"], "Новое")
+
+    def test_update_todo_text_preserves_plain_string(self) -> None:
+        updated = update_todo_text("Reach goal", "New goal")
+        self.assertEqual(updated, "New goal")
+        self.assertIsInstance(updated, str)
+
+    def test_update_todo_text_edits_en_fallback_locale(self) -> None:
+        with patch("robot.task_serializer.detect_language", return_value="de"):
+            updated = update_todo_text(
+                {"en": "Old English", "ru": "Старое"},
+                "New English",
+                target_lang="en",
+            )
+        self.assertEqual(updated["en"], "New English")
+        self.assertEqual(updated["ru"], "Старое")
+        self.assertNotIn("de", updated)
+
+    def test_update_todo_text_without_target_lang_uses_ui_language(self) -> None:
+        with patch("robot.task_serializer.detect_language", return_value="de"):
+            updated = update_todo_text({"en": "Old"}, "Neu")
+        self.assertEqual(updated["en"], "Old")
+        self.assertEqual(updated["de"], "Neu")
+
+    def test_round_trip_preserves_plain_string_todo(self) -> None:
+        payload = {
+            "envDtos": [create_default_env_dto()],
+            "todoText": "Reach goal",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "plain.env"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            document = load_task_file(path)
+            document.todo_text = update_todo_text(document.todo_text, "New goal")
+            save_path = Path(temp_dir) / "saved.env"
+            save_task_file(save_path, document)
+            saved = json.loads(save_path.read_text(encoding="utf-8"))
+        self.assertEqual(saved["todoText"], "New goal")
+        self.assertIsInstance(saved["todoText"], str)
 
     def test_document_to_payload_omits_empty_todo(self) -> None:
         document = EditorDocument(

@@ -187,6 +187,51 @@ def parse_task_payload(data: Any, task_path: Path) -> Tuple[List[dict], str]:
     return result, todo_text
 
 
+@dataclass(frozen=True)
+class ResolvedTodoText:
+    """Task condition text resolved for the current UI language."""
+
+    text: str
+    source_lang: Optional[str] = None
+
+
+def normalized_todo_text_map(raw: dict) -> Dict[str, str]:
+    """Return supported language keys from a localized ``todoText`` object."""
+    by_lang: Dict[str, str] = {}
+    for key, value in raw.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            continue
+        norm = normalize_language(key)
+        if norm is not None:
+            by_lang[norm] = value
+    return by_lang
+
+
+def resolve_todo_text_for_ui(raw: Any) -> ResolvedTodoText:
+    """Resolve ``todoText`` for display and single-locale editing in the editor.
+
+    Plain strings are returned as-is with no ``source_lang``. For localized
+    maps, ``source_lang`` is the key whose value was chosen: current UI
+    language, then :data:`DEFAULT_LANGUAGE` (``en``), or ``None`` when no
+    suitable entry exists.
+    """
+    if isinstance(raw, str):
+        return ResolvedTodoText(text=raw)
+    if not isinstance(raw, dict):
+        return ResolvedTodoText(text="")
+    by_lang = normalized_todo_text_map(raw)
+    if not by_lang:
+        return ResolvedTodoText(text="")
+    ui = detect_language()
+    if ui in by_lang:
+        return ResolvedTodoText(text=by_lang[ui], source_lang=ui)
+    if DEFAULT_LANGUAGE in by_lang:
+        return ResolvedTodoText(
+            text=by_lang[DEFAULT_LANGUAGE], source_lang=DEFAULT_LANGUAGE
+        )
+    return ResolvedTodoText(text="")
+
+
 def resolve_todo_text(raw: Any) -> str:
     """Return task condition text: plain string, or localized map resolved to UI language.
 
@@ -197,25 +242,7 @@ def resolve_todo_text(raw: Any) -> str:
     normalized with :func:`normalize_language` (e.g. ``ru_RU`` → ``ru``).
     Any other type yields ``""``.
     """
-    if isinstance(raw, str):
-        return raw
-    if not isinstance(raw, dict):
-        return ""
-    by_lang: Dict[str, str] = {}
-    for key, value in raw.items():
-        if not isinstance(key, str) or not isinstance(value, str):
-            continue
-        norm = normalize_language(key)
-        if norm is not None:
-            by_lang[norm] = value
-    if not by_lang:
-        return ""
-    ui = detect_language()
-    if ui in by_lang:
-        return by_lang[ui]
-    if DEFAULT_LANGUAGE in by_lang:
-        return by_lang[DEFAULT_LANGUAGE]
-    return ""
+    return resolve_todo_text_for_ui(raw).text
 
 
 def _format_task_path_suffix(task_path: Optional[Path]) -> str:

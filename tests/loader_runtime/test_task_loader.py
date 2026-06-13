@@ -9,7 +9,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 from robot.i18n import clear_translation_cache
-from robot.loader import TaskLoadError, load_task, load_task_definition
+from robot.loader import (
+    TaskLoadError,
+    load_task,
+    load_task_definition,
+    resolve_todo_text_for_ui,
+)
 
 from tests.env_fixtures import cell_1x1, corridor
 
@@ -448,6 +453,29 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
                 for name, _ in cases:
                     with self.subTest(name=name):
                         self.assertEqual(load_task_definition(name).todo_text, "")
+
+    def test_resolve_todo_text_for_ui_plain_string(self) -> None:
+        resolved = resolve_todo_text_for_ui("Reach goal")
+        self.assertEqual(resolved.text, "Reach goal")
+        self.assertIsNone(resolved.source_lang)
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False)
+    def test_resolve_todo_text_for_ui_uses_current_language(self) -> None:
+        clear_translation_cache()
+        resolved = resolve_todo_text_for_ui(
+            {"en": "English", "ru": "Русский"}
+        )
+        self.assertEqual(resolved.text, "Русский")
+        self.assertEqual(resolved.source_lang, "ru")
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False)
+    def test_resolve_todo_text_for_ui_falls_back_to_en(self) -> None:
+        clear_translation_cache()
+        resolved = resolve_todo_text_for_ui(
+            {"en": "English", "ru": "Русский"}
+        )
+        self.assertEqual(resolved.text, "English")
+        self.assertEqual(resolved.source_lang, "en")
 
 
 if __name__ == "__main__":
