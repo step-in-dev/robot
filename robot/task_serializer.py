@@ -426,6 +426,16 @@ def snapshot_from_document(document: EditorDocument) -> dict:
     }
 
 
+def persisted_snapshot_from_document(document: EditorDocument) -> dict:
+    """Return a snapshot of task content that would be written to disk.
+
+    Excludes view-only state such as the selected environment tab index.
+    """
+    snapshot = snapshot_from_document(document)
+    snapshot.pop("selectedEnvIndex", None)
+    return snapshot
+
+
 def apply_snapshot(document: EditorDocument, snapshot: dict) -> None:
     """Restore *document* from a snapshot produced by :func:`snapshot_from_document`."""
     document.env_dtos = normalize_env_dtos(deepcopy(snapshot["envDtos"]))

@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. mot-clé « while »",
   "editor.constraints.field.required_keywords": "Mots-clés requis (séparés par des virgules)",
   "editor.constraints.field.banned_keywords": "Mots-clés interdits (séparés par des virgules)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Modifications non enregistrées",
+  "editor.confirm.unsaved": "La tâche contient des modifications non enregistrées. Les enregistrer avant de continuer ?"
 }

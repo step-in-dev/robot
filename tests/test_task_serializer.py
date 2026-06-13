@@ -25,6 +25,7 @@ from robot.task_serializer import (
     parse_constraint_field_input,
     save_task_file,
     snapshot_from_document,
+    persisted_snapshot_from_document,
     update_todo_text,
 )
 
@@ -253,6 +254,19 @@ class TaskSerializerTest(unittest.TestCase):
         apply_snapshot(document, snapshot)
         self.assertEqual(document.preserved_fields["operatorsLimit"], 9)
         self.assertEqual(document.preserved_fields["bannedKeywords"], "while")
+
+    def test_persisted_snapshot_ignores_selected_env_index(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto(), create_default_env_dto()],
+            selected_env_index=1,
+        )
+        snapshot = persisted_snapshot_from_document(document)
+        self.assertNotIn("selectedEnvIndex", snapshot)
+        document.selected_env_index = 0
+        self.assertEqual(
+            persisted_snapshot_from_document(document),
+            snapshot,
+        )
 
 
 if __name__ == "__main__":

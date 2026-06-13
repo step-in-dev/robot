@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Μέγ. λέξη-κλειδί 'while'",
   "editor.constraints.field.required_keywords": "Απαιτούμενες λέξεις-κλειδιά (διαχωρισμένες με κόμμα)",
   "editor.constraints.field.banned_keywords": "Απαγορευμένες λέξεις-κλειδιά (διαχωρισμένες με κόμμα)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Μη αποθηκευμένες αλλαγές",
+  "editor.confirm.unsaved": "Η εργασία έχει μη αποθηκευμένες αλλαγές. Να αποθηκευτούν πριν συνεχίσετε;"
 }

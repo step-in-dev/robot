@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Макс. ключових слів «while»",
   "editor.constraints.field.required_keywords": "Обов'язкові ключові слова (через кому)",
   "editor.constraints.field.banned_keywords": "Заборонені ключові слова (через кому)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Незбережені зміни",
+  "editor.confirm.unsaved": "У завданні є незбережені зміни. Зберегти їх перед продовженням?"
 }

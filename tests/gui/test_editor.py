@@ -5,13 +5,13 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
 from unittest.mock import patch
 
 import tkinter as tk
 
-from robot.editor_env import EnvEditTool, apply_tool_to_env
-from robot.gui_editor import EditorWindow
+from robot.editor_env import EnvEditTool
 from robot.gui_editor_constraints import (
     _ConstraintsDialogState,
     prompt_edit_constraints,
@@ -19,15 +19,22 @@ from robot.gui_editor_constraints import (
 from robot.i18n import t
 from robot._version import __version__
 from robot.task_serializer import (
-    ConstraintFieldInput,
     EditorDocument,
     TaskSaveError,
     bundled_tasks_dir,
     create_default_env_dto,
     create_empty_document,
 )
-from robot.model import Cell
 
+from ._editor_harness import (
+    EditorWindowHarness,
+    assert_open_document_matches,
+    close_editor_for_teardown,
+    make_editor_window,
+    open_and_assert_painted_task,
+    open_task_via_menu,
+    write_task_env_file,
+)
 from ._helpers import GuiTestCase, emit_keypad_enter, requires_tk_display
 
 
@@ -41,340 +48,82 @@ def _find_first_entry_widget(parent: tk.Misc) -> tk.Entry | None:
     return None
 
 
-class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-methods
-    """Test harness exposing editor internals and UI probes."""
-    def undo_redo_states(self) -> tuple[str, str]:
-        assert self._chrome.undo_button is not None
-        assert self._chrome.redo_button is not None
-        return (
-            self._chrome.undo_button.cget("state"),
-            self._chrome.redo_button.cget("state"),
-        )
-
-    def env_action_button_states(self) -> tuple[str, str]:
-        assert self._chrome.add_env_button is not None
-        assert self._chrome.remove_env_button is not None
-        return (
-            self._chrome.add_env_button.cget("state"),
-            self._chrome.remove_env_button.cget("state"),
-        )
-
-    def add_environment_via_button(self) -> None:
-        self._add_environment()
-
-    def paint_cell(self, row: int, col: int) -> None:
-        index = self.document.selected_env_index
-        self._mutate(
-            lambda: self.document.env_dtos.__setitem__(
-                index,
-                apply_tool_to_env(
-                    self.document.env_dtos[index],
-                    EnvEditTool.PAINTED,
-                    Cell(row, col),
-                ),
-            ),
-            full_refresh=False,
-        )
-
-    def open_via_menu(self) -> None:
-        self._menu_open()
-
-    def new_via_menu(self) -> None:
-        self._menu_new()
-
-    def save_via_menu(self) -> None:
-        self._menu_save()
-
-    def save_as_via_menu(self) -> None:
-        self._menu_save_as()
-
-    def select_tool(self, tool: EnvEditTool) -> None:
-        self._select_tool(tool)
-
-    def todo_section_is_mapped(self) -> bool:
-        assert self._chrome.todo_section is not None
-        return self._chrome.todo_section.winfo_ismapped()
-
-    def layout_section_y_positions(self) -> dict[str, int]:
-        self.root.update_idletasks()
-        chrome = self._chrome
-        assert chrome.task_toolbar is not None
-        assert chrome.env_tabs_bar is not None
-        assert chrome.canvas is not None
-        positions = {
-            "toolbar": chrome.task_toolbar.winfo_y(),
-            "tabs": chrome.env_tabs_bar.winfo_y(),
-            "canvas": chrome.canvas.winfo_y(),
-        }
-        if chrome.todo_section is not None and chrome.todo_section.winfo_ismapped():
-            positions["todo"] = chrome.todo_section.winfo_y()
-        return positions
-
-    def value_spinner_x_after_tool_button(self, tool: EnvEditTool) -> tuple[int, int]:
-        self.root.update_idletasks()
-        button = self._chrome.tool_buttons[tool]
-        if tool is EnvEditTool.POLLUTION:
-            assert self._chrome.pollution_spin_host is not None
-            spinner = self._chrome.pollution_spin_host
-        else:
-            assert self._chrome.print_spin_host is not None
-            spinner = self._chrome.print_spin_host
-        return button.winfo_x(), spinner.winfo_x()
-
-    def value_spinner_is_mapped(self, tool: EnvEditTool) -> bool:
-        if tool is EnvEditTool.POLLUTION:
-            assert self._chrome.pollution_spin_host is not None
-            return self._chrome.pollution_spin_host.winfo_ismapped()
-        assert self._chrome.print_spin_host is not None
-        return self._chrome.print_spin_host.winfo_ismapped()
-
-    def toolbar_spinbox_heights(self) -> dict[str, int]:
-        self.root.update_idletasks()
-        icon_button = self._chrome.tool_buttons[EnvEditTool.START]
-        heights = {"icon": icon_button.winfo_height()}
-        assert self._chrome.height_spin_host is not None
-        assert self._chrome.width_spin_host is not None
-        heights["height_spin"] = self._chrome.height_spin_host.winfo_height()
-        heights["width_spin"] = self._chrome.width_spin_host.winfo_height()
-
-        self.select_tool(EnvEditTool.POLLUTION)
-        self.root.update_idletasks()
-        assert self._chrome.pollution_spin_host is not None
-        heights["pollution_spin"] = self._chrome.pollution_spin_host.winfo_height()
-
-        self.select_tool(EnvEditTool.NUMBER)
-        self.root.update_idletasks()
-        assert self._chrome.print_spin_host is not None
-        heights["print_spin"] = self._chrome.print_spin_host.winfo_height()
-        return heights
-
-    def toolbar_value_spinner_top_offsets(self) -> dict[str, int]:
-        self.root.update_idletasks()
-        offsets: dict[str, int] = {}
-        for tool in (EnvEditTool.POLLUTION, EnvEditTool.NUMBER):
-            self.select_tool(tool)
-            self.root.update_idletasks()
-            button = self._chrome.tool_buttons[tool]
-            if tool is EnvEditTool.POLLUTION:
-                assert self._chrome.pollution_spin_host is not None
-                host = self._chrome.pollution_spin_host
-            else:
-                assert self._chrome.print_spin_host is not None
-                host = self._chrome.print_spin_host
-            offsets[f"{tool.value}_button"] = button.winfo_y()
-            offsets[f"{tool.value}_spin"] = host.winfo_y()
-        return offsets
-
-    def toolbar_spinbox_host_widths(self) -> dict[str, int]:
-        self.root.update_idletasks()
-        assert self._chrome.height_spin_host is not None
-        assert self._chrome.width_spin_host is not None
-        widths = {
-            "height_spin": self._chrome.height_spin_host.winfo_width(),
-            "width_spin": self._chrome.width_spin_host.winfo_width(),
-        }
-        self.select_tool(EnvEditTool.POLLUTION)
-        self.root.update_idletasks()
-        assert self._chrome.pollution_spin_host is not None
-        widths["pollution_spin"] = self._chrome.pollution_spin_host.winfo_width()
-        widths["pollution_mapped"] = int(
-            self._chrome.pollution_spin_host.winfo_ismapped()
-        )
-        return widths
-
-    def size_label_vertical_offsets(self) -> dict[str, int]:
-        self.root.update_idletasks()
-        assert self._chrome.rows_label is not None
-        assert self._chrome.height_spin_host is not None
-        assert self._chrome.cols_label is not None
-        assert self._chrome.width_spin_host is not None
-
-        def center_y(widget: tk.Misc) -> int:
-            return widget.winfo_y() + widget.winfo_height() // 2
-
-        return {
-            "rows_label": center_y(self._chrome.rows_label),
-            "height_spin": center_y(self._chrome.height_spin_host),
-            "cols_label": center_y(self._chrome.cols_label),
-            "width_spin": center_y(self._chrome.width_spin_host),
-        }
-
-    def resize_field(self, width: int, height: int) -> None:
-        self._vars.width_var.set(width)
-        self._vars.height_var.set(height)
-        self._on_size_commit()
-
-    def todo_label_id(self) -> int:
-        assert self._chrome.todo_label is not None
-        return self._chrome.todo_label.winfo_id()
-
-    def tab_button_ids(self) -> list[int]:
-        return [button.winfo_id() for button in self._chrome.tab_buttons]
-
-    def pollution_spin_host_id(self) -> int:
-        assert self._chrome.pollution_spin_host is not None
-        return self._chrome.pollution_spin_host.winfo_id()
-
-    def todo_label_wraplength(self) -> int:
-        assert self._chrome.todo_label is not None
-        return int(self._chrome.todo_label.cget("wraplength"))
-
-    def expected_todo_wraplength(self) -> int:
-        return max(self._layout.canvas_width, 320)
-
-    def edit_constraints(self, **values: str) -> None:
-        fields = ConstraintFieldInput(**values)
-        with patch(
-            "robot.gui_editor.prompt_edit_constraints",
-            return_value=fields,
-        ):
-            self._edit_constraints()
-
-    def constraints_button(self) -> tk.Button:
-        assert self._chrome.constraints_edit_button is not None
-        return self._chrome.constraints_edit_button
-
-    def cancel_edit_constraints(self) -> None:
-        with patch(
-            "robot.gui_editor.prompt_edit_constraints",
-            return_value=None,
-        ):
-            self._edit_constraints()
-
-    def edit_todo_text(self, new_text: str) -> None:
-        with patch(
-            "robot.gui_editor.simpledialog.askstring",
-            return_value=new_text,
-        ):
-            self._edit_todo_text()
-
-    def toolbar_slaves_after_todo(self) -> list:
-        assert self._chrome.task_toolbar is not None
-        assert self._chrome.todo_edit_button is not None
-        slaves = list(self._chrome.task_toolbar.pack_slaves())
-        todo_index = slaves.index(self._chrome.todo_edit_button)
-        return slaves[todo_index + 1 :]
-
-
-def _make_editor_window() -> _EditorWindowHarness:
-    return _EditorWindowHarness(create_empty_document())
-
-
 @requires_tk_display
 class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_undo_redo_restores_previous_state(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             undo_state, redo_state = window.undo_redo_states()
             self.assertEqual(undo_state, tk.DISABLED)
             self.assertEqual(redo_state, tk.DISABLED)
-            original = json.loads(json.dumps(window.document.env_dtos[0]))
+            original = deepcopy(window.document.env_dtos[0])
             window.paint_cell(2, 2)
             window.undo()
             self.assertEqual(window.document.env_dtos[0], original)
             window.redo()
             self.assertIn({"r": 2, "c": 2}, window.document.env_dtos[0]["paintedCells"])
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_env_action_buttons_disabled_for_single_environment(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             add_state, remove_state = window.env_action_button_states()
             self.assertEqual(add_state, tk.NORMAL)
             self.assertEqual(remove_state, tk.DISABLED)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_env_action_buttons_enabled_for_multiple_environments(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             window.add_environment_via_button()
             add_state, remove_state = window.env_action_button_states()
             self.assertEqual(add_state, tk.NORMAL)
             self.assertEqual(remove_state, tk.NORMAL)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_add_env_button_disabled_at_max_count(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto() for _ in range(7)]
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             add_state, remove_state = window.env_action_button_states()
             self.assertEqual(add_state, tk.DISABLED)
             self.assertEqual(remove_state, tk.NORMAL)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_open_file_loads_document(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            path = Path(temp_dir) / "task.env"
-            path.write_text(
-                json.dumps(
-                    {
-                        "envDtos": [
-                            {
-                                "width": 2,
-                                "height": 2,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 1,
-                                "finalCol": 1,
-                                "paintedCells": [{"r": 0, "c": 0}],
-                            }
-                        ],
-                        "todoText": "Paint",
-                    }
-                ),
-                encoding="utf-8",
+            path = write_task_env_file(
+                Path(temp_dir),
+                painted_cells=[{"r": 0, "c": 0}],
+                todo_text="Paint",
             )
-            window = _make_editor_window()
+            window = make_editor_window()
             try:
-                with patch(
-                    "robot.gui_editor_file.filedialog.askopenfilename",
-                    return_value=str(path),
-                ):
-                    window.open_via_menu()
-                window.root.update()
-                self.assertEqual(window.document.file_path, path)
-                self.assertEqual(
-                    window.document.env_dtos[0]["paintedCells"], [{"r": 0, "c": 0}]
+                open_and_assert_painted_task(
+                    self,
+                    window,
+                    path,
+                    painted_cells=[{"r": 0, "c": 0}],
                 )
             finally:
-                window.close()
+                close_editor_for_teardown(window)
 
     def test_new_via_menu_resets_document(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            path = Path(temp_dir) / "task.env"
-            path.write_text(
-                json.dumps(
-                    {
-                        "envDtos": [
-                            {
-                                "width": 2,
-                                "height": 2,
-                                "startRow": 0,
-                                "startCol": 0,
-                                "finalRow": 1,
-                                "finalCol": 1,
-                                "paintedCells": [{"r": 0, "c": 0}],
-                            }
-                        ],
-                        "todoText": "Paint",
-                    }
-                ),
-                encoding="utf-8",
+            path = write_task_env_file(
+                Path(temp_dir),
+                painted_cells=[{"r": 0, "c": 0}],
+                todo_text="Paint",
             )
-            window = _make_editor_window()
+            window = make_editor_window()
             try:
-                with patch(
-                    "robot.gui_editor_file.filedialog.askopenfilename",
-                    return_value=str(path),
-                ):
-                    window.open_via_menu()
-                window.root.update()
+                open_task_via_menu(window, path)
                 self.assertEqual(window.document.file_path, path)
 
                 window.new_via_menu()
@@ -389,12 +138,12 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                     t("editor.window.title_new", version=__version__),
                 )
             finally:
-                window.close()
+                close_editor_for_teardown(window)
 
     def test_save_as_writes_file(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             save_path = Path(temp_dir) / "new.env"
-            window = _make_editor_window()
+            window = make_editor_window()
             try:
                 with patch(
                     "robot.gui_editor_file.filedialog.asksaveasfilename",
@@ -405,10 +154,10 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 self.assertEqual(saved["envDtos"][0]["width"], 5)
                 self.assertEqual(window.document.file_path, save_path)
             finally:
-                window.close()
+                close_editor_for_teardown(window)
 
     def test_save_as_confirms_bundled_overwrite(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             bundled_path = bundled_tasks_dir() / "intro1.env"
             with patch(
@@ -424,11 +173,11 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             askyesno.assert_called_once()
             save_mock.assert_not_called()
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_save_failure_shows_error_dialog(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            window = _make_editor_window()
+            window = make_editor_window()
             try:
                 save_path = Path(temp_dir) / "new.env"
                 with patch(
@@ -443,11 +192,11 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                     window.save_as_via_menu()
                 showerror.assert_called_once()
             finally:
-                window.close()
+                close_editor_for_teardown(window)
 
     def test_save_commands_are_noops_after_close(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            window = _make_editor_window()
+            window = make_editor_window()
             try:
                 window.document.file_path = Path(temp_dir) / "existing.env"
                 window.close()
@@ -461,25 +210,24 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 asksaveasfilename.assert_not_called()
                 save_mock.assert_not_called()
             finally:
-                if not window.is_closed:
-                    window.close()
+                close_editor_for_teardown(window)
 
     def test_layout_section_order_without_todo(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             positions = window.layout_section_y_positions()
             self.assertFalse(window.todo_section_is_mapped())
             self.assertLess(positions["toolbar"], positions["tabs"])
             self.assertLess(positions["tabs"], positions["canvas"])
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_layout_section_order_with_todo(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Paint the cell"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             positions = window.layout_section_y_positions()
             self.assertTrue(window.todo_section_is_mapped())
@@ -487,10 +235,10 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertLess(positions["todo"], positions["tabs"])
             self.assertLess(positions["tabs"], positions["canvas"])
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_toolbar_spinbox_hosts_are_visible(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             widths = window.toolbar_spinbox_host_widths()
             self.assertGreater(widths["height_spin"], 0)
@@ -498,19 +246,19 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(widths["pollution_mapped"], 1)
             self.assertGreater(widths["pollution_spin"], 0)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_toolbar_size_labels_are_vertically_centered(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             offsets = window.size_label_vertical_offsets()
             self.assertLessEqual(abs(offsets["rows_label"] - offsets["height_spin"]), 1)
             self.assertLessEqual(abs(offsets["cols_label"] - offsets["width_spin"]), 1)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_toolbar_spinbox_height_matches_icon_button(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             heights = window.toolbar_spinbox_heights()
             icon_height = heights["icon"]
@@ -518,10 +266,10 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 with self.subTest(spinner=key):
                     self.assertEqual(heights[key], icon_height)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_toolbar_value_spinner_top_aligns_with_tool_button(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             offsets = window.toolbar_value_spinner_top_offsets()
             for tool in (EnvEditTool.POLLUTION, EnvEditTool.NUMBER):
@@ -530,10 +278,10 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                     spin_y = offsets[f"{tool.value}_spin"]
                     self.assertEqual(spin_y, button_y)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_value_spinners_appear_inline_after_tool_buttons(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             window.select_tool(EnvEditTool.POLLUTION)
             self.assertTrue(window.value_spinner_is_mapped(EnvEditTool.POLLUTION))
@@ -549,38 +297,38 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             )
             self.assertGreater(spinner_x, button_x)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_todo_label_widget_stable_after_undo(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Paint the cell"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             label_id = window.todo_label_id()
             window.paint_cell(2, 2)
             window.undo()
             self.assertEqual(window.todo_label_id(), label_id)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_env_tab_buttons_stable_after_undo(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             tab_ids = window.tab_button_ids()
             window.paint_cell(2, 2)
             window.undo()
             self.assertEqual(window.tab_button_ids(), tab_ids)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_value_spinner_stable_after_resize(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Paint the cell"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.select_tool(EnvEditTool.POLLUTION)
             host_id = window.pollution_spin_host_id()
@@ -588,14 +336,14 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(window.pollution_spin_host_id(), host_id)
             self.assertTrue(window.value_spinner_is_mapped(EnvEditTool.POLLUTION))
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_todo_wraplength_updates_on_resize(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Paint the cell"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.root.update_idletasks()
             self.assertEqual(
@@ -607,28 +355,28 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 window.todo_label_wraplength(), window.expected_todo_wraplength()
             )
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_constraints_button_follows_todo_button(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             following = window.toolbar_slaves_after_todo()
             self.assertEqual(following[0], window.constraints_button())
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_edit_todo_text_preserves_plain_string_shape(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             todo_text="Old condition",
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.edit_todo_text("New condition")
             self.assertEqual(window.document.todo_text, "New condition")
             self.assertIsInstance(window.document.todo_text, str)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False)
     def test_edit_todo_text_updates_current_ui_locale(self) -> None:
@@ -636,13 +384,13 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Old", "ru": "Старое"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.edit_todo_text("Новое")
             self.assertEqual(window.document.todo_text["ru"], "Новое")
             self.assertEqual(window.document.todo_text["en"], "Old")
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "de"}, clear=False)
     def test_edit_todo_text_updates_fallback_locale_only(self) -> None:
@@ -650,17 +398,17 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             env_dtos=[create_default_env_dto()],
             todo_text={"en": "Old English", "ru": "Старое"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.edit_todo_text("New English")
             self.assertEqual(window.document.todo_text["en"], "New English")
             self.assertEqual(window.document.todo_text["ru"], "Старое")
             self.assertNotIn("de", window.document.todo_text)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_edit_constraints_updates_preserved_fields(self) -> None:
-        window = _make_editor_window()
+        window = make_editor_window()
         try:
             window.edit_constraints(
                 operators_limit="5",
@@ -678,14 +426,14 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(preserved["requiredKeywords"], "def, for")
             self.assertEqual(preserved["bannedKeywords"], "while")
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_edit_constraints_cancel_leaves_document_unchanged(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             preserved_fields={"operatorsLimit": 3},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.cancel_edit_constraints()
             self.assertEqual(window.document.preserved_fields["operatorsLimit"], 3)
@@ -693,14 +441,14 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(undo_state, tk.DISABLED)
             self.assertEqual(redo_state, tk.DISABLED)
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_undo_redo_restores_constraint_fields(self) -> None:
         document = EditorDocument(
             env_dtos=[create_default_env_dto()],
             preserved_fields={"operatorsLimit": 3, "requiredKeywords": "for"},
         )
-        window = _EditorWindowHarness(document)
+        window = EditorWindowHarness(document)
         try:
             window.edit_constraints(
                 operators_limit="7",
@@ -725,7 +473,7 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 window.document.preserved_fields["requiredKeywords"], "while"
             )
         finally:
-            window.close()
+            close_editor_for_teardown(window)
 
     def test_constraints_dialog_shows_error_on_invalid_input(self) -> None:
         root = tk.Tk()
@@ -813,6 +561,385 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(result.operators_limit, "5")
         finally:
             root.destroy()
+
+
+@requires_tk_display
+class EditorUnsavedChangesTest(GuiTestCase):
+    def test_new_without_changes_skips_unsaved_prompt(self) -> None:
+        window = make_editor_window()
+        try:
+            with patch("robot.gui_editor_file.messagebox.askyesnocancel") as prompt:
+                window.new_via_menu()
+            prompt.assert_not_called()
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_cancel_keeps_document(self) -> None:
+        window = make_editor_window()
+        try:
+            window.paint_cell(2, 2)
+            original = deepcopy(window.document.env_dtos[0])
+            with patch(
+                "robot.gui_editor_file.messagebox.askyesnocancel",
+                return_value=None,
+            ) as prompt:
+                window.new_via_menu()
+            prompt.assert_called_once()
+            self.assertEqual(window.document.env_dtos[0], original)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_discard_resets_document(self) -> None:
+        window = make_editor_window()
+        try:
+            window.paint_cell(2, 2)
+            with patch(
+                "robot.gui_editor_file.messagebox.askyesnocancel",
+                return_value=False,
+            ):
+                window.new_via_menu()
+            expected = create_empty_document()
+            self.assertEqual(window.document.env_dtos, expected.env_dtos)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_save_then_save_as(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "saved.env"
+            window = make_editor_window()
+            try:
+                window.paint_cell(2, 2)
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
+                    return_value=str(save_path),
+                ):
+                    window.new_via_menu()
+                self.assertTrue(save_path.exists())
+                expected = create_empty_document()
+                self.assertEqual(window.document.env_dtos, expected.env_dtos)
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_save_cancelled_keeps_document(self) -> None:
+        window = make_editor_window()
+        try:
+            window.paint_cell(2, 2)
+            original = deepcopy(window.document.env_dtos[0])
+            with patch(
+                "robot.gui_editor_file.messagebox.askyesnocancel",
+                return_value=True,
+            ), patch(
+                "robot.gui_editor_file.filedialog.asksaveasfilename",
+                return_value="",
+            ):
+                window.new_via_menu()
+            self.assertEqual(window.document.env_dtos[0], original)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_open_with_unsaved_changes_cancel_keeps_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = write_task_env_file(Path(temp_dir))
+            window = make_editor_window()
+            try:
+                window.paint_cell(2, 2)
+                original = deepcopy(window.document.env_dtos[0])
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=None,
+                ) as prompt, patch(
+                    "robot.gui_editor_file.filedialog.askopenfilename",
+                    return_value=str(path),
+                ) as askopen:
+                    window.open_via_menu()
+                prompt.assert_called_once()
+                askopen.assert_not_called()
+                self.assertEqual(window.document.env_dtos[0], original)
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_open_with_unsaved_changes_discard_loads_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = write_task_env_file(
+                Path(temp_dir),
+                painted_cells=[{"r": 0, "c": 0}],
+            )
+            window = make_editor_window()
+            try:
+                window.paint_cell(2, 2)
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=False,
+                ):
+                    open_task_via_menu(window, path)
+                assert_open_document_matches(
+                    self,
+                    window,
+                    path,
+                    painted_cells=[{"r": 0, "c": 0}],
+                )
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_close_with_unsaved_changes_cancel_stays_open(self) -> None:
+        window = make_editor_window()
+        try:
+            window.paint_cell(2, 2)
+            with patch(
+                "robot.gui_editor_file.messagebox.askyesnocancel",
+                return_value=None,
+            ) as prompt:
+                window.close()
+            prompt.assert_called_once()
+            self.assertFalse(window.is_closed)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_close_with_unsaved_changes_discard_closes(self) -> None:
+        window = make_editor_window()
+        try:
+            window.paint_cell(2, 2)
+            with patch(
+                "robot.gui_editor_file.messagebox.askyesnocancel",
+                return_value=False,
+            ):
+                window.close()
+            self.assertTrue(window.is_closed)
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_dirty_state_tracks_edits_and_save(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "saved.env"
+            window = make_editor_window()
+            try:
+                self.assertFalse(window.is_document_dirty())
+                window.paint_cell(2, 2)
+                self.assertTrue(window.is_document_dirty())
+                with patch(
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
+                    return_value=str(save_path),
+                ):
+                    window.save_as_via_menu()
+                self.assertFalse(window.is_document_dirty())
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_env_tab_switch_does_not_mark_document_dirty(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto(), create_default_env_dto()]
+        )
+        window = EditorWindowHarness(document)
+        try:
+            self.assertFalse(window.is_document_dirty())
+            window.select_env_tab(1)
+            self.assertFalse(window.is_document_dirty())
+            window.select_env_tab(0)
+            self.assertFalse(window.is_document_dirty())
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_undo_back_to_saved_state_clears_dirty(self) -> None:
+        window = make_editor_window()
+        try:
+            self.assertFalse(window.is_document_dirty())
+            window.paint_cell(2, 2)
+            self.assertTrue(window.is_document_dirty())
+            window.undo()
+            self.assertFalse(window.is_document_dirty())
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_open_with_unsaved_changes_save_then_loads_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "saved.env"
+            open_path = write_task_env_file(
+                Path(temp_dir),
+                filename="other.env",
+                painted_cells=[{"r": 0, "c": 0}],
+            )
+            window = make_editor_window()
+            try:
+                window.paint_cell(2, 2)
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
+                    return_value=str(save_path),
+                ) as asksave, patch(
+                    "robot.gui_editor_file.filedialog.askopenfilename",
+                    return_value=str(open_path),
+                ) as askopen:
+                    window.open_via_menu()
+                asksave.assert_called_once()
+                askopen.assert_called_once()
+                self.assertEqual(window.document.file_path, open_path)
+                self.assertEqual(
+                    window.document.env_dtos[0]["paintedCells"],
+                    [{"r": 0, "c": 0}],
+                )
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_close_with_unsaved_changes_save_then_closes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            save_path = Path(temp_dir) / "saved.env"
+            window = make_editor_window()
+            try:
+                window.paint_cell(2, 2)
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
+                    return_value=str(save_path),
+                ):
+                    window.close()
+                self.assertTrue(save_path.exists())
+                self.assertTrue(window.is_closed)
+            finally:
+                if not window.is_closed:
+                    close_editor_for_teardown(window)
+
+    def test_dirty_state_tracks_todo_edits(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text="Old condition",
+        )
+        window = EditorWindowHarness(document)
+        try:
+            self.assertFalse(window.is_document_dirty())
+            window.edit_todo_text("New condition")
+            self.assertTrue(window.is_document_dirty())
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_dirty_state_tracks_constraint_edits(self) -> None:
+        window = make_editor_window()
+        try:
+            self.assertFalse(window.is_document_dirty())
+            window.edit_constraints(operators_limit="5")
+            self.assertTrue(window.is_document_dirty())
+        finally:
+            close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_saves_existing_path_before_reset(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = write_task_env_file(Path(temp_dir))
+            window = make_editor_window()
+            try:
+                open_task_via_menu(window, path)
+                window.paint_cell(1, 1)
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.save_task_file",
+                ) as save_mock, patch(
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
+                ) as asksaveas:
+                    window.new_via_menu()
+                save_mock.assert_called_once()
+                self.assertEqual(save_mock.call_args[0][0], path)
+                saved_document = save_mock.call_args[0][1]
+                self.assertIn(
+                    {"r": 1, "c": 1},
+                    saved_document.env_dtos[0]["paintedCells"],
+                )
+                asksaveas.assert_not_called()
+                expected = create_empty_document()
+                self.assertEqual(window.document.env_dtos, expected.env_dtos)
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_new_with_unsaved_changes_save_failure_keeps_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = write_task_env_file(Path(temp_dir))
+            window = make_editor_window()
+            try:
+                open_task_via_menu(window, path)
+                window.paint_cell(1, 1)
+                original = deepcopy(window.document.env_dtos[0])
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.save_task_file",
+                    side_effect=TaskSaveError("cannot save"),
+                ), patch(
+                    "robot.gui_editor_file.messagebox.showerror",
+                ) as showerror:
+                    window.new_via_menu()
+                showerror.assert_called_once()
+                self.assertEqual(window.document.env_dtos[0], original)
+                self.assertEqual(window.document.file_path, path)
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_open_with_unsaved_changes_save_failure_keeps_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            current_path = write_task_env_file(
+                Path(temp_dir),
+                filename="current.env",
+            )
+            other_path = write_task_env_file(
+                Path(temp_dir),
+                filename="other.env",
+                painted_cells=[{"r": 0, "c": 0}],
+            )
+            window = make_editor_window()
+            try:
+                open_task_via_menu(window, current_path)
+                window.paint_cell(1, 1)
+                original = deepcopy(window.document.env_dtos[0])
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.save_task_file",
+                    side_effect=TaskSaveError("cannot save"),
+                ), patch(
+                    "robot.gui_editor_file.messagebox.showerror",
+                ) as showerror, patch(
+                    "robot.gui_editor_file.filedialog.askopenfilename",
+                    return_value=str(other_path),
+                ) as askopen:
+                    window.open_via_menu()
+                showerror.assert_called_once()
+                askopen.assert_not_called()
+                self.assertEqual(window.document.env_dtos[0], original)
+                self.assertEqual(window.document.file_path, current_path)
+            finally:
+                close_editor_for_teardown(window)
+
+    def test_close_with_unsaved_changes_save_failure_stays_open(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = write_task_env_file(Path(temp_dir))
+            window = make_editor_window()
+            try:
+                open_task_via_menu(window, path)
+                window.paint_cell(1, 1)
+                original = deepcopy(window.document.env_dtos[0])
+                with patch(
+                    "robot.gui_editor_file.messagebox.askyesnocancel",
+                    return_value=True,
+                ), patch(
+                    "robot.gui_editor_file.save_task_file",
+                    side_effect=TaskSaveError("cannot save"),
+                ), patch(
+                    "robot.gui_editor_file.messagebox.showerror",
+                ) as showerror:
+                    window.close()
+                showerror.assert_called_once()
+                self.assertFalse(window.is_closed)
+                self.assertEqual(window.document.env_dtos[0], original)
+                self.assertEqual(window.document.file_path, path)
+            finally:
+                close_editor_for_teardown(window)
 
 
 if __name__ == "__main__":

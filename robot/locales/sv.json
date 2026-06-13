@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max 'while'-nyckelord",
   "editor.constraints.field.required_keywords": "Obligatoriska nyckelord (kommaseparerade)",
   "editor.constraints.field.banned_keywords": "Förbjudna nyckelord (kommaseparerade)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Osparade ändringar",
+  "editor.confirm.unsaved": "Uppgiften har osparade ändringar. Spara dem innan du fortsätter?"
 }

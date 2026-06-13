@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "সর্বোচ্চ 'while' কীওয়ার্ড",
   "editor.constraints.field.required_keywords": "প্রয়োজনীয় কীওয়ার্ড (কমা দ্বারা পৃথক)",
   "editor.constraints.field.banned_keywords": "নিষিদ্ধ কীওয়ার্ড (কমা দ্বারা পৃথক)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "সংরক্ষিত নয় এমন পরিবর্তন",
+  "editor.confirm.unsaved": "কাজে সংরক্ষিত নয় এমন পরিবর্তন আছে। চালিয়ে যাওয়ার আগে সংরক্ষণ করবেন?"
 }

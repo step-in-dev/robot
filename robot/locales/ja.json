@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "'while' キーワードの最大数",
   "editor.constraints.field.required_keywords": "必須キーワード（カンマ区切り）",
   "editor.constraints.field.banned_keywords": "禁止キーワード（カンマ区切り）",
-  "loader.task_path_suffix": "：{task_path}"
+  "loader.task_path_suffix": "：{task_path}",
+  "editor.confirm.unsaved_title": "未保存の変更",
+  "editor.confirm.unsaved": "タスクに未保存の変更があります。続行する前に保存しますか？"
 }

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from typing import Optional
 
 from .i18n import t
 from .loader import TaskLoadError
@@ -15,7 +16,9 @@ from .task_serializer import (
     create_empty_document,
     is_bundled_task_path,
     load_task_file,
+    persisted_snapshot_from_document,
     save_task_file,
+    snapshots_equal,
 )
 
 _EDITOR_ERROR_TITLE_KEY = "editor.error.title"
@@ -112,13 +115,71 @@ class EditorFileMixin:
             parent=self.root,
         )
 
+    def _prompt_save_as_path(self) -> Optional[Path]:
+        path = filedialog.asksaveasfilename(
+            parent=self.root,
+            title=t("editor.dialog.save_title"),
+            defaultextension=TASK_FILE_EXTENSION,
+            filetypes=[
+                (t("editor.dialog.env_files"), f"*{TASK_FILE_EXTENSION}"),
+                (t("editor.dialog.all_files"), "*.*"),
+            ],
+        )
+        if not path:
+            return None
+        target = Path(path)
+        if not self._confirm_bundled_overwrite(target):
+            return None
+        return target
+
+    def _is_document_dirty(self) -> bool:
+        current = persisted_snapshot_from_document(self._state.document)
+        return not snapshots_equal(current, self._state.saved_snapshot)
+
+    def _mark_document_saved(self) -> None:
+        self._state.saved_snapshot = persisted_snapshot_from_document(
+            self._state.document
+        )
+
+    def _confirm_discard_or_save_unsaved_changes(self) -> bool:
+        """Return whether a pending navigation/close action may proceed."""
+        if not self._is_document_dirty():
+            return True
+        choice = messagebox.askyesnocancel(
+            t("editor.confirm.unsaved_title"),
+            t("editor.confirm.unsaved"),
+            parent=self.root,
+        )
+        if choice is None:
+            return False
+        if choice:
+            return self._save_document_interactive()
+        return True
+
+    def _save_document_interactive(self) -> bool:
+        """Save the current document, prompting for a path when needed."""
+        if self.is_closed:
+            return False
+        if self._state.document.file_path is None:
+            target = self._prompt_save_as_path()
+            if target is None:
+                return False
+            return self._save_to_path(target)
+        if not self._confirm_bundled_overwrite(self._state.document.file_path):
+            return False
+        return self._save_to_path(self._state.document.file_path)
+
     def _menu_new(self) -> None:
         if self.is_closed:
+            return
+        if not self._confirm_discard_or_save_unsaved_changes():
             return
         self._load_document(create_empty_document())
 
     def _menu_open(self) -> None:
         if self.is_closed:
+            return
+        if not self._confirm_discard_or_save_unsaved_changes():
             return
         path = filedialog.askopenfilename(
             parent=self.root,
@@ -144,49 +205,36 @@ class EditorFileMixin:
         self._state.undo_stack.clear()
         self._state.redo_stack.clear()
         self._refresh_all()
+        self._mark_document_saved()
 
     def _menu_save(self) -> None:
         if self.is_closed:
             return
-        if self._state.document.file_path is None:
-            self._menu_save_as()
-            return
-        if not self._confirm_bundled_overwrite(self._state.document.file_path):
-            return
-        self._save_to_path(self._state.document.file_path)
+        self._save_document_interactive()
 
     def _menu_save_as(self) -> None:
         if self.is_closed:
             return
-        path = filedialog.asksaveasfilename(
-            parent=self.root,
-            title=t("editor.dialog.save_title"),
-            defaultextension=TASK_FILE_EXTENSION,
-            filetypes=[
-                (t("editor.dialog.env_files"), f"*{TASK_FILE_EXTENSION}"),
-                (t("editor.dialog.all_files"), "*.*"),
-            ],
-        )
-        if not path:
-            return
-        target = Path(path)
-        if not self._confirm_bundled_overwrite(target):
+        target = self._prompt_save_as_path()
+        if target is None:
             return
         self._save_to_path(target)
 
-    def _save_to_path(self, path: Path) -> None:
+    def _save_to_path(self, path: Path) -> bool:
         if self.is_closed:
-            return
+            return False
         try:
             save_task_file(path, self._state.document)
         except ValueError as exc:
             messagebox.showerror(
                 t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=self.root
             )
-            return
+            return False
         except TaskSaveError as exc:
             messagebox.showerror(
                 t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=self.root
             )
-            return
+            return False
+        self._mark_document_saved()
         self.root.title(self._window_title())
+        return True

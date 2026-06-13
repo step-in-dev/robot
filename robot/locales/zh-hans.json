@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "“while”关键字的最大次数",
   "editor.constraints.field.required_keywords": "必需关键字（逗号分隔）",
   "editor.constraints.field.banned_keywords": "禁止关键字（逗号分隔）",
-  "loader.task_path_suffix": "：{task_path}"
+  "loader.task_path_suffix": "：{task_path}",
+  "editor.confirm.unsaved_title": "未保存的更改",
+  "editor.confirm.unsaved": "任务有未保存的更改。是否在继续之前保存？"
 }

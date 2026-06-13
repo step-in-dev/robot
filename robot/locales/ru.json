@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Макс. ключевых слов «while»",
   "editor.constraints.field.required_keywords": "Обязательные ключевые слова (через запятую)",
   "editor.constraints.field.banned_keywords": "Запрещённые ключевые слова (через запятую)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Несохранённые изменения",
+  "editor.confirm.unsaved": "В задаче есть несохранённые изменения. Сохранить их перед продолжением?"
 }

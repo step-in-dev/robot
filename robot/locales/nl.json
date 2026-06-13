@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. trefwoord 'while'",
   "editor.constraints.field.required_keywords": "Verplichte trefwoorden (kommagescheiden)",
   "editor.constraints.field.banned_keywords": "Verboden trefwoorden (kommagescheiden)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Niet-opgeslagen wijzigingen",
+  "editor.confirm.unsaved": "De taak bevat niet-opgeslagen wijzigingen. Opslaan voordat u doorgaat?"
 }

@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Maks. słów kluczowych „while”",
   "editor.constraints.field.required_keywords": "Wymagane słowa kluczowe (po przecinku)",
   "editor.constraints.field.banned_keywords": "Zabronione słowa kluczowe (po przecinku)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Niezapisane zmiany",
+  "editor.confirm.unsaved": "Zadanie zawiera niezapisane zmiany. Zapisać je przed kontynuacją?"
 }

@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max parole chiave 'while'",
   "editor.constraints.field.required_keywords": "Parole chiave richieste (separate da virgole)",
   "editor.constraints.field.banned_keywords": "Parole chiave vietate (separate da virgole)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Modifiche non salvate",
+  "editor.confirm.unsaved": "Il compito contiene modifiche non salvate. Salvarle prima di continuare?"
 }

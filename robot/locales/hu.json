@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. 'while' kulcsszó",
   "editor.constraints.field.required_keywords": "Kötelező kulcsszavak (vesszővel elválasztva)",
   "editor.constraints.field.banned_keywords": "Tiltott kulcsszavak (vesszővel elválasztva)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Nem mentett módosítások",
+  "editor.confirm.unsaved": "A feladat nem mentett módosításokat tartalmaz. Mentse el őket a folytatás előtt?"
 }

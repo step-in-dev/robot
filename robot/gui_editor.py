@@ -78,6 +78,7 @@ class _EditorState:
     undo_stack: List[dict] = field(default_factory=list)
     redo_stack: List[dict] = field(default_factory=list)
     active_tool: EnvEditTool = EnvEditTool.START
+    saved_snapshot: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -166,6 +167,7 @@ class EditorWindow(EditorFileMixin):
         self._build_env_tabs()
         self._build_canvas()
         self._refresh_all()
+        self._mark_document_saved()
 
         self.root.update_idletasks()
         self._lock_window_size()
@@ -192,6 +194,8 @@ class EditorWindow(EditorFileMixin):
     def close(self) -> None:
         """Close the editor window."""
         if self.is_closed:
+            return
+        if not self._confirm_discard_or_save_unsaved_changes():
             return
         dialog = self._chrome.constraints_dialog_state.dialog
         if dialog is not None:

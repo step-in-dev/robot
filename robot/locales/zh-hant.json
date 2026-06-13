@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "「while」關鍵字的最大次數",
   "editor.constraints.field.required_keywords": "必要關鍵字（以逗號分隔）",
   "editor.constraints.field.banned_keywords": "禁止關鍵字（以逗號分隔）",
-  "loader.task_path_suffix": "：{task_path}"
+  "loader.task_path_suffix": "：{task_path}",
+  "editor.confirm.unsaved_title": "未儲存的變更",
+  "editor.confirm.unsaved": "任務有未儲存的變更。是否要在繼續之前儲存？"
 }

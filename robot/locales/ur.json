@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "زیادہ سے زیادہ 'while' کلیدی لفظ",
   "editor.constraints.field.required_keywords": "ضروری کلیدی الفاظ (کوما سے الگ)",
   "editor.constraints.field.banned_keywords": "ممنوع کلیدی الفاظ (کوما سے الگ)",
-  "loader.task_path_suffix": ": ⁨{task_path}⁩"
+  "loader.task_path_suffix": ": ⁨{task_path}⁩",
+  "editor.confirm.unsaved_title": "غیر محفوظ تبدیلیاں",
+  "editor.confirm.unsaved": "کام میں غیر محفوظ تبدیلیاں ہیں۔ جاری رکھنے سے پہلے انہیں محفوظ کریں؟"
 }

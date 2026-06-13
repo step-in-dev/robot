@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. klíčových slov „while“",
   "editor.constraints.field.required_keywords": "Povinná klíčová slova (oddělená čárkou)",
   "editor.constraints.field.banned_keywords": "Zakázaná klíčová slova (oddělená čárkou)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Neuložené změny",
+  "editor.confirm.unsaved": "Úkol obsahuje neuložené změny. Uložit je před pokračováním?"
 }

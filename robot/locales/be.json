@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Макс. ключавых слоў «while»",
   "editor.constraints.field.required_keywords": "Абавязковыя ключавыя словы (праз коску)",
   "editor.constraints.field.banned_keywords": "Забароненыя ключавыя словы (праз коску)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Незахаваныя змены",
+  "editor.confirm.unsaved": "У задачы ёсць незахаваныя змены. Захаваць іх перад працягам?"
 }

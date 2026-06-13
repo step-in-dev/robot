@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "الحد الأقصى لكلمة while",
   "editor.constraints.field.required_keywords": "الكلمات المفتاحية المطلوبة (مفصولة بفواصل)",
   "editor.constraints.field.banned_keywords": "الكلمات المفتاحية الممنوعة (مفصولة بفواصل)",
-  "loader.task_path_suffix": ": ⁨{task_path}⁩"
+  "loader.task_path_suffix": ": ⁨{task_path}⁩",
+  "editor.confirm.unsaved_title": "تغييرات غير محفوظة",
+  "editor.confirm.unsaved": "تحتوي المهمة على تغييرات غير محفوظة. هل تريد حفظها قبل المتابعة؟"
 }

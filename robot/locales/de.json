@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. Schlüsselwort 'while'",
   "editor.constraints.field.required_keywords": "Erforderliche Schlüsselwörter (kommagetrennt)",
   "editor.constraints.field.banned_keywords": "Verbotene Schlüsselwörter (kommagetrennt)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Ungespeicherte Änderungen",
+  "editor.confirm.unsaved": "Die Aufgabe enthält ungespeicherte Änderungen. Vor dem Fortfahren speichern?"
 }

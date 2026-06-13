@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max 'while' keywords",
   "editor.constraints.field.required_keywords": "Required keywords (comma-separated)",
   "editor.constraints.field.banned_keywords": "Banned keywords (comma-separated)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Unsaved changes",
+  "editor.confirm.unsaved": "The task has unsaved changes. Save them before continuing?"
 }

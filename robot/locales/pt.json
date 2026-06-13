@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Máx. palavra-chave 'while'",
   "editor.constraints.field.required_keywords": "Palavras-chave obrigatórias (separadas por vírgulas)",
   "editor.constraints.field.banned_keywords": "Palavras-chave proibidas (separadas por vírgulas)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Alterações não guardadas",
+  "editor.confirm.unsaved": "A tarefa tem alterações não guardadas. Guardá-las antes de continuar?"
 }

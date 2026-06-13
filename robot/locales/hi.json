@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "अधिकतम 'while' कीवर्ड",
   "editor.constraints.field.required_keywords": "आवश्यक कीवर्ड (अल्पविराम से अलग)",
   "editor.constraints.field.banned_keywords": "निषिद्ध कीवर्ड (अल्पविराम से अलग)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "असहेजे परिवर्तन",
+  "editor.confirm.unsaved": "कार्य में असहेजे परिवर्तन हैं। जारी रखने से पहले उन्हें सहेजें?"
 }

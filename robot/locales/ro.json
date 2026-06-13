@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Max. cuvânt cheie 'while'",
   "editor.constraints.field.required_keywords": "Cuvinte cheie obligatorii (separate prin virgulă)",
   "editor.constraints.field.banned_keywords": "Cuvinte cheie interzise (separate prin virgulă)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Modificări nesalvate",
+  "editor.confirm.unsaved": "Sarcina are modificări nesalvate. Le salvezi înainte de a continua?"
 }

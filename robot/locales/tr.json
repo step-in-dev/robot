@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Maks. 'while' anahtar kelimesi",
   "editor.constraints.field.required_keywords": "Gerekli anahtar kelimeler (virgülle ayrılmış)",
   "editor.constraints.field.banned_keywords": "Yasak anahtar kelimeler (virgülle ayrılmış)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Kaydedilmemiş değişiklikler",
+  "editor.confirm.unsaved": "Görevde kaydedilmemiş değişiklikler var. Devam etmeden önce kaydedilsin mi?"
 }

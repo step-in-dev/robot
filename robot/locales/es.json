@@ -157,5 +157,7 @@
   "editor.constraints.field.while_limit": "Máx. palabra clave 'while'",
   "editor.constraints.field.required_keywords": "Palabras clave requeridas (separadas por comas)",
   "editor.constraints.field.banned_keywords": "Palabras clave prohibidas (separadas por comas)",
-  "loader.task_path_suffix": ": {task_path}"
+  "loader.task_path_suffix": ": {task_path}",
+  "editor.confirm.unsaved_title": "Cambios sin guardar",
+  "editor.confirm.unsaved": "La tarea tiene cambios sin guardar. ¿Guardarlos antes de continuar?"
 }
