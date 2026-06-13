@@ -8,6 +8,8 @@ The environment editor is a standalone desktop tool for creating and editing Rob
 python editor/editor.py
 ```
 
+The `editor/` folder is included in release artifacts alongside `robot/`, `sample_solution.py`, and `viewer/`.
+
 The editor opens with a new empty environment (5×5 field, robot start at the top-left corner, goal at the bottom-right corner). Use **File → New Task** to start another empty task at any time, or use the **File** menu to open an existing task file or save your work.
 
 ## Features

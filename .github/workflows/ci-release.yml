@@ -62,7 +62,7 @@ jobs:
         run: cp LICENSE robot/LICENSE
 
       - name: Build distribution zip
-        run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py viewer -x '*__pycache__*'
+        run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py viewer editor -x '*__pycache__*'
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
