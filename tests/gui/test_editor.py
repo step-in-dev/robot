@@ -67,6 +67,46 @@ class _EditorWindowHarness(EditorWindow):
     def save_as_via_menu(self) -> None:
         self._menu_save_as()
 
+    def select_tool(self, tool: EnvEditTool) -> None:
+        self._select_tool(tool)
+
+    def todo_section_is_mapped(self) -> bool:
+        assert self._chrome.todo_section is not None
+        return self._chrome.todo_section.winfo_ismapped()
+
+    def layout_section_y_positions(self) -> dict[str, int]:
+        self.root.update_idletasks()
+        chrome = self._chrome
+        assert chrome.task_toolbar is not None
+        assert chrome.env_tabs_bar is not None
+        assert chrome.canvas is not None
+        positions = {
+            "toolbar": chrome.task_toolbar.winfo_y(),
+            "tabs": chrome.env_tabs_bar.winfo_y(),
+            "canvas": chrome.canvas.winfo_y(),
+        }
+        if chrome.todo_section is not None and chrome.todo_section.winfo_ismapped():
+            positions["todo"] = chrome.todo_section.winfo_y()
+        return positions
+
+    def value_spinner_x_after_tool_button(self, tool: EnvEditTool) -> tuple[int, int]:
+        self.root.update_idletasks()
+        button = self._chrome.tool_buttons[tool]
+        if tool is EnvEditTool.POLLUTION:
+            assert self._chrome.pollution_spin is not None
+            spinner = self._chrome.pollution_spin
+        else:
+            assert self._chrome.print_spin is not None
+            spinner = self._chrome.print_spin
+        return button.winfo_x(), spinner.winfo_x()
+
+    def value_spinner_is_mapped(self, tool: EnvEditTool) -> bool:
+        if tool is EnvEditTool.POLLUTION:
+            assert self._chrome.pollution_spin is not None
+            return self._chrome.pollution_spin.winfo_ismapped()
+        assert self._chrome.print_spin is not None
+        return self._chrome.print_spin.winfo_ismapped()
+
 
 def _make_editor_window() -> _EditorWindowHarness:
     return _EditorWindowHarness(create_empty_document())
@@ -229,6 +269,50 @@ class EditorWindowTest(GuiTestCase):
             finally:
                 if not window.is_closed:
                     window.close()
+
+    def test_layout_section_order_without_todo(self) -> None:
+        window = _make_editor_window()
+        try:
+            positions = window.layout_section_y_positions()
+            self.assertFalse(window.todo_section_is_mapped())
+            self.assertLess(positions["toolbar"], positions["tabs"])
+            self.assertLess(positions["tabs"], positions["canvas"])
+        finally:
+            window.close()
+
+    def test_layout_section_order_with_todo(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Paint the cell"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            positions = window.layout_section_y_positions()
+            self.assertTrue(window.todo_section_is_mapped())
+            self.assertLess(positions["toolbar"], positions["todo"])
+            self.assertLess(positions["todo"], positions["tabs"])
+            self.assertLess(positions["tabs"], positions["canvas"])
+        finally:
+            window.close()
+
+    def test_value_spinners_appear_inline_after_tool_buttons(self) -> None:
+        window = _make_editor_window()
+        try:
+            window.select_tool(EnvEditTool.POLLUTION)
+            self.assertTrue(window.value_spinner_is_mapped(EnvEditTool.POLLUTION))
+            button_x, spinner_x = window.value_spinner_x_after_tool_button(
+                EnvEditTool.POLLUTION
+            )
+            self.assertGreater(spinner_x, button_x)
+
+            window.select_tool(EnvEditTool.NUMBER)
+            self.assertTrue(window.value_spinner_is_mapped(EnvEditTool.NUMBER))
+            button_x, spinner_x = window.value_spinner_x_after_tool_button(
+                EnvEditTool.NUMBER
+            )
+            self.assertGreater(spinner_x, button_x)
+        finally:
+            window.close()
 
 
 if __name__ == "__main__":
