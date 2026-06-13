@@ -103,14 +103,24 @@ def emit_return(widget: tk.Misc, _root: tk.Misc) -> None:
     toplevel = widget.winfo_toplevel()
     if sys.platform == "win32":
         # event_generate does not reliably reach Entry bindings on Windows modal dialogs.
-        for target in (widget, toplevel):
-            path = str(target)
-            target.tk.call("event", "generate", path, "<KeyPress-Return>")
-            target.tk.call("event", "generate", path, "<KeyRelease-Return>")
+        # KeyPress alone is enough; KeyRelease raises TclError after Return destroys the dialog.
+        try:
+            widget.tk.call("event", "generate", str(widget), "<KeyPress-Return>")
+        except tk.TclError:
+            pass
+        try:
+            if toplevel.winfo_exists():
+                toplevel.tk.call("event", "generate", str(toplevel), "<KeyPress-Return>")
+        except tk.TclError:
+            pass
     else:
         widget.event_generate("<KeyPress-Return>", when="tail")
         widget.event_generate("<KeyRelease-Return>", when="tail")
-    flush_tk_events(toplevel, max_rounds=5)
+    try:
+        if toplevel.winfo_exists():
+            flush_tk_events(toplevel, max_rounds=5)
+    except tk.TclError:
+        pass
 
 
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
