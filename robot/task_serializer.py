@@ -12,12 +12,8 @@ from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
 from .loader import (
     ScriptConstraints,
     TaskLoadError,
-    parse_custom_function_call_count,
-    parse_if_limit,
     parse_keyword_list,
-    parse_operators_limit,
     parse_task_payload,
-    parse_while_limit,
     validate_keyword_lists,
 )
 from .model import (
@@ -40,7 +36,14 @@ _CONSTRAINT_JSON_KEYS = (
     "bannedKeywords",
 )
 
-_EDITOR_CONSTRAINT_PATH = Path("<editor>")
+_CONSTRAINT_FIELD_LABEL_KEYS = {
+    "operatorsLimit": "editor.constraints.field.operators_limit",
+    "customFunctionCallCount": "editor.constraints.field.custom_function_call_count",
+    "ifLimit": "editor.constraints.field.if_limit",
+    "whileLimit": "editor.constraints.field.while_limit",
+    "requiredKeywords": "editor.constraints.field.required_keywords",
+    "bannedKeywords": "editor.constraints.field.banned_keywords",
+}
 
 _DEFAULT_WIDTH = 5
 _DEFAULT_HEIGHT = 5
@@ -264,7 +267,19 @@ def constraint_field_display_values(preserved_fields: Dict[str, Any]) -> Dict[st
     return values
 
 
-def _parse_optional_dialog_int(raw: str, invalid_message_key: str) -> Optional[int]:
+def _constraint_field_labels() -> Dict[str, str]:
+    return {
+        json_key: t(label_key)
+        for json_key, label_key in _CONSTRAINT_FIELD_LABEL_KEYS.items()
+    }
+
+
+def _parse_optional_dialog_int(
+    raw: str,
+    *,
+    field_name: str,
+    invalid_message_key: str,
+) -> Optional[int]:
     stripped = raw.strip()
     if not stripped:
         return None
@@ -272,11 +287,19 @@ def _parse_optional_dialog_int(raw: str, invalid_message_key: str) -> Optional[i
         value = int(stripped)
     except ValueError as exc:
         raise ValueError(
-            t(invalid_message_key, task_path=_EDITOR_CONSTRAINT_PATH)
+            t(
+                invalid_message_key,
+                field_name=field_name,
+                task_path_suffix="",
+            )
         ) from exc
     if value < 0:
         raise ValueError(
-            t(invalid_message_key, task_path=_EDITOR_CONSTRAINT_PATH)
+            t(
+                invalid_message_key,
+                field_name=field_name,
+                task_path_suffix="",
+            )
         )
     return value
 
@@ -286,7 +309,8 @@ def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstrai
 
     Raises :class:`ValueError` with a localized message when validation fails.
     """
-    data: Dict[str, Any] = {}
+    labels = _constraint_field_labels()
+    int_values: Dict[str, Optional[int]] = {}
     for json_key, raw, invalid_message_key in (
         ("operatorsLimit", fields.operators_limit, "loader.operators_limit_invalid"),
         (
@@ -297,47 +321,48 @@ def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstrai
         ("ifLimit", fields.if_limit, "loader.if_limit_invalid"),
         ("whileLimit", fields.while_limit, "loader.while_limit_invalid"),
     ):
-        value = _parse_optional_dialog_int(raw, invalid_message_key)
-        if value is not None:
-            data[json_key] = value
+        int_values[json_key] = _parse_optional_dialog_int(
+            raw,
+            field_name=labels[json_key],
+            invalid_message_key=invalid_message_key,
+        )
+    keyword_data: Dict[str, Any] = {}
     for json_key, raw in (
         ("requiredKeywords", fields.required_keywords),
         ("bannedKeywords", fields.banned_keywords),
     ):
         stripped = raw.strip()
         if stripped:
-            data[json_key] = stripped
+            keyword_data[json_key] = stripped
     try:
-        operators_limit = parse_operators_limit(data, _EDITOR_CONSTRAINT_PATH)
-        custom_function_call_count = parse_custom_function_call_count(
-            data, _EDITOR_CONSTRAINT_PATH
-        )
-        if_limit = parse_if_limit(data, _EDITOR_CONSTRAINT_PATH)
-        while_limit = parse_while_limit(data, _EDITOR_CONSTRAINT_PATH)
         required_keywords = parse_keyword_list(
-            data,
-            _EDITOR_CONSTRAINT_PATH,
-            field_name="requiredKeywords",
+            keyword_data,
+            None,
+            json_key="requiredKeywords",
+            field_name=labels["requiredKeywords"],
             invalid_message_key="loader.required_keywords_invalid",
         )
         banned_keywords = parse_keyword_list(
-            data,
-            _EDITOR_CONSTRAINT_PATH,
-            field_name="bannedKeywords",
+            keyword_data,
+            None,
+            json_key="bannedKeywords",
+            field_name=labels["bannedKeywords"],
             invalid_message_key="loader.banned_keywords_invalid",
         )
         validate_keyword_lists(
             required_keywords,
             banned_keywords,
-            _EDITOR_CONSTRAINT_PATH,
+            None,
+            required_field_name=labels["requiredKeywords"],
+            banned_field_name=labels["bannedKeywords"],
         )
     except TaskLoadError as exc:
         raise ValueError(str(exc)) from exc
     return ScriptConstraints(
-        operators_limit=operators_limit,
-        custom_function_call_count=custom_function_call_count,
-        if_limit=if_limit,
-        while_limit=while_limit,
+        operators_limit=int_values["operatorsLimit"],
+        custom_function_call_count=int_values["customFunctionCallCount"],
+        if_limit=int_values["ifLimit"],
+        while_limit=int_values["whileLimit"],
         required_keywords=required_keywords,
         banned_keywords=banned_keywords,
     )

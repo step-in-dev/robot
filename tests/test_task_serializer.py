@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from robot.i18n import clear_translation_cache
+from robot.i18n import clear_translation_cache, t
 from robot.task_serializer import (
     ConstraintFieldInput,
     EditorDocument,
@@ -157,6 +157,43 @@ class TaskSerializerTest(unittest.TestCase):
             parse_constraint_field_input(
                 ConstraintFieldInput(operators_limit="bad")
             )
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_parse_constraint_field_input_unknown_keyword_uses_field_label(
+        self,
+    ) -> None:
+        clear_translation_cache()
+        with self.assertRaises(ValueError) as ctx:
+            parse_constraint_field_input(
+                ConstraintFieldInput(banned_keywords="BB")
+            )
+        message = str(ctx.exception)
+        self.assertEqual(
+            message,
+            "Unknown Python keywords in "
+            f"{t('editor.constraints.field.banned_keywords')}: BB",
+        )
+        self.assertNotIn("bannedKeywords", message)
+        self.assertNotIn("<editor>", message)
+
+    @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)
+    def test_parse_constraint_field_input_keyword_lists_conflict(
+        self,
+    ) -> None:
+        clear_translation_cache()
+        with self.assertRaises(ValueError) as ctx:
+            parse_constraint_field_input(
+                ConstraintFieldInput(
+                    required_keywords="while",
+                    banned_keywords="while",
+                )
+            )
+        message = str(ctx.exception)
+        self.assertIn(t("editor.constraints.field.required_keywords"), message)
+        self.assertIn(t("editor.constraints.field.banned_keywords"), message)
+        self.assertNotIn("requiredKeywords", message)
+        self.assertNotIn("bannedKeywords", message)
+        self.assertNotIn("<editor>", message)
 
     def test_snapshot_round_trip_preserves_constraints(self) -> None:
         document = EditorDocument(

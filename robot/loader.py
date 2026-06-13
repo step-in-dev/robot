@@ -106,13 +106,13 @@ def load_task_definition(task_id: str) -> RobotTask:
     required_keywords = parse_keyword_list(
         data,
         task_path,
-        field_name="requiredKeywords",
+        json_key="requiredKeywords",
         invalid_message_key="loader.required_keywords_invalid",
     )
     banned_keywords = parse_keyword_list(
         data,
         task_path,
-        field_name="bannedKeywords",
+        json_key="bannedKeywords",
         invalid_message_key="loader.banned_keywords_invalid",
     )
     validate_keyword_lists(required_keywords, banned_keywords, task_path)
@@ -218,6 +218,12 @@ def resolve_todo_text(raw: Any) -> str:
     return ""
 
 
+def _format_task_path_suffix(task_path: Optional[Path]) -> str:
+    if task_path is None:
+        return ""
+    return t("loader.task_path_suffix", task_path=task_path)
+
+
 def _parse_optional_non_negative_int(
     data: dict,
     task_path: Path,
@@ -229,11 +235,20 @@ def _parse_optional_non_negative_int(
         return None
     value = data[json_key]
     if not _is_plain_int(value) or value < 0:
-        raise TaskLoadError(t(invalid_message_key, task_path=task_path))
+        raise TaskLoadError(
+            t(
+                invalid_message_key,
+                field_name=json_key,
+                task_path_suffix=_format_task_path_suffix(task_path),
+            )
+        )
     return value
 
 
-def parse_operators_limit(data: dict, task_path: Path) -> Optional[int]:
+def parse_operators_limit(
+    data: dict,
+    task_path: Path,
+) -> Optional[int]:
     """Parse optional ``operatorsLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -243,7 +258,10 @@ def parse_operators_limit(data: dict, task_path: Path) -> Optional[int]:
     )
 
 
-def parse_custom_function_call_count(data: dict, task_path: Path) -> Optional[int]:
+def parse_custom_function_call_count(
+    data: dict,
+    task_path: Path,
+) -> Optional[int]:
     """Parse optional ``customFunctionCallCount`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -253,7 +271,10 @@ def parse_custom_function_call_count(data: dict, task_path: Path) -> Optional[in
     )
 
 
-def parse_if_limit(data: dict, task_path: Path) -> Optional[int]:
+def parse_if_limit(
+    data: dict,
+    task_path: Path,
+) -> Optional[int]:
     """Parse optional ``ifLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -263,7 +284,10 @@ def parse_if_limit(data: dict, task_path: Path) -> Optional[int]:
     )
 
 
-def parse_while_limit(data: dict, task_path: Path) -> Optional[int]:
+def parse_while_limit(
+    data: dict,
+    task_path: Path,
+) -> Optional[int]:
     """Parse optional ``whileLimit`` from task JSON."""
     return _parse_optional_non_negative_int(
         data,
@@ -275,18 +299,26 @@ def parse_while_limit(data: dict, task_path: Path) -> Optional[int]:
 
 def parse_keyword_list(
     data: dict,
-    task_path: Path,
+    task_path: Optional[Path],
     *,
-    field_name: str,
+    json_key: str,
     invalid_message_key: str,
+    field_name: Optional[str] = None,
 ) -> Optional[Tuple[str, ...]]:
     """Parse a comma-separated Python keyword list from task JSON."""
-    if field_name not in data:
+    display_name = field_name if field_name is not None else json_key
+    if json_key not in data:
         return None
 
-    value = data[field_name]
+    value = data[json_key]
     if not isinstance(value, str):
-        raise TaskLoadError(t(invalid_message_key, task_path=task_path))
+        raise TaskLoadError(
+            t(
+                invalid_message_key,
+                field_name=display_name,
+                task_path_suffix=_format_task_path_suffix(task_path),
+            )
+        )
 
     keywords = tuple(sorted({part.strip() for part in value.split(",") if part.strip()}))
     invalid_keywords = tuple(
@@ -296,9 +328,9 @@ def parse_keyword_list(
         raise TaskLoadError(
             t(
                 "loader.keyword_list_unknown_keywords",
-                field_name=field_name,
+                field_name=display_name,
                 keywords=", ".join(invalid_keywords),
-                task_path=task_path,
+                task_path_suffix=_format_task_path_suffix(task_path),
             )
         )
     return keywords
@@ -307,7 +339,10 @@ def parse_keyword_list(
 def validate_keyword_lists(
     required_keywords: Optional[Tuple[str, ...]],
     banned_keywords: Optional[Tuple[str, ...]],
-    task_path: Path,
+    task_path: Optional[Path],
+    *,
+    required_field_name: str = "requiredKeywords",
+    banned_field_name: str = "bannedKeywords",
 ) -> None:
     """Raise ``TaskLoadError`` when required and banned keyword sets overlap."""
     if not required_keywords or not banned_keywords:
@@ -318,7 +353,9 @@ def validate_keyword_lists(
         raise TaskLoadError(
             t(
                 "loader.keyword_lists_conflict",
+                required_field_name=required_field_name,
+                banned_field_name=banned_field_name,
                 keywords=", ".join(overlap),
-                task_path=task_path,
+                task_path_suffix=_format_task_path_suffix(task_path),
             )
         )
