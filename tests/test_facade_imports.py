@@ -42,3 +42,4 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
         self.assertIs(gui.ACTION_BUTTON_STOP, gui_theme.ACTION_BUTTON_STOP)
         self.assertIs(gui.ACTION_BUTTON_HELP, gui_theme.ACTION_BUTTON_HELP)
         self.assertIs(gui.DEFAULT_CELL_SIZE, gui_theme.DEFAULT_CELL_SIZE)
+        self.assertIs(gui.SUPER_COMPACT_CELL_SIZE, gui_theme.SUPER_COMPACT_CELL_SIZE)

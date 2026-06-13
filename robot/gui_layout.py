@@ -9,14 +9,22 @@ from .gui_theme import (
     COMPACT_CELL_SIZE,
     DEFAULT_CELL_SIZE,
     MIN_CANVAS_WIDTH,
+    SUPER_COMPACT_CELL_MAX_HEIGHT,
+    SUPER_COMPACT_CELL_MAX_WIDTH,
+    SUPER_COMPACT_CELL_SIZE,
 )
 from .model import RobotEnv
 
 
 def calculate_cell_size(envs: List[RobotEnv]) -> int:
-    """Pixel side length for cells; compact when any env exceeds width/height thresholds."""
+    """Pixel side length for cells; tier chosen from env width/height maxima."""
     max_width = max(env.width for env in envs)
     max_height = max(env.height for env in envs)
+    if (
+        max_width > SUPER_COMPACT_CELL_MAX_WIDTH
+        or max_height > SUPER_COMPACT_CELL_MAX_HEIGHT
+    ):
+        return SUPER_COMPACT_CELL_SIZE
     if (
         max_width > COMPACT_CELL_MAX_WIDTH
         or max_height > COMPACT_CELL_MAX_HEIGHT

@@ -7,7 +7,12 @@ from robot.gui_layout import (
     calculate_cell_size,
     calculate_field_offset,
 )
-from robot.gui_theme import COMPACT_CELL_SIZE, DEFAULT_CELL_SIZE, MIN_CANVAS_WIDTH
+from robot.gui_theme import (
+    COMPACT_CELL_SIZE,
+    DEFAULT_CELL_SIZE,
+    MIN_CANVAS_WIDTH,
+    SUPER_COMPACT_CELL_SIZE,
+)
 
 from ._helpers import (
     cell_1x1,
@@ -37,6 +42,25 @@ class CalculateCellSizeTest(unittest.TestCase):
             make_env(minimal_env_dict(1, 7)),
         ]
         self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
+
+    def test_super_compact_when_width_greater_than_20(self) -> None:
+        envs = [make_env(minimal_env_dict(21, 1))]
+        self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
+
+    def test_super_compact_when_height_greater_than_12(self) -> None:
+        envs = [make_env(minimal_env_dict(1, 13))]
+        self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
+
+    def test_compact_boundary_not_super(self) -> None:
+        envs = [make_env(minimal_env_dict(20, 12))]
+        self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
+
+    def test_super_compact_wins_over_compact_in_multi_env(self) -> None:
+        envs = [
+            make_env(minimal_env_dict(9, 1)),
+            make_env(minimal_env_dict(1, 13)),
+        ]
+        self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
 
 
 class CalculateCanvasSizeTest(unittest.TestCase):
