@@ -8,7 +8,14 @@ from enum import Enum
 from typing import List, Optional, Tuple
 
 from .i18n import t
-from .model import Cell, RobotEnv, RobotEnvDto, _canonical_wall
+from .model import (
+    MAX_FIELD_HEIGHT,
+    MAX_FIELD_WIDTH,
+    Cell,
+    RobotEnv,
+    RobotEnvDto,
+    _canonical_wall,
+)
 from .task_serializer import (
     create_default_env_dto,
     normalize_env_dto_dict,
@@ -16,8 +23,6 @@ from .task_serializer import (
     wall_to_json,
 )
 
-MAX_FIELD_WIDTH = 10
-MAX_FIELD_HEIGHT = 8
 MAX_ENV_COUNT = 7
 POLLUTION_VALUE_MIN = 1
 POLLUTION_VALUE_MAX = 99

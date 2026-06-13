@@ -70,6 +70,11 @@ class EditorEnvTest(unittest.TestCase):
             resized["paintedCells"], [{"r": 0, "c": 0}, {"r": 1, "c": 1}]
         )
 
+    def test_resize_accepts_max_dimensions(self) -> None:
+        resized = resize_env_dto(self.env, width=20, height=15)
+        self.assertEqual(resized["width"], 20)
+        self.assertEqual(resized["height"], 15)
+
     def test_resize_out_of_range_error_message_is_localized(self) -> None:
         with self.assertRaises(ValueError) as ctx:
             resize_env_dto(self.env, width=99, height=5)

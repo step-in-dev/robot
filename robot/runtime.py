@@ -40,7 +40,14 @@ from .executor import (
     run_solution_on_env,
 )
 from .loader import RobotTask, load_task_definition
-from .model import RobotEnv, RobotEnvDto, RobotError, _is_plain_int
+from .model import (
+    MAX_FIELD_HEIGHT,
+    MAX_FIELD_WIDTH,
+    RobotEnv,
+    RobotEnvDto,
+    RobotError,
+    _is_plain_int,
+)
 from .results import RunResult, RunStatus
 from .student_api import RUNTIME_EXTRA_EXPORT_NAMES, RUNTIME_STUDENT_EXPORT_NAMES
 
@@ -112,9 +119,9 @@ def _field_task_label(width: int, height: int) -> str:
 def _validate_field_dimensions(width: object, height: object) -> Tuple[int, int]:
     if not _is_plain_int(width) or not _is_plain_int(height):
         raise RobotError(t("runtime.error.field_integers"))
-    if not 1 <= width <= 20:
+    if not 1 <= width <= MAX_FIELD_WIDTH:
         raise RobotError(t("runtime.error.field_width_range"))
-    if not 1 <= height <= 15:
+    if not 1 <= height <= MAX_FIELD_HEIGHT:
         raise RobotError(t("runtime.error.field_height_range"))
     return width, height
 

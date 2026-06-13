@@ -7,6 +7,8 @@ from typing import Callable, Iterable, List, Set, Tuple
 
 from .i18n import t
 
+MAX_FIELD_WIDTH = 20
+MAX_FIELD_HEIGHT = 15
 
 Direction = str
 
