@@ -1,8 +1,23 @@
-"""Small Tkinter helpers for safe window teardown."""
+"""Small Tkinter helpers for safe window teardown and layout."""
 
 from __future__ import annotations
 
 import tkinter as tk
+
+
+def widget_reqheight(widget: tk.Misc) -> int:
+    """Return the widget's requested height after idle layout."""
+    widget.update_idletasks()
+    return widget.winfo_reqheight()
+
+
+def pack_ipady_for_target_height(widget: tk.Misc, *, target_height: int) -> int:
+    """Return ``ipady`` so *widget* matches *target_height* when packed."""
+    widget.update_idletasks()
+    padding = target_height - widget.winfo_reqheight()
+    if padding <= 0:
+        return 0
+    return padding // 2
 
 
 def cancel_all_after_callbacks(root: tk.Misc) -> None:

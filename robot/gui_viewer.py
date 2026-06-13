@@ -10,13 +10,9 @@ from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
 from .i18n import t
 from .loader import TaskLoadError, load_task_definition
 from .task_catalog import TaskCatalog, task_id_for_theme, task_number_from_id
+from .tk_util import pack_ipady_for_target_height, widget_reqheight
 
 _VIEWER_TOOLBAR_COMBO_STYLE = "Viewer.TCombobox"
-
-
-def _widget_reqheight(widget: tk.Misc) -> int:
-    widget.update_idletasks()
-    return widget.winfo_reqheight()
 
 
 def _configure_viewer_combobox_height(
@@ -33,11 +29,6 @@ def _configure_viewer_combobox_height(
     if current < target_height:
         pad = (target_height - current) // 2
         style.configure(_VIEWER_TOOLBAR_COMBO_STYLE, padding=(4, pad, 4, pad))
-
-
-def _entry_pack_ipady(entry: tk.Entry, *, target_height: int) -> int:
-    entry.update_idletasks()
-    return max(0, (target_height - entry.winfo_reqheight()) // 2)
 
 
 class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
@@ -66,7 +57,7 @@ class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-publi
             padx=BUTTON_PAD_X,
             pady=BUTTON_PAD_Y,
         )
-        nav_height = _widget_reqheight(self._viewer_prev_button)
+        nav_height = widget_reqheight(self._viewer_prev_button)
 
         theme_combo = ttk.Combobox(
             self.viewer_toolbar,
@@ -101,7 +92,7 @@ class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-publi
         number_entry.pack(
             side=tk.LEFT,
             padx=(8, 0),
-            ipady=_entry_pack_ipady(number_entry, target_height=nav_height),
+            ipady=pack_ipady_for_target_height(number_entry, target_height=nav_height),
         )
         number_entry.bind("<Return>", self._on_viewer_number_commit)
         number_entry.bind("<KP_Enter>", self._on_viewer_number_commit)

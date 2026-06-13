@@ -107,6 +107,26 @@ class _EditorWindowHarness(EditorWindow):
         assert self._chrome.print_spin is not None
         return self._chrome.print_spin.winfo_ismapped()
 
+    def toolbar_spinbox_heights(self) -> dict[str, int]:
+        self.root.update_idletasks()
+        icon_button = self._chrome.tool_buttons[EnvEditTool.START]
+        heights = {"icon": icon_button.winfo_height()}
+        assert self._chrome.height_spin is not None
+        assert self._chrome.width_spin is not None
+        heights["height_spin"] = self._chrome.height_spin.winfo_height()
+        heights["width_spin"] = self._chrome.width_spin.winfo_height()
+
+        self.select_tool(EnvEditTool.POLLUTION)
+        self.root.update_idletasks()
+        assert self._chrome.pollution_spin is not None
+        heights["pollution_spin"] = self._chrome.pollution_spin.winfo_height()
+
+        self.select_tool(EnvEditTool.NUMBER)
+        self.root.update_idletasks()
+        assert self._chrome.print_spin is not None
+        heights["print_spin"] = self._chrome.print_spin.winfo_height()
+        return heights
+
 
 def _make_editor_window() -> _EditorWindowHarness:
     return _EditorWindowHarness(create_empty_document())
@@ -292,6 +312,21 @@ class EditorWindowTest(GuiTestCase):
             self.assertLess(positions["toolbar"], positions["todo"])
             self.assertLess(positions["todo"], positions["tabs"])
             self.assertLess(positions["tabs"], positions["canvas"])
+        finally:
+            window.close()
+
+    def test_toolbar_spinbox_height_matches_icon_button(self) -> None:
+        window = _make_editor_window()
+        try:
+            heights = window.toolbar_spinbox_heights()
+            icon_height = heights["icon"]
+            for key in ("height_spin", "width_spin", "pollution_spin", "print_spin"):
+                with self.subTest(spinner=key):
+                    self.assertLessEqual(
+                        abs(heights[key] - icon_height),
+                        1,
+                        f"{key} height {heights[key]} vs icon {icon_height}",
+                    )
         finally:
             window.close()
 
