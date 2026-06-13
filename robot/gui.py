@@ -829,7 +829,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         """Tear down stepping, dialogs, and the root window."""
         if self.is_closed:
             return
-        self._run_stop_requested = True
+        self._execution.run_stop_requested = True
         self._cancel_step_wake_only()
         self._cancel_pending_restore_enable_after()
         self.close_dialogs()
@@ -882,7 +882,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
 
     def restore(self) -> None:
         """Reset all environments and return the UI to the ready state."""
-        self._run_stop_requested = False
+        self._execution.run_stop_requested = False
         self._cancel_step_wake_only()
         for env in self._task.envs:
             env.reset()
@@ -894,7 +894,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         """Request cancellation of the active Run; the trace hook will stop it soon."""
         if not self._is_run_all_active:
             return
-        self._run_stop_requested = True
+        self._execution.run_stop_requested = True
         if not self.is_closed:
             self.stop_button.configure(state=tk.DISABLED)
 
@@ -903,7 +903,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         if self.run_env is None:
             raise RuntimeError("run_env is required")
 
-        self._run_stop_requested = False
+        self._execution.run_stop_requested = False
         self._execution.is_run_all_active = True
         try:
             if self.step_button is not None:
@@ -934,14 +934,14 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         finally:
             try:
                 self._execution.is_run_all_active = False
-                self._ignore_action_enter_until_idle = False
+                self._execution.ignore_action_enter_until_idle = False
                 if not self.is_closed:
                     self.configure_tab_buttons()
                     self._set_action_to_restore(
                         disabled=True, hide_step=True, enable_after_idle=True
                     )
             finally:
-                self._run_stop_requested = False
+                self._execution.run_stop_requested = False
 
     def on_env_change(self) -> None:
         """Redraw the field when robot state changes."""
