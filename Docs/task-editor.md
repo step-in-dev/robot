@@ -33,6 +33,10 @@ The editor preserves top-level solution-constraint fields (`operatorsLimit`, `cu
 - `Ctrl+Z` — Undo
 - `Ctrl+Y` — Redo
 
+## Toolbar icons
+
+Toolbar PNG icons live under `robot/assets/editor_icons/` (sources in `svg/`, 24×24 output in `png/`). See [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) for the inventory and regeneration command (`python tools/build_editor_icons.py`). Loading helpers are in `robot/editor_icons.py`.
+
 ## File format
 
 Saved files use the same JSON `.env` format as bundled Robot tasks. See [task-env-format.md](task-env-format.md).

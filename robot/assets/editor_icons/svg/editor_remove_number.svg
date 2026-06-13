@@ -1,0 +1,8 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="120" y="120" fill="#a93b20" font-size="150" stroke="white" stroke-width="6"
+    font-weight="900" font-family="DejaVu Sans, Arial, Helvetica, sans-serif">1</text>
+  <g stroke="orange" stroke-width="18" stroke-linecap="round">
+    <line x1="15" y1="135" x2="55" y2="175"/>
+    <line x1="55" y1="135" x2="15" y2="175"/>
+  </g>
+</svg>

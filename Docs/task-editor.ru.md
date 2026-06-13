@@ -33,6 +33,10 @@ python editor/editor.py
 - `Ctrl+Z` — отменить
 - `Ctrl+Y` — повторить
 
+## Иконки панели инструментов
+
+PNG-иконки панели лежат в `robot/assets/editor_icons/` (исходники в `svg/`, растр 24×24 в `png/`). Состав набора и команда пересборки — в [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) (`python tools/build_editor_icons.py`). Загрузка для Tkinter — в `robot/editor_icons.py`.
+
 ## Формат файла
 
 Сохранённые файлы используют тот же JSON-формат `.env`, что и встроенные задачи Робота. См. [task-env-format.ru.md](task-env-format.ru.md).
