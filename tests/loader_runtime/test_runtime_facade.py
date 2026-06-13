@@ -12,7 +12,7 @@ from unittest.mock import patch
 from robot import runtime
 from robot.executor import StudentSolution, run_solution_on_env
 from robot.i18n import clear_translation_cache, t
-from robot.model import RobotError
+from robot.model import MAX_FIELD_HEIGHT, MAX_FIELD_WIDTH, RobotError
 
 from robot.loader import ScriptConstraints
 
@@ -175,6 +175,23 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
         self.assertEqual(env.width, 8)
         self.assertEqual(env.height, 7)
 
+    def test_field_accepts_max_dimensions(self) -> None:
+        captured: List[Dict[str, object]] = []
+        Capture = self._make_capture_robot_window_cls(captured)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script = Path(temp_dir) / "max_field.py"
+            script.write_text("#\n", encoding="utf-8")
+            with self._patched_main_as_script(script), patch(
+                "robot.gui.RobotWindow", Capture
+            ):
+                with self.assertRaises(SystemExit):
+                    runtime.field(25, 16)
+
+        env = captured[0]["task_definition"].envs[0]
+        self.assertEqual(env.width, 25)
+        self.assertEqual(env.height, 16)
+
     def test_field_rejects_non_integers(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
             clear_translation_cache()
@@ -206,15 +223,21 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 with self._patched_main_as_script(script):
                     with self.assertRaises(RobotError) as ctx:
                         runtime.field(0, 6)
-            self.assertEqual(str(ctx.exception), t("runtime.error.field_width_range"))
+            self.assertEqual(
+                str(ctx.exception),
+                t("runtime.error.field_width_range", max=MAX_FIELD_WIDTH),
+            )
             clear_translation_cache()
             with tempfile.TemporaryDirectory() as temp_dir:
                 script = Path(temp_dir) / "badw2.py"
                 script.write_text("#\n", encoding="utf-8")
                 with self._patched_main_as_script(script):
                     with self.assertRaises(RobotError) as ctx:
-                        runtime.field(21, 6)
-            self.assertEqual(str(ctx.exception), t("runtime.error.field_width_range"))
+                        runtime.field(26, 6)
+            self.assertEqual(
+                str(ctx.exception),
+                t("runtime.error.field_width_range", max=MAX_FIELD_WIDTH),
+            )
 
     def test_field_rejects_height_out_of_range(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
@@ -225,15 +248,21 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 with self._patched_main_as_script(script):
                     with self.assertRaises(RobotError) as ctx:
                         runtime.field(8, 0)
-            self.assertEqual(str(ctx.exception), t("runtime.error.field_height_range"))
+            self.assertEqual(
+                str(ctx.exception),
+                t("runtime.error.field_height_range", max=MAX_FIELD_HEIGHT),
+            )
             clear_translation_cache()
             with tempfile.TemporaryDirectory() as temp_dir:
                 script = Path(temp_dir) / "badh2.py"
                 script.write_text("#\n", encoding="utf-8")
                 with self._patched_main_as_script(script):
                     with self.assertRaises(RobotError) as ctx:
-                        runtime.field(8, 16)
-            self.assertEqual(str(ctx.exception), t("runtime.error.field_height_range"))
+                        runtime.field(8, 17)
+            self.assertEqual(
+                str(ctx.exception),
+                t("runtime.error.field_height_range", max=MAX_FIELD_HEIGHT),
+            )
 
     def test_field_noop_during_solution_run(self) -> None:
         one = make_env(cell_1x1())

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import FrozenSet, Iterable, List, Tuple
 
 from .i18n import t
+from .model import MAX_FIELD_HEIGHT, MAX_FIELD_WIDTH
 
 # (i18n key suffix under help.command.*, display signature)
 COMMAND_HELP_SPECS: Tuple[Tuple[str, str], ...] = (
@@ -35,10 +36,20 @@ def command_help_public_keys() -> FrozenSet[str]:
     return frozenset(key for key, _ in COMMAND_HELP_SPECS)
 
 
+def _command_description(command_key: str) -> str:
+    if command_key == "field":
+        return t(
+            "help.command.field",
+            max_width=MAX_FIELD_WIDTH,
+            max_height=MAX_FIELD_HEIGHT,
+        )
+    return t(f"help.command.{command_key}")
+
+
 def iter_command_help() -> List[Tuple[str, str]]:
     """Pairs of (signature, localized description)."""
     return [
-        (signature, t(f"help.command.{command_key}"))
+        (signature, _command_description(command_key))
         for command_key, signature in COMMAND_HELP_SPECS
     ]
 

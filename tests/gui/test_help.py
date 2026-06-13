@@ -8,6 +8,7 @@ import tkinter as tk
 
 from robot.gui_help import _HELP_AUTHOR_NAME, _help_text_readonly_key_action
 from robot.i18n import t
+from robot.model import MAX_FIELD_HEIGHT, MAX_FIELD_WIDTH
 
 from ._helpers import (
     GuiTestCase,
@@ -100,9 +101,14 @@ class RobotWindowHelpTest(GuiTestCase):
             self.assertIn("move_right()", body)
             self.assertIn(t("help.command.move_right"), body)
             self.assertIn("field(width=8, height=6)", body)
-            self.assertIn(t("help.command.field"), body)
-            self.assertIn("20", body)
-            self.assertIn("15", body)
+            self.assertIn(
+                t(
+                    "help.command.field",
+                    max_width=MAX_FIELD_WIDTH,
+                    max_height=MAX_FIELD_HEIGHT,
+                ),
+                body,
+            )
 
     @patch("robot.gui_help.webbrowser.open")
     @patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False)

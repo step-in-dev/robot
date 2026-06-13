@@ -120,9 +120,9 @@ def _validate_field_dimensions(width: object, height: object) -> Tuple[int, int]
     if not _is_plain_int(width) or not _is_plain_int(height):
         raise RobotError(t("runtime.error.field_integers"))
     if not 1 <= width <= MAX_FIELD_WIDTH:
-        raise RobotError(t("runtime.error.field_width_range"))
+        raise RobotError(t("runtime.error.field_width_range", max=MAX_FIELD_WIDTH))
     if not 1 <= height <= MAX_FIELD_HEIGHT:
-        raise RobotError(t("runtime.error.field_height_range"))
+        raise RobotError(t("runtime.error.field_height_range", max=MAX_FIELD_HEIGHT))
     return width, height
 
 

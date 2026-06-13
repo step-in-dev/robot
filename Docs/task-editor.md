@@ -18,7 +18,7 @@ The editor opens with a new empty environment (5×5 field, robot start at the to
 - Edit the task condition (`todoText`) shown above the field.
 - Undo and redo recent changes (Edit menu or toolbar buttons).
 - Open, Save, and Save As via the **File** menu.
-- Field size is limited to 20 columns by 15 rows; a task file may contain up to 7 environments.
+- Field size is limited to 25 columns by 16 rows; a task file may contain up to 7 environments.
 - Saving over a bundled task under `robot/tasks/` asks for confirmation (both **Save** and **Save As**).
 
 The editor preserves top-level solution-constraint fields (`operatorsLimit`, `customFunctionCallCount`, `ifLimit`, `whileLimit`, `requiredKeywords`, `bannedKeywords`) when loading and saving, but does not provide a UI to edit them.
