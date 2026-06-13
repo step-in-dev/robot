@@ -36,15 +36,13 @@ from .gui_layout import (
     calculate_field_offset,
 )
 from .gui_theme import (
-    DIALOG_BODY_FONT,
     ENV_SELECT_BUTTON_PAD_X,
     ENV_SELECT_BUTTON_PAD_Y,
     ICON_BUTTON_PAD_X,
     ICON_BUTTON_PAD_Y,
     MIN_EDITOR_WINDOW_WIDTH,
-    TODO_TEXT_BG,
-    TODO_TEXT_BORDER,
 )
+from .gui_todo import create_todo_banner
 from .gui_dialogs import prompt_string_dialog
 from .gui_editor_constraints import (
     _ConstraintsDialogState,
@@ -387,28 +385,11 @@ class EditorWindow(EditorFileMixin):
             pady=(2, 2),
             before=self._chrome.env_tabs_bar,
         )
-        self._chrome.todo_frame = tk.Frame(
+        self._chrome.todo_frame, self._chrome.todo_label = create_todo_banner(
             self._chrome.todo_section,
-            bg=TODO_TEXT_BORDER,
-            bd=0,
-            highlightthickness=0,
-        )
-        self._chrome.todo_label = tk.Label(
-            self._chrome.todo_frame,
             text=display_text,
-            anchor=tk.W,
-            justify=tk.LEFT,
             wraplength=wraplength,
-            font=DIALOG_BODY_FONT,
-            bg=TODO_TEXT_BG,
-            fg="#000000",
-            padx=8,
-            pady=6,
-            bd=0,
-            relief=tk.FLAT,
-            highlightthickness=0,
         )
-        self._chrome.todo_label.pack(side=tk.TOP, fill=tk.X, padx=1, pady=1)
         self._chrome.todo_frame.pack(side=tk.TOP, fill=tk.X)
 
     def _build_env_tabs(self) -> None:

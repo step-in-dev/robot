@@ -13,13 +13,8 @@ from .loader import (
     ScriptConstraints,
     TaskLoadError,
     normalized_todo_text_map,
-    parse_custom_function_call_count,
-    parse_if_limit,
-    parse_keyword_list,
-    parse_operators_limit,
+    parse_script_constraints,
     parse_task_payload,
-    parse_while_limit,
-    validate_keyword_lists,
 )
 from .model import (
     Cell,
@@ -313,47 +308,9 @@ def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstrai
         if stripped:
             data[json_key] = stripped
     try:
-        operators_limit = parse_operators_limit(
-            data, None, field_name=labels["operatorsLimit"]
-        )
-        custom_function_call_count = parse_custom_function_call_count(
-            data, None, field_name=labels["customFunctionCallCount"]
-        )
-        if_limit = parse_if_limit(data, None, field_name=labels["ifLimit"])
-        while_limit = parse_while_limit(
-            data, None, field_name=labels["whileLimit"]
-        )
-        required_keywords = parse_keyword_list(
-            data,
-            None,
-            json_key="requiredKeywords",
-            field_name=labels["requiredKeywords"],
-            invalid_message_key="loader.required_keywords_invalid",
-        )
-        banned_keywords = parse_keyword_list(
-            data,
-            None,
-            json_key="bannedKeywords",
-            field_name=labels["bannedKeywords"],
-            invalid_message_key="loader.banned_keywords_invalid",
-        )
-        validate_keyword_lists(
-            required_keywords,
-            banned_keywords,
-            None,
-            required_field_name=labels["requiredKeywords"],
-            banned_field_name=labels["bannedKeywords"],
-        )
+        return parse_script_constraints(data, None, field_names=labels)
     except TaskLoadError as exc:
         raise ValueError(str(exc)) from exc
-    return ScriptConstraints(
-        operators_limit=operators_limit,
-        custom_function_call_count=custom_function_call_count,
-        if_limit=if_limit,
-        while_limit=while_limit,
-        required_keywords=required_keywords,
-        banned_keywords=banned_keywords,
-    )
 
 
 def _write_parsed_constraints_to_preserved(

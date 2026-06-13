@@ -99,23 +99,7 @@ def load_task_definition(task_id: str) -> RobotTask:
         ) from exc
 
     env_dtos_data, todo_text = parse_task_payload(data, task_path)
-    operators_limit = parse_operators_limit(data, task_path)
-    custom_function_call_count = parse_custom_function_call_count(data, task_path)
-    if_limit = parse_if_limit(data, task_path)
-    while_limit = parse_while_limit(data, task_path)
-    required_keywords = parse_keyword_list(
-        data,
-        task_path,
-        json_key="requiredKeywords",
-        invalid_message_key="loader.required_keywords_invalid",
-    )
-    banned_keywords = parse_keyword_list(
-        data,
-        task_path,
-        json_key="bannedKeywords",
-        invalid_message_key="loader.banned_keywords_invalid",
-    )
-    validate_keyword_lists(required_keywords, banned_keywords, task_path)
+    script_constraints = parse_script_constraints(data, task_path)
     environments = [
         RobotEnv(RobotEnvDto.from_dict(env)) for env in env_dtos_data
     ]
@@ -124,14 +108,7 @@ def load_task_definition(task_id: str) -> RobotTask:
     return RobotTask(
         envs=environments,
         todo_text=todo_text,
-        script_constraints=ScriptConstraints(
-            operators_limit=operators_limit,
-            custom_function_call_count=custom_function_call_count,
-            if_limit=if_limit,
-            while_limit=while_limit,
-            required_keywords=required_keywords,
-            banned_keywords=banned_keywords,
-        ),
+        script_constraints=script_constraints,
     )
 
 
@@ -272,6 +249,55 @@ def _parse_optional_non_negative_int(
             )
         )
     return value
+
+
+def parse_script_constraints(
+    data: Dict[str, Any],
+    task_path: Optional[Path],
+    *,
+    field_names: Optional[Dict[str, str]] = None,
+) -> ScriptConstraints:
+    """Parse and validate script constraint fields from task JSON."""
+    labels = field_names or {}
+    operators_limit = parse_operators_limit(
+        data, task_path, field_name=labels.get("operatorsLimit")
+    )
+    custom_function_call_count = parse_custom_function_call_count(
+        data, task_path, field_name=labels.get("customFunctionCallCount")
+    )
+    if_limit = parse_if_limit(data, task_path, field_name=labels.get("ifLimit"))
+    while_limit = parse_while_limit(
+        data, task_path, field_name=labels.get("whileLimit")
+    )
+    required_keywords = parse_keyword_list(
+        data,
+        task_path,
+        json_key="requiredKeywords",
+        field_name=labels.get("requiredKeywords"),
+        invalid_message_key="loader.required_keywords_invalid",
+    )
+    banned_keywords = parse_keyword_list(
+        data,
+        task_path,
+        json_key="bannedKeywords",
+        field_name=labels.get("bannedKeywords"),
+        invalid_message_key="loader.banned_keywords_invalid",
+    )
+    validate_keyword_lists(
+        required_keywords,
+        banned_keywords,
+        task_path,
+        required_field_name=labels.get("requiredKeywords", "requiredKeywords"),
+        banned_field_name=labels.get("bannedKeywords", "bannedKeywords"),
+    )
+    return ScriptConstraints(
+        operators_limit=operators_limit,
+        custom_function_call_count=custom_function_call_count,
+        if_limit=if_limit,
+        while_limit=while_limit,
+        required_keywords=required_keywords,
+        banned_keywords=banned_keywords,
+    )
 
 
 def parse_operators_limit(

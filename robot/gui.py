@@ -44,7 +44,6 @@ from .gui_theme import (
     ENV_SELECT_BUTTON_PAD_Y,
     DEFAULT_CELL_SIZE,
     SUPER_COMPACT_CELL_SIZE,
-    DIALOG_BODY_FONT,
     MIN_CANVAS_WIDTH,
     STATUS_ALL_CORRECT,
     STATUS_BG_ERROR,
@@ -53,9 +52,9 @@ from .gui_theme import (
     STATUS_READY,
     STATUS_RUNNING,
     STATUS_WRONG,
-    TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from .gui_todo import create_todo_banner
 from ._version import __version__
 from .i18n import t
 from .loader import RobotTask, ScriptConstraints
@@ -441,28 +440,12 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             self._chrome.todo_label = None
         if not self._task.todo_text:
             return
-        self._chrome.todo_frame = tk.Frame(
+        wraplength = max(self._layout.canvas_width, 320)
+        self._chrome.todo_frame, self._chrome.todo_label = create_todo_banner(
             self.root,
-            bg=TODO_TEXT_BORDER,
-            bd=0,
-            highlightthickness=0,
+            text=self._task.todo_text,
+            wraplength=wraplength,
         )
-        self._chrome.todo_label = tk.Label(
-            self._chrome.todo_frame,
-            text=f"{self._task.todo_text}",
-            anchor=tk.W,
-            justify=tk.LEFT,
-            wraplength=max(self._layout.canvas_width, 320),
-            font=DIALOG_BODY_FONT,
-            bg=TODO_TEXT_BG,
-            fg="#000000",
-            padx=8,
-            pady=6,
-            bd=0,
-            relief=tk.FLAT,
-            highlightthickness=0,
-        )
-        self._chrome.todo_label.pack(side=tk.TOP, fill=tk.X, padx=1, pady=1)
         pack_after = self.viewer_toolbar
         if pack_after is not None:
             self._chrome.todo_frame.pack(
