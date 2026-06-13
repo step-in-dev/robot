@@ -22,6 +22,8 @@ from robot.gui_theme import (
 )
 from robot.results import RunResult
 
+from tests.loader_runtime._helpers import INFINITE_LOOP_SCRIPT
+
 from ._helpers import (
     GuiTestCase,
     cell_1x1,
@@ -166,13 +168,7 @@ class RobotWindowActionButtonTest(GuiTestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "stop_loop.py"
-            script.write_text(
-                "from robot import paint\n"
-                "paint()\n"
-                "while True:\n"
-                "    pass\n",
-                encoding="utf-8",
-            )
+            script.write_text(INFINITE_LOOP_SCRIPT, encoding="utf-8")
             window = None
 
             def assert_stop_visible_step_hidden() -> None:
@@ -228,13 +224,7 @@ class RobotWindowActionButtonTest(GuiTestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "stop_loop.py"
-            script.write_text(
-                "from robot import paint\n"
-                "paint()\n"
-                "while True:\n"
-                "    pass\n",
-                encoding="utf-8",
-            )
+            script.write_text(INFINITE_LOOP_SCRIPT, encoding="utf-8")
             window = None
 
             def run_env(env: RobotEnv) -> RunResult:

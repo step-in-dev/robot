@@ -28,6 +28,7 @@ from robot.task_serializer import (
     persisted_snapshot_from_document,
     update_todo_text,
 )
+from tests.env_fixtures import env_dict
 
 
 class TaskSerializerTest(unittest.TestCase):
@@ -43,16 +44,7 @@ class TaskSerializerTest(unittest.TestCase):
 
     def test_round_trip_preserves_constraints_and_localized_todo(self) -> None:
         payload = {
-            "envDtos": [
-                {
-                    "width": 3,
-                    "height": 2,
-                    "startRow": 0,
-                    "startCol": 0,
-                    "finalRow": 1,
-                    "finalCol": 2,
-                }
-            ],
+            "envDtos": [env_dict(3, 2, final_row=1, final_col=2)],
             "todoText": {"en": "Reach goal", "ru": "Дойди до цели"},
             "operatorsLimit": 5,
             "requiredKeywords": "for",

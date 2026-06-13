@@ -23,7 +23,7 @@ from robot.executor import (
 from robot.i18n import t
 from tests.env_fixtures import cell_1x1, corridor, make_env
 
-from ._helpers import LoaderRuntimeTestBase
+from ._helpers import INFINITE_LOOP_SCRIPT, LoaderRuntimeTestBase
 
 
 class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
@@ -109,13 +109,7 @@ class RunSolutionOnEnvTest(LoaderRuntimeTestBase):
     def test_run_solution_on_env_can_cancel_infinite_loop_via_callback(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             script = Path(temp_dir) / "solution.py"
-            script.write_text(
-                "from robot import paint\n"
-                "paint()\n"
-                "while True:\n"
-                "    pass\n",
-                encoding="utf-8",
-            )
+            script.write_text(INFINITE_LOOP_SCRIPT, encoding="utf-8")
             env = make_env(cell_1x1())
             poll_calls = 0
 

@@ -13,7 +13,7 @@ from robot.gui_dialogs import (
     reveal_centered_toplevel,
 )
 
-from ._helpers import emit_keypad_enter, requires_tk_display
+from ._helpers import emit_keypad_enter, requires_tk_display, withdrawn_root
 
 _CENTER_TOLERANCE_PX = 3
 _FRAME_PADDING_TOLERANCE_PX = 12
@@ -144,9 +144,7 @@ class PromptStringDialogTest(unittest.TestCase):
             root.destroy()
 
     def test_cancel_returns_none(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
-        try:
+        with withdrawn_root() as root:
             def wait_then_click_cancel(dialog_self: tk.Toplevel) -> None:
                 buttons = _find_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 2)
@@ -160,13 +158,9 @@ class PromptStringDialogTest(unittest.TestCase):
                     initialvalue="Old",
                 )
             self.assertIsNone(result)
-        finally:
-            root.destroy()
 
     def test_return_commits_value(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
-        try:
+        with withdrawn_root() as root:
             original_wait_window = tk.Toplevel.wait_window
 
             def wait_then_press_return(dialog_self: tk.Toplevel) -> None:
@@ -188,8 +182,6 @@ class PromptStringDialogTest(unittest.TestCase):
                     initialvalue="Old",
                 )
             self.assertEqual(result, "Committed")
-        finally:
-            root.destroy()
 
     def test_entry_receives_focus_on_open(self) -> None:
         root = tk.Tk()

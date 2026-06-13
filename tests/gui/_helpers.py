@@ -35,11 +35,22 @@ __all__ = [
     "noop_success_run_env",
     "requires_tk_display",
     "test_window",
+    "withdrawn_root",
 ]
 
 
 def clear_i18n_cache() -> None:
     i18n.clear_translation_cache()
+
+
+@contextlib.contextmanager
+def withdrawn_root() -> Iterator[tk.Tk]:
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        yield root
+    finally:
+        root.destroy()
 
 
 def noop_success_run_env(_env: RobotEnv) -> RunResult:

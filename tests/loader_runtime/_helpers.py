@@ -26,6 +26,13 @@ NOOP_STEP_CALLBACKS = StepExecutionCallbacks(
     wait_for_next_step=lambda: None,
 )
 
+INFINITE_LOOP_SCRIPT = (
+    "from robot import paint\n"
+    "paint()\n"
+    "while True:\n"
+    "    pass\n"
+)
+
 
 def minimal_env_dto(*, width: int = 1, height: int = 1) -> Dict[str, int]:
     """Single-row environment used by viewer and loader tests."""

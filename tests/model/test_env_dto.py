@@ -3,7 +3,7 @@
 import unittest
 
 from robot.model import RobotEnvDto, Cell, ValuedCell
-from tests.env_fixtures import corridor
+from tests.env_fixtures import corridor, env_dict
 
 
 class RobotEnvDtoFromDictTest(unittest.TestCase):
@@ -32,19 +32,17 @@ class RobotEnvDtoFromDictTest(unittest.TestCase):
 
     def test_from_dict_with_all_optional_fields(self):
         dto = RobotEnvDto.from_dict(
-            {
-                "width": 3,
-                "height": 2,
-                "startRow": 0,
-                "startCol": 0,
-                "finalRow": 1,
-                "finalCol": 2,
-                "walls": [[{"r": 0, "c": 0}, {"r": 0, "c": 1}]],
-                "paintedCells": [{"r": 0, "c": 0}],
-                "cellsToPaint": [{"r": 0, "c": 1}],
-                "pollutedCells": [{"r": 0, "c": 0, "value": 5}],
-                "cellsToPrint": [{"r": 0, "c": 1, "value": 7}],
-            }
+            env_dict(
+                3,
+                2,
+                final_row=1,
+                final_col=2,
+                walls=[[{"r": 0, "c": 0}, {"r": 0, "c": 1}]],
+                paintedCells=[{"r": 0, "c": 0}],
+                cellsToPaint=[{"r": 0, "c": 1}],
+                pollutedCells=[{"r": 0, "c": 0, "value": 5}],
+                cellsToPrint=[{"r": 0, "c": 1, "value": 7}],
+            )
         )
         self.assertEqual(len(dto.walls), 1)
         self.assertEqual(dto.walls[0], (Cell(0, 0), Cell(0, 1)))
