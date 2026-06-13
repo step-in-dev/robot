@@ -37,6 +37,7 @@ def bind_tooltip(widget: tk.Widget, text: str, *, delay_ms: int = _DEFAULT_DELAY
         if tip_window is not None:
             return
         tip_window = tk.Toplevel(widget)
+        tip_window.withdraw()
         tip_window.wm_overrideredirect(True)
         tip_window.wm_attributes("-topmost", True)
         label = tk.Label(
@@ -50,9 +51,11 @@ def bind_tooltip(widget: tk.Widget, text: str, *, delay_ms: int = _DEFAULT_DELAY
         )
         label.pack()
         tip_window.update_idletasks()
-        x = widget.winfo_rootx() + max(0, (widget.winfo_width() - tip_window.winfo_width()) // 2)
+        tip_width = tip_window.winfo_reqwidth()
+        x = widget.winfo_rootx() + max(0, (widget.winfo_width() - tip_width) // 2)
         y = widget.winfo_rooty() + widget.winfo_height() + 4
         tip_window.wm_geometry(f"+{x}+{y}")
+        tip_window.deiconify()
 
     def schedule_show(_event: object) -> None:
         nonlocal after_id
