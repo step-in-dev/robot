@@ -24,7 +24,8 @@ from robot.task_serializer import (
 from ._helpers import GuiTestCase, requires_tk_display
 
 
-class _EditorWindowHarness(EditorWindow):
+class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-methods
+    """Test harness exposing editor internals and UI probes."""
     def undo_redo_states(self) -> tuple[str, str]:
         assert self._chrome.undo_button is not None
         assert self._chrome.redo_button is not None
@@ -177,6 +178,29 @@ class _EditorWindowHarness(EditorWindow):
             "cols_label": center_y(self._chrome.cols_label),
             "width_spin": center_y(self._chrome.width_spin_host),
         }
+
+    def resize_field(self, width: int, height: int) -> None:
+        self._vars.width_var.set(width)
+        self._vars.height_var.set(height)
+        self._on_size_commit()
+
+    def todo_label_id(self) -> int:
+        assert self._chrome.todo_label is not None
+        return self._chrome.todo_label.winfo_id()
+
+    def tab_button_ids(self) -> list[int]:
+        return [button.winfo_id() for button in self._chrome.tab_buttons]
+
+    def pollution_spin_host_id(self) -> int:
+        assert self._chrome.pollution_spin_host is not None
+        return self._chrome.pollution_spin_host.winfo_id()
+
+    def todo_label_wraplength(self) -> int:
+        assert self._chrome.todo_label is not None
+        return int(self._chrome.todo_label.cget("wraplength"))
+
+    def expected_todo_wraplength(self) -> int:
+        return max(self._layout.canvas_width, 320)
 
 
 def _make_editor_window() -> _EditorWindowHarness:
@@ -425,6 +449,64 @@ class EditorWindowTest(GuiTestCase):
                 EnvEditTool.NUMBER
             )
             self.assertGreater(spinner_x, button_x)
+        finally:
+            window.close()
+
+    def test_todo_label_widget_stable_after_undo(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Paint the cell"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            label_id = window.todo_label_id()
+            window.paint_cell(2, 2)
+            window.undo()
+            self.assertEqual(window.todo_label_id(), label_id)
+        finally:
+            window.close()
+
+    def test_env_tab_buttons_stable_after_undo(self) -> None:
+        window = _make_editor_window()
+        try:
+            tab_ids = window.tab_button_ids()
+            window.paint_cell(2, 2)
+            window.undo()
+            self.assertEqual(window.tab_button_ids(), tab_ids)
+        finally:
+            window.close()
+
+    def test_value_spinner_stable_after_resize(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Paint the cell"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.select_tool(EnvEditTool.POLLUTION)
+            host_id = window.pollution_spin_host_id()
+            window.resize_field(8, 5)
+            self.assertEqual(window.pollution_spin_host_id(), host_id)
+            self.assertTrue(window.value_spinner_is_mapped(EnvEditTool.POLLUTION))
+        finally:
+            window.close()
+
+    def test_todo_wraplength_updates_on_resize(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            todo_text={"en": "Paint the cell"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.root.update_idletasks()
+            self.assertEqual(
+                window.todo_label_wraplength(), window.expected_todo_wraplength()
+            )
+            window.resize_field(12, 12)
+            window.root.update_idletasks()
+            self.assertEqual(
+                window.todo_label_wraplength(), window.expected_todo_wraplength()
+            )
         finally:
             window.close()
 

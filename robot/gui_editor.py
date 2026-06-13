@@ -362,19 +362,34 @@ class EditorWindow:
     def _build_todo_section(self) -> None:
         self._chrome.todo_section = tk.Frame(self.root)
 
-    def _rebuild_todo_banner(self) -> None:
-        if self._chrome.todo_frame is not None:
-            self._chrome.todo_frame.destroy()
-            self._chrome.todo_frame = None
-            self._chrome.todo_label = None
-
-        if self._chrome.todo_section is not None:
-            self._chrome.todo_section.pack_forget()
-
+    def _sync_todo_banner(self) -> None:
         display_text = resolve_todo_text(self._state.document.todo_text)
+        wraplength = max(self._layout.canvas_width, 320)
         if not display_text:
+            if self._chrome.todo_frame is not None:
+                self._chrome.todo_frame.destroy()
+                self._chrome.todo_frame = None
+                self._chrome.todo_label = None
+            if self._chrome.todo_section is not None:
+                self._chrome.todo_section.pack_forget()
             return
-
+        if self._chrome.todo_label is not None:
+            if (
+                self._chrome.todo_section is not None
+                and self._chrome.env_tabs_bar is not None
+                and not self._chrome.todo_section.winfo_ismapped()
+            ):
+                self._chrome.todo_section.pack(
+                    side=tk.TOP,
+                    fill=tk.X,
+                    padx=6,
+                    pady=(2, 2),
+                    before=self._chrome.env_tabs_bar,
+                )
+            self._chrome.todo_label.configure(text=display_text, wraplength=wraplength)
+            return
+        assert self._chrome.todo_section is not None
+        assert self._chrome.env_tabs_bar is not None
         self._chrome.todo_section.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -393,7 +408,7 @@ class EditorWindow:
             text=display_text,
             anchor=tk.W,
             justify=tk.LEFT,
-            wraplength=max(self._layout.canvas_width, 320),
+            wraplength=wraplength,
             font=DIALOG_BODY_FONT,
             bg=TODO_TEXT_BG,
             fg="#000000",
@@ -550,23 +565,30 @@ class EditorWindow:
         bind_tooltip(width_spin, t("editor.tooltip.col_count"))
         self._sync_toolbar_size_label_padding()
 
-    def _rebuild_env_tabs(self) -> None:
+    def _create_env_tab_button(self, index: int) -> tk.Button:
+        assert self._chrome.tab_frame is not None
+        button = tk.Button(
+            self._chrome.tab_frame,
+            text=str(index + 1),
+            command=lambda idx=index: self._select_env(idx),
+            width=1,
+            padx=ENV_SELECT_BUTTON_PAD_X,
+            pady=ENV_SELECT_BUTTON_PAD_Y,
+        )
+        button.pack(side=tk.LEFT)
+        return button
+
+    def _sync_env_tabs(self) -> None:
         if self._chrome.tab_frame is None:
             return
-        for button in self._chrome.tab_buttons:
-            button.destroy()
-        self._chrome.tab_buttons = []
-        for index in range(len(self._state.document.env_dtos)):
-            button = tk.Button(
-                self._chrome.tab_frame,
-                text=str(index + 1),
-                command=lambda idx=index: self._select_env(idx),
-                width=1,
-                padx=ENV_SELECT_BUTTON_PAD_X,
-                pady=ENV_SELECT_BUTTON_PAD_Y,
-            )
-            button.pack(side=tk.LEFT)
-            self._chrome.tab_buttons.append(button)
+        needed = len(self._state.document.env_dtos)
+        have = len(self._chrome.tab_buttons)
+        while have < needed:
+            self._chrome.tab_buttons.append(self._create_env_tab_button(have))
+            have += 1
+        while have > needed:
+            self._chrome.tab_buttons.pop().destroy()
+            have -= 1
         self._update_tab_highlight()
 
     def _update_tab_highlight(self) -> None:
@@ -602,17 +624,13 @@ class EditorWindow:
         self._vars.width_var.set(self._current_env_dict()["width"])
         self._vars.height_var.set(self._current_env_dict()["height"])
         self.root.title(self._window_title())
-        self._rebuild_todo_banner()
-        self._rebuild_env_tabs()
+        self._sync_todo_banner()
+        self._sync_env_tabs()
         self._update_tool_highlight()
         self._update_value_spinners()
         self._update_undo_redo_state()
         self._update_env_action_buttons_state()
         self.draw_field()
-        if self._chrome.todo_label is not None:
-            self._chrome.todo_label.configure(
-                wraplength=max(self._layout.canvas_width, 320)
-            )
         self.root.update_idletasks()
         self._lock_window_size()
 
@@ -651,32 +669,57 @@ class EditorWindow:
             else:
                 button.configure(relief=tk.RAISED)
 
+    def _value_spinner_visibility_matches(self) -> bool:
+        pollution_host = self._chrome.pollution_spin_host
+        print_host = self._chrome.print_spin_host
+        assert pollution_host is not None and print_host is not None
+        pollution_mapped = pollution_host.winfo_ismapped()
+        print_mapped = print_host.winfo_ismapped()
+        active = self._state.active_tool
+        if active is EnvEditTool.POLLUTION:
+            return pollution_mapped and not print_mapped
+        if active is EnvEditTool.NUMBER:
+            return print_mapped and not pollution_mapped
+        return not pollution_mapped and not print_mapped
+
     def _update_value_spinners(self) -> None:
         if (
             self._chrome.pollution_spin_host is None
             or self._chrome.print_spin_host is None
         ):
             return
+        if self._value_spinner_visibility_matches():
+            return
+        pollution_host = self._chrome.pollution_spin_host
+        print_host = self._chrome.print_spin_host
         pollution_button = self._chrome.tool_buttons[EnvEditTool.POLLUTION]
         number_button = self._chrome.tool_buttons[EnvEditTool.NUMBER]
-        self._chrome.pollution_spin_host.pack_forget()
-        self._chrome.print_spin_host.pack_forget()
         if self._state.active_tool is EnvEditTool.POLLUTION:
-            self._pack_toolbar_spinbox_host(
-                self._chrome.pollution_spin_host,
-                side=tk.LEFT,
-                padx=(0, 4),
-                after=pollution_button,
-            )
+            desired_host = pollution_host
+            after_button = pollution_button
         elif self._state.active_tool is EnvEditTool.NUMBER:
+            desired_host = print_host
+            after_button = number_button
+        else:
+            desired_host = None
+            after_button = None
+
+        layout_changed = False
+        for host in (pollution_host, print_host):
+            if host.winfo_ismapped() and host is not desired_host:
+                host.pack_forget()
+                layout_changed = True
+        if desired_host is not None and not desired_host.winfo_ismapped():
             self._pack_toolbar_spinbox_host(
-                self._chrome.print_spin_host,
+                desired_host,
                 side=tk.LEFT,
                 padx=(0, 4),
-                after=number_button,
+                after=after_button,
             )
+            layout_changed = True
         self._sync_toolbar_spinbox_heights()
-        self._lock_window_size()
+        if layout_changed:
+            self._lock_window_size()
 
     def _update_undo_redo_state(self) -> None:
         undo_state = tk.NORMAL if self._state.undo_stack else tk.DISABLED
