@@ -7,8 +7,8 @@ embedded editor (`SidWebUi/.../embedded-env-editor`).
 
 | Property | Value |
 |----------|-------|
-| Base size | 24×24 px (`png/`) |
-| HiDPI size | 48×48 px (`png@2x/`) |
+| Source size | 48×48 px (`png@2x/`) |
+| Display size | ~24×24 px (downsampled at runtime) |
 | Format | PNG with alpha channel |
 | Content | Pictogram only (no button chrome, shadow, or border) |
 
@@ -57,16 +57,13 @@ Roboto being installed.
 ## Runtime loading
 
 The desktop editor loads icons from `png@2x/` (48×48) and displays them at ~24×24 via
-`PhotoImage.subsample(2, 2)` in `robot/editor_icons.py`. The `png/` directory remains
-the 24×24 reference output from the build script.
+`PhotoImage.subsample(2, 2)` in `robot/editor_icons.py`.
 
 ## Directory layout
 
 ```
 robot/assets/editor_icons/
-  SPEC.md           — this file
   svg/              — editable vector sources
-  png/              — 24×24 PNG output (committed)
   png@2x/           — 48×48 PNG output (committed)
 ```
 

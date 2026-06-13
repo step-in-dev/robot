@@ -10,13 +10,8 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _SVG_DIR = _REPO_ROOT / "robot" / "assets" / "editor_icons" / "svg"
-_PNG_DIR = _REPO_ROOT / "robot" / "assets" / "editor_icons" / "png"
 _PNG_2X_DIR = _REPO_ROOT / "robot" / "assets" / "editor_icons" / "png@2x"
-
-_SIZES = (
-    (_PNG_DIR, 24),
-    (_PNG_2X_DIR, 48),
-)
+_ICON_SIZE = 48
 
 
 def _convert_svg(svg_path: Path, png_path: Path, size: int) -> None:
@@ -51,10 +46,9 @@ def main() -> int:
 
     for svg_path in svg_files:
         stem = svg_path.stem
-        for out_dir, size in _SIZES:
-            png_path = out_dir / f"{stem}.png"
-            _convert_svg(svg_path, png_path, size)
-            print(f"Wrote {png_path.relative_to(_REPO_ROOT)} ({size}x{size})")
+        png_path = _PNG_2X_DIR / f"{stem}.png"
+        _convert_svg(svg_path, png_path, _ICON_SIZE)
+        print(f"Wrote {png_path.relative_to(_REPO_ROOT)} ({_ICON_SIZE}x{_ICON_SIZE})")
 
     return 0
 

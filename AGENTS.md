@@ -23,6 +23,7 @@ The target audience is school students who are learning introductory programming
 - `Docs/task-env-format.ru.md` is the Russian translation; keep it in sync manually when the English doc changes.
 - `Docs/task-viewer.md` describes the teacher task viewer (`viewer/viewer.py`) and viewer-mode behavior of `RobotWindow`.
 - `Docs/task-editor.md` describes the environment editor (`editor/editor.py`) for creating and editing `.env` task files.
+- `Docs/editor-icons.md` describes toolbar icon assets for the environment editor (`robot/assets/editor_icons/`).
 - `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
 - `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).

@@ -9,7 +9,6 @@ import tkinter as tk
 from .editor_env import EnvEditTool
 
 _ASSETS_DIR = Path(__file__).resolve().parent / "assets" / "editor_icons"
-_PNG_DIR = _ASSETS_DIR / "png"
 _PNG_2X_DIR = _ASSETS_DIR / "png@2x"
 _ICON_SUBSAMPLE = 2
 DISPLAY_ICON_SIZE = 24
