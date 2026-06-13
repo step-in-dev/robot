@@ -93,39 +93,90 @@ class _EditorWindowHarness(EditorWindow):
         self.root.update_idletasks()
         button = self._chrome.tool_buttons[tool]
         if tool is EnvEditTool.POLLUTION:
-            assert self._chrome.pollution_spin is not None
-            spinner = self._chrome.pollution_spin
+            assert self._chrome.pollution_spin_host is not None
+            spinner = self._chrome.pollution_spin_host
         else:
-            assert self._chrome.print_spin is not None
-            spinner = self._chrome.print_spin
+            assert self._chrome.print_spin_host is not None
+            spinner = self._chrome.print_spin_host
         return button.winfo_x(), spinner.winfo_x()
 
     def value_spinner_is_mapped(self, tool: EnvEditTool) -> bool:
         if tool is EnvEditTool.POLLUTION:
-            assert self._chrome.pollution_spin is not None
-            return self._chrome.pollution_spin.winfo_ismapped()
-        assert self._chrome.print_spin is not None
-        return self._chrome.print_spin.winfo_ismapped()
+            assert self._chrome.pollution_spin_host is not None
+            return self._chrome.pollution_spin_host.winfo_ismapped()
+        assert self._chrome.print_spin_host is not None
+        return self._chrome.print_spin_host.winfo_ismapped()
 
     def toolbar_spinbox_heights(self) -> dict[str, int]:
         self.root.update_idletasks()
         icon_button = self._chrome.tool_buttons[EnvEditTool.START]
         heights = {"icon": icon_button.winfo_height()}
-        assert self._chrome.height_spin is not None
-        assert self._chrome.width_spin is not None
-        heights["height_spin"] = self._chrome.height_spin.winfo_height()
-        heights["width_spin"] = self._chrome.width_spin.winfo_height()
+        assert self._chrome.height_spin_host is not None
+        assert self._chrome.width_spin_host is not None
+        heights["height_spin"] = self._chrome.height_spin_host.winfo_height()
+        heights["width_spin"] = self._chrome.width_spin_host.winfo_height()
 
         self.select_tool(EnvEditTool.POLLUTION)
         self.root.update_idletasks()
-        assert self._chrome.pollution_spin is not None
-        heights["pollution_spin"] = self._chrome.pollution_spin.winfo_height()
+        assert self._chrome.pollution_spin_host is not None
+        heights["pollution_spin"] = self._chrome.pollution_spin_host.winfo_height()
 
         self.select_tool(EnvEditTool.NUMBER)
         self.root.update_idletasks()
-        assert self._chrome.print_spin is not None
-        heights["print_spin"] = self._chrome.print_spin.winfo_height()
+        assert self._chrome.print_spin_host is not None
+        heights["print_spin"] = self._chrome.print_spin_host.winfo_height()
         return heights
+
+    def toolbar_value_spinner_top_offsets(self) -> dict[str, int]:
+        self.root.update_idletasks()
+        offsets: dict[str, int] = {}
+        for tool in (EnvEditTool.POLLUTION, EnvEditTool.NUMBER):
+            self.select_tool(tool)
+            self.root.update_idletasks()
+            button = self._chrome.tool_buttons[tool]
+            if tool is EnvEditTool.POLLUTION:
+                assert self._chrome.pollution_spin_host is not None
+                host = self._chrome.pollution_spin_host
+            else:
+                assert self._chrome.print_spin_host is not None
+                host = self._chrome.print_spin_host
+            offsets[f"{tool.value}_button"] = button.winfo_y()
+            offsets[f"{tool.value}_spin"] = host.winfo_y()
+        return offsets
+
+    def toolbar_spinbox_host_widths(self) -> dict[str, int]:
+        self.root.update_idletasks()
+        assert self._chrome.height_spin_host is not None
+        assert self._chrome.width_spin_host is not None
+        widths = {
+            "height_spin": self._chrome.height_spin_host.winfo_width(),
+            "width_spin": self._chrome.width_spin_host.winfo_width(),
+        }
+        self.select_tool(EnvEditTool.POLLUTION)
+        self.root.update_idletasks()
+        assert self._chrome.pollution_spin_host is not None
+        widths["pollution_spin"] = self._chrome.pollution_spin_host.winfo_width()
+        widths["pollution_mapped"] = int(
+            self._chrome.pollution_spin_host.winfo_ismapped()
+        )
+        return widths
+
+    def size_label_vertical_offsets(self) -> dict[str, int]:
+        self.root.update_idletasks()
+        assert self._chrome.rows_label is not None
+        assert self._chrome.height_spin_host is not None
+        assert self._chrome.cols_label is not None
+        assert self._chrome.width_spin_host is not None
+
+        def center_y(widget: tk.Misc) -> int:
+            return widget.winfo_y() + widget.winfo_height() // 2
+
+        return {
+            "rows_label": center_y(self._chrome.rows_label),
+            "height_spin": center_y(self._chrome.height_spin_host),
+            "cols_label": center_y(self._chrome.cols_label),
+            "width_spin": center_y(self._chrome.width_spin_host),
+        }
 
 
 def _make_editor_window() -> _EditorWindowHarness:
@@ -315,6 +366,26 @@ class EditorWindowTest(GuiTestCase):
         finally:
             window.close()
 
+    def test_toolbar_spinbox_hosts_are_visible(self) -> None:
+        window = _make_editor_window()
+        try:
+            widths = window.toolbar_spinbox_host_widths()
+            self.assertGreater(widths["height_spin"], 0)
+            self.assertGreater(widths["width_spin"], 0)
+            self.assertEqual(widths["pollution_mapped"], 1)
+            self.assertGreater(widths["pollution_spin"], 0)
+        finally:
+            window.close()
+
+    def test_toolbar_size_labels_are_vertically_centered(self) -> None:
+        window = _make_editor_window()
+        try:
+            offsets = window.size_label_vertical_offsets()
+            self.assertLessEqual(abs(offsets["rows_label"] - offsets["height_spin"]), 1)
+            self.assertLessEqual(abs(offsets["cols_label"] - offsets["width_spin"]), 1)
+        finally:
+            window.close()
+
     def test_toolbar_spinbox_height_matches_icon_button(self) -> None:
         window = _make_editor_window()
         try:
@@ -322,11 +393,19 @@ class EditorWindowTest(GuiTestCase):
             icon_height = heights["icon"]
             for key in ("height_spin", "width_spin", "pollution_spin", "print_spin"):
                 with self.subTest(spinner=key):
-                    self.assertLessEqual(
-                        abs(heights[key] - icon_height),
-                        1,
-                        f"{key} height {heights[key]} vs icon {icon_height}",
-                    )
+                    self.assertEqual(heights[key], icon_height)
+        finally:
+            window.close()
+
+    def test_toolbar_value_spinner_top_aligns_with_tool_button(self) -> None:
+        window = _make_editor_window()
+        try:
+            offsets = window.toolbar_value_spinner_top_offsets()
+            for tool in (EnvEditTool.POLLUTION, EnvEditTool.NUMBER):
+                with self.subTest(tool=tool.value):
+                    button_y = offsets[f"{tool.value}_button"]
+                    spin_y = offsets[f"{tool.value}_spin"]
+                    self.assertEqual(spin_y, button_y)
         finally:
             window.close()
 

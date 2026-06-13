@@ -63,7 +63,7 @@ from .task_serializer import (
     TaskSaveError,
     update_todo_text,
 )
-from .tk_util import destroy_tk_root, pack_ipady_for_target_height, widget_reqheight
+from .tk_util import destroy_tk_root, pack_fill_host, widget_reqheight
 
 _UNDO_DEPTH = 200
 _WALL_WIDTH = 4
@@ -108,8 +108,14 @@ class _EditorChrome:  # pylint: disable=too-many-instance-attributes
     remove_env_button: Optional[tk.Button] = None
     pollution_spin: Optional[tk.Spinbox] = None
     print_spin: Optional[tk.Spinbox] = None
+    pollution_spin_host: Optional[tk.Frame] = None
+    print_spin_host: Optional[tk.Frame] = None
     height_spin: Optional[tk.Spinbox] = None
     width_spin: Optional[tk.Spinbox] = None
+    height_spin_host: Optional[tk.Frame] = None
+    width_spin_host: Optional[tk.Frame] = None
+    rows_label: Optional[tk.Label] = None
+    cols_label: Optional[tk.Label] = None
     toolbar_icon_height: int = 0
     canvas: Optional[tk.Canvas] = None
     renderer: Optional[FieldRenderer] = None
@@ -160,6 +166,8 @@ class EditorWindow:
         self.root.update_idletasks()
         self._lock_window_size()
         self.root.deiconify()
+        self.root.update_idletasks()
+        self._sync_toolbar_spinbox_heights()
         self.root.lift()
 
     @property
@@ -273,6 +281,74 @@ class EditorWindow:
         bind_tooltip(button, t(tooltip_key))
         return button
 
+    def _toolbar_spinbox_hosts(self) -> List[tk.Frame]:
+        chrome = self._chrome
+        hosts = (
+            chrome.pollution_spin_host,
+            chrome.print_spin_host,
+            chrome.height_spin_host,
+            chrome.width_spin_host,
+        )
+        return [host for host in hosts if host is not None]
+
+    def _create_toolbar_spinbox(
+        self, parent: tk.Misc, **kwargs
+    ) -> tuple[tk.Spinbox, tk.Frame]:
+        host = tk.Frame(parent, highlightthickness=0, bd=0)
+        spinbox = tk.Spinbox(host, **kwargs)
+        pack_fill_host(host, spinbox)
+        self._finalize_toolbar_spinbox_host(host, spinbox)
+        return spinbox, host
+
+    def _finalize_toolbar_spinbox_host(
+        self, host: tk.Frame, spinbox: tk.Spinbox
+    ) -> None:
+        spinbox.update_idletasks()
+        host.configure(
+            width=spinbox.winfo_reqwidth(),
+            height=max(
+                self._chrome.toolbar_icon_height,
+                spinbox.winfo_reqheight(),
+                1,
+            ),
+        )
+        host.pack_propagate(False)
+
+    def _pack_toolbar_spinbox_host(self, host: tk.Frame, **pack_kwargs) -> None:
+        host.pack(anchor=tk.N, **pack_kwargs)
+
+    def _sync_toolbar_spinbox_heights(self) -> None:
+        button = self._chrome.tool_buttons.get(EnvEditTool.START)
+        if button is None:
+            return
+        self.root.update_idletasks()
+        height = button.winfo_height()
+        if height <= 1:
+            height = widget_reqheight(button)
+        if height <= 1:
+            return
+        self._chrome.toolbar_icon_height = height
+        for host in self._toolbar_spinbox_hosts():
+            spinbox = host.winfo_children()[0]
+            host.configure(height=height, width=spinbox.winfo_reqwidth())
+        self._sync_toolbar_size_label_padding()
+
+    def _sync_toolbar_size_label_padding(self) -> None:
+        row_height = self._chrome.toolbar_icon_height
+        if row_height <= 1:
+            return
+        for label in (self._chrome.rows_label, self._chrome.cols_label):
+            if label is None:
+                continue
+            label.update_idletasks()
+            pady = max(0, (row_height - label.winfo_reqheight()) // 2)
+            label.pack_configure(pady=(pady, pady))
+
+    def _pack_toolbar_size_label(self, parent: tk.Frame, text: str) -> tk.Label:
+        label = tk.Label(parent, text=text)
+        label.pack(side=tk.LEFT)
+        return label
+
     @staticmethod
     def _tool_tooltip_key(tool: EnvEditTool) -> str:
         return f"editor.tooltip.tool.{tool.value}"
@@ -353,25 +429,29 @@ class EditorWindow:
             self._chrome.tool_buttons[tool] = button
 
             if tool is EnvEditTool.POLLUTION:
-                self._chrome.pollution_spin = tk.Spinbox(
+                pollution_spin, pollution_host = self._create_toolbar_spinbox(
                     toolbar,
                     from_=POLLUTION_VALUE_MIN,
                     to=POLLUTION_VALUE_MAX,
                     width=4,
                     textvariable=self._vars.pollution_value,
                 )
+                self._chrome.pollution_spin = pollution_spin
+                self._chrome.pollution_spin_host = pollution_host
                 bind_tooltip(
                     self._chrome.pollution_spin, t("editor.tooltip.pollution_value")
                 )
 
             if tool is EnvEditTool.NUMBER:
-                self._chrome.print_spin = tk.Spinbox(
+                print_spin, print_host = self._create_toolbar_spinbox(
                     toolbar,
                     from_=PRINT_VALUE_MIN,
                     to=PRINT_VALUE_MAX,
                     width=4,
                     textvariable=self._vars.print_value,
                 )
+                self._chrome.print_spin = print_spin
+                self._chrome.print_spin_host = print_host
                 bind_tooltip(self._chrome.print_spin, t("editor.tooltip.print_value"))
 
         first_tool_button = self._chrome.tool_buttons[EnvEditTool.START]
@@ -403,47 +483,7 @@ class EditorWindow:
         )
         reset_env_button.pack(side=tk.LEFT, padx=(4, 0))
 
-        size_frame = tk.Frame(toolbar)
-        size_frame.pack(side=tk.LEFT, padx=group_padx)
-        tk.Label(size_frame, text=t("editor.rows")).pack(side=tk.LEFT)
-        icon_height = self._chrome.toolbar_icon_height
-        self._chrome.height_spin = tk.Spinbox(
-            size_frame,
-            from_=1,
-            to=MAX_FIELD_HEIGHT,
-            width=3,
-            textvariable=self._vars.height_var,
-            command=self._on_size_commit,
-        )
-        self._chrome.height_spin.pack(
-            side=tk.LEFT,
-            padx=(4, 8),
-            ipady=pack_ipady_for_target_height(
-                self._chrome.height_spin, target_height=icon_height
-            ),
-        )
-        self._chrome.height_spin.bind("<Return>", self._on_size_commit)
-        self._chrome.height_spin.bind("<FocusOut>", self._on_size_commit)
-        bind_tooltip(self._chrome.height_spin, t("editor.tooltip.row_count"))
-        tk.Label(size_frame, text=t("editor.cols")).pack(side=tk.LEFT)
-        self._chrome.width_spin = tk.Spinbox(
-            size_frame,
-            from_=1,
-            to=MAX_FIELD_WIDTH,
-            width=3,
-            textvariable=self._vars.width_var,
-            command=self._on_size_commit,
-        )
-        self._chrome.width_spin.pack(
-            side=tk.LEFT,
-            padx=(4, 0),
-            ipady=pack_ipady_for_target_height(
-                self._chrome.width_spin, target_height=icon_height
-            ),
-        )
-        self._chrome.width_spin.bind("<Return>", self._on_size_commit)
-        self._chrome.width_spin.bind("<FocusOut>", self._on_size_commit)
-        bind_tooltip(self._chrome.width_spin, t("editor.tooltip.col_count"))
+        self._build_toolbar_size_controls(toolbar, group_padx)
 
         self._chrome.todo_edit_button = self._icon_button(
             toolbar,
@@ -470,6 +510,45 @@ class EditorWindow:
 
         self._update_tool_highlight()
         self._update_value_spinners()
+
+    def _build_toolbar_size_controls(self, toolbar: tk.Frame, group_padx: tuple) -> None:
+        size_frame = tk.Frame(toolbar)
+        size_frame.pack(side=tk.LEFT, padx=group_padx, anchor=tk.N)
+        self._chrome.rows_label = self._pack_toolbar_size_label(
+            size_frame, t("editor.rows")
+        )
+        height_spin, height_host = self._create_toolbar_spinbox(
+            size_frame,
+            from_=1,
+            to=MAX_FIELD_HEIGHT,
+            width=3,
+            textvariable=self._vars.height_var,
+            command=self._on_size_commit,
+        )
+        self._chrome.height_spin = height_spin
+        self._chrome.height_spin_host = height_host
+        self._pack_toolbar_spinbox_host(height_host, side=tk.LEFT, padx=(4, 8))
+        height_spin.bind("<Return>", self._on_size_commit)
+        height_spin.bind("<FocusOut>", self._on_size_commit)
+        bind_tooltip(height_spin, t("editor.tooltip.row_count"))
+        self._chrome.cols_label = self._pack_toolbar_size_label(
+            size_frame, t("editor.cols")
+        )
+        width_spin, width_host = self._create_toolbar_spinbox(
+            size_frame,
+            from_=1,
+            to=MAX_FIELD_WIDTH,
+            width=3,
+            textvariable=self._vars.width_var,
+            command=self._on_size_commit,
+        )
+        self._chrome.width_spin = width_spin
+        self._chrome.width_spin_host = width_host
+        self._pack_toolbar_spinbox_host(width_host, side=tk.LEFT, padx=(4, 0))
+        width_spin.bind("<Return>", self._on_size_commit)
+        width_spin.bind("<FocusOut>", self._on_size_commit)
+        bind_tooltip(width_spin, t("editor.tooltip.col_count"))
+        self._sync_toolbar_size_label_padding()
 
     def _rebuild_env_tabs(self) -> None:
         if self._chrome.tab_frame is None:
@@ -573,32 +652,30 @@ class EditorWindow:
                 button.configure(relief=tk.RAISED)
 
     def _update_value_spinners(self) -> None:
-        if self._chrome.pollution_spin is None or self._chrome.print_spin is None:
+        if (
+            self._chrome.pollution_spin_host is None
+            or self._chrome.print_spin_host is None
+        ):
             return
         pollution_button = self._chrome.tool_buttons[EnvEditTool.POLLUTION]
         number_button = self._chrome.tool_buttons[EnvEditTool.NUMBER]
-        self._chrome.pollution_spin.pack_forget()
-        self._chrome.print_spin.pack_forget()
+        self._chrome.pollution_spin_host.pack_forget()
+        self._chrome.print_spin_host.pack_forget()
         if self._state.active_tool is EnvEditTool.POLLUTION:
-            self._chrome.pollution_spin.pack(
+            self._pack_toolbar_spinbox_host(
+                self._chrome.pollution_spin_host,
                 side=tk.LEFT,
                 padx=(0, 4),
                 after=pollution_button,
-                ipady=pack_ipady_for_target_height(
-                    self._chrome.pollution_spin,
-                    target_height=self._chrome.toolbar_icon_height,
-                ),
             )
         elif self._state.active_tool is EnvEditTool.NUMBER:
-            self._chrome.print_spin.pack(
+            self._pack_toolbar_spinbox_host(
+                self._chrome.print_spin_host,
                 side=tk.LEFT,
                 padx=(0, 4),
                 after=number_button,
-                ipady=pack_ipady_for_target_height(
-                    self._chrome.print_spin,
-                    target_height=self._chrome.toolbar_icon_height,
-                ),
             )
+        self._sync_toolbar_spinbox_heights()
         self._lock_window_size()
 
     def _update_undo_redo_state(self) -> None:

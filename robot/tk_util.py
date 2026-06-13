@@ -20,6 +20,11 @@ def pack_ipady_for_target_height(widget: tk.Misc, *, target_height: int) -> int:
     return padding // 2
 
 
+def pack_fill_host(host: tk.Frame, widget: tk.Misc) -> None:
+    """Fill a fixed-height host with *widget*."""
+    widget.pack(in_=host, fill=tk.BOTH, expand=True)
+
+
 def cancel_all_after_callbacks(root: tk.Misc) -> None:
     """Cancel every pending ``after`` / ``after_idle`` callback on *root*."""
     try:
