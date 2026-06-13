@@ -12,6 +12,7 @@ from robot.gui_dialogs import (
     prompt_string_dialog,
     reveal_centered_toplevel,
 )
+from robot.tk_util import flush_tk_events
 
 from ._helpers import emit_keypad_enter, requires_tk_display, withdrawn_root
 
@@ -172,7 +173,7 @@ class PromptStringDialogTest(unittest.TestCase):
                 entry.insert(0, "Committed")
                 entry.focus_set()
                 dialog_self.update_idletasks()
-                emit_keypad_enter(entry, root)
+                emit_keypad_enter(entry, dialog_self)
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_press_return):
                 result = prompt_string_dialog(
@@ -188,7 +189,7 @@ class PromptStringDialogTest(unittest.TestCase):
         root.withdraw()
         try:
             def wait_then_check_focus(dialog_self: tk.Toplevel) -> None:
-                dialog_self.update()
+                flush_tk_events(dialog_self, max_rounds=5)
                 entry = _find_first_entry(dialog_self)
                 self.assertIsNotNone(entry)
                 assert entry is not None

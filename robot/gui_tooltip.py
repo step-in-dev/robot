@@ -36,7 +36,8 @@ def bind_tooltip(widget: tk.Widget, text: str, *, delay_ms: int = _DEFAULT_DELAY
         nonlocal tip_window
         if tip_window is not None:
             return
-        tip_window = tk.Toplevel(widget)
+        # Parent on the root toplevel so winfo_children traversal and WM behave on Windows.
+        tip_window = tk.Toplevel(widget.winfo_toplevel())
         tip_window.withdraw()
         tip_window.wm_overrideredirect(True)
         tip_window.wm_attributes("-topmost", True)
@@ -51,6 +52,12 @@ def bind_tooltip(widget: tk.Widget, text: str, *, delay_ms: int = _DEFAULT_DELAY
         )
         label.pack()
         tip_window.update_idletasks()
+        # Placed widgets may report 1×1 until the root has been fully updated on Windows.
+        try:
+            widget.winfo_toplevel().update()
+        except tk.TclError:
+            pass
+        widget.update_idletasks()
         tip_width = tip_window.winfo_reqwidth()
         x = widget.winfo_rootx() + max(0, (widget.winfo_width() - tip_width) // 2)
         y = widget.winfo_rooty() + widget.winfo_height() + 4

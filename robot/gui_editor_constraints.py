@@ -21,7 +21,7 @@ from .task_serializer import (
 )
 
 _EDITOR_ERROR_TITLE_KEY = "editor.error.title"
-_RETURN_BINDINGS = ("<Return>", "<KP_Enter>")
+_RETURN_BINDINGS = ("<Return>", "<KP_Enter>", "<KeyPress-Return>")
 
 
 @dataclass

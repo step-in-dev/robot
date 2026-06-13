@@ -6,6 +6,7 @@ from typing import Callable, Iterator, List, Optional
 
 import tkinter as tk
 
+from robot.tk_util import flush_tk_events
 from robot import i18n
 from robot.gui import RobotWindow, RobotWindowOptions
 from robot.loader import RobotTask, ScriptConstraints
@@ -75,13 +76,13 @@ def emit_action_enter_press_release(widget: tk.Misc, root: tk.Misc) -> None:
     root.update()
 
 
-def emit_return(widget: tk.Misc, root: tk.Misc) -> None:
+def emit_return(widget: tk.Misc, _root: tk.Misc) -> None:
     """Simulate main Enter key in GUI tests."""
     # Windows Tcl/Tk does not deliver synthetic <Return> to Entry bindings; use KeyPress/Release.
     widget.event_generate("<KeyPress-Return>", when="tail")
     widget.event_generate("<KeyRelease-Return>", when="tail")
     # Flush events on the toplevel that owns the widget (grab_set dialogs on Windows).
-    root.winfo_toplevel().update()
+    flush_tk_events(widget.winfo_toplevel(), max_rounds=5)
 
 
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
@@ -91,7 +92,7 @@ def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
         emit_return(widget, root)
         return
     widget.event_generate("<KP_Enter>", when="tail")
-    root.winfo_toplevel().update()
+    flush_tk_events(widget.winfo_toplevel(), max_rounds=5)
 
 
 def _find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:

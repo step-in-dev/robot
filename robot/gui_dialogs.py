@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import tkinter as tk
 from typing import Callable, List, Optional
 
@@ -19,7 +20,8 @@ CONSTRAINTS_TEXT_WIDTH = 65
 
 
 _ESCAPE_BINDING = "<Escape>"
-_RETURN_BINDINGS = ("<Return>", "<KP_Enter>")
+# Windows tests synthesize KeyPress-Return; include it so modal Entry dialogs commit on Enter.
+_RETURN_BINDINGS = ("<Return>", "<KP_Enter>", "<KeyPress-Return>")
 
 
 def _widget_size(widget: tk.Misc) -> tuple[int, int]:
@@ -55,13 +57,26 @@ def _nudge_toplevel_visual_center(child: tk.Toplevel, parent: tk.Misc) -> None:
     disagree by a few pixels after the WM adds the toplevel border; nudge X so
     the mapped window looks centered (see ``test_centers_child_horizontally_on_parent``).
     """
-    parent.update_idletasks()
-    child.update_idletasks()
-    parent_center_x = parent.winfo_rootx() + parent.winfo_width() // 2
-    child_center_x = child.winfo_rootx() + child.winfo_width() // 2
-    dx = parent_center_x - child_center_x
-    if dx:
+    try:
+        parent.update_idletasks()
+        child.update_idletasks()
+        parent.update()
+        child.update()
+    except tk.TclError:
+        pass
+    for _ in range(4):
+        parent_width, _ = _widget_size(parent)
+        child_width, _ = _widget_size(child)
+        parent_center_x = parent.winfo_rootx() + parent_width // 2
+        child_center_x = child.winfo_rootx() + child_width // 2
+        dx = parent_center_x - child_center_x
+        if abs(dx) <= 1:
+            break
         child.wm_geometry(f"+{child.winfo_rootx() + dx}+{child.winfo_rooty()}")
+        try:
+            child.update_idletasks()
+        except tk.TclError:
+            break
 
 
 def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) -> None:
@@ -71,7 +86,11 @@ def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) 
         return
 
     def _apply_focus() -> None:
+        child.focus_set()
         focus_widget.focus_set()
+        if sys.platform == "win32":
+            # focus_set alone often leaves focus_get() as None on Windows CI.
+            focus_widget.focus_force()
         if isinstance(focus_widget, tk.Entry):
             focus_widget.select_range(0, tk.END)
 
@@ -100,11 +119,19 @@ def reveal_centered_toplevel(
     center_toplevel_on_parent(child, parent)
     _nudge_toplevel_visual_center(child, parent)
     child.lift()
+    if sys.platform == "win32":
+        try:
+            # grab_set requires a mapped window on Windows (see wait_visibility in Tk docs).
+            child.wait_visibility()
+        except tk.TclError:
+            pass
     if modal:
         child.grab_set()
     _focus_toplevel_widget(child, focus_widget)
     # Process after_idle focus handlers before wait_window (Windows CI runs them late).
-    flush_tk_events(child, max_rounds=3)
+    flush_rounds = 10 if sys.platform == "win32" else 3
+    flush_tk_events(child, max_rounds=flush_rounds)
+    _nudge_toplevel_visual_center(child, parent)
     if modal:
         child.wait_window()
 

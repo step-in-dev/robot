@@ -60,9 +60,10 @@ class TooltipLifecycleTest(GuiTestCase):
     def test_show_positions_tooltip_below_widget(self) -> None:
         root = tk.Tk()
         try:
+            root.geometry("320x240")
             button = tk.Button(root, text="hover")
             button.place(x=80, y=60)
-            root.update_idletasks()
+            root.update()
 
             bind_tooltip(button, "Tooltip", delay_ms=0)
             button.event_generate("<Enter>")
