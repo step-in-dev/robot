@@ -79,10 +79,11 @@ def emit_action_enter_press_release(widget: tk.Misc, root: tk.Misc) -> None:
 def emit_return(widget: tk.Misc, _root: tk.Misc) -> None:
     """Simulate main Enter key in GUI tests."""
     # Windows Tcl/Tk does not deliver synthetic <Return> to Entry bindings; use KeyPress/Release.
-    widget.event_generate("<KeyPress-Return>", when="tail")
-    widget.event_generate("<KeyRelease-Return>", when="tail")
-    # Flush events on the toplevel that owns the widget (grab_set dialogs on Windows).
-    flush_tk_events(widget.winfo_toplevel(), max_rounds=5)
+    toplevel = widget.winfo_toplevel()
+    for target in (widget, toplevel):
+        target.event_generate("<KeyPress-Return>", when="tail")
+        target.event_generate("<KeyRelease-Return>", when="tail")
+    flush_tk_events(toplevel, max_rounds=5)
 
 
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:

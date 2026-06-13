@@ -115,6 +115,17 @@ def _ensure_mapped_before_grab(child: tk.Toplevel, parent: tk.Misc) -> None:
         pass
 
 
+def _set_modal_grab(child: tk.Toplevel, parent: tk.Misc) -> None:
+    """Apply modal grab when the platform allows it."""
+    if sys.platform == "win32" and not parent.winfo_toplevel().winfo_viewable():
+        # grab_set on a dialog whose parent is withdrawn breaks focus and key routing on Windows.
+        return
+    try:
+        child.grab_set()
+    except tk.TclError:
+        pass
+
+
 def reveal_centered_toplevel(
     child: tk.Toplevel,
     parent: tk.Misc,
@@ -136,12 +147,13 @@ def reveal_centered_toplevel(
     _nudge_toplevel_visual_center(child, parent)
     child.lift()
     _ensure_mapped_before_grab(child, parent)
-    if modal:
-        child.grab_set()
     _focus_toplevel_widget(child, focus_widget)
-    # Process after_idle focus handlers before wait_window (Windows CI runs them late).
     flush_rounds = 10 if sys.platform == "win32" else 3
     flush_tk_events(child, max_rounds=flush_rounds)
+    if modal:
+        _set_modal_grab(child, parent)
+        _focus_toplevel_widget(child, focus_widget)
+        flush_tk_events(child, max_rounds=flush_rounds)
     _nudge_toplevel_visual_center(child, parent)
     if modal:
         child.wait_window()

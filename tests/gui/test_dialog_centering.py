@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -16,7 +17,8 @@ from robot.tk_util import flush_tk_events
 
 from ._helpers import emit_keypad_enter, requires_tk_display, withdrawn_root
 
-_CENTER_TOLERANCE_PX = 3
+# Windows Tk root vs Toplevel client metrics can differ by one frame border (~8 px).
+_CENTER_TOLERANCE_PX = 8 if sys.platform == "win32" else 3
 _FRAME_PADDING_TOLERANCE_PX = 12
 
 
@@ -193,7 +195,11 @@ class PromptStringDialogTest(unittest.TestCase):
                 entry = _find_first_entry(dialog_self)
                 self.assertIsNotNone(entry)
                 assert entry is not None
-                self.assertIs(entry, dialog_self.focus_get())
+                focused = dialog_self.focus_get()
+                if focused is None and sys.platform == "win32":
+                    # Without grab on a withdrawn parent, focus_get on the dialog may stay None.
+                    focused = entry.focus_get()
+                self.assertIs(entry, focused)
                 buttons = _find_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
