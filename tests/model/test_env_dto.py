@@ -6,6 +6,12 @@ from robot.model import RobotEnvDto, Cell, ValuedCell
 from tests.env_fixtures import corridor, env_dict
 
 
+def minimal_valid_env_dict(**overrides):
+    data = dict(corridor())
+    data.update(overrides)
+    return data
+
+
 class RobotEnvDtoFromDictTest(unittest.TestCase):
     def test_from_dict_basic_parsing(self):
         dto = RobotEnvDto.from_dict(
@@ -157,167 +163,46 @@ class RobotEnvDtoFromDictTest(unittest.TestCase):
         self.assertEqual(dto.height, 3)
 
 
-class RobotEnvDtoValidationTest(unittest.TestCase):
-    def _minimal_valid(self, **overrides):
-        data = dict(corridor())
-        data.update(overrides)
-        return data
-
+class RobotEnvDtoValidationDimensionsTest(unittest.TestCase):
     def test_width_not_positive(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(width=0))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(width=0))
         self.assertIn("width", str(ctx.exception).lower())
 
     def test_height_not_positive(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(height=0))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(height=0))
         self.assertIn("height", str(ctx.exception).lower())
 
     def test_start_row_negative(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(startRow=-1))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(startRow=-1))
         self.assertIn("start", str(ctx.exception).lower())
 
     def test_start_row_gte_height(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(height=1, startRow=1))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(height=1, startRow=1))
         self.assertIn("start", str(ctx.exception).lower())
 
     def test_start_col_negative(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(startCol=-1))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(startCol=-1))
         self.assertIn("start", str(ctx.exception).lower())
 
     def test_start_col_gte_width(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(width=1, startCol=1))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(width=1, startCol=1))
         self.assertIn("start", str(ctx.exception).lower())
 
     def test_final_row_out_of_bounds(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(finalRow=5))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(finalRow=5))
         self.assertIn("outside", str(ctx.exception).lower())
 
     def test_final_col_out_of_bounds(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(self._minimal_valid(finalCol=5))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(finalCol=5))
         self.assertIn("outside", str(ctx.exception).lower())
-
-    def test_painted_cell_out_of_bounds(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(paintedCells=[{"r": 0, "c": 5}])
-            )
-        self.assertIn("paintedCells", str(ctx.exception))
-
-    def test_duplicate_painted_cell(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    paintedCells=[{"r": 0, "c": 0}, {"r": 0, "c": 0}]
-                )
-            )
-        self.assertIn("paintedCells", str(ctx.exception))
-
-    def test_cells_to_paint_out_of_bounds(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(cellsToPaint=[{"r": 0, "c": 5}])
-            )
-        self.assertIn("cellsToPaint", str(ctx.exception))
-
-    def test_duplicate_cells_to_paint(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    cellsToPaint=[{"r": 0, "c": 0}, {"r": 0, "c": 0}]
-                )
-            )
-        self.assertIn("cellsToPaint", str(ctx.exception))
-
-    def test_painted_and_to_paint_overlap(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    paintedCells=[{"r": 0, "c": 0}],
-                    cellsToPaint=[{"r": 0, "c": 0}],
-                )
-            )
-        self.assertIn("painted", str(ctx.exception).lower())
-
-    def test_polluted_cell_out_of_bounds(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    pollutedCells=[{"r": 0, "c": 5, "value": 1}]
-                )
-            )
-        self.assertIn("pollutedCells", str(ctx.exception))
-
-    def test_duplicate_polluted_cell(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    pollutedCells=[
-                        {"r": 0, "c": 0, "value": 1},
-                        {"r": 0, "c": 0, "value": 2},
-                    ]
-                )
-            )
-        self.assertIn("pollutedCells", str(ctx.exception))
-
-    def test_cells_to_print_out_of_bounds(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    cellsToPrint=[{"r": 0, "c": 5, "value": 1}]
-                )
-            )
-        self.assertIn("cellsToPrint", str(ctx.exception))
-
-    def test_duplicate_cells_to_print(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    cellsToPrint=[
-                        {"r": 0, "c": 0, "value": 1},
-                        {"r": 0, "c": 0, "value": 2},
-                    ]
-                )
-            )
-        self.assertIn("cellsToPrint", str(ctx.exception))
-
-    def test_wall_cell_out_of_bounds(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    width=3,
-                    walls=[[{"r": 0, "c": 0}, {"r": 0, "c": 5}]],
-                )
-            )
-        self.assertIn("wall", str(ctx.exception).lower())
-
-    def test_wall_not_adjacent(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    width=3,
-                    walls=[[{"r": 0, "c": 0}, {"r": 0, "c": 2}]],
-                )
-            )
-        self.assertIn("adjacent", str(ctx.exception).lower())
-
-    def test_duplicate_wall(self):
-        with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(
-                self._minimal_valid(
-                    walls=[
-                        [{"r": 0, "c": 0}, {"r": 0, "c": 1}],
-                        [{"r": 0, "c": 1}, {"r": 0, "c": 0}],
-                    ],
-                )
-            )
-        self.assertIn("wall", str(ctx.exception).lower())
 
     def test_valid_boundary_values_pass(self):
         dto = RobotEnvDto.from_dict(
@@ -345,6 +230,128 @@ class RobotEnvDtoValidationTest(unittest.TestCase):
                 final_row=0,
                 final_col=5,
             )
+
+
+class RobotEnvDtoValidationPaintCellsTest(unittest.TestCase):
+    def test_painted_cell_out_of_bounds(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(paintedCells=[{"r": 0, "c": 5}])
+            )
+        self.assertIn("paintedCells", str(ctx.exception))
+
+    def test_duplicate_painted_cell(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    paintedCells=[{"r": 0, "c": 0}, {"r": 0, "c": 0}]
+                )
+            )
+        self.assertIn("paintedCells", str(ctx.exception))
+
+    def test_cells_to_paint_out_of_bounds(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(cellsToPaint=[{"r": 0, "c": 5}])
+            )
+        self.assertIn("cellsToPaint", str(ctx.exception))
+
+    def test_duplicate_cells_to_paint(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    cellsToPaint=[{"r": 0, "c": 0}, {"r": 0, "c": 0}]
+                )
+            )
+        self.assertIn("cellsToPaint", str(ctx.exception))
+
+    def test_painted_and_to_paint_overlap(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    paintedCells=[{"r": 0, "c": 0}],
+                    cellsToPaint=[{"r": 0, "c": 0}],
+                )
+            )
+        self.assertIn("painted", str(ctx.exception).lower())
+
+
+class RobotEnvDtoValidationValuedCellsTest(unittest.TestCase):
+    def test_polluted_cell_out_of_bounds(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    pollutedCells=[{"r": 0, "c": 5, "value": 1}]
+                )
+            )
+        self.assertIn("pollutedCells", str(ctx.exception))
+
+    def test_duplicate_polluted_cell(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    pollutedCells=[
+                        {"r": 0, "c": 0, "value": 1},
+                        {"r": 0, "c": 0, "value": 2},
+                    ]
+                )
+            )
+        self.assertIn("pollutedCells", str(ctx.exception))
+
+    def test_cells_to_print_out_of_bounds(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    cellsToPrint=[{"r": 0, "c": 5, "value": 1}]
+                )
+            )
+        self.assertIn("cellsToPrint", str(ctx.exception))
+
+    def test_duplicate_cells_to_print(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    cellsToPrint=[
+                        {"r": 0, "c": 0, "value": 1},
+                        {"r": 0, "c": 0, "value": 2},
+                    ]
+                )
+            )
+        self.assertIn("cellsToPrint", str(ctx.exception))
+
+
+class RobotEnvDtoValidationWallsTest(unittest.TestCase):
+    def test_wall_cell_out_of_bounds(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    width=3,
+                    walls=[[{"r": 0, "c": 0}, {"r": 0, "c": 5}]],
+                )
+            )
+        self.assertIn("wall", str(ctx.exception).lower())
+
+    def test_wall_not_adjacent(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    width=3,
+                    walls=[[{"r": 0, "c": 0}, {"r": 0, "c": 2}]],
+                )
+            )
+        self.assertIn("adjacent", str(ctx.exception).lower())
+
+    def test_duplicate_wall(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    walls=[
+                        [{"r": 0, "c": 0}, {"r": 0, "c": 1}],
+                        [{"r": 0, "c": 1}, {"r": 0, "c": 0}],
+                    ],
+                )
+            )
+        self.assertIn("wall", str(ctx.exception).lower())
 
 
 if __name__ == "__main__":
