@@ -71,16 +71,32 @@ class DiscoverArticlesTest(unittest.TestCase):
 class ValidateArticlesTest(unittest.TestCase):
     def test_rejects_duplicate_order(self) -> None:
         articles = [
-            Article("a", 1, "2026-01-01", "Author", {"en": "slug-a"}, {"en": LocaleContent("t", "d", (), "")}),
-            Article("b", 1, "2026-01-02", "Author", {"en": "slug-b"}, {"en": LocaleContent("t", "d", (), "")}),
+            Article(
+                "a", 1, "2026-01-01", "Author",
+                {"en": "slug-a"},
+                {"en": LocaleContent("t", "d", (), "")},
+            ),
+            Article(
+                "b", 1, "2026-01-02", "Author",
+                {"en": "slug-b"},
+                {"en": LocaleContent("t", "d", (), "")},
+            ),
         ]
         with self.assertRaises(SystemExit):
             validate_articles(articles)
 
     def test_rejects_duplicate_slug_per_language(self) -> None:
         articles = [
-            Article("a", 1, "2026-01-01", "Author", {"en": "same-slug"}, {"en": LocaleContent("t", "d", (), "")}),
-            Article("b", 2, "2026-01-02", "Author", {"en": "same-slug"}, {"en": LocaleContent("t", "d", (), "")}),
+            Article(
+                "a", 1, "2026-01-01", "Author",
+                {"en": "same-slug"},
+                {"en": LocaleContent("t", "d", (), "")},
+            ),
+            Article(
+                "b", 2, "2026-01-02", "Author",
+                {"en": "same-slug"},
+                {"en": LocaleContent("t", "d", (), "")},
+            ),
         ]
         with self.assertRaises(SystemExit):
             validate_articles(articles)

@@ -34,7 +34,8 @@ class BuildThemeHubTest(unittest.TestCase):
             html,
         )
         self.assertIn(
-            'meta property="og:image" content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            'meta property="og:image" '
+            'content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
             html,
         )
         self.assertIn(
@@ -69,7 +70,8 @@ class BuildThemeHubTest(unittest.TestCase):
             html,
         )
         self.assertIn(
-            'meta property="og:image" content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            'meta property="og:image" '
+            'content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
             html,
         )
         self.assertIn(
@@ -191,7 +193,9 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn('src="img/editor/save_env_ru.png"', html)
         self.assertIn('href="editor_ru.html"', html)
         self.assertIn(
-            "Docs/task-env-format.ru.md#%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
+            "Docs/task-env-format.ru.md#"
+            "%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-"
+            "%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
             html,
         )
 
