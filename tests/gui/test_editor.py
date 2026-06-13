@@ -26,7 +26,17 @@ from robot.task_serializer import (
 )
 from robot.model import Cell
 
-from ._helpers import GuiTestCase, requires_tk_display
+from ._helpers import GuiTestCase, emit_keypad_enter, requires_tk_display
+
+
+def _find_first_entry_widget(parent: tk.Misc) -> tk.Entry | None:
+    for child in parent.winfo_children():
+        if isinstance(child, tk.Entry):
+            return child
+        nested = _find_first_entry_widget(child)
+        if nested is not None:
+            return nested
+    return None
 
 
 class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-methods
@@ -646,6 +656,61 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 result = prompt_edit_constraints(root, {}, state)
             showerror.assert_called_once()
             self.assertIsNone(result)
+        finally:
+            root.destroy()
+
+    def test_constraints_dialog_return_commits_valid_input(self) -> None:
+        root = tk.Tk()
+        root.withdraw()
+        state = _ConstraintsDialogState()
+        try:
+            original_wait_window = tk.Toplevel.wait_window
+
+            def wait_then_press_return(dialog_self: tk.Toplevel) -> None:
+                entry = _find_first_entry_widget(dialog_self)
+                if entry is None:
+                    original_wait_window(dialog_self)
+                    return
+                entry.focus_set()
+                dialog_self.update_idletasks()
+                entry.event_generate("<Return>", when="tail")
+                root.update()
+
+            with patch.object(tk.Toplevel, "wait_window", wait_then_press_return):
+                result = prompt_edit_constraints(
+                    root,
+                    {"operatorsLimit": 5},
+                    state,
+                )
+            self.assertIsNotNone(result)
+            self.assertEqual(result.operators_limit, "5")
+        finally:
+            root.destroy()
+
+    def test_constraints_dialog_kp_enter_commits_valid_input(self) -> None:
+        root = tk.Tk()
+        root.withdraw()
+        state = _ConstraintsDialogState()
+        try:
+            original_wait_window = tk.Toplevel.wait_window
+
+            def wait_then_press_kp_enter(dialog_self: tk.Toplevel) -> None:
+                entry = _find_first_entry_widget(dialog_self)
+                if entry is None:
+                    original_wait_window(dialog_self)
+                    return
+                entry.focus_set()
+                dialog_self.update_idletasks()
+                emit_keypad_enter(entry, dialog_self)
+
+            with patch.object(tk.Toplevel, "wait_window", wait_then_press_kp_enter):
+                result = prompt_edit_constraints(
+                    root,
+                    {"operatorsLimit": 5},
+                    state,
+                )
+            self.assertIsNotNone(result)
+            self.assertEqual(result.operators_limit, "5")
         finally:
             root.destroy()
 

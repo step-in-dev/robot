@@ -16,6 +16,7 @@ from .task_serializer import (
 )
 
 _EDITOR_ERROR_TITLE_KEY = "editor.error.title"
+_RETURN_BINDINGS = ("<Return>", "<KP_Enter>")
 
 
 @dataclass
@@ -63,6 +64,11 @@ def _read_constraint_fields(variables: Tuple[tk.StringVar, ...]) -> ConstraintFi
     keys = [spec[0] for spec in _CONSTRAINT_FIELD_SPECS]
     values = {key: variable.get() for key, variable in zip(keys, variables)}
     return ConstraintFieldInput(**values)
+
+
+def _bind_return(widget: tk.Misc, handler) -> None:
+    for sequence in _RETURN_BINDINGS:
+        widget.bind(sequence, handler)
 
 
 def _pack_constraint_buttons(
@@ -150,6 +156,14 @@ def prompt_edit_constraints(
         return "break"
 
     dialog.bind("<Escape>", _handle_escape)
+
+    def _handle_return(_event: tk.Event) -> str:
+        _on_ok()
+        return "break"
+
+    _bind_return(dialog, _handle_return)
+    for entry in entries:
+        _bind_return(entry, _handle_return)
 
     _pack_constraint_buttons(
         frame,
