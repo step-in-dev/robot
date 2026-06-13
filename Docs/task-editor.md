@@ -1,5 +1,3 @@
-> Canonical English version. Russian translation: [task-editor.ru.md](task-editor.ru.md). Update the RU file manually whenever you change this document.
-
 # Robot Environment Editor
 
 The environment editor is a standalone desktop tool for creating and editing Robot task `.env` files.
