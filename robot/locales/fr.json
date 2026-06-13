@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Le fichier de tâche doit contenir au moins un environnement",
   "editor.error.width_out_of_range": "La largeur du champ doit être comprise entre 1 et {max}",
   "editor.error.height_out_of_range": "La hauteur du champ doit être comprise entre 1 et {max}",
-  "editor.error.max_env_count": "Au plus {max} environnements sont autorisés",
-  "editor.error.cannot_remove_last_env": "Impossible de supprimer l'unique environnement",
   "editor.confirm.overwrite_bundled_title": "Écraser une tâche intégrée ?",
   "editor.confirm.overwrite_bundled": "Ce fichier fait partie des tâches Robot intégrées. L'écraser ?"
 }

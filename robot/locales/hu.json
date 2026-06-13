@@ -144,8 +144,6 @@
   "editor.error.no_environments": "A feladatfájlnak legalább egy környezetet kell tartalmaznia",
   "editor.error.width_out_of_range": "A mező szélességének 1 és {max} között kell lennie",
   "editor.error.height_out_of_range": "A mező magasságának 1 és {max} között kell lennie",
-  "editor.error.max_env_count": "Legfeljebb {max} környezet engedélyezett",
-  "editor.error.cannot_remove_last_env": "Az egyetlen környezet nem távolítható el",
   "editor.confirm.overwrite_bundled_title": "Felülírja a beépített feladatot?",
   "editor.confirm.overwrite_bundled": "Ez a fájl a Robot beépített feladatainak része. Felülírja?"
 }

@@ -144,8 +144,6 @@
   "editor.error.no_environments": "O ficheiro da tarefa tem de conter pelo menos um ambiente",
   "editor.error.width_out_of_range": "A largura do campo tem de estar entre 1 e {max}",
   "editor.error.height_out_of_range": "A altura do campo tem de estar entre 1 e {max}",
-  "editor.error.max_env_count": "São permitidos no máximo {max} ambientes",
-  "editor.error.cannot_remove_last_env": "Não é possível remover o único ambiente",
   "editor.confirm.overwrite_bundled_title": "Substituir tarefa incluída?",
   "editor.confirm.overwrite_bundled": "Este ficheiro faz parte das tarefas incluídas do Robô. Substituí-lo?"
 }

@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Görev dosyası en az bir ortam içermelidir",
   "editor.error.width_out_of_range": "Alan genişliği 1 ile {max} arasında olmalıdır",
   "editor.error.height_out_of_range": "Alan yüksekliği 1 ile {max} arasında olmalıdır",
-  "editor.error.max_env_count": "En fazla {max} ortama izin verilir",
-  "editor.error.cannot_remove_last_env": "Tek ortam kaldırılamaz",
   "editor.confirm.overwrite_bundled_title": "Yerleşik görev üzerine yazılsın mı?",
   "editor.confirm.overwrite_bundled": "Bu dosya Robot'un yerleşik görevlerinin bir parçasıdır. Üzerine yazılsın mı?"
 }

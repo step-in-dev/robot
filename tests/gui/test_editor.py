@@ -14,8 +14,10 @@ from robot.editor_env import EnvEditTool, apply_tool_to_env
 from robot.gui_editor import EditorWindow
 from robot.model import Cell
 from robot.task_serializer import (
+    EditorDocument,
     TaskSaveError,
     bundled_tasks_dir,
+    create_default_env_dto,
     create_empty_document,
 )
 
@@ -30,6 +32,17 @@ class _EditorWindowHarness(EditorWindow):
             self._chrome.undo_button.cget("state"),
             self._chrome.redo_button.cget("state"),
         )
+
+    def env_action_button_states(self) -> tuple[str, str]:
+        assert self._chrome.add_env_button is not None
+        assert self._chrome.remove_env_button is not None
+        return (
+            self._chrome.add_env_button.cget("state"),
+            self._chrome.remove_env_button.cget("state"),
+        )
+
+    def add_environment_via_button(self) -> None:
+        self._add_environment()
 
     def paint_cell(self, row: int, col: int) -> None:
         index = self.document.selected_env_index
@@ -73,6 +86,37 @@ class EditorWindowTest(GuiTestCase):
             self.assertEqual(window.document.env_dtos[0], original)
             window.redo()
             self.assertIn({"r": 2, "c": 2}, window.document.env_dtos[0]["paintedCells"])
+        finally:
+            window.close()
+
+    def test_env_action_buttons_disabled_for_single_environment(self) -> None:
+        window = _make_editor_window()
+        try:
+            add_state, remove_state = window.env_action_button_states()
+            self.assertEqual(add_state, tk.NORMAL)
+            self.assertEqual(remove_state, tk.DISABLED)
+        finally:
+            window.close()
+
+    def test_env_action_buttons_enabled_for_multiple_environments(self) -> None:
+        window = _make_editor_window()
+        try:
+            window.add_environment_via_button()
+            add_state, remove_state = window.env_action_button_states()
+            self.assertEqual(add_state, tk.NORMAL)
+            self.assertEqual(remove_state, tk.NORMAL)
+        finally:
+            window.close()
+
+    def test_add_env_button_disabled_at_max_count(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto() for _ in range(7)]
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            add_state, remove_state = window.env_action_button_states()
+            self.assertEqual(add_state, tk.DISABLED)
+            self.assertEqual(remove_state, tk.NORMAL)
         finally:
             window.close()
 

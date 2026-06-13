@@ -144,8 +144,6 @@
   "editor.error.no_environments": "কাজের ফাইলে অন্তত একটি পরিবেশ থাকতে হবে",
   "editor.error.width_out_of_range": "মাঠের প্রস্থ 1 থেকে {max} এর মধ্যে হতে হবে",
   "editor.error.height_out_of_range": "মাঠের উচ্চতা 1 থেকে {max} এর মধ্যে হতে হবে",
-  "editor.error.max_env_count": "সর্বোচ্চ {max}টি পরিবেশ অনুমোদিত",
-  "editor.error.cannot_remove_last_env": "একমাত্র পরিবেশটি মুছে ফেলা যাবে না",
   "editor.confirm.overwrite_bundled_title": "অন্তর্ভুক্ত কাজটি ওভাররাইট করবেন?",
   "editor.confirm.overwrite_bundled": "এই ফাইলটি রোবটের অন্তর্ভুক্ত কাজগুলোর অংশ। ওভাররাইট করবেন?"
 }

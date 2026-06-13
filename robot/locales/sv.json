@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Uppgiftsfilen måste innehålla minst en miljö",
   "editor.error.width_out_of_range": "Fältets bredd måste vara mellan 1 och {max}",
   "editor.error.height_out_of_range": "Fältets höjd måste vara mellan 1 och {max}",
-  "editor.error.max_env_count": "Högst {max} miljöer är tillåtna",
-  "editor.error.cannot_remove_last_env": "Det går inte att ta bort den enda miljön",
   "editor.confirm.overwrite_bundled_title": "Skriva över inbyggd uppgift?",
   "editor.confirm.overwrite_bundled": "Den här filen är en del av Robots inbyggda uppgifter. Skriva över den?"
 }

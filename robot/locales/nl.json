@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Het taakbestand moet minstens één omgeving bevatten",
   "editor.error.width_out_of_range": "De veldbreedte moet tussen 1 en {max} liggen",
   "editor.error.height_out_of_range": "De veldhoogte moet tussen 1 en {max} liggen",
-  "editor.error.max_env_count": "Er zijn maximaal {max} omgevingen toegestaan",
-  "editor.error.cannot_remove_last_env": "De enige omgeving kan niet worden verwijderd",
   "editor.confirm.overwrite_bundled_title": "Ingebouwde taak overschrijven?",
   "editor.confirm.overwrite_bundled": "Dit bestand maakt deel uit van de ingebouwde Robot-taken. Overschrijven?"
 }

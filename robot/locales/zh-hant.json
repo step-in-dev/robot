@@ -144,8 +144,6 @@
   "editor.error.no_environments": "任務檔案必須至少包含一個環境",
   "editor.error.width_out_of_range": "場地寬度必須介於 1 和 {max} 之間",
   "editor.error.height_out_of_range": "場地高度必須介於 1 和 {max} 之間",
-  "editor.error.max_env_count": "最多允許 {max} 個環境",
-  "editor.error.cannot_remove_last_env": "無法刪除唯一的環境",
   "editor.confirm.overwrite_bundled_title": "覆寫內建任務？",
   "editor.confirm.overwrite_bundled": "此檔案屬於機器人內建任務的一部分。要覆寫它嗎？"
 }

@@ -144,8 +144,6 @@
   "editor.error.no_environments": "कार्य फ़ाइल में कम से कम एक परिवेश होना चाहिए",
   "editor.error.width_out_of_range": "मैदान की चौड़ाई 1 और {max} के बीच होनी चाहिए",
   "editor.error.height_out_of_range": "मैदान की ऊँचाई 1 और {max} के बीच होनी चाहिए",
-  "editor.error.max_env_count": "अधिकतम {max} परिवेश अनुमत हैं",
-  "editor.error.cannot_remove_last_env": "एकमात्र परिवेश हटाया नहीं जा सकता",
   "editor.confirm.overwrite_bundled_title": "अंतर्निहित कार्य को अधिलेखित करें?",
   "editor.confirm.overwrite_bundled": "यह फ़ाइल रोबोट के अंतर्निहित कार्यों का हिस्सा है। क्या इसे अधिलेखित करें?"
 }

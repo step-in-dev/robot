@@ -144,8 +144,6 @@
   "editor.error.no_environments": "El archivo de tarea debe contener al menos un entorno",
   "editor.error.width_out_of_range": "El ancho del campo debe estar entre 1 y {max}",
   "editor.error.height_out_of_range": "La altura del campo debe estar entre 1 y {max}",
-  "editor.error.max_env_count": "Se permiten como máximo {max} entornos",
-  "editor.error.cannot_remove_last_env": "No se puede eliminar el único entorno",
   "editor.confirm.overwrite_bundled_title": "¿Sobrescribir tarea incluida?",
   "editor.confirm.overwrite_bundled": "Este archivo forma parte de las tareas incluidas de Robot. ¿Sobrescribirlo?"
 }

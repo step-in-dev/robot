@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Il file del compito deve contenere almeno un ambiente",
   "editor.error.width_out_of_range": "La larghezza del campo deve essere compresa tra 1 e {max}",
   "editor.error.height_out_of_range": "L'altezza del campo deve essere compresa tra 1 e {max}",
-  "editor.error.max_env_count": "Sono consentiti al massimo {max} ambienti",
-  "editor.error.cannot_remove_last_env": "Impossibile rimuovere l'unico ambiente",
   "editor.confirm.overwrite_bundled_title": "Sovrascrivere il compito incluso?",
   "editor.confirm.overwrite_bundled": "Questo file fa parte dei compiti inclusi di Robot. Sovrascriverlo?"
 }

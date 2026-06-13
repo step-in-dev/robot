@@ -144,8 +144,6 @@
   "editor.error.no_environments": "작업 파일에는 최소 하나의 환경이 있어야 합니다",
   "editor.error.width_out_of_range": "필드 너비는 1에서 {max} 사이여야 합니다",
   "editor.error.height_out_of_range": "필드 높이는 1에서 {max} 사이여야 합니다",
-  "editor.error.max_env_count": "환경은 최대 {max}개까지 허용됩니다",
-  "editor.error.cannot_remove_last_env": "유일한 환경은 제거할 수 없습니다",
   "editor.confirm.overwrite_bundled_title": "내장 작업을 덮어쓸까요?",
   "editor.confirm.overwrite_bundled": "이 파일은 로봇의 내장 작업에 포함되어 있습니다. 덮어쓸까요?"
 }

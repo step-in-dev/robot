@@ -144,8 +144,6 @@
   "editor.error.no_environments": "任务文件必须至少包含一个环境",
   "editor.error.width_out_of_range": "场地宽度必须在 1 和 {max} 之间",
   "editor.error.height_out_of_range": "场地高度必须在 1 和 {max} 之间",
-  "editor.error.max_env_count": "最多允许 {max} 个环境",
-  "editor.error.cannot_remove_last_env": "无法删除唯一的环境",
   "editor.confirm.overwrite_bundled_title": "覆盖内置任务？",
   "editor.confirm.overwrite_bundled": "此文件属于机器人内置任务的一部分。要覆盖它吗？"
 }

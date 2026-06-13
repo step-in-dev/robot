@@ -144,8 +144,6 @@
   "editor.error.no_environments": "課題ファイルには少なくとも1つの環境が必要です",
   "editor.error.width_out_of_range": "フィールドの幅は1から{max}まででなければなりません",
   "editor.error.height_out_of_range": "フィールドの高さは1から{max}まででなければなりません",
-  "editor.error.max_env_count": "環境は最大{max}個までです",
-  "editor.error.cannot_remove_last_env": "唯一の環境は削除できません",
   "editor.confirm.overwrite_bundled_title": "組み込み課題を上書きしますか?",
   "editor.confirm.overwrite_bundled": "このファイルはロボットの組み込み課題の一部です。上書きしますか?"
 }

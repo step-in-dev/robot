@@ -20,6 +20,8 @@ from .editor_env import (
     EnvEditTool,
     add_environment,
     apply_tool_to_env,
+    can_add_environment,
+    can_remove_environment,
     canvas_to_cell,
     dto_dict_to_env,
     remove_environment,
@@ -102,6 +104,8 @@ class _EditorChrome:  # pylint: disable=too-many-instance-attributes
     edit_menu: Optional[tk.Menu] = None
     undo_button: Optional[tk.Button] = None
     redo_button: Optional[tk.Button] = None
+    add_env_button: Optional[tk.Button] = None
+    remove_env_button: Optional[tk.Button] = None
     pollution_spin: Optional[tk.Spinbox] = None
     print_spin: Optional[tk.Spinbox] = None
     canvas: Optional[tk.Canvas] = None
@@ -333,14 +337,14 @@ class EditorWindow:
         controls = tk.Frame(self._chrome.env_toolbar)
         controls.pack(side=tk.RIGHT)
 
-        add_env_button = self._icon_button(
+        self._chrome.add_env_button = self._icon_button(
             controls,
             image=self._require_icon(action_icon(self._icon_images, "add_env"), "add_env"),
             command=self._add_environment,
             tooltip_key="editor.tooltip.add_env",
         )
-        add_env_button.pack(side=tk.LEFT)
-        remove_env_button = self._icon_button(
+        self._chrome.add_env_button.pack(side=tk.LEFT)
+        self._chrome.remove_env_button = self._icon_button(
             controls,
             image=self._require_icon(
                 action_icon(self._icon_images, "remove_env"), "remove_env"
@@ -348,7 +352,7 @@ class EditorWindow:
             command=self._remove_environment,
             tooltip_key="editor.tooltip.remove_env",
         )
-        remove_env_button.pack(side=tk.LEFT, padx=(4, 0))
+        self._chrome.remove_env_button.pack(side=tk.LEFT, padx=(4, 0))
         reset_env_button = self._icon_button(
             controls,
             image=self._require_icon(
@@ -496,6 +500,7 @@ class EditorWindow:
         self._update_tool_highlight()
         self._update_value_spinners()
         self._update_undo_redo_state()
+        self._update_env_action_buttons_state()
         self.draw_field()
         if self._chrome.todo_label is not None:
             self._chrome.todo_label.configure(
@@ -560,6 +565,15 @@ class EditorWindow:
             self._chrome.edit_menu.entryconfigure(0, state=undo_state)
             self._chrome.edit_menu.entryconfigure(1, state=redo_state)
 
+    def _update_env_action_buttons_state(self) -> None:
+        env_dtos = self._state.document.env_dtos
+        self._chrome.add_env_button.configure(
+            state=tk.NORMAL if can_add_environment(env_dtos) else tk.DISABLED
+        )
+        self._chrome.remove_env_button.configure(
+            state=tk.NORMAL if can_remove_environment(env_dtos) else tk.DISABLED
+        )
+
     def _push_undo_snapshot(self) -> None:
         snapshot = snapshot_from_document(self._state.document)
         if self._state.undo_stack and snapshots_equal(self._state.undo_stack[-1], snapshot):
@@ -614,6 +628,9 @@ class EditorWindow:
         self._mutate(switch)
 
     def _add_environment(self) -> None:
+        if not can_add_environment(self._state.document.env_dtos):
+            return
+
         def add() -> None:
             self._state.document.env_dtos = add_environment(self._state.document.env_dtos)
             self._state.document.selected_env_index = len(self._state.document.env_dtos) - 1
@@ -621,6 +638,9 @@ class EditorWindow:
         self._mutate(add)
 
     def _remove_environment(self) -> None:
+        if not can_remove_environment(self._state.document.env_dtos):
+            return
+
         index = self._state.document.selected_env_index
 
         def remove() -> None:

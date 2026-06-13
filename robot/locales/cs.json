@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Soubor úlohy musí obsahovat alespoň jedno prostředí",
   "editor.error.width_out_of_range": "Šířka pole musí být mezi 1 a {max}",
   "editor.error.height_out_of_range": "Výška pole musí být mezi 1 a {max}",
-  "editor.error.max_env_count": "Je povoleno nejvýše {max} prostředí",
-  "editor.error.cannot_remove_last_env": "Nelze odstranit jediné prostředí",
   "editor.confirm.overwrite_bundled_title": "Přepsat vestavěnou úlohu?",
   "editor.confirm.overwrite_bundled": "Tento soubor je součástí vestavěných úloh Robota. Přepsat jej?"
 }

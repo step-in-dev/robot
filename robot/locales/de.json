@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Die Aufgabendatei muss mindestens eine Umgebung enthalten",
   "editor.error.width_out_of_range": "Die Feldbreite muss zwischen 1 und {max} liegen",
   "editor.error.height_out_of_range": "Die Feldhöhe muss zwischen 1 und {max} liegen",
-  "editor.error.max_env_count": "Es sind höchstens {max} Umgebungen erlaubt",
-  "editor.error.cannot_remove_last_env": "Die einzige Umgebung kann nicht entfernt werden",
   "editor.confirm.overwrite_bundled_title": "Eingebaute Aufgabe überschreiben?",
   "editor.confirm.overwrite_bundled": "Diese Datei ist Teil der eingebauten Robot-Aufgaben. Überschreiben?"
 }

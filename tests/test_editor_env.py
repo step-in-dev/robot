@@ -5,11 +5,14 @@ from __future__ import annotations
 import unittest
 
 from robot.editor_env import (
+    MAX_ENV_COUNT,
     MAX_FIELD_WIDTH,
     CanvasHitContext,
     EnvEditTool,
     add_environment,
     apply_tool_to_env,
+    can_add_environment,
+    can_remove_environment,
     canvas_to_cell,
     remove_environment,
     reset_env_dto,
@@ -79,6 +82,24 @@ class EditorEnvTest(unittest.TestCase):
         self.assertEqual(len(envs), 2)
         envs = remove_environment(envs, 1)
         self.assertEqual(len(envs), 1)
+
+    def test_can_add_environment(self) -> None:
+        self.assertTrue(can_add_environment([self.env]))
+        self.assertTrue(can_add_environment([self.env] * (MAX_ENV_COUNT - 1)))
+        self.assertFalse(can_add_environment([self.env] * MAX_ENV_COUNT))
+
+    def test_can_remove_environment(self) -> None:
+        self.assertFalse(can_remove_environment([self.env]))
+        self.assertTrue(can_remove_environment([self.env, self.env]))
+
+    def test_add_environment_rejects_limit(self) -> None:
+        envs = [self.env] * MAX_ENV_COUNT
+        with self.assertRaises(ValueError):
+            add_environment(envs)
+
+    def test_remove_environment_rejects_last_env(self) -> None:
+        with self.assertRaises(ValueError):
+            remove_environment([self.env], 0)
 
     def test_canvas_to_cell_maps_click_to_cell(self) -> None:
         cell, wall = canvas_to_cell(

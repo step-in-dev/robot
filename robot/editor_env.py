@@ -272,10 +272,20 @@ def apply_tool_to_env(
     return normalize_env_dto_dict(updated)
 
 
+def can_add_environment(env_dtos: List[dict]) -> bool:
+    """Return whether another environment may be appended."""
+    return len(env_dtos) < MAX_ENV_COUNT
+
+
+def can_remove_environment(env_dtos: List[dict]) -> bool:
+    """Return whether an environment may be removed."""
+    return len(env_dtos) > 1
+
+
 def add_environment(env_dtos: List[dict]) -> List[dict]:
     """Append a cloned or default environment."""
-    if len(env_dtos) >= MAX_ENV_COUNT:
-        raise ValueError(t("editor.error.max_env_count", max=MAX_ENV_COUNT))
+    if not can_add_environment(env_dtos):
+        raise ValueError("environment count limit reached")
     if env_dtos:
         env_dtos = env_dtos + [deepcopy(env_dtos[-1])]
     else:
@@ -285,8 +295,8 @@ def add_environment(env_dtos: List[dict]) -> List[dict]:
 
 def remove_environment(env_dtos: List[dict], index: int) -> List[dict]:
     """Remove one environment when more than one exists."""
-    if len(env_dtos) <= 1:
-        raise ValueError(t("editor.error.cannot_remove_last_env"))
+    if not can_remove_environment(env_dtos):
+        raise ValueError("cannot remove the only environment")
     updated = deepcopy(env_dtos)
     updated.pop(index)
     return updated

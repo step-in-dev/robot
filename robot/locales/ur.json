@@ -144,8 +144,6 @@
   "editor.error.no_environments": "کام کی فائل میں کم از کم ایک ماحول ہونا چاہیے",
   "editor.error.width_out_of_range": "میدان کی چوڑائی 1 اور ⁦{max}⁩ کے درمیان ہونی چاہیے",
   "editor.error.height_out_of_range": "میدان کی اونچائی 1 اور ⁦{max}⁩ کے درمیان ہونی چاہیے",
-  "editor.error.max_env_count": "زیادہ سے زیادہ ⁦{max}⁩ ماحول کی اجازت ہے",
-  "editor.error.cannot_remove_last_env": "واحد ماحول حذف نہیں کیا جا سکتا",
   "editor.confirm.overwrite_bundled_title": "شامل شدہ کام کو اووررائٹ کریں؟",
   "editor.confirm.overwrite_bundled": "یہ فائل روبوٹ کے شامل شدہ کاموں کا حصہ ہے۔ کیا اسے اووررائٹ کریں؟"
 }

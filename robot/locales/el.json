@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Το αρχείο εργασίας πρέπει να περιέχει τουλάχιστον ένα περιβάλλον",
   "editor.error.width_out_of_range": "Το πλάτος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
   "editor.error.height_out_of_range": "Το ύψος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
-  "editor.error.max_env_count": "Επιτρέπονται το πολύ {max} περιβάλλοντα",
-  "editor.error.cannot_remove_last_env": "Δεν είναι δυνατή η αφαίρεση του μοναδικού περιβάλλοντος",
   "editor.confirm.overwrite_bundled_title": "Αντικατάσταση ενσωματωμένης εργασίας;",
   "editor.confirm.overwrite_bundled": "Αυτό το αρχείο είναι μέρος των ενσωματωμένων εργασιών του Robot. Να αντικατασταθεί;"
 }

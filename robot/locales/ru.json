@@ -144,8 +144,6 @@
   "editor.error.no_environments": "В файле задачи должна быть хотя бы одна обстановка",
   "editor.error.width_out_of_range": "Ширина поля должна быть от 1 до {max}",
   "editor.error.height_out_of_range": "Высота поля должна быть от 1 до {max}",
-  "editor.error.max_env_count": "Допускается не более {max} обстановок",
-  "editor.error.cannot_remove_last_env": "Нельзя удалить единственную обстановку",
   "editor.confirm.overwrite_bundled_title": "Перезаписать встроенную задачу?",
   "editor.confirm.overwrite_bundled": "Этот файл входит в состав встроенных задач Робота. Перезаписать его?"
 }

@@ -144,8 +144,6 @@
   "editor.error.no_environments": "У файле задачы павінна быць хаця б адна абстановка",
   "editor.error.width_out_of_range": "Шырыня поля павінна быць ад 1 да {max}",
   "editor.error.height_out_of_range": "Вышыня поля павінна быць ад 1 да {max}",
-  "editor.error.max_env_count": "Дапускаецца не больш за {max} абстановак",
-  "editor.error.cannot_remove_last_env": "Нельга выдаліць адзіную абстановку",
   "editor.confirm.overwrite_bundled_title": "Перазапісаць убудаваную задачу?",
   "editor.confirm.overwrite_bundled": "Гэты файл уваходзіць у склад убудаваных задач Робата. Перазапісаць яго?"
 }

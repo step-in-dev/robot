@@ -144,8 +144,6 @@
   "editor.error.no_environments": "يجب أن يحتوي ملف المهمة على بيئة واحدة على الأقل",
   "editor.error.width_out_of_range": "يجب أن يكون عرض الحقل بين 1 و⁦{max}⁩",
   "editor.error.height_out_of_range": "يجب أن يكون ارتفاع الحقل بين 1 و⁦{max}⁩",
-  "editor.error.max_env_count": "يُسمح بحد أقصى ⁦{max}⁩ بيئات",
-  "editor.error.cannot_remove_last_env": "لا يمكن حذف البيئة الوحيدة",
   "editor.confirm.overwrite_bundled_title": "الكتابة فوق مهمة مضمّنة؟",
   "editor.confirm.overwrite_bundled": "هذا الملف جزء من مهام الروبوت المضمّنة. هل تريد الكتابة فوقه؟"
 }

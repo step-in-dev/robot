@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Task file must contain at least one environment",
   "editor.error.width_out_of_range": "Field width must be between 1 and {max}",
   "editor.error.height_out_of_range": "Field height must be between 1 and {max}",
-  "editor.error.max_env_count": "At most {max} environments are allowed",
-  "editor.error.cannot_remove_last_env": "Cannot remove the only environment",
   "editor.confirm.overwrite_bundled_title": "Overwrite bundled task?",
   "editor.confirm.overwrite_bundled": "This file is part of the bundled Robot tasks. Overwrite it?"
 }

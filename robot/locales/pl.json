@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Plik zadania musi zawierać co najmniej jedno środowisko",
   "editor.error.width_out_of_range": "Szerokość pola musi być między 1 a {max}",
   "editor.error.height_out_of_range": "Wysokość pola musi być między 1 a {max}",
-  "editor.error.max_env_count": "Dozwolonych jest najwyżej {max} środowisk",
-  "editor.error.cannot_remove_last_env": "Nie można usunąć jedynego środowiska",
   "editor.confirm.overwrite_bundled_title": "Nadpisać wbudowane zadanie?",
   "editor.confirm.overwrite_bundled": "Ten plik jest częścią wbudowanych zadań Robota. Nadpisać go?"
 }

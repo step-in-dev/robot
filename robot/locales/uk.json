@@ -144,8 +144,6 @@
   "editor.error.no_environments": "У файлі задачі має бути хоча б одне середовище",
   "editor.error.width_out_of_range": "Ширина поля має бути від 1 до {max}",
   "editor.error.height_out_of_range": "Висота поля має бути від 1 до {max}",
-  "editor.error.max_env_count": "Допускається не більше {max} середовищ",
-  "editor.error.cannot_remove_last_env": "Не можна видалити єдине середовище",
   "editor.confirm.overwrite_bundled_title": "Перезаписати вбудовану задачу?",
   "editor.confirm.overwrite_bundled": "Цей файл входить до складу вбудованих задач Робота. Перезаписати його?"
 }

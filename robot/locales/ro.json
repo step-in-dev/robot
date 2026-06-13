@@ -144,8 +144,6 @@
   "editor.error.no_environments": "Fișierul sarcinii trebuie să conțină cel puțin un mediu",
   "editor.error.width_out_of_range": "Lățimea câmpului trebuie să fie între 1 și {max}",
   "editor.error.height_out_of_range": "Înălțimea câmpului trebuie să fie între 1 și {max}",
-  "editor.error.max_env_count": "Sunt permise cel mult {max} medii",
-  "editor.error.cannot_remove_last_env": "Nu se poate elimina singurul mediu",
   "editor.confirm.overwrite_bundled_title": "Suprascrieți sarcina inclusă?",
   "editor.confirm.overwrite_bundled": "Acest fișier face parte din sarcinile incluse ale Robotului. Să fie suprascris?"
 }
