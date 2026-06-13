@@ -48,6 +48,25 @@ def _find_first_entry_widget(parent: tk.Misc) -> tk.Entry | None:
     return None
 
 
+def _invoke_first_button(parent: tk.Misc) -> bool:
+    for child in parent.winfo_children():
+        if isinstance(child, tk.Button):
+            child.invoke()
+            return True
+        if _invoke_first_button(child):
+            return True
+    return False
+
+
+def _wait_window_then_click_ok(
+    dialog: tk.Toplevel,
+    original_wait_window,
+) -> None:
+    if _invoke_first_button(dialog):
+        return
+    original_wait_window(dialog)
+
+
 @requires_tk_display
 class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_undo_redo_restores_previous_state(self) -> None:
@@ -523,16 +542,8 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
         with withdrawn_root() as root:
             original_wait_window = tk.Toplevel.wait_window
 
-            def wait_then_click_ok(dialog_self: tk.Toplevel) -> None:
-                for frame in dialog_self.winfo_children():
-                    for widget in frame.winfo_children():
-                        if not isinstance(widget, tk.Frame):
-                            continue
-                        for button in widget.winfo_children():
-                            if isinstance(button, tk.Button):
-                                button.invoke()
-                                return
-                original_wait_window(dialog_self)
+            def wait_then_click_ok(dialog: tk.Toplevel) -> None:
+                _wait_window_then_click_ok(dialog, original_wait_window)
 
             with patch(
                 "robot.gui_editor_constraints.parse_constraint_field_input",
