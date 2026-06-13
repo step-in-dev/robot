@@ -145,5 +145,15 @@
   "editor.error.width_out_of_range": "필드 너비는 1에서 {max} 사이여야 합니다",
   "editor.error.height_out_of_range": "필드 높이는 1에서 {max} 사이여야 합니다",
   "editor.confirm.overwrite_bundled_title": "내장 작업을 덮어쓸까요?",
-  "editor.confirm.overwrite_bundled": "이 파일은 로봇의 내장 작업에 포함되어 있습니다. 덮어쓸까요?"
+  "editor.confirm.overwrite_bundled": "이 파일은 로봇의 내장 작업에 포함되어 있습니다. 덮어쓸까요?",
+  "editor.edit_constraints_title": "과제 제한",
+  "editor.tooltip.constraints": "과제 제한 편집",
+  "editor.constraints.ok": "확인",
+  "editor.constraints.cancel": "취소",
+  "editor.constraints.field.operators_limit": "최대 로봇 명령 및 함수 호출",
+  "editor.constraints.field.custom_function_call_count": "최소 사용자 정의 함수 호출",
+  "editor.constraints.field.if_limit": "최대 'if' 키워드",
+  "editor.constraints.field.while_limit": "최대 'while' 키워드",
+  "editor.constraints.field.required_keywords": "필수 키워드(쉼표로 구분)",
+  "editor.constraints.field.banned_keywords": "금지 키워드(쉼표로 구분)"
 }

@@ -23,7 +23,7 @@ embedded editor (`SidWebUi/.../embedded-env-editor`).
 | Stroke / outline | `#ffffff` |
 | Remove cross | `orange` (`#ffa500`) |
 
-Utility icons (add/remove env, reset, todo, undo, redo) are original dark-gray
+Utility icons (add/remove env, reset, todo, constraints, undo, redo) are original dark-gray
 (`#374151`) glyphs drawn for this project. They are not derived from any
 third-party icon set, so no external attribution is required.
 
@@ -50,6 +50,7 @@ Roboto being installed.
 | `editor_remove_env.png` | Original SVG (minus) | Remove environment (`-`) |
 | `editor_reset_env.png` | Original SVG (eraser) | Reset environment |
 | `editor_todo.png` | Original SVG (list) | Edit task condition |
+| `editor_constraints.png` | Original SVG (sliders) | Edit task constraints |
 | `editor_undo.png` | Original SVG (undo) | Undo |
 | `editor_redo.png` | Original SVG (redo) | Redo |
 

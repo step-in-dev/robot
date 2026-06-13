@@ -145,5 +145,15 @@
   "editor.error.width_out_of_range": "場地寬度必須介於 1 和 {max} 之間",
   "editor.error.height_out_of_range": "場地高度必須介於 1 和 {max} 之間",
   "editor.confirm.overwrite_bundled_title": "覆寫內建任務？",
-  "editor.confirm.overwrite_bundled": "此檔案屬於機器人內建任務的一部分。要覆寫它嗎？"
+  "editor.confirm.overwrite_bundled": "此檔案屬於機器人內建任務的一部分。要覆寫它嗎？",
+  "editor.edit_constraints_title": "任務限制",
+  "editor.tooltip.constraints": "編輯任務限制",
+  "editor.constraints.ok": "確定",
+  "editor.constraints.cancel": "取消",
+  "editor.constraints.field.operators_limit": "機器人命令與函式呼叫的最大次數",
+  "editor.constraints.field.custom_function_call_count": "自訂函式呼叫的最小次數",
+  "editor.constraints.field.if_limit": "「if」關鍵字的最大次數",
+  "editor.constraints.field.while_limit": "「while」關鍵字的最大次數",
+  "editor.constraints.field.required_keywords": "必要關鍵字（以逗號分隔）",
+  "editor.constraints.field.banned_keywords": "禁止關鍵字（以逗號分隔）"
 }

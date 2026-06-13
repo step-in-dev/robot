@@ -145,5 +145,15 @@
   "editor.error.width_out_of_range": "La largeur du champ doit être comprise entre 1 et {max}",
   "editor.error.height_out_of_range": "La hauteur du champ doit être comprise entre 1 et {max}",
   "editor.confirm.overwrite_bundled_title": "Écraser une tâche intégrée ?",
-  "editor.confirm.overwrite_bundled": "Ce fichier fait partie des tâches Robot intégrées. L'écraser ?"
+  "editor.confirm.overwrite_bundled": "Ce fichier fait partie des tâches Robot intégrées. L'écraser ?",
+  "editor.edit_constraints_title": "Contraintes de la tâche",
+  "editor.tooltip.constraints": "Modifier les contraintes de la tâche",
+  "editor.constraints.ok": "OK",
+  "editor.constraints.cancel": "Annuler",
+  "editor.constraints.field.operators_limit": "Max. commandes d'action et appels de fonctions",
+  "editor.constraints.field.custom_function_call_count": "Min. appels de fonctions définies",
+  "editor.constraints.field.if_limit": "Max. mot-clé « if »",
+  "editor.constraints.field.while_limit": "Max. mot-clé « while »",
+  "editor.constraints.field.required_keywords": "Mots-clés requis (séparés par des virgules)",
+  "editor.constraints.field.banned_keywords": "Mots-clés interdits (séparés par des virgules)"
 }

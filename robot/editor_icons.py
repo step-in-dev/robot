@@ -31,6 +31,7 @@ ACTION_ICON_STEMS = {
     "remove_env": "editor_remove_env",
     "reset_env": "editor_reset_env",
     "todo": "editor_todo",
+    "constraints": "editor_constraints",
     "undo": "editor_undo",
     "redo": "editor_redo",
 }

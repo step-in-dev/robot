@@ -9,7 +9,17 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .i18n import DEFAULT_LANGUAGE, detect_language, normalize_language, t
-from .loader import TaskLoadError, parse_task_payload
+from .loader import (
+    ScriptConstraints,
+    TaskLoadError,
+    parse_custom_function_call_count,
+    parse_if_limit,
+    parse_keyword_list,
+    parse_operators_limit,
+    parse_task_payload,
+    parse_while_limit,
+    validate_keyword_lists,
+)
 from .model import (
     Cell,
     RobotEnvDto,
@@ -21,12 +31,35 @@ TASK_FILE_EXTENSION = ".env"
 
 _EDITABLE_TOP_LEVEL_KEYS = frozenset({"envDtos", "todoText"})
 
+_CONSTRAINT_JSON_KEYS = (
+    "operatorsLimit",
+    "customFunctionCallCount",
+    "ifLimit",
+    "whileLimit",
+    "requiredKeywords",
+    "bannedKeywords",
+)
+
+_EDITOR_CONSTRAINT_PATH = Path("<editor>")
+
 _DEFAULT_WIDTH = 5
 _DEFAULT_HEIGHT = 5
 
 
 class TaskSaveError(Exception):
     """Raised when a task file cannot be written."""
+
+
+@dataclass
+class ConstraintFieldInput:
+    """Raw constraint field values from the editor dialog."""
+
+    operators_limit: str = ""
+    custom_function_call_count: str = ""
+    if_limit: str = ""
+    while_limit: str = ""
+    required_keywords: str = ""
+    banned_keywords: str = ""
 
 
 @dataclass
@@ -184,6 +217,168 @@ def save_task_file(path: Path, document: EditorDocument) -> None:
     document.file_path = path
 
 
+def _constraint_snapshot_slice(preserved_fields: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        key: deepcopy(preserved_fields[key])
+        for key in _CONSTRAINT_JSON_KEYS
+        if key in preserved_fields
+    }
+
+
+def _apply_constraint_snapshot_slice(
+    preserved_fields: Dict[str, Any],
+    snapshot_slice: Dict[str, Any],
+) -> None:
+    for key in _CONSTRAINT_JSON_KEYS:
+        preserved_fields.pop(key, None)
+    preserved_fields.update(deepcopy(snapshot_slice))
+
+
+def constraint_field_display_values(preserved_fields: Dict[str, Any]) -> Dict[str, str]:
+    """Return dialog initial values for all supported constraint fields."""
+    values = {
+        "operators_limit": "",
+        "custom_function_call_count": "",
+        "if_limit": "",
+        "while_limit": "",
+        "required_keywords": "",
+        "banned_keywords": "",
+    }
+    int_keys = {
+        "operators_limit": "operatorsLimit",
+        "custom_function_call_count": "customFunctionCallCount",
+        "if_limit": "ifLimit",
+        "while_limit": "whileLimit",
+    }
+    for field_name, json_key in int_keys.items():
+        raw = preserved_fields.get(json_key)
+        if raw is not None:
+            values[field_name] = str(raw)
+    for field_name, json_key in (
+        ("required_keywords", "requiredKeywords"),
+        ("banned_keywords", "bannedKeywords"),
+    ):
+        raw = preserved_fields.get(json_key)
+        if isinstance(raw, str):
+            values[field_name] = raw
+    return values
+
+
+def _parse_optional_dialog_int(raw: str, invalid_message_key: str) -> Optional[int]:
+    stripped = raw.strip()
+    if not stripped:
+        return None
+    try:
+        value = int(stripped)
+    except ValueError as exc:
+        raise ValueError(
+            t(invalid_message_key, task_path=_EDITOR_CONSTRAINT_PATH)
+        ) from exc
+    if value < 0:
+        raise ValueError(
+            t(invalid_message_key, task_path=_EDITOR_CONSTRAINT_PATH)
+        )
+    return value
+
+
+def parse_constraint_field_input(fields: ConstraintFieldInput) -> ScriptConstraints:
+    """Parse and validate constraint dialog input.
+
+    Raises :class:`ValueError` with a localized message when validation fails.
+    """
+    data: Dict[str, Any] = {}
+    for json_key, raw, invalid_message_key in (
+        ("operatorsLimit", fields.operators_limit, "loader.operators_limit_invalid"),
+        (
+            "customFunctionCallCount",
+            fields.custom_function_call_count,
+            "loader.custom_function_call_count_invalid",
+        ),
+        ("ifLimit", fields.if_limit, "loader.if_limit_invalid"),
+        ("whileLimit", fields.while_limit, "loader.while_limit_invalid"),
+    ):
+        value = _parse_optional_dialog_int(raw, invalid_message_key)
+        if value is not None:
+            data[json_key] = value
+    for json_key, raw in (
+        ("requiredKeywords", fields.required_keywords),
+        ("bannedKeywords", fields.banned_keywords),
+    ):
+        stripped = raw.strip()
+        if stripped:
+            data[json_key] = stripped
+    try:
+        operators_limit = parse_operators_limit(data, _EDITOR_CONSTRAINT_PATH)
+        custom_function_call_count = parse_custom_function_call_count(
+            data, _EDITOR_CONSTRAINT_PATH
+        )
+        if_limit = parse_if_limit(data, _EDITOR_CONSTRAINT_PATH)
+        while_limit = parse_while_limit(data, _EDITOR_CONSTRAINT_PATH)
+        required_keywords = parse_keyword_list(
+            data,
+            _EDITOR_CONSTRAINT_PATH,
+            field_name="requiredKeywords",
+            invalid_message_key="loader.required_keywords_invalid",
+        )
+        banned_keywords = parse_keyword_list(
+            data,
+            _EDITOR_CONSTRAINT_PATH,
+            field_name="bannedKeywords",
+            invalid_message_key="loader.banned_keywords_invalid",
+        )
+        validate_keyword_lists(
+            required_keywords,
+            banned_keywords,
+            _EDITOR_CONSTRAINT_PATH,
+        )
+    except TaskLoadError as exc:
+        raise ValueError(str(exc)) from exc
+    return ScriptConstraints(
+        operators_limit=operators_limit,
+        custom_function_call_count=custom_function_call_count,
+        if_limit=if_limit,
+        while_limit=while_limit,
+        required_keywords=required_keywords,
+        banned_keywords=banned_keywords,
+    )
+
+
+def _write_parsed_constraints_to_preserved(
+    preserved_fields: Dict[str, Any],
+    constraints: ScriptConstraints,
+) -> None:
+    for key in _CONSTRAINT_JSON_KEYS:
+        preserved_fields.pop(key, None)
+    if constraints.operators_limit is not None:
+        preserved_fields["operatorsLimit"] = constraints.operators_limit
+    if constraints.custom_function_call_count is not None:
+        preserved_fields["customFunctionCallCount"] = (
+            constraints.custom_function_call_count
+        )
+    if constraints.if_limit is not None:
+        preserved_fields["ifLimit"] = constraints.if_limit
+    if constraints.while_limit is not None:
+        preserved_fields["whileLimit"] = constraints.while_limit
+    if constraints.required_keywords:
+        preserved_fields["requiredKeywords"] = ", ".join(
+            constraints.required_keywords
+        )
+    if constraints.banned_keywords:
+        preserved_fields["bannedKeywords"] = ", ".join(constraints.banned_keywords)
+
+
+def apply_constraint_fields_to_preserved(
+    preserved_fields: Dict[str, Any],
+    fields: ConstraintFieldInput,
+) -> None:
+    """Validate dialog input and update ``preserved_fields`` constraint keys.
+
+    Raises :class:`ValueError` with a localized message when validation fails.
+    """
+    constraints = parse_constraint_field_input(fields)
+    _write_parsed_constraints_to_preserved(preserved_fields, constraints)
+
+
 def update_todo_text(todo_raw: Any, new_text: str) -> Any:
     """Update display todo text while preserving localized maps when possible."""
     if isinstance(todo_raw, dict):
@@ -205,6 +400,9 @@ def snapshot_from_document(document: EditorDocument) -> dict:
         "envDtos": deepcopy(document.env_dtos),
         "selectedEnvIndex": document.selected_env_index,
         "todoText": deepcopy(document.todo_text),
+        "preservedConstraints": _constraint_snapshot_slice(
+            document.preserved_fields
+        ),
     }
 
 
@@ -213,6 +411,10 @@ def apply_snapshot(document: EditorDocument, snapshot: dict) -> None:
     document.env_dtos = normalize_env_dtos(deepcopy(snapshot["envDtos"]))
     document.selected_env_index = int(snapshot["selectedEnvIndex"])
     document.todo_text = deepcopy(snapshot.get("todoText", ""))
+    _apply_constraint_snapshot_slice(
+        document.preserved_fields,
+        deepcopy(snapshot.get("preservedConstraints", {})),
+    )
 
 
 def snapshots_equal(left: dict, right: dict) -> bool:

@@ -10,15 +10,21 @@ from unittest.mock import patch
 
 from robot.i18n import clear_translation_cache
 from robot.task_serializer import (
+    ConstraintFieldInput,
     EditorDocument,
     TaskSaveError,
+    apply_constraint_fields_to_preserved,
+    apply_snapshot,
     bundled_tasks_dir,
+    constraint_field_display_values,
     create_default_env_dto,
     create_empty_document,
     document_to_payload,
     is_bundled_task_path,
     load_task_file,
+    parse_constraint_field_input,
     save_task_file,
+    snapshot_from_document,
     update_todo_text,
 )
 
@@ -95,6 +101,73 @@ class TaskSerializerTest(unittest.TestCase):
         payload = document_to_payload(document)
         self.assertNotIn("todoText", payload)
         self.assertEqual(payload["operatorsLimit"], 1)
+
+    def test_constraint_field_display_values_reads_preserved_fields(self) -> None:
+        preserved = {
+            "operatorsLimit": 4,
+            "requiredKeywords": "for, while",
+        }
+        values = constraint_field_display_values(preserved)
+        self.assertEqual(values["operators_limit"], "4")
+        self.assertEqual(values["required_keywords"], "for, while")
+        self.assertEqual(values["if_limit"], "")
+
+    def test_apply_constraint_fields_to_preserved_updates_and_clears(self) -> None:
+        preserved = {
+            "operatorsLimit": 1,
+            "ifLimit": 2,
+            "requiredKeywords": "for",
+        }
+        apply_constraint_fields_to_preserved(
+            preserved,
+            ConstraintFieldInput(
+                operators_limit="5",
+                custom_function_call_count="",
+                if_limit="",
+                while_limit="3",
+                required_keywords="def",
+                banned_keywords="while",
+            ),
+        )
+        self.assertEqual(preserved["operatorsLimit"], 5)
+        self.assertNotIn("ifLimit", preserved)
+        self.assertEqual(preserved["whileLimit"], 3)
+        self.assertEqual(preserved["requiredKeywords"], "def")
+        self.assertEqual(preserved["bannedKeywords"], "while")
+
+    def test_parse_constraint_field_input_parses_values(self) -> None:
+        constraints = parse_constraint_field_input(
+            ConstraintFieldInput(
+                operators_limit="2",
+                custom_function_call_count="1",
+                if_limit="",
+                while_limit="",
+                required_keywords="for",
+                banned_keywords="",
+            )
+        )
+        self.assertEqual(constraints.operators_limit, 2)
+        self.assertEqual(constraints.custom_function_call_count, 1)
+        self.assertEqual(constraints.required_keywords, ("for",))
+
+    def test_parse_constraint_field_input_rejects_invalid_operators_limit(
+        self,
+    ) -> None:
+        with self.assertRaises(ValueError):
+            parse_constraint_field_input(
+                ConstraintFieldInput(operators_limit="bad")
+            )
+
+    def test_snapshot_round_trip_preserves_constraints(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            preserved_fields={"operatorsLimit": 9, "bannedKeywords": "while"},
+        )
+        snapshot = snapshot_from_document(document)
+        document.preserved_fields.clear()
+        apply_snapshot(document, snapshot)
+        self.assertEqual(document.preserved_fields["operatorsLimit"], 9)
+        self.assertEqual(document.preserved_fields["bannedKeywords"], "while")
 
 
 if __name__ == "__main__":

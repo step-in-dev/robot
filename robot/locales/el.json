@@ -145,5 +145,15 @@
   "editor.error.width_out_of_range": "Το πλάτος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
   "editor.error.height_out_of_range": "Το ύψος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
   "editor.confirm.overwrite_bundled_title": "Αντικατάσταση ενσωματωμένης εργασίας;",
-  "editor.confirm.overwrite_bundled": "Αυτό το αρχείο είναι μέρος των ενσωματωμένων εργασιών του Robot. Να αντικατασταθεί;"
+  "editor.confirm.overwrite_bundled": "Αυτό το αρχείο είναι μέρος των ενσωματωμένων εργασιών του Robot. Να αντικατασταθεί;",
+  "editor.edit_constraints_title": "Περιορισμοί εργασίας",
+  "editor.tooltip.constraints": "Επεξεργασία περιορισμών εργασίας",
+  "editor.constraints.ok": "OK",
+  "editor.constraints.cancel": "Ακύρωση",
+  "editor.constraints.field.operators_limit": "Μέγ. εντολές ρομπότ και κλήσεις συναρτήσεων",
+  "editor.constraints.field.custom_function_call_count": "Ελάχ. κλήσεις δικών συναρτήσεων",
+  "editor.constraints.field.if_limit": "Μέγ. λέξη-κλειδί 'if'",
+  "editor.constraints.field.while_limit": "Μέγ. λέξη-κλειδί 'while'",
+  "editor.constraints.field.required_keywords": "Απαιτούμενες λέξεις-κλειδιά (διαχωρισμένες με κόμμα)",
+  "editor.constraints.field.banned_keywords": "Απαγορευμένες λέξεις-κλειδιά (διαχωρισμένες με κόμμα)"
 }

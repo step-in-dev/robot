@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import List, Optional
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import messagebox, simpledialog
 
 from ._version import __version__
 from .editor_env import (
@@ -46,21 +45,22 @@ from .gui_theme import (
     TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from .gui_editor_constraints import (
+    _ConstraintsDialogState,
+    prompt_edit_constraints,
+)
+from .gui_editor_file import EditorFileMixin
 from .gui_tooltip import bind_tooltip
 from .i18n import t
-from .loader import TaskLoadError, resolve_todo_text
+from .loader import resolve_todo_text
 from .model import RobotEnv
 from .task_serializer import (
-    TASK_FILE_EXTENSION,
     EditorDocument,
+    apply_constraint_fields_to_preserved,
     apply_snapshot,
     create_empty_document,
-    is_bundled_task_path,
-    load_task_file,
-    save_task_file,
     snapshot_from_document,
     snapshots_equal,
-    TaskSaveError,
     update_todo_text,
 )
 from .tk_util import destroy_tk_root, pack_fill_host, widget_reqheight
@@ -98,6 +98,7 @@ class _EditorChrome:  # pylint: disable=too-many-instance-attributes
     todo_label: Optional[tk.Label] = None
     todo_section: Optional[tk.Frame] = None
     todo_edit_button: Optional[tk.Button] = None
+    constraints_edit_button: Optional[tk.Button] = None
     task_toolbar: Optional[tk.Frame] = None
     env_tabs_bar: Optional[tk.Frame] = None
     tab_frame: Optional[tk.Frame] = None
@@ -121,6 +122,9 @@ class _EditorChrome:  # pylint: disable=too-many-instance-attributes
     renderer: Optional[FieldRenderer] = None
     tool_buttons: dict = field(default_factory=dict)
     tab_buttons: List[tk.Button] = field(default_factory=list)
+    constraints_dialog_state: _ConstraintsDialogState = field(
+        default_factory=_ConstraintsDialogState
+    )
 
 
 @dataclass
@@ -133,7 +137,7 @@ class _EditorVars:
     height_var: tk.IntVar
 
 
-class EditorWindow:
+class EditorWindow(EditorFileMixin):
     """Standalone environment editor window."""
 
     def __init__(self, document: Optional[EditorDocument] = None) -> None:
@@ -189,6 +193,13 @@ class EditorWindow:
         """Close the editor window."""
         if self.is_closed:
             return
+        dialog = self._chrome.constraints_dialog_state.dialog
+        if dialog is not None:
+            try:
+                dialog.destroy()
+            except tk.TclError:
+                pass
+            self._chrome.constraints_dialog_state.dialog = None
         self._is_closed = True
         destroy_tk_root(self.root)
 
@@ -209,57 +220,6 @@ class EditorWindow:
 
     def _current_env_preview(self) -> RobotEnv:
         return self._layout.envs[self._state.document.selected_env_index]
-
-    def _build_menu(self) -> None:
-        menubar = tk.Menu(self.root)
-        file_menu = tk.Menu(menubar, tearoff=0)
-        file_menu.add_command(
-            label=t("editor.menu.open"),
-            command=self._menu_open,
-            accelerator="Ctrl+O",
-        )
-        file_menu.add_command(
-            label=t("editor.menu.save"),
-            command=self._menu_save,
-            accelerator="Ctrl+S",
-        )
-        file_menu.add_command(
-            label=t("editor.menu.save_as"),
-            command=self._menu_save_as,
-            accelerator="Ctrl+Shift+S",
-        )
-        file_menu.add_separator()
-        file_menu.add_command(label=t("editor.menu.exit"), command=self.close)
-        menubar.add_cascade(label=t("editor.menu.file"), menu=file_menu)
-
-        self._chrome.edit_menu = tk.Menu(menubar, tearoff=0)
-        self._chrome.edit_menu.add_command(
-            label=t("editor.menu.undo"),
-            command=self.undo,
-            accelerator="Ctrl+Z",
-        )
-        self._chrome.edit_menu.add_command(
-            label=t("editor.menu.redo"),
-            command=self.redo,
-            accelerator="Ctrl+Y",
-        )
-        menubar.add_cascade(label=t("editor.menu.edit"), menu=self._chrome.edit_menu)
-        self.root.config(menu=menubar)
-
-        self.root.bind("<Control-o>", lambda _event: self._menu_open())
-        self.root.bind("<Control-O>", lambda _event: self._menu_open())
-        self.root.bind("<Control-s>", lambda _event: self._menu_save())
-        self.root.bind("<Control-S>", lambda _event: self._menu_save())
-        self.root.bind(
-            "<Control-Shift-S>", lambda _event: self._menu_save_as()
-        )
-        self.root.bind(
-            "<Control-Shift-s>", lambda _event: self._menu_save_as()
-        )
-        self.root.bind("<Control-z>", lambda _event: self.undo())
-        self.root.bind("<Control-Z>", lambda _event: self.undo())
-        self.root.bind("<Control-y>", lambda _event: self.redo())
-        self.root.bind("<Control-Y>", lambda _event: self.redo())
 
     def _icon_button(
         self,
@@ -507,6 +467,16 @@ class EditorWindow:
             tooltip_key="editor.tooltip.todo",
         )
         self._chrome.todo_edit_button.pack(side=tk.LEFT, padx=(8, 0))
+
+        self._chrome.constraints_edit_button = self._icon_button(
+            toolbar,
+            image=self._require_icon(
+                action_icon(self._icon_images, "constraints"), "constraints"
+            ),
+            command=self._edit_constraints,
+            tooltip_key="editor.tooltip.constraints",
+        )
+        self._chrome.constraints_edit_button.pack(side=tk.LEFT, padx=(4, 0))
 
         self._chrome.undo_button = self._icon_button(
             toolbar,
@@ -867,6 +837,25 @@ class EditorWindow:
 
         self._mutate(edit)
 
+    def _edit_constraints(self) -> None:
+        if self.is_closed:
+            return
+        fields = prompt_edit_constraints(
+            self.root,
+            self._state.document.preserved_fields,
+            self._chrome.constraints_dialog_state,
+        )
+        if fields is None:
+            return
+
+        def edit() -> None:
+            apply_constraint_fields_to_preserved(
+                self._state.document.preserved_fields,
+                fields,
+            )
+
+        self._mutate(edit, full_refresh=False)
+
     def _on_canvas_click(self, event: tk.Event) -> None:
         env = self._current_env_dict()
         half_wall = _WALL_WIDTH // 2
@@ -912,86 +901,3 @@ class EditorWindow:
                 )
 
         self._mutate(apply_click, full_refresh=False)
-
-    def _confirm_bundled_overwrite(self, path: Path) -> bool:
-        if not is_bundled_task_path(path):
-            return True
-        return messagebox.askyesno(
-            t("editor.confirm.overwrite_bundled_title"),
-            t("editor.confirm.overwrite_bundled"),
-            parent=self.root,
-        )
-
-    def _menu_open(self) -> None:
-        if self.is_closed:
-            return
-        path = filedialog.askopenfilename(
-            parent=self.root,
-            title=t("editor.dialog.open_title"),
-            filetypes=[
-                (t("editor.dialog.env_files"), f"*{TASK_FILE_EXTENSION}"),
-                (t("editor.dialog.all_files"), "*.*"),
-            ],
-        )
-        if not path:
-            return
-        try:
-            document = load_task_file(Path(path))
-        except (TaskLoadError, ValueError) as exc:
-            messagebox.showerror(
-                t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=self.root
-            )
-            return
-        self._load_document(document)
-
-    def _load_document(self, document: EditorDocument) -> None:
-        self._state.document = document
-        self._state.undo_stack.clear()
-        self._state.redo_stack.clear()
-        self._refresh_all()
-
-    def _menu_save(self) -> None:
-        if self.is_closed:
-            return
-        if self._state.document.file_path is None:
-            self._menu_save_as()
-            return
-        if not self._confirm_bundled_overwrite(self._state.document.file_path):
-            return
-        self._save_to_path(self._state.document.file_path)
-
-    def _menu_save_as(self) -> None:
-        if self.is_closed:
-            return
-        path = filedialog.asksaveasfilename(
-            parent=self.root,
-            title=t("editor.dialog.save_title"),
-            defaultextension=TASK_FILE_EXTENSION,
-            filetypes=[
-                (t("editor.dialog.env_files"), f"*{TASK_FILE_EXTENSION}"),
-                (t("editor.dialog.all_files"), "*.*"),
-            ],
-        )
-        if not path:
-            return
-        target = Path(path)
-        if not self._confirm_bundled_overwrite(target):
-            return
-        self._save_to_path(target)
-
-    def _save_to_path(self, path: Path) -> None:
-        if self.is_closed:
-            return
-        try:
-            save_task_file(path, self._state.document)
-        except ValueError as exc:
-            messagebox.showerror(
-                t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=self.root
-            )
-            return
-        except TaskSaveError as exc:
-            messagebox.showerror(
-                t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=self.root
-            )
-            return
-        self.root.title(self._window_title())

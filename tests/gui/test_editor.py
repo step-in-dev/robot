@@ -12,14 +12,19 @@ import tkinter as tk
 
 from robot.editor_env import EnvEditTool, apply_tool_to_env
 from robot.gui_editor import EditorWindow
-from robot.model import Cell
+from robot.gui_editor_constraints import (
+    _ConstraintsDialogState,
+    prompt_edit_constraints,
+)
 from robot.task_serializer import (
+    ConstraintFieldInput,
     EditorDocument,
     TaskSaveError,
     bundled_tasks_dir,
     create_default_env_dto,
     create_empty_document,
 )
+from robot.model import Cell
 
 from ._helpers import GuiTestCase, requires_tk_display
 
@@ -202,13 +207,39 @@ class _EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-met
     def expected_todo_wraplength(self) -> int:
         return max(self._layout.canvas_width, 320)
 
+    def edit_constraints(self, **values: str) -> None:
+        fields = ConstraintFieldInput(**values)
+        with patch(
+            "robot.gui_editor.prompt_edit_constraints",
+            return_value=fields,
+        ):
+            self._edit_constraints()
+
+    def constraints_button(self) -> tk.Button:
+        assert self._chrome.constraints_edit_button is not None
+        return self._chrome.constraints_edit_button
+
+    def cancel_edit_constraints(self) -> None:
+        with patch(
+            "robot.gui_editor.prompt_edit_constraints",
+            return_value=None,
+        ):
+            self._edit_constraints()
+
+    def toolbar_slaves_after_todo(self) -> list:
+        assert self._chrome.task_toolbar is not None
+        assert self._chrome.todo_edit_button is not None
+        slaves = list(self._chrome.task_toolbar.pack_slaves())
+        todo_index = slaves.index(self._chrome.todo_edit_button)
+        return slaves[todo_index + 1 :]
+
 
 def _make_editor_window() -> _EditorWindowHarness:
     return _EditorWindowHarness(create_empty_document())
 
 
 @requires_tk_display
-class EditorWindowTest(GuiTestCase):
+class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_undo_redo_restores_previous_state(self) -> None:
         window = _make_editor_window()
         try:
@@ -280,7 +311,7 @@ class EditorWindowTest(GuiTestCase):
             window = _make_editor_window()
             try:
                 with patch(
-                    "robot.gui_editor.filedialog.askopenfilename",
+                    "robot.gui_editor_file.filedialog.askopenfilename",
                     return_value=str(path),
                 ):
                     window.open_via_menu()
@@ -298,7 +329,7 @@ class EditorWindowTest(GuiTestCase):
             window = _make_editor_window()
             try:
                 with patch(
-                    "robot.gui_editor.filedialog.asksaveasfilename",
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
                     return_value=str(save_path),
                 ):
                     window.save_as_via_menu()
@@ -313,13 +344,13 @@ class EditorWindowTest(GuiTestCase):
         try:
             bundled_path = bundled_tasks_dir() / "intro1.env"
             with patch(
-                "robot.gui_editor.filedialog.asksaveasfilename",
+                "robot.gui_editor_file.filedialog.asksaveasfilename",
                 return_value=str(bundled_path),
             ), patch(
-                "robot.gui_editor.messagebox.askyesno",
+                "robot.gui_editor_file.messagebox.askyesno",
                 return_value=False,
             ) as askyesno, patch(
-                "robot.gui_editor.save_task_file"
+                "robot.gui_editor_file.save_task_file"
             ) as save_mock:
                 window.save_as_via_menu()
             askyesno.assert_called_once()
@@ -333,12 +364,12 @@ class EditorWindowTest(GuiTestCase):
             try:
                 save_path = Path(temp_dir) / "new.env"
                 with patch(
-                    "robot.gui_editor.save_task_file",
+                    "robot.gui_editor_file.save_task_file",
                     side_effect=TaskSaveError("cannot save"),
                 ), patch(
-                    "robot.gui_editor.messagebox.showerror"
+                    "robot.gui_editor_file.messagebox.showerror"
                 ) as showerror, patch(
-                    "robot.gui_editor.filedialog.asksaveasfilename",
+                    "robot.gui_editor_file.filedialog.asksaveasfilename",
                     return_value=str(save_path),
                 ):
                     window.save_as_via_menu()
@@ -353,9 +384,9 @@ class EditorWindowTest(GuiTestCase):
                 window.document.file_path = Path(temp_dir) / "existing.env"
                 window.close()
                 with patch(
-                    "robot.gui_editor.filedialog.asksaveasfilename"
+                    "robot.gui_editor_file.filedialog.asksaveasfilename"
                 ) as asksaveasfilename, patch(
-                    "robot.gui_editor.save_task_file"
+                    "robot.gui_editor_file.save_task_file"
                 ) as save_mock:
                     window.save_via_menu()
                     window.save_as_via_menu()
@@ -509,6 +540,114 @@ class EditorWindowTest(GuiTestCase):
             )
         finally:
             window.close()
+
+    def test_constraints_button_follows_todo_button(self) -> None:
+        window = _make_editor_window()
+        try:
+            following = window.toolbar_slaves_after_todo()
+            self.assertEqual(following[0], window.constraints_button())
+        finally:
+            window.close()
+
+    def test_edit_constraints_updates_preserved_fields(self) -> None:
+        window = _make_editor_window()
+        try:
+            window.edit_constraints(
+                operators_limit="5",
+                custom_function_call_count="2",
+                if_limit="1",
+                while_limit="0",
+                required_keywords="for, def",
+                banned_keywords="while",
+            )
+            preserved = window.document.preserved_fields
+            self.assertEqual(preserved["operatorsLimit"], 5)
+            self.assertEqual(preserved["customFunctionCallCount"], 2)
+            self.assertEqual(preserved["ifLimit"], 1)
+            self.assertEqual(preserved["whileLimit"], 0)
+            self.assertEqual(preserved["requiredKeywords"], "def, for")
+            self.assertEqual(preserved["bannedKeywords"], "while")
+        finally:
+            window.close()
+
+    def test_edit_constraints_cancel_leaves_document_unchanged(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            preserved_fields={"operatorsLimit": 3},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.cancel_edit_constraints()
+            self.assertEqual(window.document.preserved_fields["operatorsLimit"], 3)
+            undo_state, redo_state = window.undo_redo_states()
+            self.assertEqual(undo_state, tk.DISABLED)
+            self.assertEqual(redo_state, tk.DISABLED)
+        finally:
+            window.close()
+
+    def test_undo_redo_restores_constraint_fields(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            preserved_fields={"operatorsLimit": 3, "requiredKeywords": "for"},
+        )
+        window = _EditorWindowHarness(document)
+        try:
+            window.edit_constraints(
+                operators_limit="7",
+                custom_function_call_count="",
+                if_limit="",
+                while_limit="",
+                required_keywords="while",
+                banned_keywords="",
+            )
+            self.assertEqual(window.document.preserved_fields["operatorsLimit"], 7)
+            self.assertEqual(
+                window.document.preserved_fields["requiredKeywords"], "while"
+            )
+            window.undo()
+            self.assertEqual(window.document.preserved_fields["operatorsLimit"], 3)
+            self.assertEqual(
+                window.document.preserved_fields["requiredKeywords"], "for"
+            )
+            window.redo()
+            self.assertEqual(window.document.preserved_fields["operatorsLimit"], 7)
+            self.assertEqual(
+                window.document.preserved_fields["requiredKeywords"], "while"
+            )
+        finally:
+            window.close()
+
+    def test_constraints_dialog_shows_error_on_invalid_input(self) -> None:
+        root = tk.Tk()
+        root.withdraw()
+        state = _ConstraintsDialogState()
+        try:
+            original_wait_window = tk.Toplevel.wait_window
+
+            def wait_then_click_ok(dialog_self: tk.Toplevel) -> None:
+                for frame in dialog_self.winfo_children():
+                    for widget in frame.winfo_children():
+                        if not isinstance(widget, tk.Frame):
+                            continue
+                        for button in widget.winfo_children():
+                            if isinstance(button, tk.Button):
+                                button.invoke()
+                                return
+                original_wait_window(dialog_self)
+
+            with patch(
+                "robot.gui_editor_constraints.parse_constraint_field_input",
+                side_effect=ValueError("invalid"),
+            ), patch(
+                "robot.gui_editor_constraints.messagebox.showerror"
+            ) as showerror, patch.object(
+                tk.Toplevel, "wait_window", wait_then_click_ok
+            ):
+                result = prompt_edit_constraints(root, {}, state)
+            showerror.assert_called_once()
+            self.assertIsNone(result)
+        finally:
+            root.destroy()
 
 
 if __name__ == "__main__":
