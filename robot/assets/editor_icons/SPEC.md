@@ -53,6 +53,12 @@ Roboto being installed.
 | `editor_undo.png` | Original SVG (undo) | Undo |
 | `editor_redo.png` | Original SVG (redo) | Redo |
 
+## Runtime loading
+
+The desktop editor loads icons from `png@2x/` (48×48) and displays them at ~24×24 via
+`PhotoImage.subsample(2, 2)` in `robot/editor_icons.py`. The `png/` directory remains
+the 24×24 reference output from the build script.
+
 ## Directory layout
 
 ```

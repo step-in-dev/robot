@@ -35,7 +35,9 @@ The editor preserves top-level solution-constraint fields (`operatorsLimit`, `cu
 
 ## Toolbar icons
 
-Toolbar PNG icons live under `robot/assets/editor_icons/` (sources in `svg/`, 24×24 output in `png/`). See [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) for the inventory and regeneration command (`python tools/build_editor_icons.py`). Loading helpers are in `robot/editor_icons.py`.
+Toolbar buttons use icon-only controls with hover tooltips (texts from `editor.tooltip.*` in locale JSON). The **File** and **Edit** menus keep text labels.
+
+PNG icons live under `robot/assets/editor_icons/` (sources in `svg/`, 24×24 reference output in `png/`, runtime loads `png@2x/` downsampled to ~24×24). See [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) for the inventory and regeneration command (`python tools/build_editor_icons.py`). Loading helpers are in `robot/editor_icons.py`; tooltips use `robot/gui_tooltip.py`.
 
 ## File format
 

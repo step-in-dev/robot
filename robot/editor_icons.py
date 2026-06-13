@@ -11,6 +11,8 @@ from .editor_env import EnvEditTool
 _ASSETS_DIR = Path(__file__).resolve().parent / "assets" / "editor_icons"
 _PNG_DIR = _ASSETS_DIR / "png"
 _PNG_2X_DIR = _ASSETS_DIR / "png@2x"
+_ICON_SUBSAMPLE = 2
+DISPLAY_ICON_SIZE = 24
 
 TOOL_ICON_STEMS: Mapping[EnvEditTool, str] = {
     EnvEditTool.START: "editor_start",
@@ -34,23 +36,20 @@ ACTION_ICON_STEMS = {
 }
 
 
-def editor_icons_dir(*, hi_dpi: bool = False) -> Path:
-    """Return the directory containing rasterized editor toolbar icons."""
-    return _PNG_2X_DIR if hi_dpi else _PNG_DIR
+def editor_icons_dir() -> Path:
+    """Return the directory containing rasterized editor toolbar icons (HiDPI sources)."""
+    return _PNG_2X_DIR
 
 
-def icon_png_path(name: str, *, hi_dpi: bool = False) -> Path:
-    """Return the path to a named editor icon PNG (stem without extension)."""
-    return editor_icons_dir(hi_dpi=hi_dpi) / f"{name}.png"
+def icon_png_path(name: str) -> Path:
+    """Return the path to a named editor icon PNG stem (``png@2x/``, 48×48)."""
+    return editor_icons_dir() / f"{name}.png"
 
 
-def load_editor_icon_images(
-    master: tk.Misc,
-    *,
-    hi_dpi: bool = False,
-) -> Dict[str, tk.PhotoImage]:
-    """Load all editor toolbar icons as ``PhotoImage`` instances.
+def load_editor_icon_images(master: tk.Misc) -> Dict[str, tk.PhotoImage]:
+    """Load toolbar icons as ``PhotoImage`` instances at display size (~24×24).
 
+    Sources are 48×48 PNGs from ``png@2x/``, downsampled with ``subsample(2, 2)``.
     Keep the returned mapping alive for the lifetime of the widgets that use
     the images (standard Tkinter requirement).
     """
@@ -58,8 +57,9 @@ def load_editor_icon_images(
     stems = set(TOOL_ICON_STEMS.values())
     stems.update(ACTION_ICON_STEMS.values())
     for stem in sorted(stems):
-        path = icon_png_path(stem, hi_dpi=hi_dpi)
-        images[stem] = tk.PhotoImage(master=master, file=str(path))
+        path = icon_png_path(stem)
+        image = tk.PhotoImage(master=master, file=str(path))
+        images[stem] = image.subsample(_ICON_SUBSAMPLE, _ICON_SUBSAMPLE)
     return images
 
 

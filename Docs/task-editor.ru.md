@@ -35,7 +35,9 @@ python editor/editor.py
 
 ## Иконки панели инструментов
 
-PNG-иконки панели лежат в `robot/assets/editor_icons/` (исходники в `svg/`, растр 24×24 в `png/`). Состав набора и команда пересборки — в [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) (`python tools/build_editor_icons.py`). Загрузка для Tkinter — в `robot/editor_icons.py`.
+Кнопки панели — только иконки с подсказками при наведении (строки `editor.tooltip.*` в JSON локалей). В меню **Файл** и **Правка** подписи остаются текстовыми.
+
+PNG-иконки панели лежат в `robot/assets/editor_icons/` (исходники в `svg/`, эталон 24×24 в `png/`, в рантайме загружается `png@2x/` с уменьшением до ~24×24). Состав набора и команда пересборки — в [`robot/assets/editor_icons/SPEC.md`](../robot/assets/editor_icons/SPEC.md) (`python tools/build_editor_icons.py`). Загрузка для Tkinter — в `robot/editor_icons.py`, подсказки — в `robot/gui_tooltip.py`.
 
 ## Формат файла
 

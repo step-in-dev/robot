@@ -21,6 +21,8 @@ ENV_SELECT_BUTTON_PAD_X = "4.5m"
 ENV_SELECT_BUTTON_PAD_Y = "1.5m"
 BUTTON_PAD_X = "2.5m"
 BUTTON_PAD_Y = "1.5m"
+ICON_BUTTON_PAD_X = "1.5m"
+ICON_BUTTON_PAD_Y = "1m"
 
 # Readable body text: help/constraints dialogs and task condition (`todoText`) banner.
 DIALOG_BODY_FONT = ("TkDefaultFont", 11)

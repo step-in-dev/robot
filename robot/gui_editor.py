@@ -27,6 +27,7 @@ from .editor_env import (
     resize_env_dto,
     toggle_wall,
 )
+from .editor_icons import action_icon, load_editor_icon_images, tool_icon
 from .field_renderer import DEFAULT_FIELD_COLORS, FieldRenderer
 from .gui_layout import (
     calculate_canvas_size,
@@ -34,14 +35,15 @@ from .gui_layout import (
     calculate_field_offset,
 )
 from .gui_theme import (
-    BUTTON_PAD_X,
-    BUTTON_PAD_Y,
     DIALOG_BODY_FONT,
     ENV_SELECT_BUTTON_PAD_X,
     ENV_SELECT_BUTTON_PAD_Y,
+    ICON_BUTTON_PAD_X,
+    ICON_BUTTON_PAD_Y,
     TODO_TEXT_BG,
     TODO_TEXT_BORDER,
 )
+from .gui_tooltip import bind_tooltip
 from .i18n import t
 from .loader import TaskLoadError, resolve_todo_text
 from .model import RobotEnv
@@ -63,18 +65,6 @@ from .tk_util import destroy_tk_root
 _UNDO_DEPTH = 200
 _WALL_WIDTH = 4
 _EDITOR_ERROR_TITLE_KEY = "editor.error.title"
-
-_TOOL_LABEL_KEYS = {
-    EnvEditTool.START: "editor.tool.start",
-    EnvEditTool.FINAL: "editor.tool.final",
-    EnvEditTool.WALL: "editor.tool.wall",
-    EnvEditTool.PAINTED: "editor.tool.painted",
-    EnvEditTool.TO_PAINT: "editor.tool.to_paint",
-    EnvEditTool.POLLUTION: "editor.tool.pollution",
-    EnvEditTool.NUMBER: "editor.tool.number",
-    EnvEditTool.REMOVE_POLLUTION: "editor.tool.remove_pollution",
-    EnvEditTool.REMOVE_NUMBER: "editor.tool.remove_number",
-}
 
 
 @dataclass
@@ -142,6 +132,7 @@ class EditorWindow:
 
         self.root = tk.Tk()
         self.root.withdraw()
+        self._icon_images = load_editor_icon_images(self.root)
         self._vars = _EditorVars(
             pollution_value=tk.IntVar(self.root, value=1),
             print_value=tk.IntVar(self.root, value=0),
@@ -255,15 +246,44 @@ class EditorWindow:
         self.root.bind("<Control-y>", lambda _event: self.redo())
         self.root.bind("<Control-Y>", lambda _event: self.redo())
 
+    def _icon_button(
+        self,
+        parent: tk.Misc,
+        *,
+        image: tk.PhotoImage,
+        command,
+        tooltip_key: str,
+    ) -> tk.Button:
+        button = tk.Button(
+            parent,
+            text="",
+            image=image,
+            compound=tk.CENTER,
+            command=command,
+            padx=ICON_BUTTON_PAD_X,
+            pady=ICON_BUTTON_PAD_Y,
+        )
+        bind_tooltip(button, t(tooltip_key))
+        return button
+
+    @staticmethod
+    def _tool_tooltip_key(tool: EnvEditTool) -> str:
+        return f"editor.tooltip.tool.{tool.value}"
+
+    @staticmethod
+    def _require_icon(image: Optional[tk.PhotoImage], icon_name: str) -> tk.PhotoImage:
+        if image is None:
+            raise RuntimeError(f"Missing editor icon: {icon_name}")
+        return image
+
     def _build_todo_section(self) -> None:
         self._chrome.todo_section = tk.Frame(self.root)
         self._chrome.todo_section.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(6, 2))
-        self._chrome.todo_edit_button = tk.Button(
+        self._chrome.todo_edit_button = self._icon_button(
             self._chrome.todo_section,
-            text=t("editor.edit_todo"),
+            image=self._require_icon(action_icon(self._icon_images, "todo"), "todo"),
             command=self._edit_todo_text,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
+            tooltip_key="editor.tooltip.todo",
         )
         self._chrome.todo_edit_button.pack(side=tk.RIGHT)
 
@@ -313,27 +333,31 @@ class EditorWindow:
         controls = tk.Frame(self._chrome.env_toolbar)
         controls.pack(side=tk.RIGHT)
 
-        tk.Button(
+        add_env_button = self._icon_button(
             controls,
-            text="+",
+            image=self._require_icon(action_icon(self._icon_images, "add_env"), "add_env"),
             command=self._add_environment,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
-        ).pack(side=tk.LEFT)
-        tk.Button(
+            tooltip_key="editor.tooltip.add_env",
+        )
+        add_env_button.pack(side=tk.LEFT)
+        remove_env_button = self._icon_button(
             controls,
-            text="-",
+            image=self._require_icon(
+                action_icon(self._icon_images, "remove_env"), "remove_env"
+            ),
             command=self._remove_environment,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
-        ).pack(side=tk.LEFT, padx=(4, 0))
-        tk.Button(
+            tooltip_key="editor.tooltip.remove_env",
+        )
+        remove_env_button.pack(side=tk.LEFT, padx=(4, 0))
+        reset_env_button = self._icon_button(
             controls,
-            text=t("editor.reset_env"),
+            image=self._require_icon(
+                action_icon(self._icon_images, "reset_env"), "reset_env"
+            ),
             command=self._reset_environment,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
-        ).pack(side=tk.LEFT, padx=(8, 0))
+            tooltip_key="editor.tooltip.reset_env",
+        )
+        reset_env_button.pack(side=tk.LEFT, padx=(8, 0))
 
         size_frame = tk.Frame(controls)
         size_frame.pack(side=tk.LEFT, padx=(8, 0))
@@ -349,6 +373,7 @@ class EditorWindow:
         width_spin.pack(side=tk.LEFT, padx=(4, 8))
         width_spin.bind("<Return>", self._on_size_commit)
         width_spin.bind("<FocusOut>", self._on_size_commit)
+        bind_tooltip(width_spin, t("editor.tooltip.col_count"))
         tk.Label(size_frame, text=t("editor.rows")).pack(side=tk.LEFT)
         height_spin = tk.Spinbox(
             size_frame,
@@ -361,6 +386,7 @@ class EditorWindow:
         height_spin.pack(side=tk.LEFT, padx=(4, 0))
         height_spin.bind("<Return>", self._on_size_commit)
         height_spin.bind("<FocusOut>", self._on_size_commit)
+        bind_tooltip(height_spin, t("editor.tooltip.row_count"))
 
     def _rebuild_env_tabs(self) -> None:
         if self._chrome.tab_frame is None:
@@ -393,32 +419,29 @@ class EditorWindow:
         self._chrome.tools_toolbar.pack(side=tk.TOP, fill=tk.X, padx=6, pady=(2, 2))
 
         for tool in EnvEditTool:
-            button = tk.Button(
+            button = self._icon_button(
                 self._chrome.tools_toolbar,
-                text=t(_TOOL_LABEL_KEYS[tool]),
+                image=self._require_icon(tool_icon(self._icon_images, tool), tool.value),
                 command=lambda selected=tool: self._select_tool(selected),
-                padx=BUTTON_PAD_X,
-                pady=BUTTON_PAD_Y,
+                tooltip_key=self._tool_tooltip_key(tool),
             )
             button.pack(side=tk.LEFT, padx=(0, 4))
             self._chrome.tool_buttons[tool] = button
 
         undo_redo = tk.Frame(self._chrome.tools_toolbar)
         undo_redo.pack(side=tk.RIGHT)
-        self._chrome.undo_button = tk.Button(
+        self._chrome.undo_button = self._icon_button(
             undo_redo,
-            text=t("editor.menu.undo"),
+            image=self._require_icon(action_icon(self._icon_images, "undo"), "undo"),
             command=self.undo,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
+            tooltip_key="editor.tooltip.undo",
         )
         self._chrome.undo_button.pack(side=tk.LEFT)
-        self._chrome.redo_button = tk.Button(
+        self._chrome.redo_button = self._icon_button(
             undo_redo,
-            text=t("editor.menu.redo"),
+            image=self._require_icon(action_icon(self._icon_images, "redo"), "redo"),
             command=self.redo,
-            padx=BUTTON_PAD_X,
-            pady=BUTTON_PAD_Y,
+            tooltip_key="editor.tooltip.redo",
         )
         self._chrome.redo_button.pack(side=tk.LEFT, padx=(4, 0))
 
@@ -430,6 +453,7 @@ class EditorWindow:
             width=4,
             textvariable=self._vars.pollution_value,
         )
+        bind_tooltip(self._chrome.pollution_spin, t("editor.tooltip.pollution_value"))
         self._chrome.print_spin = tk.Spinbox(
             self._chrome.value_frame,
             from_=PRINT_VALUE_MIN,
@@ -437,6 +461,7 @@ class EditorWindow:
             width=4,
             textvariable=self._vars.print_value,
         )
+        bind_tooltip(self._chrome.print_spin, t("editor.tooltip.print_value"))
         self._update_tool_highlight()
         self._update_value_spinners()
 
