@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+from robot import i18n
 from robot.executor import check_limit_violations
 from robot.loader import ScriptConstraints
 from robot.operator_limits import (
@@ -446,14 +447,10 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
     """Russian strings via ``t()`` when ``ROBOT_LANGUAGE`` is set."""
 
     def tearDown(self) -> None:
-        from robot import i18n
-
         i18n.clear_translation_cache()
 
     def test_operator_limit_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.operators", actual=3, limit=2),
@@ -462,8 +459,6 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
 
     def test_custom_function_call_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.custom_function_calls", actual=3, required=2),
@@ -472,8 +467,6 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
 
     def test_required_keywords_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.required_keywords", keywords="for, def"),
@@ -482,8 +475,6 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
 
     def test_banned_keywords_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.banned_keywords", keywords="while"),
@@ -492,8 +483,6 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
 
     def test_if_keyword_limit_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.if_keyword", actual=2, limit=1),
@@ -502,8 +491,6 @@ class OperatorLimitsRussianLocaleTest(unittest.TestCase):
 
     def test_while_keyword_limit_message_russian_via_t(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "ru"}, clear=False):
-            from robot import i18n
-
             i18n.clear_translation_cache()
             self.assertEqual(
                 i18n.t("limit.while_keyword", actual=3, limit=1),

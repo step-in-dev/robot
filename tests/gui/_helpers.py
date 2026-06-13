@@ -6,6 +6,7 @@ from typing import Callable, Iterator, List, Optional
 
 import tkinter as tk
 
+from robot import i18n
 from robot.gui import RobotWindow, RobotWindowOptions
 from robot.loader import RobotTask, ScriptConstraints
 from robot.model import RobotEnv
@@ -38,8 +39,6 @@ __all__ = [
 
 
 def clear_i18n_cache() -> None:
-    from robot import i18n
-
     i18n.clear_translation_cache()
 
 

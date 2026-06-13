@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from typing import Dict, List
 from unittest.mock import patch
+from viewer import viewer
 
 from robot.loader import RobotTask
 from robot.task_catalog import TaskCatalog
@@ -28,8 +29,6 @@ class ViewerLauncherTest(unittest.TestCase):
             sys.path.insert(0, repo_root_str)
 
     def test_main_opens_viewer_window_on_first_task(self) -> None:
-        from viewer import viewer
-
         captured: List[Dict[str, object]] = []
         CaptureRobotWindow = make_capture_robot_window_cls(captured)
 
@@ -55,8 +54,6 @@ class ViewerLauncherTest(unittest.TestCase):
         self.assertEqual(task_def.todo_text, "todo for intro1")
 
     def test_main_exits_when_no_tasks(self) -> None:
-        from viewer import viewer
-
         with tempfile.TemporaryDirectory() as temp_dir:
             with patched_tasks_dir(temp_dir):
                 exit_code = viewer.main()

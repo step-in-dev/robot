@@ -1,6 +1,7 @@
 """Tests for help window and read-only key filter."""
 
 import unittest
+from types import SimpleNamespace
 from typing import List, Optional, cast
 from unittest.mock import MagicMock, patch
 
@@ -48,8 +49,6 @@ class HelpReadonlyKeyFilterTest(unittest.TestCase):
         state: int = 0,
         char: str = "",
     ) -> Optional[str]:
-        from types import SimpleNamespace
-
         return _help_text_readonly_key_action(
             cast(
                 tk.Event,

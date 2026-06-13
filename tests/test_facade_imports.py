@@ -3,19 +3,15 @@
 
 import unittest
 
+from robot import executor, gui, gui_layout, gui_theme, results, runtime
+
 
 class FacadeImportCompatibilityTest(unittest.TestCase):
     def test_runtime_reexports_results_types(self) -> None:
-        from robot import results
-        from robot import runtime
-
         self.assertIs(runtime.RunResult, results.RunResult)
         self.assertIs(runtime.RunStatus, results.RunStatus)
 
     def test_runtime_reexports_executor_symbols(self) -> None:
-        from robot import executor
-        from robot import runtime
-
         self.assertIs(runtime.run_solution_on_env, executor.run_solution_on_env)
         self.assertIs(
             runtime.DEFAULT_COMMAND_DELAY_SECONDS,
@@ -30,10 +26,6 @@ class FacadeImportCompatibilityTest(unittest.TestCase):
         self.assertIs(runtime.StudentLine, executor.StudentLine)
 
     def test_gui_reexports_layout_and_theme(self) -> None:
-        from robot import gui
-        from robot import gui_layout
-        from robot import gui_theme
-
         self.assertIs(gui.calculate_cell_size, gui_layout.calculate_cell_size)
         self.assertIs(gui.calculate_canvas_size, gui_layout.calculate_canvas_size)
         self.assertIs(gui.calculate_field_offset, gui_layout.calculate_field_offset)

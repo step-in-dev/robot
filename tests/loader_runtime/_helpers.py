@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from robot.executor import StepExecutionCallbacks
+from robot.gui import RobotWindowOptions
 from robot.loader import TASKS_DIR_ENV, ScriptConstraints
 from tests.env_fixtures import corridor
 
@@ -70,8 +71,6 @@ def _capture_robot_window_call(
 
 
 def make_capture_robot_window_cls(captured: list) -> type:
-    from robot.gui import RobotWindowOptions
-
     class CaptureRobotWindow:
         def __init__(
             self,
