@@ -37,6 +37,7 @@ from ._editor_harness import (
 )
 from ._helpers import (
     GuiTestCase,
+    dialog_test_root,
     emit_keypad_enter,
     emit_return,
     requires_tk_display,
@@ -587,10 +588,8 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             self.assertEqual(result.operators_limit, "5")
 
     def test_constraints_dialog_kp_enter_commits_valid_input(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
         state = _ConstraintsDialogState()
-        try:
+        with dialog_test_root() as root:
             original_wait_window = tk.Toplevel.wait_window
 
             def wait_then_press_kp_enter(dialog_self: tk.Toplevel) -> None:
@@ -610,8 +609,6 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 )
             self.assertIsNotNone(result)
             self.assertEqual(result.operators_limit, "5")
-        finally:
-            root.destroy()
 
 
 @requires_tk_display

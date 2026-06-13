@@ -15,7 +15,12 @@ from robot.gui_dialogs import (
 )
 from robot.tk_util import flush_tk_events
 
-from ._helpers import emit_keypad_enter, requires_tk_display, withdrawn_root
+from ._helpers import (
+    dialog_test_root,
+    emit_keypad_enter,
+    requires_tk_display,
+    withdrawn_root,
+)
 
 # Windows Tk root vs Toplevel client metrics can differ by one frame border (~8 px).
 _CENTER_TOLERANCE_PX = 8 if sys.platform == "win32" else 3
@@ -122,9 +127,7 @@ class CenterToplevelOnParentTest(unittest.TestCase):
 @requires_tk_display
 class PromptStringDialogTest(unittest.TestCase):
     def test_ok_returns_entered_text(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
-        try:
+        with dialog_test_root() as root:
             def wait_then_click_ok(dialog_self: tk.Toplevel) -> None:
                 entry = _find_first_entry(dialog_self)
                 self.assertIsNotNone(entry)
@@ -143,8 +146,6 @@ class PromptStringDialogTest(unittest.TestCase):
                     initialvalue="Old",
                 )
             self.assertEqual(result, "New condition")
-        finally:
-            root.destroy()
 
     def test_cancel_returns_none(self) -> None:
         with withdrawn_root() as root:
@@ -187,19 +188,13 @@ class PromptStringDialogTest(unittest.TestCase):
             self.assertEqual(result, "Committed")
 
     def test_entry_receives_focus_on_open(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
-        try:
+        with dialog_test_root() as root:
             def wait_then_check_focus(dialog_self: tk.Toplevel) -> None:
-                flush_tk_events(dialog_self, max_rounds=5)
+                flush_tk_events(dialog_self, max_rounds=10)
                 entry = _find_first_entry(dialog_self)
                 self.assertIsNotNone(entry)
                 assert entry is not None
-                focused = dialog_self.focus_get()
-                if focused is None and sys.platform == "win32":
-                    # Without grab on a withdrawn parent, focus_get on the dialog may stay None.
-                    focused = entry.focus_get()
-                self.assertIs(entry, focused)
+                self.assertIs(entry, dialog_self.focus_get())
                 buttons = _find_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
@@ -211,13 +206,9 @@ class PromptStringDialogTest(unittest.TestCase):
                     prompt="Prompt",
                     initialvalue="Old",
                 )
-        finally:
-            root.destroy()
 
     def test_cancel_button_aligned_right(self) -> None:
-        root = tk.Tk()
-        root.withdraw()
-        try:
+        with dialog_test_root() as root:
             def wait_then_check_alignment(dialog_self: tk.Toplevel) -> None:
                 dialog_self.update_idletasks()
                 buttons = _find_buttons(dialog_self)
@@ -240,8 +231,6 @@ class PromptStringDialogTest(unittest.TestCase):
                     prompt="Prompt",
                     initialvalue="Old",
                 )
-        finally:
-            root.destroy()
 
 
 if __name__ == "__main__":

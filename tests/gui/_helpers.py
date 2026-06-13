@@ -38,6 +38,7 @@ __all__ = [
     "requires_tk_display",
     "test_window",
     "withdrawn_root",
+    "dialog_test_root",
 ]
 
 
@@ -45,11 +46,32 @@ def clear_i18n_cache() -> None:
     i18n.clear_translation_cache()
 
 
+def _prepare_dialog_test_root(root: tk.Tk) -> None:
+    """Hide the root without breaking modal dialog focus/keys on Windows CI."""
+    if sys.platform == "win32":
+        # Withdrawn roots break grab_set, focus_get, and synthetic key events on Windows.
+        root.geometry("1x1+-2000+-2000")
+        root.update()
+        return
+    root.withdraw()
+
+
+@contextlib.contextmanager
+def dialog_test_root() -> Iterator[tk.Tk]:
+    """Yield a root suitable for modal dialog GUI tests."""
+    root = tk.Tk()
+    try:
+        _prepare_dialog_test_root(root)
+        yield root
+    finally:
+        root.destroy()
+
+
 @contextlib.contextmanager
 def withdrawn_root() -> Iterator[tk.Tk]:
     root = tk.Tk()
-    root.withdraw()
     try:
+        _prepare_dialog_test_root(root)
         yield root
     finally:
         root.destroy()
@@ -78,11 +100,16 @@ def emit_action_enter_press_release(widget: tk.Misc, root: tk.Misc) -> None:
 
 def emit_return(widget: tk.Misc, _root: tk.Misc) -> None:
     """Simulate main Enter key in GUI tests."""
-    # Windows Tcl/Tk does not deliver synthetic <Return> to Entry bindings; use KeyPress/Release.
     toplevel = widget.winfo_toplevel()
-    for target in (widget, toplevel):
-        target.event_generate("<KeyPress-Return>", when="tail")
-        target.event_generate("<KeyRelease-Return>", when="tail")
+    if sys.platform == "win32":
+        # event_generate does not reliably reach Entry bindings on Windows modal dialogs.
+        for target in (widget, toplevel):
+            path = str(target)
+            target.tk.call("event", "generate", path, "<KeyPress-Return>")
+            target.tk.call("event", "generate", path, "<KeyRelease-Return>")
+    else:
+        widget.event_generate("<KeyPress-Return>", when="tail")
+        widget.event_generate("<KeyRelease-Return>", when="tail")
     flush_tk_events(toplevel, max_rounds=5)
 
 
