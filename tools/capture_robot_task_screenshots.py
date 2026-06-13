@@ -301,6 +301,15 @@ class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
 
 
 @dataclass(frozen=True)
+class _ScreenshotCaptureFlags:
+    """Viewer, constraints, and canvas options for one language capture."""
+
+    capture_constraints_window: bool
+    viewer_mode: bool
+    field_canvas_only: bool
+
+
+@dataclass(frozen=True)
 class _CaptureBatchContext:
     """Shared parameters for all language/env captures in one CLI run."""
 
@@ -313,10 +322,7 @@ class _CaptureBatchContext:
         self,
         language: str,
         output_path: Path,
-        *,
-        capture_constraints_window: bool,
-        viewer_mode: bool,
-        field_canvas_only: bool,
+        flags: _ScreenshotCaptureFlags,
     ) -> LanguageCaptureJob:
         """Build a capture job for one language using shared batch parameters."""
         return LanguageCaptureJob(
@@ -326,9 +332,9 @@ class _CaptureBatchContext:
             output_path=output_path,
             workdir=self.workdir,
             env_index=self.env_index,
-            capture_constraints_window=capture_constraints_window,
-            viewer_mode=viewer_mode,
-            field_canvas_only=field_canvas_only,
+            capture_constraints_window=flags.capture_constraints_window,
+            viewer_mode=flags.viewer_mode,
+            field_canvas_only=flags.field_canvas_only,
             settle_seconds=self.settle_seconds,
         )
 
@@ -646,9 +652,11 @@ def main() -> int:
                 batch.language_job(
                     lang,
                     path,
-                    capture_constraints_window=False,
-                    viewer_mode=args.viewer,
-                    field_canvas_only=args.field_canvas,
+                    _ScreenshotCaptureFlags(
+                        capture_constraints_window=False,
+                        viewer_mode=args.viewer,
+                        field_canvas_only=args.field_canvas,
+                    ),
                 )
             ),
         )
@@ -664,9 +672,11 @@ def main() -> int:
                     batch.language_job(
                         lang,
                         path,
-                        capture_constraints_window=True,
-                        viewer_mode=False,
-                        field_canvas_only=False,
+                        _ScreenshotCaptureFlags(
+                            capture_constraints_window=True,
+                            viewer_mode=False,
+                            field_canvas_only=False,
+                        ),
                     )
                 ),
             )

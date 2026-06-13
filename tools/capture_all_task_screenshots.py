@@ -8,24 +8,21 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_TOOLS_DIR = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-
-# pylint: disable=wrong-import-position
-from robot.loader import TaskLoadError, load_task_definition
-from robot.task_catalog import TaskCatalog
-
-_TOOLS_DIR = Path(__file__).resolve().parent
 if str(_TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(_TOOLS_DIR))
 
-from capture_robot_task_screenshots import (  # noqa: E402
+# pylint: disable=wrong-import-position
+from capture_robot_task_screenshots import (
     LanguageCaptureJob,
     _CaptureBatchContext,
     _try_capture,
     capture_for_language,
 )
-
+from robot.loader import TaskLoadError, load_task_definition
+from robot.task_catalog import TaskCatalog
 # pylint: enable=wrong-import-position
 
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "website" / "img" / "tasks"
@@ -33,6 +30,7 @@ SITE_CAPTURE_LANGUAGE = "en"
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for batch per-environment task screenshots."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output-dir",
@@ -157,6 +155,7 @@ def capture_task_envs(
 
 
 def main() -> int:
+    """Capture field-canvas PNGs for selected catalog tasks and report failures."""
     args = parse_args()
     output_dir = args.output_dir.resolve()
 
