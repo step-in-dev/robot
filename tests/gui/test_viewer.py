@@ -3,12 +3,13 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import tkinter as tk
 
 from robot.gui import RobotWindow, RobotWindowOptions
 from robot.i18n import t
-from robot.loader import load_task_definition
+from robot.loader import TaskLoadError, load_task_definition
 from robot.task_catalog import TaskCatalog
 from tests.loader_runtime._helpers import patched_tasks_dir, write_minimal_task_env
 
@@ -199,6 +200,30 @@ class RobotWindowViewerTest(GuiTestCase):
                 finally:
                     window.close()
 
+    def test_viewer_load_error_shows_dialog_and_keeps_task(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            write_minimal_task_env(base / "intro1.env", "intro1")
+            (base / "intro2.env").write_text("{not json", encoding="utf-8")
+            with patched_tasks_dir(temp_dir):
+                with self.assertRaises(TaskLoadError) as ctx:
+                    load_task_definition("intro2")
+                expected_message = str(ctx.exception)
+                window = _make_viewer_window()
+                try:
+                    with patch("robot.gui_viewer.messagebox.showerror") as showerror:
+                        window._viewer_show_task("intro2")
+                        window.root.update()
+                    showerror.assert_called_once_with(
+                        window.root.title(),
+                        expected_message,
+                        parent=window.root,
+                    )
+                    self.assertEqual(window.task_id, "intro1")
+                    self.assertEqual(window._viewer_number_var.get(), "1")
+                    self.assertEqual(window._viewer_theme_var.get(), "intro")
+                finally:
+                    window.close()
 
 
 if __name__ == "__main__":

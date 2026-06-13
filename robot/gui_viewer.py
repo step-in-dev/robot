@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 
 from .gui_theme import BUTTON_PAD_X, BUTTON_PAD_Y
 from .i18n import t
@@ -213,8 +213,9 @@ class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-publi
             return
         try:
             task_definition = load_task_definition(task_id)
-        except TaskLoadError:
-            self._viewer_restore_number_field()
+        except TaskLoadError as exc:
+            messagebox.showerror(self.root.title(), str(exc), parent=self.root)
+            self._viewer_sync_navigation_widgets()
             return
         self._viewer_switching = True
         try:
