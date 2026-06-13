@@ -160,7 +160,7 @@ class _EditorVars:
     width_var: tk.IntVar
     height_var: tk.IntVar
     last_valid_pollution: int = 1
-    last_valid_print: int = 0
+    last_valid_print: int = 1
 
 
 class EditorWindow(EditorFileMixin):
@@ -178,7 +178,7 @@ class EditorWindow(EditorFileMixin):
         self._icon_images = load_editor_icon_images(self.root)
         self._vars = _EditorVars(
             pollution_value=tk.IntVar(self.root, value=1),
-            print_value=tk.IntVar(self.root, value=0),
+            print_value=tk.IntVar(self.root, value=1),
             width_var=tk.IntVar(self.root, value=initial_document.env_dtos[0]["width"]),
             height_var=tk.IntVar(self.root, value=initial_document.env_dtos[0]["height"]),
         )

@@ -235,7 +235,7 @@ def apply_tool_to_env(
     cell: Cell,
     *,
     pollution_value: int = 1,
-    print_value: int = 0,
+    print_value: int = 1,
 ) -> dict:
     """Apply one editor tool click to an environment DTO dict."""
     if not _cell_in_bounds(cell, env["width"], env["height"]):
