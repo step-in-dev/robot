@@ -47,18 +47,18 @@ class CalculateCellSizeTest(unittest.TestCase):
         envs = [make_env(minimal_env_dict(21, 1))]
         self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
 
-    def test_super_compact_when_height_greater_than_12(self) -> None:
-        envs = [make_env(minimal_env_dict(1, 13))]
+    def test_super_compact_when_height_greater_than_11(self) -> None:
+        envs = [make_env(minimal_env_dict(1, 12))]
         self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
 
     def test_compact_boundary_not_super(self) -> None:
-        envs = [make_env(minimal_env_dict(20, 12))]
+        envs = [make_env(minimal_env_dict(20, 11))]
         self.assertEqual(calculate_cell_size(envs), COMPACT_CELL_SIZE)
 
     def test_super_compact_wins_over_compact_in_multi_env(self) -> None:
         envs = [
             make_env(minimal_env_dict(9, 1)),
-            make_env(minimal_env_dict(1, 13)),
+            make_env(minimal_env_dict(1, 12)),
         ]
         self.assertEqual(calculate_cell_size(envs), SUPER_COMPACT_CELL_SIZE)
 
