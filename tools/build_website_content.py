@@ -24,8 +24,9 @@ from tools.website_content_data import (
     COMMAND_GROUP_TITLES,
     COMMAND_GROUPS,
     COMMAND_KEYWORDS,
-    EDITOR_PAGE_URL,
-    ENV_FORMAT_DOC_URL,
+    EDITOR_CONSTRAINT_DOC_ANCHORS,
+    ENV_FORMAT_DOC_BASE,
+    GITHUB_RELEASES_URL,
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
     TASKS_IMG_DIR,
@@ -48,6 +49,7 @@ from tools.website_content_layout import (
     load_raw_todo_text,
     localized_command_help,
     localized_constraints,
+    localized_editor_constraint_fields,
     normalize_meta_description,
     page_filename,
     render_breadcrumbs,
@@ -687,19 +689,17 @@ def build_commands_page(lang: str) -> str:
     return wrap_page(layout, body_html)
 
 
-def _external_link(url: str, label: str) -> str:
-    """Render an external link that opens in a new tab."""
+def _env_format_doc_url(lang: str, anchor: str) -> str:
+    """Return a GitHub URL for a section in the task-env-format documentation."""
+    return f"{ENV_FORMAT_DOC_BASE[lang]}#{anchor}"
+
+
+def _releases_link() -> str:
+    """Render a link to the module releases page."""
     return (
-        f'<a href="{escape(url)}" rel="noopener noreferrer" target="_blank">'
-        f"{escape(label)}</a>"
+        f'<a href="{escape(GITHUB_RELEASES_URL)}" rel="noopener noreferrer" '
+        f'target="_blank">GitHub Releases</a>'
     )
-
-
-def _editor_save_image_attrs(lang: str) -> Tuple[str, int, int]:
-    """Return save-dialog screenshot filename and dimensions for ``lang``."""
-    if lang == "en":
-        return "save_env_en.png", 561, 282
-    return "save_env_ru.png", 562, 283
 
 
 def _editor_main_figure(layout: PageLayout, lang: str) -> str:
@@ -707,38 +707,21 @@ def _editor_main_figure(layout: PageLayout, lang: str) -> str:
     fig_alt = escape(_ui(lang, "editor_fig_editor"))
     editor_img = layout.href("img/editor/editor.png")
     return f"""          <figure class="inline-figure">
-            <img src="{editor_img}" width="563" height="535" alt="{fig_alt}" loading="lazy">
-            <figcaption>{fig_alt}</figcaption>
-          </figure>"""
-
-
-def _editor_save_figure(layout: PageLayout, lang: str) -> str:
-    """Render the save-dialog screenshot figure."""
-    save_img, save_width, save_height = _editor_save_image_attrs(lang)
-    fig_alt = escape(_ui(lang, "editor_fig_save"))
-    save_img_href = layout.href(f"img/editor/{save_img}")
-    img_tag = (
-        f'<img src="{save_img_href}" width="{save_width}" height="{save_height}" '
-        f'alt="{fig_alt}" loading="lazy">'
-    )
-    return f"""          <figure class="inline-figure">
-            {img_tag}
+            <img src="{editor_img}" width="846" height="554" alt="{fig_alt}" loading="lazy">
             <figcaption>{fig_alt}</figcaption>
           </figure>"""
 
 
 def _render_editor_steps(layout: PageLayout, lang: str) -> str:
     """Render numbered editor guide steps with figures."""
-    editor_link = _external_link(
-        EDITOR_PAGE_URL[lang], _ui(lang, "editor_online_editor")
-    )
-    step_1 = escape(_ui(lang, "editor_step_1", link="{link}")).replace(
-        "{link}", editor_link
-    )
     example_task = escape(_ui(lang, "editor_example_task"))
+    step_1 = escape(_ui(lang, "editor_step_1", link="{link}")).replace(
+        "{link}", _releases_link()
+    )
     return f"""      <ol class="editor-steps">
         <li>
           <p>{step_1}</p>
+          <pre class="code-block"><code>python editor/editor.py</code></pre>
         </li>
         <li>
           <p>{escape(_ui(lang, "editor_step_2"))}</p>
@@ -746,18 +729,32 @@ def _render_editor_steps(layout: PageLayout, lang: str) -> str:
         </li>
         <li>
           <p>{escape(_ui(lang, "editor_step_3"))}</p>
-{_editor_save_figure(layout, lang)}
         </li>
         <li>
           <p>{escape(_ui(lang, "editor_step_4"))}</p>
-        </li>
-        <li>
-          <p>{escape(_ui(lang, "editor_step_5"))}</p>
           <pre class="code-block"><code>from robot import *
 
 task("{example_task}")</code></pre>
         </li>
       </ol>"""
+
+
+def _render_editor_constraints_note(lang: str) -> str:
+    """Render the solution-constraints list for the editor page callout."""
+    items: List[str] = []
+    for label, field_name in localized_editor_constraint_fields(lang):
+        anchor = EDITOR_CONSTRAINT_DOC_ANCHORS[lang][field_name]
+        doc_url = escape(_env_format_doc_url(lang, anchor))
+        items.append(
+            f"        <li>{escape(label)} ("
+            f'<a href="{doc_url}" rel="noopener noreferrer" target="_blank">'
+            f"<code>{escape(field_name)}</code></a>)</li>"
+        )
+    items_html = "\n".join(items)
+    return f"""        <p>{escape(_ui(lang, "editor_note_p2_intro"))}</p>
+        <ul class="track-list">
+{items_html}
+        </ul>"""
 
 
 def build_editor_page(lang: str) -> str:
@@ -769,13 +766,6 @@ def build_editor_page(lang: str) -> str:
         (_ui(lang, "home"), home_relpath(lang)),
         (_ui(lang, "editor_nav"), canonical),
     ]
-
-    format_link = _external_link(
-        ENV_FORMAT_DOC_URL[lang], _ui(lang, "editor_format_link")
-    )
-    note_p2 = escape(_ui(lang, "editor_note_p2", link="{link}")).replace(
-        "{link}", format_link
-    )
 
     layout = PageLayout(
         lang=lang,
@@ -806,6 +796,7 @@ def build_editor_page(lang: str) -> str:
     )
     crumb_html = render_breadcrumbs(layout, crumbs)
     steps_html = _render_editor_steps(layout, lang)
+    constraints_note_html = _render_editor_constraints_note(lang)
     body_html = f"""    <div class="hub-page editor-page">
       {crumb_html}
       <header class="content-header">
@@ -816,7 +807,7 @@ def build_editor_page(lang: str) -> str:
       <div class="callout">
         <h3>{escape(_ui(lang, "editor_note_heading"))}</h3>
         <p>{escape(_ui(lang, "editor_note_p1"))}</p>
-        <p>{note_p2}</p>
+{constraints_note_html}
       </div>
     </div>
 """

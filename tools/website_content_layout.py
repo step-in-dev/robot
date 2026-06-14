@@ -315,6 +315,21 @@ def localized_constraints(constraints: ScriptConstraints, lang: str) -> List[str
         _restore_language(previous)
 
 
+def localized_editor_constraint_fields(lang: str) -> List[Tuple[str, str]]:
+    """Return ``(ui_label, json_field_name)`` pairs for editor constraint fields."""
+    # pylint: disable=import-outside-toplevel,protected-access
+    from robot.task_serializer import _CONSTRAINT_FIELD_LABEL_KEYS, _CONSTRAINT_JSON_KEYS
+
+    previous = _set_language(lang)
+    try:
+        return [
+            (t(_CONSTRAINT_FIELD_LABEL_KEYS[field_name]), field_name)
+            for field_name in _CONSTRAINT_JSON_KEYS
+        ]
+    finally:
+        _restore_language(previous)
+
+
 def localized_command_help(lang: str) -> List[Tuple[str, str]]:
     """Return command help ``(signature, description)`` pairs for ``lang``."""
     previous = _set_language(lang)

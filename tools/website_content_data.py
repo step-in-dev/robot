@@ -10,6 +10,7 @@ from robot.student_api import STUDENT_COMMAND_NAMES
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 SITE_BASE = "https://robot.stepindev.com"
+GITHUB_RELEASES_URL = "https://github.com/step-in-dev/robot/releases"
 WEBSITE_DIR = PROJECT_ROOT / "website"
 TASKS_IMG_DIR = WEBSITE_DIR / "img" / "tasks"
 SUPPORTED_SITE_LANGS = ("en", "ru")
@@ -110,17 +111,16 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "articles_empty": "No articles published yet.",
         "editor_nav": "Environment editor",
         "editor_intro": (
-            "Step-by-step instructions for adding custom Robot tasks with the "
-            "online environment editor."
+            "Step-by-step instructions for creating custom Robot tasks with the "
+            "built-in environment editor."
         ),
-        "editor_step_1": "Open the {link}.",
+        "editor_step_1": (
+            "The environment editor is in editor/editor.py. Download the module archive "
+            "from {link} and from the unpacked archive run:"
+        ),
         "editor_step_2": "Create as many environments as the task needs.",
-        "editor_step_3": (
-            "Save the environments to a file. In the save dialog, choose Environment "
-            "and enter a file name ending in .env."
-        ),
-        "editor_step_4": "Copy the .env file to the robot/tasks folder of the robot package.",
-        "editor_step_5": (
+        "editor_step_3": "Save the task file to the robot/tasks folder.",
+        "editor_step_4": (
             "In your Python program, call task() with the file name without the .env extension."
         ),
         "editor_note_heading": "Note",
@@ -129,15 +129,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "locale at a time when the file already contains localized text. To manage "
             "every translation, edit the file manually."
         ),
-        "editor_note_p2": (
-            "The editor does not support constraints such as operator limits, custom "
-            "function call counts, or required or banned keywords. Add these fields "
-            "manually following the {link}."
+        "editor_note_p2_intro": (
+            "The editor can set solution constraints (toolbar constraints button):"
         ),
-        "editor_format_link": "solution constraints documentation",
-        "editor_online_editor": "online environment editor",
         "editor_fig_editor": "Environment editor.",
-        "editor_fig_save": "Save environments dialog.",
         "editor_example_task": "robot",
     },
     "ru": {
@@ -200,17 +195,16 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "articles_empty": "Пока нет опубликованных статей.",
         "editor_nav": "Редактор обстановок",
         "editor_intro": (
-            "Пошаговая инструкция по добавлению своих задач для исполнителя Робот "
-            "с помощью онлайн-редактора обстановок."
+            "Пошаговая инструкция по созданию своих задач для исполнителя Робот "
+            "с помощью встроенного редактора обстановок."
         ),
-        "editor_step_1": "Откройте {link}.",
+        "editor_step_1": (
+            "Редактор обстановок находится в editor/editor.py. Скачайте архив модуля "
+            "на странице {link} и из распакованного архива запустите:"
+        ),
         "editor_step_2": "Создайте нужное количество обстановок для задачи.",
-        "editor_step_3": (
-            "Сохраните обстановки в файл. В диалоге сохранения выберите «Обстановка» "
-            "и укажите имя файла с расширением .env."
-        ),
-        "editor_step_4": "Скопируйте файл .env в папку robot/tasks модуля robot.",
-        "editor_step_5": (
+        "editor_step_3": "Сохраните файл обстановки в папку robot/tasks.",
+        "editor_step_4": (
             "В программе на Python вызовите task() с именем файла без расширения .env."
         ),
         "editor_note_heading": "Замечание",
@@ -219,36 +213,53 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "одну локаль за раз, если в файле уже есть переводы. Чтобы изменить все "
             "переводы сразу, отредактируйте файл вручную."
         ),
-        "editor_note_p2": (
-            "Редактор не поддерживает ограничения: лимит действий Робота, число вызовов "
-            "своих функций, обязательные и запрещённые ключевые слова и т.п. Добавьте "
-            "такие поля вручную по {link}."
+        "editor_note_p2_intro": (
+            "В редакторе можно задать ограничения на решение (кнопка ограничений на панели "
+            "инструментов):"
         ),
-        "editor_format_link": "описанию ограничений",
-        "editor_online_editor": "онлайн-редактор обстановок",
         "editor_fig_editor": "Редактор обстановок.",
-        "editor_fig_save": "Диалог сохранения обстановки.",
         "editor_example_task": "robot",
     },
 }
 
-EDITOR_PAGE_URL = {
-    "en": "https://stepindev.com/en/py-robot",
-    "ru": "https://stepindev.com/ru/py-robot",
-}
-_RU_CONSTRAINTS_ANCHOR = (
-    "%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-"
-    "%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5"
-)
-ENV_FORMAT_DOC_URL = {
+ENV_FORMAT_DOC_BASE = {
     "en": (
-        "https://github.com/step-in-dev/robot/blob/main/"
-        "Docs/task-env-format.md#solution-constraints"
+        "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.md"
     ),
     "ru": (
-        "https://github.com/step-in-dev/robot/blob/main/"
-        f"Docs/task-env-format.ru.md#{_RU_CONSTRAINTS_ANCHOR}"
+        "https://github.com/step-in-dev/robot/blob/main/Docs/task-env-format.ru.md"
     ),
+}
+
+_RU_IF_WHILE_ANCHOR = "iflimit-%D0%B8-whilelimit"
+_RU_REQUIRED_BANNED_ANCHOR = "requiredkeywords-%D0%B8-bannedkeywords"
+
+EDITOR_CONSTRAINT_FIELDS = (
+    "operatorsLimit",
+    "customFunctionCallCount",
+    "ifLimit",
+    "whileLimit",
+    "requiredKeywords",
+    "bannedKeywords",
+)
+
+EDITOR_CONSTRAINT_DOC_ANCHORS: Dict[str, Dict[str, str]] = {
+    "en": {
+        "operatorsLimit": "operatorslimit",
+        "customFunctionCallCount": "customfunctioncallcount",
+        "ifLimit": "iflimit-and-whilelimit",
+        "whileLimit": "iflimit-and-whilelimit",
+        "requiredKeywords": "requiredkeywords-and-bannedkeywords",
+        "bannedKeywords": "requiredkeywords-and-bannedkeywords",
+    },
+    "ru": {
+        "operatorsLimit": "operatorslimit",
+        "customFunctionCallCount": "customfunctioncallcount",
+        "ifLimit": _RU_IF_WHILE_ANCHOR,
+        "whileLimit": _RU_IF_WHILE_ANCHOR,
+        "requiredKeywords": _RU_REQUIRED_BANNED_ANCHOR,
+        "bannedKeywords": _RU_REQUIRED_BANNED_ANCHOR,
+    },
 }
 
 COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {

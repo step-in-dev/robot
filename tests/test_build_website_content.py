@@ -177,11 +177,28 @@ class BuildEditorPageTest(unittest.TestCase):
             flags=re.DOTALL,
         )
         self.assertIsNotNone(steps)
-        self.assertEqual(steps.group(1).count("<li>"), 5)
-        self.assertIn("https://stepindev.com/en/py-robot", html)
+        self.assertEqual(steps.group(1).count("<li>"), 4)
+        self.assertIn("python editor/editor.py", html)
+        self.assertIn("github.com/step-in-dev/robot/releases", html)
+        self.assertIn("GitHub Releases</a>", html)
+        self.assertNotIn("repository root", html)
+        self.assertIn("robot/tasks", html)
         self.assertIn('src="img/editor/editor.png"', html)
-        self.assertIn('src="img/editor/save_env_en.png"', html)
-        self.assertIn("Docs/task-env-format.md#solution-constraints", html)
+        self.assertIn("width=\"846\" height=\"554\"", html)
+        self.assertNotIn("save_env_en.png", html)
+        self.assertNotIn("stepindev.com/en/py-robot", html)
+        self.assertIn("todoText", html)
+        self.assertIn("Max Robot commands and function calls", html)
+        self.assertIn(
+            'Docs/task-env-format.md#operatorslimit" rel="noopener noreferrer" '
+            'target="_blank"><code>operatorsLimit</code></a>',
+            html,
+        )
+        self.assertNotIn(">description</a>", html)
+        self.assertIn("Docs/task-env-format.md#operatorslimit", html)
+        self.assertIn("Docs/task-env-format.md#customfunctioncallcount", html)
+        self.assertIn("Docs/task-env-format.md#iflimit-and-whilelimit", html)
+        self.assertIn("Docs/task-env-format.md#requiredkeywords-and-bannedkeywords", html)
         self.assertIn('href="editor.html"', html)
         self.assertIn('task("robot")', html)
 
@@ -189,13 +206,26 @@ class BuildEditorPageTest(unittest.TestCase):
         html = build_editor_page("ru")
 
         self.assertIn("<h1>Редактор обстановок</h1>", html)
-        self.assertIn("https://stepindev.com/ru/py-robot", html)
-        self.assertIn('src="img/editor/save_env_ru.png"', html)
-        self.assertIn('href="editor_ru.html"', html)
+        self.assertIn("python editor/editor.py", html)
+        self.assertIn("github.com/step-in-dev/robot/releases", html)
+        self.assertNotIn("корня репозитория", html)
+        self.assertIn("robot/tasks", html)
+        self.assertNotIn("save_env_ru.png", html)
+        self.assertNotIn("stepindev.com/ru/py-robot", html)
+        self.assertIn("todoText", html)
+        self.assertIn("Макс. команд Робота и вызовов функций", html)
         self.assertIn(
-            "Docs/task-env-format.ru.md#"
-            "%D0%BE%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-"
-            "%D0%BD%D0%B0-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5",
+            'Docs/task-env-format.ru.md#operatorslimit" rel="noopener noreferrer" '
+            'target="_blank"><code>operatorsLimit</code></a>',
+            html,
+        )
+        self.assertNotIn(">описание</a>", html)
+        self.assertIn('href="editor_ru.html"', html)
+        self.assertIn("Docs/task-env-format.ru.md#operatorslimit", html)
+        self.assertIn("Docs/task-env-format.ru.md#customfunctioncallcount", html)
+        self.assertIn("Docs/task-env-format.ru.md#iflimit-%D0%B8-whilelimit", html)
+        self.assertIn(
+            "Docs/task-env-format.ru.md#requiredkeywords-%D0%B8-bannedkeywords",
             html,
         )
 
