@@ -1,8 +1,8 @@
 # Robot
 
-Tento projekt je vzdělávací simulátor **Robota** pro výuku základů programování a algoritmů. Studenti píší krátké programy v Pythonu, které pohybují Robotem na mřížce, vybarvují buňky, čtou prostředí a řeší malé úlohy s okamžitou vizuální zpětnou vazbou v okně aplikace.
+Tento projekt je vzdělávací simulátor Robota pro výuku základů programování a algoritmů. Studenti píší krátké programy v Pythonu, které pohybují Robotem na mřížce, vybarvují buňky, čtou prostředí a řeší malé úlohy s okamžitou vizuální zpětnou vazbou v okně aplikace.
 
-Je určen pro **studenty** a všechny, kdo začínají s programováním: posloupnosti, cykly, podmínky a jednoduché řešení problémů v přívětivém, herním prostředí.
+Je určen pro studenty a všechny, kdo začínají s programováním: posloupnosti, cykly, podmínky a jednoduché řešení problémů v přívětivém, herním prostředí.
 
 **Web:** [robot.stepindev.com](https://robot.stepindev.com) – katalog úloh, přehled příkazů a články.
 

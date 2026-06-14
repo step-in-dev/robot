@@ -1,8 +1,8 @@
 # Robot
 
-Ten projekt to edukacyjny symulator **Robota** do nauki podstaw programowania i algorytmów. Uczniowie piszą krótkie programy w Pythonie, które poruszają Robotem na siatce, malują komórki, odczytują stan środowiska i rozwiązują małe zadania z natychmiastową wizualną informacją zwrotną w oknie aplikacji.
+Ten projekt to edukacyjny symulator Robota do nauki podstaw programowania i algorytmów. Uczniowie piszą krótkie programy w Pythonie, które poruszają Robotem na siatce, malują komórki, odczytują stan środowiska i rozwiązują małe zadania z natychmiastową wizualną informacją zwrotną w oknie aplikacji.
 
-Przeznaczony jest dla **uczniów** i wszystkich, którzy zaczynają naukę programowania: sekwencje, pętle, warunki i proste rozwiązywanie problemów w przyjaznym, przypominającym grę otoczeniu.
+Przeznaczony jest dla uczniów i wszystkich, którzy zaczynają naukę programowania: sekwencje, pętle, warunki i proste rozwiązywanie problemów w przyjaznym, przypominającym grę otoczeniu.
 
 **Strona:** [robot.stepindev.com](https://robot.stepindev.com) – katalog zadań, spis poleceń i artykuły.
 

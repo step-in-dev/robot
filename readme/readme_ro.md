@@ -1,8 +1,8 @@
 # Robot
 
-Acest proiect este un simulator educațional **Robot** pentru învățarea programării de bază și a algoritmilor. Elevii scriu scurte programe Python care mută Robotul pe o grilă, vopsesc celule, citesc mediul și îndeplinesc sarcini mici cu feedback vizual imediat într-o fereastră desktop.
+Acest proiect este un simulator educațional Robot pentru învățarea programării de bază și a algoritmilor. Elevii scriu scurte programe Python care mută Robotul pe o grilă, vopsesc celule, citesc mediul și îndeplinesc sarcini mici cu feedback vizual imediat într-o fereastră desktop.
 
-Este destinat **elevilor** și oricui începe să învețe programare: secvențiere, bucle, condiții și rezolvarea simplă de probleme într-un cadru prietenos, de tip joc.
+Este destinat elevilor și oricui începe să învețe programare: secvențiere, bucle, condiții și rezolvarea simplă de probleme într-un cadru prietenos, de tip joc.
 
 **Site:** [robot.stepindev.com](https://robot.stepindev.com) – catalog de sarcini, referință de comenzi și articole.
 

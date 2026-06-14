@@ -1,8 +1,8 @@
 # Robot
 
-Detta projekt är en pedagogisk **Robot**-simulator för att lära sig grunderna i programmering och algoritmer. Elever skriver korta Python-program som flyttar Roboten på ett rutnät, målar celler, läser av miljön och löser små uppgifter med omedelbar visuell återkoppling i ett fönster.
+Detta projekt är en pedagogisk Robot-simulator för att lära sig grunderna i programmering och algoritmer. Elever skriver korta Python-program som flyttar Roboten på ett rutnät, målar celler, läser av miljön och löser små uppgifter med omedelbar visuell återkoppling i ett fönster.
 
-Det är avsett för **skolelever** och alla som börjar lära sig programmering: sekvenser, loopar, villkor och enkel problemlösning i en vänlig, spelliknande miljö.
+Det är avsett för skolelever och alla som börjar lära sig programmering: sekvenser, loopar, villkor och enkel problemlösning i en vänlig, spelliknande miljö.
 
 **Webbplats:** [robot.stepindev.com](https://robot.stepindev.com) – uppgiftskatalog, kommandoreferens och artiklar.
 

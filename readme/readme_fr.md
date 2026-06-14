@@ -1,8 +1,8 @@
 # Robot
 
-Ce projet est un simulateur éducatif **Robot** pour l'apprentissage des bases de la programmation et des algorithmes. Les élèves écrivent de courts programmes Python qui déplacent le Robot sur une grille, peignent des cases, lisent l'environnement et accomplissent de petites tâches avec un retour visuel immédiat dans une fenêtre de bureau.
+Ce projet est un simulateur éducatif Robot pour l'apprentissage des bases de la programmation et des algorithmes. Les élèves écrivent de courts programmes Python qui déplacent le Robot sur une grille, peignent des cases, lisent l'environnement et accomplissent de petites tâches avec un retour visuel immédiat dans une fenêtre de bureau.
 
-Il est destiné aux **élèves** et à toute personne débutant en programmation : séquences, boucles, conditions et résolution simple de problèmes dans un cadre convivial et ludique.
+Il est destiné aux élèves et à toute personne débutant en programmation : séquences, boucles, conditions et résolution simple de problèmes dans un cadre convivial et ludique.
 
 **Site web :** [robot.stepindev.com](https://robot.stepindev.com) – catalogue de tâches, référence des commandes et articles.
 

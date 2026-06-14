@@ -1,8 +1,8 @@
 # Robot
 
-Bu proje, temel programlama ve algoritmaları öğrenmek için eğitim amaçlı bir **Robot** simülatörüdür. Öğrenciler, Robotu bir ızgara üzerinde hareket ettiren, hücreleri boyayan, ortamı okuyan ve masaüstü penceresinde anında görsel geri bildirimle küçük görevleri tamamlayan kısa Python programları yazarlar.
+Bu proje, temel programlama ve algoritmaları öğrenmek için eğitim amaçlı bir Robot simülatörüdür. Öğrenciler, Robotu bir ızgara üzerinde hareket ettiren, hücreleri boyayan, ortamı okuyan ve masaüstü penceresinde anında görsel geri bildirimle küçük görevleri tamamlayan kısa Python programları yazarlar.
 
-**Okul öğrencileri** ve programlamayı öğrenmeye yeni başlayan herkes için tasarlanmıştır: sıralama, döngüler, koşullar ve dostane, oyun benzeri bir ortamda basit problem çözme.
+Okul öğrencileri ve programlamayı öğrenmeye yeni başlayan herkes için tasarlanmıştır: sıralama, döngüler, koşullar ve dostane, oyun benzeri bir ortamda basit problem çözme.
 
 **Web sitesi:** [robot.stepindev.com](https://robot.stepindev.com) – görev kataloğu, komut referansı ve makaleler.
 

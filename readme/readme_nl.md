@@ -1,8 +1,8 @@
 # Robot
 
-Dit project is een educatieve **Robot**-simulator voor het leren van de basis van programmeren en algoritmen. Leerlingen schrijven korte Python-programma's die de Robot op een raster verplaatsen, cellen verven, de omgeving uitlezen en kleine taken voltooien met directe visuele terugkoppeling in een bureaubladvenster.
+Dit project is een educatieve Robot-simulator voor het leren van de basis van programmeren en algoritmen. Leerlingen schrijven korte Python-programma's die de Robot op een raster verplaatsen, cellen verven, de omgeving uitlezen en kleine taken voltooien met directe visuele terugkoppeling in een bureaubladvenster.
 
-Het is bedoeld voor **leerlingen** en iedereen die begint met programmeren: sequenties, lussen, voorwaarden en eenvoudig probleemoplossen in een vriendelijke, spelachtige omgeving.
+Het is bedoeld voor leerlingen en iedereen die begint met programmeren: sequenties, lussen, voorwaarden en eenvoudig probleemoplossen in een vriendelijke, spelachtige omgeving.
 
 **Website:** [robot.stepindev.com](https://robot.stepindev.com) – taakcatalogus, commandoreferentie en artikelen.
 

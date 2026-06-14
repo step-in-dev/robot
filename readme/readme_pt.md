@@ -1,8 +1,8 @@
 # Robô
 
-Este projeto é um simulador educacional do **Robô** para aprender os fundamentos da programação e de algoritmos. Os alunos escrevem programas curtos em Python que movem o Robô por uma grade, pintam células, leem o ambiente e completam pequenas tarefas com retorno visual imediato em uma janela de ambiente de trabalho.
+Este projeto é um simulador educacional do Robô para aprender os fundamentos da programação e de algoritmos. Os alunos escrevem programas curtos em Python que movem o Robô por uma grade, pintam células, leem o ambiente e completam pequenas tarefas com retorno visual imediato em uma janela de ambiente de trabalho.
 
-Ele é destinado a **alunos de escola** e qualquer pessoa que esteja começando a aprender programação: sequências, laços, condições e resolução simples de problemas em um ambiente amigável, semelhante a um jogo.
+Ele é destinado a alunos de escola e qualquer pessoa que esteja começando a aprender programação: sequências, laços, condições e resolução simples de problemas em um ambiente amigável, semelhante a um jogo.
 
 **Site:** [robot.stepindev.com](https://robot.stepindev.com) – catálogo de tarefas, referência de comandos e artigos.
 

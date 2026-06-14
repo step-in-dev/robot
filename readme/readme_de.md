@@ -1,8 +1,8 @@
 # Robot
 
-Dieses Projekt ist ein pädagogischer **Roboter**-Simulator zum Erlernen der Grundlagen von Programmierung und Algorithmik. Schüler schreiben kurze Python-Programme, die den Roboter auf einem Gitter bewegen, Zellen färben, die Umgebung auslesen und kleine Aufgaben mit sofortiger visueller Rückmeldung in einem Desktop-Fenster lösen.
+Dieses Projekt ist ein pädagogischer Roboter-Simulator zum Erlernen der Grundlagen von Programmierung und Algorithmik. Schüler schreiben kurze Python-Programme, die den Roboter auf einem Gitter bewegen, Zellen färben, die Umgebung auslesen und kleine Aufgaben mit sofortiger visueller Rückmeldung in einem Desktop-Fenster lösen.
 
-Es ist für **Schüler** und alle gedacht, die mit dem Programmieren beginnen: Sequenzen, Schleifen, Bedingungen und einfaches Problemlösen in einer freundlichen, spielähnlichen Umgebung.
+Es ist für Schüler und alle gedacht, die mit dem Programmieren beginnen: Sequenzen, Schleifen, Bedingungen und einfaches Problemlösen in einer freundlichen, spielähnlichen Umgebung.
 
 **Website:** [robot.stepindev.com](https://robot.stepindev.com) – Aufgabenkatalog, Befehlsreferenz und Artikel.
 

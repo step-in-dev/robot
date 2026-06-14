@@ -1,8 +1,8 @@
 # Robot
 
-Ez a projekt egy oktatási **Robot**-szimulátor az alapvető programozás és algoritmusok tanulásához. A diákok rövid Python programokat írnak, amelyek mozgatják a Robotot egy rácson, cellákat festenek be, beolvassák a környezetet, és kis feladatokat oldanak meg azonnali vizuális visszajelzéssel egy asztali ablakban.
+Ez a projekt egy oktatási Robot-szimulátor az alapvető programozás és algoritmusok tanulásához. A diákok rövid Python programokat írnak, amelyek mozgatják a Robotot egy rácson, cellákat festenek be, beolvassák a környezetet, és kis feladatokat oldanak meg azonnali vizuális visszajelzéssel egy asztali ablakban.
 
-Iskolai **diákoknak** és mindenkinek készült, aki most kezd programozni tanulni: szekvenciák, ciklusok, feltételek és egyszerű problémamegoldás barátságos, játékszerű környezetben.
+Iskolai diákoknak és mindenkinek készült, aki most kezd programozni tanulni: szekvenciák, ciklusok, feltételek és egyszerű problémamegoldás barátságos, játékszerű környezetben.
 
 **Weboldal:** [robot.stepindev.com](https://robot.stepindev.com) – feladatkatalógus, parancsreferencia és cikkek.
 
