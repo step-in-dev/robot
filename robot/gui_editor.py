@@ -42,7 +42,11 @@ from .gui_theme import (
     ICON_BUTTON_PAD_Y,
     MIN_EDITOR_WINDOW_WIDTH,
 )
-from .gui_todo import create_todo_banner
+from .gui_todo import (
+    create_todo_banner,
+    set_todo_banner_text,
+    set_todo_banner_wrap_pixels,
+)
 from .gui_dialogs import prompt_string_dialog
 from .gui_editor_constraints import (
     _ConstraintsDialogState,
@@ -118,7 +122,7 @@ class _EditorChrome:  # pylint: disable=too-many-instance-attributes
     """Tk widgets owned by the editor window."""
 
     todo_frame: Optional[tk.Frame] = None
-    todo_label: Optional[tk.Label] = None
+    todo_label: Optional[tk.Text] = None
     todo_section: Optional[tk.Frame] = None
     todo_edit_button: Optional[tk.Button] = None
     constraints_edit_button: Optional[tk.Button] = None
@@ -376,7 +380,8 @@ class EditorWindow(EditorFileMixin):
                     pady=(2, 2),
                     before=self._chrome.env_tabs_bar,
                 )
-            self._chrome.todo_label.configure(text=display_text, wraplength=wraplength)
+            set_todo_banner_text(self._chrome.todo_label, display_text)
+            set_todo_banner_wrap_pixels(self._chrome.todo_label, wraplength)
             return
         assert self._chrome.todo_section is not None
         assert self._chrome.env_tabs_bar is not None

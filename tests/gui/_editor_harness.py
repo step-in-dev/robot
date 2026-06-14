@@ -225,12 +225,9 @@ class EditorWindowHarness(EditorWindow):  # pylint: disable=too-many-public-meth
         assert self._chrome.pollution_spin_host is not None
         return self._chrome.pollution_spin_host.winfo_id()
 
-    def todo_label_wraplength(self) -> int:
+    def todo_text_width_chars(self) -> int:
         assert self._chrome.todo_label is not None
-        return int(self._chrome.todo_label.cget("wraplength"))
-
-    def expected_todo_wraplength(self) -> int:
-        return max(self._layout.canvas_width, 320)
+        return int(self._chrome.todo_label.cget("width"))
 
     def edit_constraints(self, **values: str) -> None:
         fields = ConstraintFieldInput(**values)

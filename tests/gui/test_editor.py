@@ -415,14 +415,10 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
         window = EditorWindowHarness(document)
         try:
             window.root.update_idletasks()
-            self.assertEqual(
-                window.todo_label_wraplength(), window.expected_todo_wraplength()
-            )
+            initial_width = window.todo_text_width_chars()
             window.resize_field(12, 12)
             window.root.update_idletasks()
-            self.assertEqual(
-                window.todo_label_wraplength(), window.expected_todo_wraplength()
-            )
+            self.assertGreater(window.todo_text_width_chars(), initial_width)
         finally:
             close_editor_for_teardown(window)
 

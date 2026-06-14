@@ -54,7 +54,7 @@ from .gui_theme import (
     STATUS_WRONG,
     TODO_TEXT_BORDER,
 )
-from .gui_todo import create_todo_banner
+from .gui_todo import create_todo_banner, set_todo_banner_wrap_pixels
 from ._version import __version__
 from .i18n import t
 from .loader import RobotTask, ScriptConstraints
@@ -114,7 +114,7 @@ class _ChromeState:  # pylint: disable=too-many-instance-attributes
 
     viewer_toolbar: Optional[tk.Frame] = None
     todo_frame: Optional[tk.Frame] = None
-    todo_label: Optional[tk.Label] = None
+    todo_label: Optional[tk.Text] = None
     top_toolbar: Optional[tk.Frame] = None
     tab_frame: Optional[tk.Frame] = None
     tab_buttons: List[tk.Button] = field(default_factory=list)
@@ -341,8 +341,8 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         return self._chrome.todo_frame
 
     @property
-    def todo_label(self) -> Optional[tk.Label]:
-        """todoText banner label inside ``todo_frame``."""
+    def todo_label(self) -> Optional[tk.Text]:
+        """todoText read-only text widget inside ``todo_frame``."""
         return self._chrome.todo_label
 
     @property
@@ -518,8 +518,9 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             width=self._layout.canvas_width, height=self._layout.canvas_height
         )
         if self._chrome.todo_label is not None:
-            self._chrome.todo_label.configure(
-                wraplength=max(self._layout.canvas_width, 320)
+            set_todo_banner_wrap_pixels(
+                self._chrome.todo_label,
+                max(self._layout.canvas_width, 320),
             )
 
     def apply_task_payload(self, task_id: str, task_definition: RobotTask) -> None:
