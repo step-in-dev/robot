@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() n'accepte que des entiers",
   "model.error.missing_env_field": "Champ d'environnement manquant : {field}",
   "model.error.invalid_env_format": "Format d'environnement Robot invalide",
-  "model.error.width_not_positive": "La largeur du champ doit être un entier positif, obtenu {width}",
-  "model.error.height_not_positive": "La hauteur du champ doit être un entier positif, obtenue {height}",
   "model.error.start_position_out_of_bounds": "La position de départ du Robot ({row}, {col}) est en dehors du champ de taille {height}×{width}",
   "model.error.final_position_out_of_bounds": "La position cible ({row}, {col}) est en dehors du champ de taille {height}×{width}",
   "model.error.cell_out_of_bounds": "La case ({r}, {c}) dans {field} est en dehors des limites du champ",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Mots-clés interdits (séparés par des virgules)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Modifications non enregistrées",
-  "editor.confirm.unsaved": "La tâche contient des modifications non enregistrées. Les enregistrer avant de continuer ?"
+  "editor.confirm.unsaved": "La tâche contient des modifications non enregistrées. Les enregistrer avant de continuer ?",
+  "model.error.width_out_of_range": "La largeur du champ doit être comprise entre {min} et {max}, obtenu {width}",
+  "model.error.height_out_of_range": "La hauteur du champ doit être comprise entre {min} et {max}, obtenue {height}",
+  "model.error.pollution_value_out_of_range": "La valeur de pollution en ({r}, {c}) doit être comprise entre {min} et {max}, obtenue {value}",
+  "model.error.print_value_out_of_range": "Le nombre attendu en ({r}, {c}) doit être compris entre {min} et {max}, obtenu {value}",
+  "loader.env_dto_invalid": "Environnement invalide envDtos[{index}] : {detail} ({task_path})",
+  "loader.too_many_environments": "Le fichier de tâche a {count} environnements, mais au plus {max} sont autorisés : {task_path}"
 }

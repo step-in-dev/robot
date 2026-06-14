@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() accepteert alleen gehele getallen",
   "model.error.missing_env_field": "Omgevingsveld ontbreekt: {field}",
   "model.error.invalid_env_format": "Ongeldig Robotomgevingsformaat",
-  "model.error.width_not_positive": "Veldbreedte moet een positief geheel getal zijn, gekregen {width}",
-  "model.error.height_not_positive": "Veldhoogte moet een positief geheel getal zijn, gekregen {height}",
   "model.error.start_position_out_of_bounds": "Startpositie van de Robot ({row}, {col}) ligt buiten het veld van grootte {height}×{width}",
   "model.error.final_position_out_of_bounds": "Doelpositie ({row}, {col}) ligt buiten het veld van grootte {height}×{width}",
   "model.error.cell_out_of_bounds": "Cel ({r}, {c}) in {field} ligt buiten de veldgrenzen",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Verboden trefwoorden (kommagescheiden)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Niet-opgeslagen wijzigingen",
-  "editor.confirm.unsaved": "De taak bevat niet-opgeslagen wijzigingen. Opslaan voordat u doorgaat?"
+  "editor.confirm.unsaved": "De taak bevat niet-opgeslagen wijzigingen. Opslaan voordat u doorgaat?",
+  "model.error.width_out_of_range": "De veldbreedte moet tussen {min} en {max} liggen, gekregen {width}",
+  "model.error.height_out_of_range": "De veldhoogte moet tussen {min} en {max} liggen, gekregen {height}",
+  "model.error.pollution_value_out_of_range": "De vervuilingswaarde op ({r}, {c}) moet tussen {min} en {max} liggen, gekregen {value}",
+  "model.error.print_value_out_of_range": "Het verwachte getal op ({r}, {c}) moet tussen {min} en {max} liggen, gekregen {value}",
+  "loader.env_dto_invalid": "Ongeldige omgeving envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Taakbestand heeft {count} omgevingen, maar hoogstens {max} zijn toegestaan: {task_path}"
 }

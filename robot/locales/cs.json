@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() přijímá pouze celá čísla",
   "model.error.missing_env_field": "Chybějící pole prostředí: {field}",
   "model.error.invalid_env_format": "Neplatný formát prostředí Robota",
-  "model.error.width_not_positive": "Šířka pole musí být kladné celé číslo, zadáno {width}",
-  "model.error.height_not_positive": "Výška pole musí být kladné celé číslo, zadáno {height}",
   "model.error.start_position_out_of_bounds": "Počáteční pozice Robota ({row}, {col}) je mimo pole o velikosti {height}×{width}",
   "model.error.final_position_out_of_bounds": "Cílová pozice ({row}, {col}) je mimo pole o velikosti {height}×{width}",
   "model.error.cell_out_of_bounds": "Buňka ({r}, {c}) v {field} je mimo hranice pole",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Zakázaná klíčová slova (oddělená čárkou)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Neuložené změny",
-  "editor.confirm.unsaved": "Úkol obsahuje neuložené změny. Uložit je před pokračováním?"
+  "editor.confirm.unsaved": "Úkol obsahuje neuložené změny. Uložit je před pokračováním?",
+  "model.error.width_out_of_range": "Šířka pole musí být mezi {min} a {max}, zadáno {width}",
+  "model.error.height_out_of_range": "Výška pole musí být mezi {min} a {max}, zadáno {height}",
+  "model.error.pollution_value_out_of_range": "Hodnota znečištění v ({r}, {c}) musí být mezi {min} a {max}, zadáno {value}",
+  "model.error.print_value_out_of_range": "Očekávané číslo v ({r}, {c}) musí být mezi {min} a {max}, zadáno {value}",
+  "loader.env_dto_invalid": "Neplatné prostředí envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Soubor úlohy má {count} prostředí, ale povoleno je nejvýše {max}: {task_path}"
 }

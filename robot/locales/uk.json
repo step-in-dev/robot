@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() приймає лише цілі числа",
   "model.error.missing_env_field": "Відсутнє поле середовища: {field}",
   "model.error.invalid_env_format": "Невірний формат середовища Робота",
-  "model.error.width_not_positive": "Ширина поля має бути додатним числом, отримано {width}",
-  "model.error.height_not_positive": "Висота поля має бути додатним числом, отримано {height}",
   "model.error.start_position_out_of_bounds": "Початкова позиція Робота ({row}, {col}) виходить за межі поля розміром {height}×{width}",
   "model.error.final_position_out_of_bounds": "Кінцева позиція ({row}, {col}) виходить за межі поля розміром {height}×{width}",
   "model.error.cell_out_of_bounds": "Клітинка ({r}, {c}) у {field} виходить за межі поля",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Заборонені ключові слова (через кому)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Незбережені зміни",
-  "editor.confirm.unsaved": "У завданні є незбережені зміни. Зберегти їх перед продовженням?"
+  "editor.confirm.unsaved": "У завданні є незбережені зміни. Зберегти їх перед продовженням?",
+  "model.error.width_out_of_range": "Ширина поля має бути між {min} і {max}, отримано {width}",
+  "model.error.height_out_of_range": "Висота поля має бути між {min} і {max}, отримано {height}",
+  "model.error.pollution_value_out_of_range": "Рівень забруднення в ({r}, {c}) має бути між {min} і {max}, отримано {value}",
+  "model.error.print_value_out_of_range": "Очікуване число в ({r}, {c}) має бути між {min} і {max}, отримано {value}",
+  "loader.env_dto_invalid": "Некоректне середовище envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Файл завдання містить {count} середовищ, але дозволено не більше {max}: {task_path}"
 }

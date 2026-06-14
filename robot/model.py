@@ -9,6 +9,11 @@ from .i18n import t
 
 MAX_FIELD_WIDTH = 25
 MAX_FIELD_HEIGHT = 16
+MAX_ENV_COUNT = 7
+POLLUTION_VALUE_MIN = 1
+POLLUTION_VALUE_MAX = 99
+PRINT_VALUE_MIN = -99
+PRINT_VALUE_MAX = 99
 
 Direction = str
 
@@ -114,14 +119,55 @@ class RobotEnvDto:  # pylint: disable=too-many-instance-attributes
         self._validate_dimensions()
         self._validate_start_and_final_in_bounds()
         self._validate_cell_collections_in_bounds()
+        self._validate_valued_cell_ranges()
         self._validate_painted_and_to_paint_disjoint()
         self._validate_walls()
 
     def _validate_dimensions(self) -> None:
-        if self.width <= 0:
-            raise ValueError(t("model.error.width_not_positive", width=self.width))
-        if self.height <= 0:
-            raise ValueError(t("model.error.height_not_positive", height=self.height))
+        if not 1 <= self.width <= MAX_FIELD_WIDTH:
+            raise ValueError(
+                t(
+                    "model.error.width_out_of_range",
+                    width=self.width,
+                    min=1,
+                    max=MAX_FIELD_WIDTH,
+                )
+            )
+        if not 1 <= self.height <= MAX_FIELD_HEIGHT:
+            raise ValueError(
+                t(
+                    "model.error.height_out_of_range",
+                    height=self.height,
+                    min=1,
+                    max=MAX_FIELD_HEIGHT,
+                )
+            )
+
+    def _validate_valued_cell_ranges(self) -> None:
+        for cell in self.polluted_cells:
+            if not POLLUTION_VALUE_MIN <= cell.value <= POLLUTION_VALUE_MAX:
+                raise ValueError(
+                    t(
+                        "model.error.pollution_value_out_of_range",
+                        r=cell.r,
+                        c=cell.c,
+                        value=cell.value,
+                        min=POLLUTION_VALUE_MIN,
+                        max=POLLUTION_VALUE_MAX,
+                    )
+                )
+        for cell in self.cells_to_print:
+            if not PRINT_VALUE_MIN <= cell.value <= PRINT_VALUE_MAX:
+                raise ValueError(
+                    t(
+                        "model.error.print_value_out_of_range",
+                        r=cell.r,
+                        c=cell.c,
+                        value=cell.value,
+                        min=PRINT_VALUE_MIN,
+                        max=PRINT_VALUE_MAX,
+                    )
+                )
 
     def _validate_start_and_final_in_bounds(self) -> None:
         if not (0 <= self.start_row < self.height and 0 <= self.start_col < self.width):

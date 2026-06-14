@@ -8,20 +8,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .env_dto_json import cell_to_dict
 from .i18n import DEFAULT_LANGUAGE, detect_language, t
-from .loader import (
-    ScriptConstraints,
-    TaskLoadError,
-    normalized_todo_text_map,
-    parse_script_constraints,
-    parse_task_payload,
-)
+from .script_constraints import ScriptConstraints
+from .task_errors import TaskLoadError
 from .model import (
     Cell,
-    RobotEnvDto,
-    ValuedCell,
     cell_from_dict,
 )
+from .task_payload import parse_script_constraints
+from .task_todo import normalized_todo_text_map
+from .task_validation import validate_desktop_task_payload
 
 TASK_FILE_EXTENSION = ".env"
 
@@ -111,59 +108,6 @@ def create_empty_document() -> EditorDocument:
     return EditorDocument(env_dtos=[create_default_env_dto()])
 
 
-def cell_to_dict(cell: Cell) -> dict:
-    """Serialize a grid cell to task JSON."""
-    return {"r": cell.r, "c": cell.c}
-
-
-def valued_cell_to_dict(cell: ValuedCell) -> dict:
-    """Serialize a valued grid cell to task JSON."""
-    return {"r": cell.r, "c": cell.c, "value": cell.value}
-
-
-def env_dto_to_dict(dto: RobotEnvDto) -> dict:
-    """Serialize a validated DTO back to task JSON."""
-    data: Dict[str, Any] = {
-        "width": dto.width,
-        "height": dto.height,
-        "startRow": dto.start_row,
-        "startCol": dto.start_col,
-        "finalRow": dto.final_row,
-        "finalCol": dto.final_col,
-    }
-    if dto.walls:
-        data["walls"] = [
-            [cell_to_dict(first), cell_to_dict(second)]
-            for first, second in dto.walls
-        ]
-    if dto.painted_cells:
-        data["paintedCells"] = [cell_to_dict(cell) for cell in dto.painted_cells]
-    if dto.cells_to_paint:
-        data["cellsToPaint"] = [cell_to_dict(cell) for cell in dto.cells_to_paint]
-    if dto.polluted_cells:
-        data["pollutedCells"] = [
-            valued_cell_to_dict(cell) for cell in dto.polluted_cells
-        ]
-    if dto.cells_to_print:
-        data["cellsToPrint"] = [
-            valued_cell_to_dict(cell) for cell in dto.cells_to_print
-        ]
-    return data
-
-
-def normalize_env_dto_dict(data: dict) -> dict:
-    """Validate and canonicalize one environment object."""
-    dto = RobotEnvDto.from_dict(data)
-    return env_dto_to_dict(dto)
-
-
-def normalize_env_dtos(env_dtos: List[dict]) -> List[dict]:
-    """Validate and canonicalize every environment in *env_dtos*."""
-    if not env_dtos:
-        raise ValueError(t("editor.error.no_environments"))
-    return [normalize_env_dto_dict(item) for item in env_dtos]
-
-
 def document_to_payload(document: EditorDocument) -> dict:
     """Build the top-level JSON object for saving."""
     payload = dict(document.preserved_fields)
@@ -187,17 +131,15 @@ def load_task_file(path: Path) -> EditorDocument:
     except json.JSONDecodeError as exc:
         raise TaskLoadError(t("loader.invalid_json", task_path=path)) from exc
 
-    env_dtos_data, _resolved_todo = parse_task_payload(data, path)
+    validated = validate_desktop_task_payload(data, path)
     preserved = {
         key: deepcopy(value)
         for key, value in data.items()
         if key not in _EDITABLE_TOP_LEVEL_KEYS
     }
-    raw_todo = data.get("todoText", "")
-    env_dtos = normalize_env_dtos(env_dtos_data)
     return EditorDocument(
-        env_dtos=env_dtos,
-        todo_text=deepcopy(raw_todo),
+        env_dtos=validated.env_dtos,
+        todo_text=deepcopy(validated.raw_todo),
         selected_env_index=0,
         file_path=path,
         preserved_fields=preserved,
@@ -206,17 +148,23 @@ def load_task_file(path: Path) -> EditorDocument:
 
 def save_task_file(path: Path, document: EditorDocument) -> None:
     """Write *document* to a ``.env`` file."""
-    document.env_dtos = normalize_env_dtos(document.env_dtos)
     payload = document_to_payload(document)
     try:
+        validated = validate_desktop_task_payload(payload, path)
+    except TaskLoadError as exc:
+        raise ValueError(str(exc)) from exc
+    write_payload = dict(payload)
+    write_payload["envDtos"] = validated.env_dtos
+    try:
         path.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            json.dumps(write_payload, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
     except OSError as exc:
         raise TaskSaveError(
             t("editor.error.cannot_save", task_path=path)
         ) from exc
+    document.env_dtos = validated.env_dtos
     document.file_path = path
 
 
@@ -395,7 +343,14 @@ def persisted_snapshot_from_document(document: EditorDocument) -> dict:
 
 def apply_snapshot(document: EditorDocument, snapshot: dict) -> None:
     """Restore *document* from a snapshot produced by :func:`snapshot_from_document`."""
-    document.env_dtos = normalize_env_dtos(deepcopy(snapshot["envDtos"]))
+    snapshot_payload: Dict[str, Any] = {
+        "envDtos": deepcopy(snapshot["envDtos"]),
+        **deepcopy(snapshot.get("preservedConstraints", {})),
+    }
+    if "todoText" in snapshot:
+        snapshot_payload["todoText"] = deepcopy(snapshot["todoText"])
+    validated = validate_desktop_task_payload(snapshot_payload, None)
+    document.env_dtos = validated.env_dtos
     document.selected_env_index = int(snapshot["selectedEnvIndex"])
     document.todo_text = deepcopy(snapshot.get("todoText", ""))
     _apply_constraint_snapshot_slice(

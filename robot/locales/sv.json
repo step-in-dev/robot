@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() accepterar endast heltal",
   "model.error.missing_env_field": "Saknat miljöfält: {field}",
   "model.error.invalid_env_format": "Ogiltigt Robot-miljöformat",
-  "model.error.width_not_positive": "Fältets bredd måste vara ett positivt heltal, fick {width}",
-  "model.error.height_not_positive": "Fältets höjd måste vara ett positivt heltal, fick {height}",
   "model.error.start_position_out_of_bounds": "Robotens startposition ({row}, {col}) är utanför fältet med storlek {height}×{width}",
   "model.error.final_position_out_of_bounds": "Målpositionen ({row}, {col}) är utanför fältet med storlek {height}×{width}",
   "model.error.cell_out_of_bounds": "Cell ({r}, {c}) i {field} är utanför fältets gränser",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Förbjudna nyckelord (kommaseparerade)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Osparade ändringar",
-  "editor.confirm.unsaved": "Uppgiften har osparade ändringar. Spara dem innan du fortsätter?"
+  "editor.confirm.unsaved": "Uppgiften har osparade ändringar. Spara dem innan du fortsätter?",
+  "model.error.width_out_of_range": "Fältets bredd måste vara mellan {min} och {max}, fick {width}",
+  "model.error.height_out_of_range": "Fältets höjd måste vara mellan {min} och {max}, fick {height}",
+  "model.error.pollution_value_out_of_range": "Föroreningsvärdet i ({r}, {c}) måste vara mellan {min} och {max}, fick {value}",
+  "model.error.print_value_out_of_range": "Det förväntade talet i ({r}, {c}) måste vara mellan {min} och {max}, fick {value}",
+  "loader.env_dto_invalid": "Ogiltig miljö envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Uppgiftsfilen har {count} miljöer, men högst {max} är tillåtna: {task_path}"
 }

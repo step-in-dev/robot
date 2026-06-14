@@ -14,7 +14,8 @@ from pathlib import Path
 from robot.command_help import iter_command_help
 from robot.gui_constraints import constraints_body_lines
 from robot.i18n import DEFAULT_LANGUAGE, t
-from robot.loader import ScriptConstraints, find_task_file, normalized_todo_text_map
+from robot.loader import ScriptConstraints, find_task_file
+from robot.task_todo import normalized_todo_text_map
 
 from tools.website_content_data import (
     SITE_BASE,
@@ -39,7 +40,7 @@ def _ui(lang: str, key: str, **kwargs: object) -> str:
 
 
 def resolve_todo_text_for_language(raw: Any, language: str) -> str:
-    """Like :func:`robot.loader.resolve_todo_text` but for a fixed site language."""
+    """Like :func:`robot.task_todo.resolve_todo_text` but for a fixed site language."""
     if isinstance(raw, str):
         return raw
     if not isinstance(raw, dict):

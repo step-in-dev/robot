@@ -20,8 +20,6 @@
   "model.error.printn_integers": "يقبل ⁦printn()⁩ الأعداد الصحيحة فقط",
   "model.error.missing_env_field": "حقل البيئة مفقود: ⁨{field}⁩",
   "model.error.invalid_env_format": "تنسيق بيئة الروبوت غير صالح",
-  "model.error.width_not_positive": "يجب أن يكون عرض الحقل عددًا صحيحًا موجبًا، حصل على ⁦{width}⁩",
-  "model.error.height_not_positive": "يجب أن يكون ارتفاع الحقل عددًا صحيحًا موجبًا، حصل على ⁦{height}⁩",
   "model.error.start_position_out_of_bounds": "موقع بدء الروبوت ⁦({row}، {col})⁩ خارج الحقل بحجم ⁦{height}×{width}⁩",
   "model.error.final_position_out_of_bounds": "الموقع المطلوب ⁦({row}، {col})⁩ خارج الحقل بحجم ⁦{height}×{width}⁩",
   "model.error.cell_out_of_bounds": "الخلية ⁦({r}، {c})⁩ في ⁨{field}⁩ خارج حدود الحقل",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "الكلمات المفتاحية الممنوعة (مفصولة بفواصل)",
   "loader.task_path_suffix": ": ⁨{task_path}⁩",
   "editor.confirm.unsaved_title": "تغييرات غير محفوظة",
-  "editor.confirm.unsaved": "تحتوي المهمة على تغييرات غير محفوظة. هل تريد حفظها قبل المتابعة؟"
+  "editor.confirm.unsaved": "تحتوي المهمة على تغييرات غير محفوظة. هل تريد حفظها قبل المتابعة؟",
+  "model.error.width_out_of_range": "يجب أن يكون عرض الحقل بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{width}⁩",
+  "model.error.height_out_of_range": "يجب أن يكون ارتفاع الحقل بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{height}⁩",
+  "model.error.pollution_value_out_of_range": "يجب أن تكون قيمة التلوث في ⁦({r}، {c})⁩ بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{value}⁩",
+  "model.error.print_value_out_of_range": "يجب أن يكون العدد المتوقع في ⁦({r}، {c})⁩ بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{value}⁩",
+  "loader.env_dto_invalid": "البيئة ⁦envDtos[{index}]⁩ غير صالحة: ⁨{detail}⁩ (⁨{task_path}⁩)",
+  "loader.too_many_environments": "يحتوي ملف المهمة على ⁦{count}⁩ بيئات، لكن الحد الأقصى المسموح هو ⁦{max}⁩: ⁨{task_path}⁩"
 }

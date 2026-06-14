@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() acceptă doar numere întregi",
   "model.error.missing_env_field": "Lipsește câmpul mediului: {field}",
   "model.error.invalid_env_format": "Formatul mediului Robot este nevalid",
-  "model.error.width_not_positive": "Lățimea câmpului trebuie să fie un număr întreg pozitiv, primit {width}",
-  "model.error.height_not_positive": "Înălțimea câmpului trebuie să fie un număr întreg pozitiv, primit {height}",
   "model.error.start_position_out_of_bounds": "Poziția de start a Robotului ({row}, {col}) este în afara câmpului de dimensiune {height}×{width}",
   "model.error.final_position_out_of_bounds": "Poziția finală ({row}, {col}) este în afara câmpului de dimensiune {height}×{width}",
   "model.error.cell_out_of_bounds": "Celula ({r}, {c}) în {field} este în afara limitelor câmpului",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Cuvinte cheie interzise (separate prin virgulă)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Modificări nesalvate",
-  "editor.confirm.unsaved": "Sarcina are modificări nesalvate. Le salvezi înainte de a continua?"
+  "editor.confirm.unsaved": "Sarcina are modificări nesalvate. Le salvezi înainte de a continua?",
+  "model.error.width_out_of_range": "Lățimea câmpului trebuie să fie între {min} și {max}, primit {width}",
+  "model.error.height_out_of_range": "Înălțimea câmpului trebuie să fie între {min} și {max}, primit {height}",
+  "model.error.pollution_value_out_of_range": "Valoarea poluării la ({r}, {c}) trebuie să fie între {min} și {max}, primit {value}",
+  "model.error.print_value_out_of_range": "Numărul așteptat la ({r}, {c}) trebuie să fie între {min} și {max}, primit {value}",
+  "loader.env_dto_invalid": "Mediu nevalid envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Fișierul sarcinii are {count} medii, dar sunt permise cel mult {max}: {task_path}"
 }

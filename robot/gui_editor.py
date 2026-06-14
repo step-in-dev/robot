@@ -55,7 +55,7 @@ from .gui_editor_constraints import (
 from .gui_editor_file import EditorFileMixin
 from .gui_tooltip import bind_tooltip
 from .i18n import t
-from .loader import resolve_todo_text_for_ui
+from .task_todo import resolve_todo_text_for_ui
 from .model import RobotEnv
 from .task_serializer import (
     EditorDocument,

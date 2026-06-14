@@ -21,7 +21,7 @@ if str(PROJECT_ROOT) not in sys.path:
 # pylint: disable=wrong-import-position
 from robot.gui_constraints import task_has_any_constraints
 from robot.i18n import SUPPORTED_LANGUAGES, t
-from robot.loader import ScriptConstraints, TaskLoadError, load_task_definition
+from robot.loader import TaskLoadError, load_task_definition
 # pylint: enable=wrong-import-position
 
 
@@ -561,7 +561,7 @@ def _validate_task_has_constraints_for_flag(task_id: str) -> int:
     except TaskLoadError as exc:
         print(f"Cannot load task {task_id!r}: {exc}", file=sys.stderr)
         return 1
-    if not task_has_any_constraints(ScriptConstraints.from_task(td)):
+    if not task_has_any_constraints(td.script_constraints):
         print(
             f"Task {task_id!r} has no constraints (--constraints needs "
             "operatorsLimit, customFunctionCallCount, if/while limits, or "

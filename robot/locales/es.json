@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() solo acepta enteros",
   "model.error.missing_env_field": "Falta el campo del entorno: {field}",
   "model.error.invalid_env_format": "Formato de entorno del Robot no válido",
-  "model.error.width_not_positive": "El ancho del campo debe ser un número entero positivo, se obtuvo {width}",
-  "model.error.height_not_positive": "El alto del campo debe ser un número entero positivo, se obtuvo {height}",
   "model.error.start_position_out_of_bounds": "La posición de inicio del Robot ({row}, {col}) está fuera del campo de tamaño {height}×{width}",
   "model.error.final_position_out_of_bounds": "La posición objetivo ({row}, {col}) está fuera del campo de tamaño {height}×{width}",
   "model.error.cell_out_of_bounds": "La celda ({r}, {c}) en {field} está fuera de los límites del campo",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Palabras clave prohibidas (separadas por comas)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Cambios sin guardar",
-  "editor.confirm.unsaved": "La tarea tiene cambios sin guardar. ¿Guardarlos antes de continuar?"
+  "editor.confirm.unsaved": "La tarea tiene cambios sin guardar. ¿Guardarlos antes de continuar?",
+  "model.error.width_out_of_range": "El ancho del campo debe estar entre {min} y {max}, se obtuvo {width}",
+  "model.error.height_out_of_range": "La altura del campo debe estar entre {min} y {max}, se obtuvo {height}",
+  "model.error.pollution_value_out_of_range": "El valor de contaminación en ({r}, {c}) debe estar entre {min} y {max}, se obtuvo {value}",
+  "model.error.print_value_out_of_range": "El número esperado en ({r}, {c}) debe estar entre {min} y {max}, se obtuvo {value}",
+  "loader.env_dto_invalid": "Entorno no válido envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "El archivo de tarea tiene {count} entornos, pero como máximo se permiten {max}: {task_path}"
 }

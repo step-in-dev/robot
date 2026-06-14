@@ -20,8 +20,6 @@
   "model.error.printn_integers": "A printn() csak egész számokat fogad el",
   "model.error.missing_env_field": "Hiányzó környezeti mező: {field}",
   "model.error.invalid_env_format": "Érvénytelen Robot környezeti formátum",
-  "model.error.width_not_positive": "A mező szélességének pozitív egésznek kell lennie, kapott: {width}",
-  "model.error.height_not_positive": "A mező magasságának pozitív egésznek kell lennie, kapott: {height}",
   "model.error.start_position_out_of_bounds": "A Robot kezdőpozíciója ({row}, {col}) kívül esik a {height}×{width} méretű mezőn",
   "model.error.final_position_out_of_bounds": "A célpozíció ({row}, {col}) kívül esik a {height}×{width} méretű mezőn",
   "model.error.cell_out_of_bounds": "A ({r}, {c}) cella a(z) {field} mezőn kívül van",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Tiltott kulcsszavak (vesszővel elválasztva)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Nem mentett módosítások",
-  "editor.confirm.unsaved": "A feladat nem mentett módosításokat tartalmaz. Mentse el őket a folytatás előtt?"
+  "editor.confirm.unsaved": "A feladat nem mentett módosításokat tartalmaz. Mentse el őket a folytatás előtt?",
+  "model.error.width_out_of_range": "A mező szélességének {min} és {max} között kell lennie, kapott: {width}",
+  "model.error.height_out_of_range": "A mező magasságának {min} és {max} között kell lennie, kapott: {height}",
+  "model.error.pollution_value_out_of_range": "A ({r}, {c}) cella szennyezettségi értékének {min} és {max} között kell lennie, kapott: {value}",
+  "model.error.print_value_out_of_range": "A ({r}, {c}) cellában várt számnak {min} és {max} között kell lennie, kapott: {value}",
+  "loader.env_dto_invalid": "Érvénytelen környezet envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "A feladatfájl {count} környezetet tartalmaz, de legfeljebb {max} engedélyezett: {task_path}"
 }

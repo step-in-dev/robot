@@ -9,8 +9,13 @@ from typing import List, Optional, Tuple
 
 from .i18n import t
 from .model import (
+    MAX_ENV_COUNT,
     MAX_FIELD_HEIGHT,
     MAX_FIELD_WIDTH,
+    POLLUTION_VALUE_MAX,
+    POLLUTION_VALUE_MIN,
+    PRINT_VALUE_MAX,
+    PRINT_VALUE_MIN,
     Cell,
     RobotEnv,
     RobotEnvDto,
@@ -18,16 +23,10 @@ from .model import (
 )
 from .task_serializer import (
     create_default_env_dto,
-    normalize_env_dto_dict,
     wall_from_json,
     wall_to_json,
 )
-
-MAX_ENV_COUNT = 7
-POLLUTION_VALUE_MIN = 1
-POLLUTION_VALUE_MAX = 99
-PRINT_VALUE_MIN = -99
-PRINT_VALUE_MAX = 99
+from .task_validation import normalize_env_dto_dict
 
 
 class EnvEditTool(Enum):

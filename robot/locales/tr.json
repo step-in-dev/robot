@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() sadece tamsayı kabul eder",
   "model.error.missing_env_field": "Eksik ortam alanı: {field}",
   "model.error.invalid_env_format": "Geçersiz Robot ortam formatı",
-  "model.error.width_not_positive": "Alan genişliği pozitif bir tamsayı olmalı, alınan: {width}",
-  "model.error.height_not_positive": "Alan yüksekliği pozitif bir tamsayı olmalı, alınan: {height}",
   "model.error.start_position_out_of_bounds": "Robot başlangıç pozisyonu ({row}, {col}), {height}×{width} boyutundaki alanın dışında",
   "model.error.final_position_out_of_bounds": "Hedef pozisyonu ({row}, {col}), {height}×{width} boyutundaki alanın dışında",
   "model.error.cell_out_of_bounds": "Hücre ({r}, {c}), {field} alanının sınırları dışında",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Yasak anahtar kelimeler (virgülle ayrılmış)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Kaydedilmemiş değişiklikler",
-  "editor.confirm.unsaved": "Görevde kaydedilmemiş değişiklikler var. Devam etmeden önce kaydedilsin mi?"
+  "editor.confirm.unsaved": "Görevde kaydedilmemiş değişiklikler var. Devam etmeden önce kaydedilsin mi?",
+  "model.error.width_out_of_range": "Alan genişliği {min} ile {max} arasında olmalıdır, alınan: {width}",
+  "model.error.height_out_of_range": "Alan yüksekliği {min} ile {max} arasında olmalıdır, alınan: {height}",
+  "model.error.pollution_value_out_of_range": "({r}, {c}) konumundaki kirlilik değeri {min} ile {max} arasında olmalıdır, alınan: {value}",
+  "model.error.print_value_out_of_range": "({r}, {c}) konumundaki beklenen sayı {min} ile {max} arasında olmalıdır, alınan: {value}",
+  "loader.env_dto_invalid": "Geçersiz ortam envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Görev dosyasında {count} ortam var, ancak en fazla {max} ortama izin verilir: {task_path}"
 }

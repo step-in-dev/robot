@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() 只接受整數",
   "model.error.missing_env_field": "缺少環境欄位：{field}",
   "model.error.invalid_env_format": "無效的機器人環境格式",
-  "model.error.width_not_positive": "場地寬度必須是正整數，得到 {width}",
-  "model.error.height_not_positive": "場地高度必須是正整數，得到 {height}",
   "model.error.start_position_out_of_bounds": "機器人起始位置 ({row}, {col}) 超出大小為 {height}×{width} 的場地範圍",
   "model.error.final_position_out_of_bounds": "目標位置 ({row}, {col}) 超出大小為 {height}×{width} 的場地範圍",
   "model.error.cell_out_of_bounds": "{field} 中的格子 ({r}, {c}) 超出場地邊界",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "禁止關鍵字（以逗號分隔）",
   "loader.task_path_suffix": "：{task_path}",
   "editor.confirm.unsaved_title": "未儲存的變更",
-  "editor.confirm.unsaved": "任務有未儲存的變更。是否要在繼續之前儲存？"
+  "editor.confirm.unsaved": "任務有未儲存的變更。是否要在繼續之前儲存？",
+  "model.error.width_out_of_range": "場地寬度必須介於 {min} 和 {max} 之間，得到 {width}",
+  "model.error.height_out_of_range": "場地高度必須介於 {min} 和 {max} 之間，得到 {height}",
+  "model.error.pollution_value_out_of_range": "({r}, {c}) 處的汙染值必須介於 {min} 和 {max} 之間，得到 {value}",
+  "model.error.print_value_out_of_range": "({r}, {c}) 處的預期數字必須介於 {min} 和 {max} 之間，得到 {value}",
+  "loader.env_dto_invalid": "無效的環境 envDtos[{index}]：{detail} ({task_path})",
+  "loader.too_many_environments": "任務檔案包含 {count} 個環境，但最多只允許 {max} 個：{task_path}"
 }

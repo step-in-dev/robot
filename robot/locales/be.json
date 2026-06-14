@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() прымае толькі цэлыя лікі",
   "model.error.missing_env_field": "Адсутнічае поле асяроддзя: {field}",
   "model.error.invalid_env_format": "Няправільны фармат асяроддзя Робата",
-  "model.error.width_not_positive": "Шырыня поля павінна быць дадатным лікам, атрымана {width}",
-  "model.error.height_not_positive": "Вышыня поля павінна быць дадатным лікам, атрымана {height}",
   "model.error.start_position_out_of_bounds": "Пачатковая пазіцыя Робата ({row}, {col}) выходзіць за межы поля памерам {height}×{width}",
   "model.error.final_position_out_of_bounds": "Канчатковая пазіцыя ({row}, {col}) выходзіць за межы поля памерам {height}×{width}",
   "model.error.cell_out_of_bounds": "Клетка ({r}, {c}) у {field} выходзіць за межы поля",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Забароненыя ключавыя словы (праз коску)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Незахаваныя змены",
-  "editor.confirm.unsaved": "У задачы ёсць незахаваныя змены. Захаваць іх перад працягам?"
+  "editor.confirm.unsaved": "У задачы ёсць незахаваныя змены. Захаваць іх перад працягам?",
+  "model.error.width_out_of_range": "Шырыня поля павінна быць паміж {min} і {max}, атрымана {width}",
+  "model.error.height_out_of_range": "Вышыня поля павінна быць паміж {min} і {max}, атрымана {height}",
+  "model.error.pollution_value_out_of_range": "Узровень забруджвання ў ({r}, {c}) павінен быць паміж {min} і {max}, атрымана {value}",
+  "model.error.print_value_out_of_range": "Чаканы лік у ({r}, {c}) павінен быць паміж {min} і {max}, атрымана {value}",
+  "loader.env_dto_invalid": "Няправільнае асяроддзе envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Файл задання змяшчае {count} асяроддзяў, але дазволена не больш за {max}: {task_path}"
 }

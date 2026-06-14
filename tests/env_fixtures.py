@@ -38,6 +38,11 @@ def corridor(*, width: int = 2, height: int = 1, **extra: Any) -> Dict[str, Any]
     return env_dict(width, height, final_col=width - 1, **extra)
 
 
+def oversized_width_env_dto(*, width: int = 30) -> Dict[str, Any]:
+    """Environment DTO dict with width above the desktop maximum."""
+    return env_dict(width, 2, final_row=0, final_col=1)
+
+
 def corridor_with_paint(*, target_col: int = 1, **extra: Any) -> Dict[str, Any]:
     return corridor(cellsToPaint=[{"r": 0, "c": target_col}], **extra)
 

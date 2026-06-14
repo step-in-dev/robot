@@ -41,6 +41,20 @@ Supported optional fields:
 - `pollutedCells`: array of valued cells readable through `pol()`.
 - `cellsToPrint`: array of valued cells that must be printed by `printn()`.
 
+### Desktop value limits
+
+The desktop loader and environment editor reject task files whose values fall outside these ranges:
+
+| Field | Limit |
+|-------|-------|
+| `width` | 1–25 |
+| `height` | 1–16 |
+| `pollutedCells[*].value` | 1–99 |
+| `cellsToPrint[*].value` | −99–99 |
+| `envDtos` array length | 1–7 |
+
+Invalid environments, out-of-range cell values, or invalid solution-constraint fields cause the file to be rejected on load in both `task()` and the environment editor.
+
 ### Cell Formats
 
 Simple cell object:

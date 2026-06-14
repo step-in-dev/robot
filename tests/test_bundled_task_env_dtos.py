@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 import robot.loader as loader_module
-from robot.loader import parse_task_payload
+from robot.task_payload import parse_task_payload
 from robot.model import RobotEnvDto
 
 

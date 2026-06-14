@@ -9,14 +9,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from robot.i18n import clear_translation_cache
-from robot.loader import (
-    TaskLoadError,
-    load_task,
-    load_task_definition,
-    resolve_todo_text_for_ui,
-)
+from robot.loader import TaskLoadError, load_task, load_task_definition
+from robot.task_todo import resolve_todo_text_for_ui
 
-from tests.env_fixtures import cell_1x1, corridor
+from tests.env_fixtures import cell_1x1, corridor, oversized_width_env_dto
 
 from ._helpers import LoaderRuntimeTestBase
 
@@ -474,6 +470,36 @@ class TaskLoaderTest(LoaderRuntimeTestBase):
         )
         self.assertEqual(resolved.text, "English")
         self.assertEqual(resolved.source_lang, "en")
+
+
+class TaskLoaderRangeValidationTest(LoaderRuntimeTestBase):
+    def test_load_task_definition_rejects_width_out_of_range(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "wide.env"
+            task_file.write_text(
+                json.dumps({"envDtos": [oversized_width_env_dto()]}),
+                encoding="utf-8",
+            )
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with self.assertRaises(TaskLoadError) as ctx:
+                    load_task_definition("wide")
+        self.assertIn("envDtos[0]", str(ctx.exception))
+
+    def test_load_task_definition_rejects_too_many_environments(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_file = Path(temp_dir) / "many.env"
+            task_file.write_text(
+                json.dumps(
+                    {
+                        "envDtos": [self._minimal_env_dto()] * 8,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with self.assertRaises(TaskLoadError) as ctx:
+                    load_task_definition("many")
+        self.assertIn("8", str(ctx.exception))
 
 
 if __name__ == "__main__":

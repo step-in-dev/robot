@@ -20,8 +20,6 @@
   "model.error.printn_integers": "Το printn() δέχεται μόνο ακέραιους",
   "model.error.missing_env_field": "Λείπει πεδίο περιβάλλοντος: {field}",
   "model.error.invalid_env_format": "Μη έγκυρη μορφή περιβάλλοντος Robot",
-  "model.error.width_not_positive": "Το πλάτος πεδίου πρέπει να είναι θετικός ακέραιος, λήφθηκε {width}",
-  "model.error.height_not_positive": "Το ύψος πεδίου πρέπει να είναι θετικός ακέραιος, λήφθηκε {height}",
   "model.error.start_position_out_of_bounds": "Η αρχική θέση του Robot ({row}, {col}) είναι εκτός του πεδίου μεγέθους {height}×{width}",
   "model.error.final_position_out_of_bounds": "Η τελική θέση ({row}, {col}) είναι εκτός του πεδίου μεγέθους {height}×{width}",
   "model.error.cell_out_of_bounds": "Το κελί ({r}, {c}) στο {field} είναι εκτός ορίων πεδίου",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Απαγορευμένες λέξεις-κλειδιά (διαχωρισμένες με κόμμα)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Μη αποθηκευμένες αλλαγές",
-  "editor.confirm.unsaved": "Η εργασία έχει μη αποθηκευμένες αλλαγές. Να αποθηκευτούν πριν συνεχίσετε;"
+  "editor.confirm.unsaved": "Η εργασία έχει μη αποθηκευμένες αλλαγές. Να αποθηκευτούν πριν συνεχίσετε;",
+  "model.error.width_out_of_range": "Το πλάτος του πεδίου πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {width}",
+  "model.error.height_out_of_range": "Το ύψος του πεδίου πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {height}",
+  "model.error.pollution_value_out_of_range": "Η τιμή ρύπανσης στο ({r}, {c}) πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {value}",
+  "model.error.print_value_out_of_range": "Ο αναμενόμενος αριθμός στο ({r}, {c}) πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {value}",
+  "loader.env_dto_invalid": "Μη έγκυρο περιβάλλον envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Το αρχείο εργασίας έχει {count} περιβάλλοντα, αλλά επιτρέπονται το πολύ {max}: {task_path}"
 }

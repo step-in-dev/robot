@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() केवल पूर्णांक स्वीकार करता है",
   "model.error.missing_env_field": "परिवेश फ़ील्ड ग़ायब: {field}",
   "model.error.invalid_env_format": "अमान्य रोबोट परिवेश प्रारूप",
-  "model.error.width_not_positive": "क्षेत्र की चौड़ाई एक धनात्मक पूर्णांक होनी चाहिए, मिला {width}",
-  "model.error.height_not_positive": "क्षेत्र की ऊँचाई एक धनात्मक पूर्णांक होनी चाहिए, मिला {height}",
   "model.error.start_position_out_of_bounds": "रोबोट की शुरुआती स्थिति ({row}, {col}), {height}×{width} आकार के क्षेत्र की सीमा से बाहर है",
   "model.error.final_position_out_of_bounds": "लक्ष्य स्थिति ({row}, {col}), {height}×{width} आकार के क्षेत्र की सीमा से बाहर है",
   "model.error.cell_out_of_bounds": "{field} में सेल ({r}, {c}) क्षेत्र की सीमा से बाहर है",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "निषिद्ध कीवर्ड (अल्पविराम से अलग)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "असहेजे परिवर्तन",
-  "editor.confirm.unsaved": "कार्य में असहेजे परिवर्तन हैं। जारी रखने से पहले उन्हें सहेजें?"
+  "editor.confirm.unsaved": "कार्य में असहेजे परिवर्तन हैं। जारी रखने से पहले उन्हें सहेजें?",
+  "model.error.width_out_of_range": "क्षेत्र की चौड़ाई {min} और {max} के बीच होनी चाहिए, मिला {width}",
+  "model.error.height_out_of_range": "क्षेत्र की ऊँचाई {min} और {max} के बीच होनी चाहिए, मिला {height}",
+  "model.error.pollution_value_out_of_range": "({r}, {c}) पर प्रदूषण मान {min} और {max} के बीच होना चाहिए, मिला {value}",
+  "model.error.print_value_out_of_range": "({r}, {c}) पर अपेक्षित संख्या {min} और {max} के बीच होनी चाहिए, मिला {value}",
+  "loader.env_dto_invalid": "अमान्य परिवेश envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "कार्य फ़ाइल में {count} परिवेश हैं, लेकिन अधिकतम {max} की अनुमति है: {task_path}"
 }

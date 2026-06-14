@@ -164,14 +164,24 @@ class RobotEnvDtoFromDictTest(unittest.TestCase):
 
 
 class RobotEnvDtoValidationDimensionsTest(unittest.TestCase):
-    def test_width_not_positive(self):
+    def test_width_below_minimum(self):
         with self.assertRaises(ValueError) as ctx:
             RobotEnvDto.from_dict(minimal_valid_env_dict(width=0))
         self.assertIn("width", str(ctx.exception).lower())
 
-    def test_height_not_positive(self):
+    def test_width_above_maximum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(minimal_valid_env_dict(width=26))
+        self.assertIn("width", str(ctx.exception).lower())
+
+    def test_height_below_minimum(self):
         with self.assertRaises(ValueError) as ctx:
             RobotEnvDto.from_dict(minimal_valid_env_dict(height=0))
+        self.assertIn("height", str(ctx.exception).lower())
+
+    def test_height_above_maximum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(minimal_valid_env_dict(height=17))
         self.assertIn("height", str(ctx.exception).lower())
 
     def test_start_row_negative(self):
@@ -318,6 +328,42 @@ class RobotEnvDtoValidationValuedCellsTest(unittest.TestCase):
                 )
             )
         self.assertIn("cellsToPrint", str(ctx.exception))
+
+    def test_pollution_value_below_minimum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    pollutedCells=[{"r": 0, "c": 0, "value": 0}],
+                )
+            )
+        self.assertIn("pollution", str(ctx.exception).lower())
+
+    def test_pollution_value_above_maximum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    pollutedCells=[{"r": 0, "c": 0, "value": 100}],
+                )
+            )
+        self.assertIn("pollution", str(ctx.exception).lower())
+
+    def test_print_value_below_minimum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    cellsToPrint=[{"r": 0, "c": 0, "value": -100}],
+                )
+            )
+        self.assertIn("expected number", str(ctx.exception).lower())
+
+    def test_print_value_above_maximum(self):
+        with self.assertRaises(ValueError) as ctx:
+            RobotEnvDto.from_dict(
+                minimal_valid_env_dict(
+                    cellsToPrint=[{"r": 0, "c": 0, "value": 100}],
+                )
+            )
+        self.assertIn("expected number", str(ctx.exception).lower())
 
 
 class RobotEnvDtoValidationWallsTest(unittest.TestCase):

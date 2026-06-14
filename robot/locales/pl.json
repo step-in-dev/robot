@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() przyjmuje tylko liczby całkowite",
   "model.error.missing_env_field": "Brak pola środowiska: {field}",
   "model.error.invalid_env_format": "Nieprawidłowy format środowiska Robota",
-  "model.error.width_not_positive": "Szerokość pola musi być dodatnią liczbą całkowitą, otrzymano {width}",
-  "model.error.height_not_positive": "Wysokość pola musi być dodatnią liczbą całkowitą, otrzymano {height}",
   "model.error.start_position_out_of_bounds": "Pozycja początkowa Robota ({row}, {col}) jest poza polem o rozmiarze {height}×{width}",
   "model.error.final_position_out_of_bounds": "Pozycja docelowa ({row}, {col}) jest poza polem o rozmiarze {height}×{width}",
   "model.error.cell_out_of_bounds": "Komórka ({r}, {c}) w {field} jest poza granicami pola",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Zabronione słowa kluczowe (po przecinku)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Niezapisane zmiany",
-  "editor.confirm.unsaved": "Zadanie zawiera niezapisane zmiany. Zapisać je przed kontynuacją?"
+  "editor.confirm.unsaved": "Zadanie zawiera niezapisane zmiany. Zapisać je przed kontynuacją?",
+  "model.error.width_out_of_range": "Szerokość pola musi być między {min} a {max}, otrzymano {width}",
+  "model.error.height_out_of_range": "Wysokość pola musi być między {min} a {max}, otrzymano {height}",
+  "model.error.pollution_value_out_of_range": "Poziom zanieczyszczenia w ({r}, {c}) musi być między {min} a {max}, otrzymano {value}",
+  "model.error.print_value_out_of_range": "Oczekiwana liczba w ({r}, {c}) musi być między {min} a {max}, otrzymano {value}",
+  "loader.env_dto_invalid": "Nieprawidłowe środowisko envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Plik zadania zawiera {count} środowisk, ale dozwolone jest najwyżej {max}: {task_path}"
 }

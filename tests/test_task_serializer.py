@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from robot.i18n import clear_translation_cache, t
+from robot.loader import TaskLoadError, load_task_definition
 from robot.task_serializer import (
     ConstraintFieldInput,
     EditorDocument,
@@ -28,7 +29,7 @@ from robot.task_serializer import (
     persisted_snapshot_from_document,
     update_todo_text,
 )
-from tests.env_fixtures import env_dict
+from tests.env_fixtures import env_dict, oversized_width_env_dto
 
 
 class TaskSerializerTest(unittest.TestCase):
@@ -259,6 +260,55 @@ class TaskSerializerTest(unittest.TestCase):
             persisted_snapshot_from_document(document),
             snapshot,
         )
+
+
+class TaskSerializerValidationTest(unittest.TestCase):
+    def setUp(self) -> None:
+        clear_translation_cache()
+
+    def test_load_task_file_rejects_invalid_operators_limit(self) -> None:
+        payload = {
+            "envDtos": [create_default_env_dto()],
+            "operatorsLimit": "bad",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "bad_limit.env"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(TaskLoadError):
+                load_task_file(path)
+
+    def test_load_task_file_rejects_invalid_env_width(self) -> None:
+        payload = {"envDtos": [oversized_width_env_dto()]}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "wide.env"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(TaskLoadError):
+                load_task_file(path)
+
+    def test_load_task_file_and_loader_share_constraint_error_message(self) -> None:
+        payload = {
+            "envDtos": [create_default_env_dto()],
+            "operatorsLimit": "bad",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            task_path = Path(temp_dir) / "bad_limit.env"
+            task_path.write_text(json.dumps(payload), encoding="utf-8")
+            with patch.dict("os.environ", {"ROBOT_TASKS_DIR": temp_dir}):
+                with self.assertRaises(TaskLoadError) as loader_ctx:
+                    load_task_definition("bad_limit")
+            with self.assertRaises(TaskLoadError) as editor_ctx:
+                load_task_file(task_path)
+        self.assertEqual(str(loader_ctx.exception), str(editor_ctx.exception))
+
+    def test_save_task_file_rejects_invalid_constraints(self) -> None:
+        document = EditorDocument(
+            env_dtos=[create_default_env_dto()],
+            preserved_fields={"operatorsLimit": "bad"},
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "save.env"
+            with self.assertRaises(ValueError):
+                save_task_file(path, document)
 
 
 if __name__ == "__main__":

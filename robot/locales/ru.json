@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() принимает только целые числа",
   "model.error.missing_env_field": "Отсутствует поле обстановки: {field}",
   "model.error.invalid_env_format": "Неверный формат обстановки Робота",
-  "model.error.width_not_positive": "Ширина поля должна быть положительным числом, получено {width}",
-  "model.error.height_not_positive": "Высота поля должна быть положительным числом, получено {height}",
   "model.error.start_position_out_of_bounds": "Начальная позиция Робота ({row}, {col}) выходит за границы поля размером {height}×{width}",
   "model.error.final_position_out_of_bounds": "Конечная позиция ({row}, {col}) выходит за границы поля размером {height}×{width}",
   "model.error.cell_out_of_bounds": "Клетка ({r}, {c}) в {field} выходит за границы поля",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Запрещённые ключевые слова (через запятую)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Несохранённые изменения",
-  "editor.confirm.unsaved": "В задаче есть несохранённые изменения. Сохранить их перед продолжением?"
+  "editor.confirm.unsaved": "В задаче есть несохранённые изменения. Сохранить их перед продолжением?",
+  "model.error.width_out_of_range": "Ширина поля должна быть от {min} до {max}, получено {width}",
+  "model.error.height_out_of_range": "Высота поля должна быть от {min} до {max}, получено {height}",
+  "model.error.pollution_value_out_of_range": "Уровень загрязнения в ({r}, {c}) должен быть от {min} до {max}, получено {value}",
+  "model.error.print_value_out_of_range": "Ожидаемое число в ({r}, {c}) должно быть от {min} до {max}, получено {value}",
+  "loader.env_dto_invalid": "Некорректная обстановка envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "В файле задачи {count} обстановок, но допускается не больше {max}: {task_path}"
 }

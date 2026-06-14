@@ -168,7 +168,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
             envs=list(task_definition.envs),
             run_env=effective_run_env,
             script_path=script_path,
-            script_constraints=ScriptConstraints.from_task(task_definition),
+            script_constraints=task_definition.script_constraints,
             open_constraints_on_startup=opts.open_constraints_on_startup,
             viewer_catalog=opts.viewer_catalog,
             selected_index=opts.initial_index,
@@ -536,9 +536,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         self._task.task_id = task_id
         self._task.envs = list(task_definition.envs)
         self._task.todo_text = task_definition.todo_text.strip()
-        self._task.script_constraints = ScriptConstraints.from_task(
-            task_definition
-        )
+        self._task.script_constraints = task_definition.script_constraints
 
         self.root.title(t("window.title", task_id=self.task_id, version=__version__))
         if self._viewer_catalog is not None:

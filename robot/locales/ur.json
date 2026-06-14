@@ -20,8 +20,6 @@
   "model.error.printn_integers": "⁦printn()⁩ صرف اعداد صحیح قبول کرتا ہے",
   "model.error.missing_env_field": "ماحول کا فیلڈ غائب: ⁨{field}⁩",
   "model.error.invalid_env_format": "غلط روبوٹ ماحول کی شکل",
-  "model.error.width_not_positive": "فیلڈ کی چوڑائی ایک مثبت عدد صحیح ہونی چاہیے، ملی ⁦{width}⁩",
-  "model.error.height_not_positive": "فیلڈ کی اونچائی ایک مثبت عدد صحیح ہونی چاہیے، ملی ⁦{height}⁩",
   "model.error.start_position_out_of_bounds": "روبوٹ کی شروعاتی پوزیشن ⁦({row}، {col})⁩ ⁦{height}×{width}⁩ سائز کے فیلڈ سے باہر ہے",
   "model.error.final_position_out_of_bounds": "ہدف پوزیشن ⁦({row}، {col})⁩ ⁦{height}×{width}⁩ سائز کے فیلڈ سے باہر ہے",
   "model.error.cell_out_of_bounds": "⁨{field}⁩ میں خانہ ⁦({r}، {c})⁩ فیلڈ کی حدوں سے باہر ہے",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "ممنوع کلیدی الفاظ (کوما سے الگ)",
   "loader.task_path_suffix": ": ⁨{task_path}⁩",
   "editor.confirm.unsaved_title": "غیر محفوظ تبدیلیاں",
-  "editor.confirm.unsaved": "کام میں غیر محفوظ تبدیلیاں ہیں۔ جاری رکھنے سے پہلے انہیں محفوظ کریں؟"
+  "editor.confirm.unsaved": "کام میں غیر محفوظ تبدیلیاں ہیں۔ جاری رکھنے سے پہلے انہیں محفوظ کریں؟",
+  "model.error.width_out_of_range": "فیلڈ کی چوڑائی ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونی چاہیے، ملی ⁦{width}⁩",
+  "model.error.height_out_of_range": "فیلڈ کی اونچائی ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونی چاہیے، ملی ⁦{height}⁩",
+  "model.error.pollution_value_out_of_range": "⁦({r}، {c})⁩ پر آلودگی کی قدر ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونی چاہیے، ملی ⁦{value}⁩",
+  "model.error.print_value_out_of_range": "⁦({r}، {c})⁩ پر متوقع عدد ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونا چاہیے، ملا ⁦{value}⁩",
+  "loader.env_dto_invalid": "نامعتبر ماحول ⁦envDtos[{index}]⁩: ⁨{detail}⁩ (⁨{task_path}⁩)",
+  "loader.too_many_environments": "کام کی فائل میں ⁦{count}⁩ ماحول ہیں، لیکن زیادہ سے زیادہ ⁦{max}⁩ کی اجازت ہے: ⁨{task_path}⁩"
 }

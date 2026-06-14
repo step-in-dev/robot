@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() aceita apenas inteiros",
   "model.error.missing_env_field": "Campo de ambiente ausente: {field}",
   "model.error.invalid_env_format": "Formato de ambiente do Robô inválido",
-  "model.error.width_not_positive": "A largura do campo deve ser um número inteiro positivo, obteve {width}",
-  "model.error.height_not_positive": "A altura do campo deve ser um número inteiro positivo, obteve {height}",
   "model.error.start_position_out_of_bounds": "A posição inicial do Robô ({row}, {col}) está fora do campo de tamanho {height}×{width}",
   "model.error.final_position_out_of_bounds": "A posição objetivo ({row}, {col}) está fora do campo de tamanho {height}×{width}",
   "model.error.cell_out_of_bounds": "A célula ({r}, {c}) em {field} está fora dos limites do campo",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Palavras-chave proibidas (separadas por vírgulas)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Alterações não guardadas",
-  "editor.confirm.unsaved": "A tarefa tem alterações não guardadas. Guardá-las antes de continuar?"
+  "editor.confirm.unsaved": "A tarefa tem alterações não guardadas. Guardá-las antes de continuar?",
+  "model.error.width_out_of_range": "A largura do campo deve estar entre {min} e {max}, obteve {width}",
+  "model.error.height_out_of_range": "A altura do campo deve estar entre {min} e {max}, obteve {height}",
+  "model.error.pollution_value_out_of_range": "O valor de poluição em ({r}, {c}) deve estar entre {min} e {max}, obteve {value}",
+  "model.error.print_value_out_of_range": "O número esperado em ({r}, {c}) deve estar entre {min} e {max}, obteve {value}",
+  "loader.env_dto_invalid": "Ambiente inválido envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "O arquivo da tarefa tem {count} ambientes, mas no máximo {max} são permitidos: {task_path}"
 }

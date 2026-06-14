@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() শুধু পূর্ণসংখ্যা গ্রহণ করে",
   "model.error.missing_env_field": "পরিবেশ ক্ষেত্র অনুপস্থিত: {field}",
   "model.error.invalid_env_format": "অবৈধ রোবট পরিবেশ বিন্যাস",
-  "model.error.width_not_positive": "ক্ষেত্রের প্রস্থ একটি ধনাত্মক পূর্ণসংখ্যা হতে হবে, পাওয়া গেছে {width}",
-  "model.error.height_not_positive": "ক্ষেত্রের উচ্চতা একটি ধনাত্মক পূর্ণসংখ্যা হতে হবে, পাওয়া গেছে {height}",
   "model.error.start_position_out_of_bounds": "রোবটের শুরুর অবস্থান ({row}, {col}) {height}×{width} আকারের ক্ষেত্রের বাইরে",
   "model.error.final_position_out_of_bounds": "লক্ষ্য অবস্থান ({row}, {col}) {height}×{width} আকারের ক্ষেত্রের বাইরে",
   "model.error.cell_out_of_bounds": "{field}-এ ঘর ({r}, {c}) ক্ষেত্রের সীমানা থেকে বাইরে",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "নিষিদ্ধ কীওয়ার্ড (কমা দ্বারা পৃথক)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "সংরক্ষিত নয় এমন পরিবর্তন",
-  "editor.confirm.unsaved": "কাজে সংরক্ষিত নয় এমন পরিবর্তন আছে। চালিয়ে যাওয়ার আগে সংরক্ষণ করবেন?"
+  "editor.confirm.unsaved": "কাজে সংরক্ষিত নয় এমন পরিবর্তন আছে। চালিয়ে যাওয়ার আগে সংরক্ষণ করবেন?",
+  "model.error.width_out_of_range": "ক্ষেত্রের প্রস্থ {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {width}",
+  "model.error.height_out_of_range": "ক্ষেত্রের উচ্চতা {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {height}",
+  "model.error.pollution_value_out_of_range": "({r}, {c})-এ দূষণের মান {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {value}",
+  "model.error.print_value_out_of_range": "({r}, {c})-এ প্রত্যাশিত সংখ্যা {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {value}",
+  "loader.env_dto_invalid": "অবৈধ পরিবেশ envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "কাজের ফাইলে {count}টি পরিবেশ আছে, কিন্তু সর্বোচ্চ {max}টি অনুমোদিত: {task_path}"
 }

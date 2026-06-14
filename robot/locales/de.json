@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() akzeptiert nur Ganzzahlen",
   "model.error.missing_env_field": "Umgebungsfeld fehlt: {field}",
   "model.error.invalid_env_format": "Ungültiges Roboterumgebungsformat",
-  "model.error.width_not_positive": "Feldbreite muss eine positive Ganzzahl sein, erhalten {width}",
-  "model.error.height_not_positive": "Feldhöhe muss eine positive Ganzzahl sein, erhalten {height}",
   "model.error.start_position_out_of_bounds": "Roboter-Startposition ({row}, {col}) liegt außerhalb des Feldes der Größe {height}×{width}",
   "model.error.final_position_out_of_bounds": "Zielposition ({row}, {col}) liegt außerhalb des Feldes der Größe {height}×{width}",
   "model.error.cell_out_of_bounds": "Zelle ({r}, {c}) in {field} liegt außerhalb der Feldgrenzen",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "Verbotene Schlüsselwörter (kommagetrennt)",
   "loader.task_path_suffix": ": {task_path}",
   "editor.confirm.unsaved_title": "Ungespeicherte Änderungen",
-  "editor.confirm.unsaved": "Die Aufgabe enthält ungespeicherte Änderungen. Vor dem Fortfahren speichern?"
+  "editor.confirm.unsaved": "Die Aufgabe enthält ungespeicherte Änderungen. Vor dem Fortfahren speichern?",
+  "model.error.width_out_of_range": "Feldbreite muss zwischen {min} und {max} liegen, erhalten {width}",
+  "model.error.height_out_of_range": "Feldhöhe muss zwischen {min} und {max} liegen, erhalten {height}",
+  "model.error.pollution_value_out_of_range": "Der Verschmutzungswert bei ({r}, {c}) muss zwischen {min} und {max} liegen, erhalten {value}",
+  "model.error.print_value_out_of_range": "Die erwartete Zahl bei ({r}, {c}) muss zwischen {min} und {max} liegen, erhalten {value}",
+  "loader.env_dto_invalid": "Ungültige Umgebung envDtos[{index}]: {detail} ({task_path})",
+  "loader.too_many_environments": "Die Aufgabendatei hat {count} Umgebungen, aber höchstens {max} sind erlaubt: {task_path}"
 }

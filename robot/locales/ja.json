@@ -20,8 +20,6 @@
   "model.error.printn_integers": "printn() は整数のみ受け付けます",
   "model.error.missing_env_field": "環境フィールドがありません：{field}",
   "model.error.invalid_env_format": "無効なロボット環境形式です",
-  "model.error.width_not_positive": "フィールドの幅は正の整数でなければなりませんが、{width} でした",
-  "model.error.height_not_positive": "フィールドの高さは正の整数でなければなりませんが、{height} でした",
   "model.error.start_position_out_of_bounds": "ロボットの開始位置 ({row}, {col}) は {height}×{width} のフィールドの範囲外です",
   "model.error.final_position_out_of_bounds": "目標位置 ({row}, {col}) は {height}×{width} のフィールドの範囲外です",
   "model.error.cell_out_of_bounds": "{field} のマス ({r}, {c}) はフィールドの境界外です",
@@ -159,5 +157,11 @@
   "editor.constraints.field.banned_keywords": "禁止キーワード（カンマ区切り）",
   "loader.task_path_suffix": "：{task_path}",
   "editor.confirm.unsaved_title": "未保存の変更",
-  "editor.confirm.unsaved": "タスクに未保存の変更があります。続行する前に保存しますか？"
+  "editor.confirm.unsaved": "タスクに未保存の変更があります。続行する前に保存しますか？",
+  "model.error.width_out_of_range": "フィールドの幅は {min} から {max} の間でなければなりませんが、{width} でした",
+  "model.error.height_out_of_range": "フィールドの高さは {min} から {max} の間でなければなりませんが、{height} でした",
+  "model.error.pollution_value_out_of_range": "マス ({r}, {c}) の汚れレベルは {min} から {max} の間でなければなりませんが、{value} でした",
+  "model.error.print_value_out_of_range": "マス ({r}, {c}) の期待される数は {min} から {max} の間でなければなりませんが、{value} でした",
+  "loader.env_dto_invalid": "無効な環境 envDtos[{index}]：{detail} ({task_path})",
+  "loader.too_many_environments": "課題ファイルには {count} 個の環境がありますが、許可される最大数は {max} 個です：{task_path}"
 }
