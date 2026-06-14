@@ -8,7 +8,7 @@ embedded editor (`SidWebUi/.../embedded-env-editor`).
 | Property | Value |
 |----------|-------|
 | Source size | 48×48 px (`png@2x/`) |
-| Display size | ~24×24 px (downsampled at runtime) |
+| Display size | 24×24 px at ~96 DPI; 48×48 px at ≥144 DPI (`display_icon_size()`) |
 | Format | PNG with alpha channel |
 | Content | Pictogram only (no button chrome, shadow, or border) |
 
@@ -56,8 +56,16 @@ Roboto being installed.
 
 ## Runtime loading
 
-The desktop editor loads icons from `png@2x/` (48×48) and displays them at ~24×24 via
-`PhotoImage.subsample(2, 2)` in `robot/editor_icons.py`.
+Icon size follows the display DPI reported by Tk (`winfo_fpixels("1i")`), on all
+platforms (`robot/editor_icons.py`):
+
+- **~96 DPI** — 48×48 sources are downsampled to 24×24 via `PhotoImage.subsample(2, 2)`.
+- **≥144 DPI** (150% scaling and above) — the full 48×48 asset is used.
+
+On Windows only, `robot/tk_util.fix_win_hidpi()` is called before `tk.Tk()` so the
+process is DPI-aware and Windows does not bitmap-stretch the whole window (same
+approach as IDLE and Thonny). That call does not choose icon size; sizing is
+handled separately by `display_icon_size()` / `icon_subsample_factor()`.
 
 ## Directory layout
 

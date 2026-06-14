@@ -61,7 +61,7 @@ from .loader import RobotTask, ScriptConstraints
 from .model import RobotEnv
 from .results import RunResult
 from .status_strip import StatusStrip, StatusStripHost
-from .tk_util import destroy_tk_root
+from .tk_util import destroy_tk_root, fix_win_hidpi
 from .task_catalog import TaskCatalog
 
 # Pause between environments during Run so the user can see the final state
@@ -157,6 +157,7 @@ class RobotWindow(  # pylint: disable=too-many-public-methods
         run_env: Optional[Callable[[RobotEnv], RunResult]],
         options: Optional[RobotWindowOptions] = None,
     ):
+        fix_win_hidpi()
         opts = options or RobotWindowOptions()
         script_path = opts.script_path
         effective_run_env = run_env

@@ -2,7 +2,25 @@
 
 from __future__ import annotations
 
+import ctypes
+import sys
 import tkinter as tk
+
+
+def fix_win_hidpi() -> None:
+    """Enable system DPI awareness on Windows before any Tk widgets are created.
+
+    Without this call Windows bitmap-stretches the whole window on HiDPI displays,
+    which makes text and ``PhotoImage`` icons look blurry. Same approach as IDLE
+    (``idlelib.util.fix_win_hidpi``) and Thonny.
+    """
+    if sys.platform != "win32":
+        return
+    try:
+        process_system_dpi_aware = 1
+        ctypes.OleDLL("shcore").SetProcessDpiAwareness(process_system_dpi_aware)
+    except (AttributeError, OSError):
+        pass
 
 
 def widget_reqheight(widget: tk.Misc) -> int:

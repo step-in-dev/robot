@@ -66,7 +66,7 @@ from .task_serializer import (
     snapshots_equal,
     update_todo_text,
 )
-from .tk_util import destroy_tk_root, pack_fill_host, widget_reqheight
+from .tk_util import destroy_tk_root, fix_win_hidpi, pack_fill_host, widget_reqheight
 
 _UNDO_DEPTH = 200
 _WALL_WIDTH = 4
@@ -170,6 +170,7 @@ class EditorWindow(EditorFileMixin):
     """Standalone environment editor window."""
 
     def __init__(self, document: Optional[EditorDocument] = None) -> None:
+        fix_win_hidpi()
         initial_document = document or create_empty_document()
         self._state = _EditorState(document=initial_document)
         self._layout = _EditorLayout()

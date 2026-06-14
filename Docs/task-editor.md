@@ -40,7 +40,7 @@ Constraint edits use the same validation rules as task loading. Empty fields rem
 
 Toolbar buttons use icon-only controls with hover tooltips (texts from `editor.tooltip.*` in locale JSON). The **File** and **Edit** menus keep text labels.
 
-PNG icons live under `robot/assets/editor_icons/` (sources in `svg/`, committed raster output in `png@2x/` at 48×48, displayed at ~24×24). See [editor-icons.md](editor-icons.md) for the inventory and regeneration command (`python tools/build_editor_icons.py`). Loading helpers are in `robot/editor_icons.py`; tooltips use `robot/gui_tooltip.py`.
+PNG icons live under `robot/assets/editor_icons/` (sources in `svg/`, committed raster output in `png@2x/` at 48×48; display size follows display DPI via `display_icon_size()`). See [editor-icons.md](editor-icons.md) for the inventory and regeneration command (`python tools/build_editor_icons.py`). Loading helpers are in `robot/editor_icons.py`; tooltips use `robot/gui_tooltip.py`.
 
 ## File format
 
