@@ -143,8 +143,6 @@
   "editor.error.no_environments": "কাজের ফাইলে অন্তত একটি পরিবেশ থাকতে হবে",
   "editor.error.width_out_of_range": "মাঠের প্রস্থ 1 থেকে {max} এর মধ্যে হতে হবে",
   "editor.error.height_out_of_range": "মাঠের উচ্চতা 1 থেকে {max} এর মধ্যে হতে হবে",
-  "editor.confirm.overwrite_bundled_title": "অন্তর্ভুক্ত কাজটি ওভাররাইট করবেন?",
-  "editor.confirm.overwrite_bundled": "এই ফাইলটি রোবটের অন্তর্ভুক্ত কাজগুলোর অংশ। ওভাররাইট করবেন?",
   "editor.edit_constraints_title": "কাজের সীমাবদ্ধতা",
   "editor.tooltip.constraints": "কাজের সীমাবদ্ধতা সম্পাদনা করুন",
   "editor.constraints.ok": "ঠিক আছে",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c})-এ দূষণের মান {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {value}",
   "model.error.print_value_out_of_range": "({r}, {c})-এ প্রত্যাশিত সংখ্যা {min} এবং {max} এর মধ্যে হতে হবে, পাওয়া গেছে {value}",
   "loader.env_dto_invalid": "অবৈধ পরিবেশ envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "কাজের ফাইলে {count}টি পরিবেশ আছে, কিন্তু সর্বোচ্চ {max}টি অনুমোদিত: {task_path}"
+  "loader.too_many_environments": "কাজের ফাইলে {count}টি পরিবেশ আছে, কিন্তু সর্বোচ্চ {max}টি অনুমোদিত: {task_path}",
+  "editor.error.cannot_save_bundled_category": "অন্তর্ভুক্ত বিভাগের কাজগুলো মানক কাজের ফোল্ডারে সংরক্ষণ করা যায় না। 'নতুন নামে সংরক্ষণ' ব্যবহার করে অন্য ফোল্ডার বেছে নিন।"
 }

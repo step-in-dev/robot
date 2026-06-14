@@ -143,8 +143,6 @@
   "editor.error.no_environments": "يجب أن يحتوي ملف المهمة على بيئة واحدة على الأقل",
   "editor.error.width_out_of_range": "يجب أن يكون عرض الحقل بين 1 و⁦{max}⁩",
   "editor.error.height_out_of_range": "يجب أن يكون ارتفاع الحقل بين 1 و⁦{max}⁩",
-  "editor.confirm.overwrite_bundled_title": "الكتابة فوق مهمة مضمّنة؟",
-  "editor.confirm.overwrite_bundled": "هذا الملف جزء من مهام الروبوت المضمّنة. هل تريد الكتابة فوقه؟",
   "editor.edit_constraints_title": "قيود المهمة",
   "editor.tooltip.constraints": "تعديل قيود المهمة",
   "editor.constraints.ok": "موافق",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "يجب أن تكون قيمة التلوث في ⁦({r}، {c})⁩ بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{value}⁩",
   "model.error.print_value_out_of_range": "يجب أن يكون العدد المتوقع في ⁦({r}، {c})⁩ بين ⁦{min}⁩ و⁦{max}⁩، حصل على ⁦{value}⁩",
   "loader.env_dto_invalid": "البيئة ⁦envDtos[{index}]⁩ غير صالحة: ⁨{detail}⁩ (⁨{task_path}⁩)",
-  "loader.too_many_environments": "يحتوي ملف المهمة على ⁦{count}⁩ بيئات، لكن الحد الأقصى المسموح هو ⁦{max}⁩: ⁨{task_path}⁩"
+  "loader.too_many_environments": "يحتوي ملف المهمة على ⁦{count}⁩ بيئات، لكن الحد الأقصى المسموح هو ⁦{max}⁩: ⁨{task_path}⁩",
+  "editor.error.cannot_save_bundled_category": "لا يمكن حفظ مهام الفئات المضمّنة في مجلد المهام القياسية. استخدم «حفظ باسم» واختر مجلدًا آخر."
 }

@@ -143,8 +143,6 @@
   "editor.error.no_environments": "El archivo de tarea debe contener al menos un entorno",
   "editor.error.width_out_of_range": "El ancho del campo debe estar entre 1 y {max}",
   "editor.error.height_out_of_range": "La altura del campo debe estar entre 1 y {max}",
-  "editor.confirm.overwrite_bundled_title": "¿Sobrescribir tarea incluida?",
-  "editor.confirm.overwrite_bundled": "Este archivo forma parte de las tareas incluidas de Robot. ¿Sobrescribirlo?",
   "editor.edit_constraints_title": "Restricciones de la tarea",
   "editor.tooltip.constraints": "Editar restricciones de la tarea",
   "editor.constraints.ok": "Aceptar",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "El valor de contaminación en ({r}, {c}) debe estar entre {min} y {max}, se obtuvo {value}",
   "model.error.print_value_out_of_range": "El número esperado en ({r}, {c}) debe estar entre {min} y {max}, se obtuvo {value}",
   "loader.env_dto_invalid": "Entorno no válido envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "El archivo de tarea tiene {count} entornos, pero como máximo se permiten {max}: {task_path}"
+  "loader.too_many_environments": "El archivo de tarea tiene {count} entornos, pero como máximo se permiten {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Las tareas de categorías integradas no se pueden guardar en la carpeta de tareas estándar. Use « Guardar como » y elija otra carpeta."
 }

@@ -143,8 +143,6 @@
   "editor.error.no_environments": "작업 파일에는 최소 하나의 환경이 있어야 합니다",
   "editor.error.width_out_of_range": "필드 너비는 1에서 {max} 사이여야 합니다",
   "editor.error.height_out_of_range": "필드 높이는 1에서 {max} 사이여야 합니다",
-  "editor.confirm.overwrite_bundled_title": "내장 작업을 덮어쓸까요?",
-  "editor.confirm.overwrite_bundled": "이 파일은 로봇의 내장 작업에 포함되어 있습니다. 덮어쓸까요?",
   "editor.edit_constraints_title": "과제 제한",
   "editor.tooltip.constraints": "과제 제한 편집",
   "editor.constraints.ok": "확인",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c})의 오염 값은 {min}에서 {max} 사이여야 합니다. 받은 값: {value}",
   "model.error.print_value_out_of_range": "({r}, {c})의 예상 숫자는 {min}에서 {max} 사이여야 합니다. 받은 값: {value}",
   "loader.env_dto_invalid": "잘못된 환경 envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "작업 파일에 환경이 {count}개 있지만, 허용되는 최대 개수는 {max}개입니다: {task_path}"
+  "loader.too_many_environments": "작업 파일에 환경이 {count}개 있지만, 허용되는 최대 개수는 {max}개입니다: {task_path}",
+  "editor.error.cannot_save_bundled_category": "내장 범주의 작업은 표준 작업 폴더에 저장할 수 없습니다. '다른 이름으로 저장'을 사용해 다른 폴더를 선택하세요."
 }

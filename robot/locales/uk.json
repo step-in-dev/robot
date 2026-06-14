@@ -143,8 +143,6 @@
   "editor.error.no_environments": "У файлі задачі має бути хоча б одне середовище",
   "editor.error.width_out_of_range": "Ширина поля має бути від 1 до {max}",
   "editor.error.height_out_of_range": "Висота поля має бути від 1 до {max}",
-  "editor.confirm.overwrite_bundled_title": "Перезаписати вбудовану задачу?",
-  "editor.confirm.overwrite_bundled": "Цей файл входить до складу вбудованих задач Робота. Перезаписати його?",
   "editor.edit_constraints_title": "Обмеження завдання",
   "editor.tooltip.constraints": "Змінити обмеження завдання",
   "editor.constraints.ok": "ОК",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Рівень забруднення в ({r}, {c}) має бути між {min} і {max}, отримано {value}",
   "model.error.print_value_out_of_range": "Очікуване число в ({r}, {c}) має бути між {min} і {max}, отримано {value}",
   "loader.env_dto_invalid": "Некоректне середовище envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Файл завдання містить {count} середовищ, але дозволено не більше {max}: {task_path}"
+  "loader.too_many_environments": "Файл завдання містить {count} середовищ, але дозволено не більше {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Завдання вбудованих категорій не можна зберігати в папку стандартних завдань. Використовуйте «Зберегти як» і виберіть іншу папку."
 }

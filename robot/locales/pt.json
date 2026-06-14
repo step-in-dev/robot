@@ -143,8 +143,6 @@
   "editor.error.no_environments": "O ficheiro da tarefa tem de conter pelo menos um ambiente",
   "editor.error.width_out_of_range": "A largura do campo tem de estar entre 1 e {max}",
   "editor.error.height_out_of_range": "A altura do campo tem de estar entre 1 e {max}",
-  "editor.confirm.overwrite_bundled_title": "Substituir tarefa incluída?",
-  "editor.confirm.overwrite_bundled": "Este ficheiro faz parte das tarefas incluídas do Robô. Substituí-lo?",
   "editor.edit_constraints_title": "Restrições da tarefa",
   "editor.tooltip.constraints": "Editar restrições da tarefa",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "O valor de poluição em ({r}, {c}) deve estar entre {min} e {max}, obteve {value}",
   "model.error.print_value_out_of_range": "O número esperado em ({r}, {c}) deve estar entre {min} e {max}, obteve {value}",
   "loader.env_dto_invalid": "Ambiente inválido envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "O arquivo da tarefa tem {count} ambientes, mas no máximo {max} são permitidos: {task_path}"
+  "loader.too_many_environments": "O arquivo da tarefa tem {count} ambientes, mas no máximo {max} são permitidos: {task_path}",
+  "editor.error.cannot_save_bundled_category": "As tarefas das categorias incluídas não podem ser guardadas na pasta de tarefas padrão. Use « Guardar como » e escolha outra pasta."
 }

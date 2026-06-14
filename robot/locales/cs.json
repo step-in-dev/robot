@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Soubor úlohy musí obsahovat alespoň jedno prostředí",
   "editor.error.width_out_of_range": "Šířka pole musí být mezi 1 a {max}",
   "editor.error.height_out_of_range": "Výška pole musí být mezi 1 a {max}",
-  "editor.confirm.overwrite_bundled_title": "Přepsat vestavěnou úlohu?",
-  "editor.confirm.overwrite_bundled": "Tento soubor je součástí vestavěných úloh Robota. Přepsat jej?",
   "editor.edit_constraints_title": "Omezení úlohy",
   "editor.tooltip.constraints": "Upravit omezení úlohy",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Hodnota znečištění v ({r}, {c}) musí být mezi {min} a {max}, zadáno {value}",
   "model.error.print_value_out_of_range": "Očekávané číslo v ({r}, {c}) musí být mezi {min} a {max}, zadáno {value}",
   "loader.env_dto_invalid": "Neplatné prostředí envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Soubor úlohy má {count} prostředí, ale povoleno je nejvýše {max}: {task_path}"
+  "loader.too_many_environments": "Soubor úlohy má {count} prostředí, ale povoleno je nejvýše {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Úlohy z vestavěných kategorií nelze ukládat do složky standardních úloh. Použijte „Uložit jako“ a zvolte jinou složku."
 }

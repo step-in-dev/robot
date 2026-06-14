@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Görev dosyası en az bir ortam içermelidir",
   "editor.error.width_out_of_range": "Alan genişliği 1 ile {max} arasında olmalıdır",
   "editor.error.height_out_of_range": "Alan yüksekliği 1 ile {max} arasında olmalıdır",
-  "editor.confirm.overwrite_bundled_title": "Yerleşik görev üzerine yazılsın mı?",
-  "editor.confirm.overwrite_bundled": "Bu dosya Robot'un yerleşik görevlerinin bir parçasıdır. Üzerine yazılsın mı?",
   "editor.edit_constraints_title": "Görev kısıtlamaları",
   "editor.tooltip.constraints": "Görev kısıtlamalarını düzenle",
   "editor.constraints.ok": "Tamam",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c}) konumundaki kirlilik değeri {min} ile {max} arasında olmalıdır, alınan: {value}",
   "model.error.print_value_out_of_range": "({r}, {c}) konumundaki beklenen sayı {min} ile {max} arasında olmalıdır, alınan: {value}",
   "loader.env_dto_invalid": "Geçersiz ortam envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Görev dosyasında {count} ortam var, ancak en fazla {max} ortama izin verilir: {task_path}"
+  "loader.too_many_environments": "Görev dosyasında {count} ortam var, ancak en fazla {max} ortama izin verilir: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Yerleşik kategorilerdeki görevler standart görevler klasörüne kaydedilemez. 'Farklı kaydet' kullanın ve başka bir klasör seçin."
 }

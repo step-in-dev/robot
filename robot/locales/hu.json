@@ -143,8 +143,6 @@
   "editor.error.no_environments": "A feladatfájlnak legalább egy környezetet kell tartalmaznia",
   "editor.error.width_out_of_range": "A mező szélességének 1 és {max} között kell lennie",
   "editor.error.height_out_of_range": "A mező magasságának 1 és {max} között kell lennie",
-  "editor.confirm.overwrite_bundled_title": "Felülírja a beépített feladatot?",
-  "editor.confirm.overwrite_bundled": "Ez a fájl a Robot beépített feladatainak része. Felülírja?",
   "editor.edit_constraints_title": "Feladat korlátozások",
   "editor.tooltip.constraints": "Feladat korlátozások szerkesztése",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "A ({r}, {c}) cella szennyezettségi értékének {min} és {max} között kell lennie, kapott: {value}",
   "model.error.print_value_out_of_range": "A ({r}, {c}) cellában várt számnak {min} és {max} között kell lennie, kapott: {value}",
   "loader.env_dto_invalid": "Érvénytelen környezet envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "A feladatfájl {count} környezetet tartalmaz, de legfeljebb {max} engedélyezett: {task_path}"
+  "loader.too_many_environments": "A feladatfájl {count} környezetet tartalmaz, de legfeljebb {max} engedélyezett: {task_path}",
+  "editor.error.cannot_save_bundled_category": "A beépített kategóriák feladatai nem menthetők a szabványos feladatok mappájába. Használja a 'Mentés másként' parancsot, és válasszon másik mappát."
 }

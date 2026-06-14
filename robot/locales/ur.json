@@ -143,8 +143,6 @@
   "editor.error.no_environments": "کام کی فائل میں کم از کم ایک ماحول ہونا چاہیے",
   "editor.error.width_out_of_range": "میدان کی چوڑائی 1 اور ⁦{max}⁩ کے درمیان ہونی چاہیے",
   "editor.error.height_out_of_range": "میدان کی اونچائی 1 اور ⁦{max}⁩ کے درمیان ہونی چاہیے",
-  "editor.confirm.overwrite_bundled_title": "شامل شدہ کام کو اووررائٹ کریں؟",
-  "editor.confirm.overwrite_bundled": "یہ فائل روبوٹ کے شامل شدہ کاموں کا حصہ ہے۔ کیا اسے اووررائٹ کریں؟",
   "editor.edit_constraints_title": "کام کی محدودیتیں",
   "editor.tooltip.constraints": "کام کی محدودیتیں ترمیم کریں",
   "editor.constraints.ok": "ٹھیک ہے",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "⁦({r}، {c})⁩ پر آلودگی کی قدر ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونی چاہیے، ملی ⁦{value}⁩",
   "model.error.print_value_out_of_range": "⁦({r}، {c})⁩ پر متوقع عدد ⁦{min}⁩ اور ⁦{max}⁩ کے درمیان ہونا چاہیے، ملا ⁦{value}⁩",
   "loader.env_dto_invalid": "نامعتبر ماحول ⁦envDtos[{index}]⁩: ⁨{detail}⁩ (⁨{task_path}⁩)",
-  "loader.too_many_environments": "کام کی فائل میں ⁦{count}⁩ ماحول ہیں، لیکن زیادہ سے زیادہ ⁦{max}⁩ کی اجازت ہے: ⁨{task_path}⁩"
+  "loader.too_many_environments": "کام کی فائل میں ⁦{count}⁩ ماحول ہیں، لیکن زیادہ سے زیادہ ⁦{max}⁩ کی اجازت ہے: ⁨{task_path}⁩",
+  "editor.error.cannot_save_bundled_category": "شامل شدہ زمرے کے کام معیاری کاموں کے فولڈر میں محفوظ نہیں کیے جا سکتے۔ 'محفوظ کریں بطور' استعمال کریں اور کوئی دوسرا فولڈر منتخب کریں۔"
 }

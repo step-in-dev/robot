@@ -21,6 +21,7 @@ from robot.task_serializer import (
     create_default_env_dto,
     create_empty_document,
     document_to_payload,
+    is_bundled_category_save_forbidden,
     is_bundled_task_path,
     load_task_file,
     parse_constraint_field_input,
@@ -79,6 +80,28 @@ class TaskSerializerTest(unittest.TestCase):
         self.assertTrue(is_bundled_task_path(bundled))
         with tempfile.TemporaryDirectory() as temp_dir:
             self.assertFalse(is_bundled_task_path(Path(temp_dir) / "custom.env"))
+
+    def test_is_bundled_category_save_forbidden(self) -> None:
+        bundled = bundled_tasks_dir()
+        self.assertTrue(
+            is_bundled_category_save_forbidden(bundled / "intro1.env")
+        )
+        self.assertTrue(
+            is_bundled_category_save_forbidden(bundled / "intro100.env")
+        )
+        self.assertTrue(
+            is_bundled_category_save_forbidden(bundled / "forfun1.env")
+        )
+        self.assertFalse(
+            is_bundled_category_save_forbidden(bundled / "custom1.env")
+        )
+        self.assertFalse(
+            is_bundled_category_save_forbidden(bundled / "intro.env")
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.assertFalse(
+                is_bundled_category_save_forbidden(Path(temp_dir) / "intro1.env")
+            )
 
     def test_update_todo_text_updates_localized_map(self) -> None:
         updated = update_todo_text(

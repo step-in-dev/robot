@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Die Aufgabendatei muss mindestens eine Umgebung enthalten",
   "editor.error.width_out_of_range": "Die Feldbreite muss zwischen 1 und {max} liegen",
   "editor.error.height_out_of_range": "Die Feldhöhe muss zwischen 1 und {max} liegen",
-  "editor.confirm.overwrite_bundled_title": "Eingebaute Aufgabe überschreiben?",
-  "editor.confirm.overwrite_bundled": "Diese Datei ist Teil der eingebauten Robot-Aufgaben. Überschreiben?",
   "editor.edit_constraints_title": "Aufgabenbeschränkungen",
   "editor.tooltip.constraints": "Aufgabenbeschränkungen bearbeiten",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Der Verschmutzungswert bei ({r}, {c}) muss zwischen {min} und {max} liegen, erhalten {value}",
   "model.error.print_value_out_of_range": "Die erwartete Zahl bei ({r}, {c}) muss zwischen {min} und {max} liegen, erhalten {value}",
   "loader.env_dto_invalid": "Ungültige Umgebung envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Die Aufgabendatei hat {count} Umgebungen, aber höchstens {max} sind erlaubt: {task_path}"
+  "loader.too_many_environments": "Die Aufgabendatei hat {count} Umgebungen, aber höchstens {max} sind erlaubt: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Aufgaben aus eingebauten Kategorien können nicht im Ordner der Standardaufgaben gespeichert werden. Verwenden Sie „Speichern unter“ und wählen Sie einen anderen Ordner."
 }

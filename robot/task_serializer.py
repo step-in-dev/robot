@@ -16,6 +16,7 @@ from .model import (
     Cell,
     cell_from_dict,
 )
+from .task_catalog import KNOWN_TASK_GROUP_PREFIXES, theme_from_task_id
 from .task_payload import parse_script_constraints
 from .task_todo import normalized_todo_text_map
 from .task_validation import validate_desktop_task_payload
@@ -85,6 +86,14 @@ def is_bundled_task_path(path: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def is_bundled_category_save_forbidden(path: Path) -> bool:
+    """Return whether saving *path* into bundled tasks must be blocked."""
+    if not is_bundled_task_path(path):
+        return False
+    theme = theme_from_task_id(path.stem)
+    return theme is not None and theme in KNOWN_TASK_GROUP_PREFIXES
 
 
 def create_default_env_dto(

@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Task file must contain at least one environment",
   "editor.error.width_out_of_range": "Field width must be between 1 and {max}",
   "editor.error.height_out_of_range": "Field height must be between 1 and {max}",
-  "editor.confirm.overwrite_bundled_title": "Overwrite bundled task?",
-  "editor.confirm.overwrite_bundled": "This file is part of the bundled Robot tasks. Overwrite it?",
   "editor.edit_constraints_title": "Task constraints",
   "editor.tooltip.constraints": "Edit task constraints",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Pollution value at ({r}, {c}) must be between {min} and {max}, got {value}",
   "model.error.print_value_out_of_range": "Expected number at ({r}, {c}) must be between {min} and {max}, got {value}",
   "loader.env_dto_invalid": "Invalid environment envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Task file has {count} environments, but at most {max} are allowed: {task_path}"
+  "loader.too_many_environments": "Task file has {count} environments, but at most {max} are allowed: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Tasks from built-in categories cannot be saved to the standard tasks folder. Use Save As and choose another folder."
 }

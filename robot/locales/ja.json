@@ -143,8 +143,6 @@
   "editor.error.no_environments": "課題ファイルには少なくとも1つの環境が必要です",
   "editor.error.width_out_of_range": "フィールドの幅は1から{max}まででなければなりません",
   "editor.error.height_out_of_range": "フィールドの高さは1から{max}まででなければなりません",
-  "editor.confirm.overwrite_bundled_title": "組み込み課題を上書きしますか?",
-  "editor.confirm.overwrite_bundled": "このファイルはロボットの組み込み課題の一部です。上書きしますか?",
   "editor.edit_constraints_title": "課題の制限",
   "editor.tooltip.constraints": "課題の制限を編集",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "マス ({r}, {c}) の汚れレベルは {min} から {max} の間でなければなりませんが、{value} でした",
   "model.error.print_value_out_of_range": "マス ({r}, {c}) の期待される数は {min} から {max} の間でなければなりませんが、{value} でした",
   "loader.env_dto_invalid": "無効な環境 envDtos[{index}]：{detail} ({task_path})",
-  "loader.too_many_environments": "課題ファイルには {count} 個の環境がありますが、許可される最大数は {max} 個です：{task_path}"
+  "loader.too_many_environments": "課題ファイルには {count} 個の環境がありますが、許可される最大数は {max} 個です：{task_path}",
+  "editor.error.cannot_save_bundled_category": "組み込みカテゴリの課題は標準課題フォルダーに保存できません。「名前を付けて保存」を使い、別のフォルダーを選んでください。"
 }

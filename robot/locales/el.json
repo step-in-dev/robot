@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Το αρχείο εργασίας πρέπει να περιέχει τουλάχιστον ένα περιβάλλον",
   "editor.error.width_out_of_range": "Το πλάτος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
   "editor.error.height_out_of_range": "Το ύψος του πεδίου πρέπει να είναι μεταξύ 1 και {max}",
-  "editor.confirm.overwrite_bundled_title": "Αντικατάσταση ενσωματωμένης εργασίας;",
-  "editor.confirm.overwrite_bundled": "Αυτό το αρχείο είναι μέρος των ενσωματωμένων εργασιών του Robot. Να αντικατασταθεί;",
   "editor.edit_constraints_title": "Περιορισμοί εργασίας",
   "editor.tooltip.constraints": "Επεξεργασία περιορισμών εργασίας",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Η τιμή ρύπανσης στο ({r}, {c}) πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {value}",
   "model.error.print_value_out_of_range": "Ο αναμενόμενος αριθμός στο ({r}, {c}) πρέπει να είναι μεταξύ {min} και {max}, λήφθηκε {value}",
   "loader.env_dto_invalid": "Μη έγκυρο περιβάλλον envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Το αρχείο εργασίας έχει {count} περιβάλλοντα, αλλά επιτρέπονται το πολύ {max}: {task_path}"
+  "loader.too_many_environments": "Το αρχείο εργασίας έχει {count} περιβάλλοντα, αλλά επιτρέπονται το πολύ {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Οι εργασίες από ενσωματωμένες κατηγορίες δεν μπορούν να αποθηκευτούν στον φάκελο των τυπικών εργασιών. Χρησιμοποιήστε « Αποθήκευση ως » και επιλέξτε άλλον φάκελο."
 }

@@ -23,7 +23,7 @@ The editor opens with a new empty environment (5×5 field, robot start at the to
 - Undo and redo recent changes (Edit menu or toolbar buttons).
 - New Task, Open, Save, and Save As via the **File** menu.
 - Field size is limited to 25 columns by 16 rows; a task file may contain up to 7 environments.
-- Saving over a bundled task under `robot/tasks/` asks for confirmation (both **Save** and **Save As**).
+- Saving a task whose name belongs to a built-in category (`intro`, `for`, `wfun`, …) into `robot/tasks/` is blocked; use **Save As** to another folder.
 
 Constraint edits use the same validation rules as task loading. Empty fields remove the corresponding limit from the saved file.
 

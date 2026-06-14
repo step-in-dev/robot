@@ -143,8 +143,6 @@
   "editor.error.no_environments": "У файле задачы павінна быць хаця б адна абстановка",
   "editor.error.width_out_of_range": "Шырыня поля павінна быць ад 1 да {max}",
   "editor.error.height_out_of_range": "Вышыня поля павінна быць ад 1 да {max}",
-  "editor.confirm.overwrite_bundled_title": "Перазапісаць убудаваную задачу?",
-  "editor.confirm.overwrite_bundled": "Гэты файл уваходзіць у склад убудаваных задач Робата. Перазапісаць яго?",
   "editor.edit_constraints_title": "Абмежаванні задання",
   "editor.tooltip.constraints": "Змяніць абмежаванні задання",
   "editor.constraints.ok": "ОК",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Узровень забруджвання ў ({r}, {c}) павінен быць паміж {min} і {max}, атрымана {value}",
   "model.error.print_value_out_of_range": "Чаканы лік у ({r}, {c}) павінен быць паміж {min} і {max}, атрымана {value}",
   "loader.env_dto_invalid": "Няправільнае асяроддзе envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Файл задання змяшчае {count} асяроддзяў, але дазволена не больш за {max}: {task_path}"
+  "loader.too_many_environments": "Файл задання змяшчае {count} асяроддзяў, але дазволена не больш за {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Задачы ўбудаваных катэгорый нельга захоўваць у папку стандартных задач. Выкарыстоўвайце «Захаваць як» і выберыце іншую папку."
 }

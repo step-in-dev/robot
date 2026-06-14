@@ -143,8 +143,6 @@
   "editor.error.no_environments": "任務檔案必須至少包含一個環境",
   "editor.error.width_out_of_range": "場地寬度必須介於 1 和 {max} 之間",
   "editor.error.height_out_of_range": "場地高度必須介於 1 和 {max} 之間",
-  "editor.confirm.overwrite_bundled_title": "覆寫內建任務？",
-  "editor.confirm.overwrite_bundled": "此檔案屬於機器人內建任務的一部分。要覆寫它嗎？",
   "editor.edit_constraints_title": "任務限制",
   "editor.tooltip.constraints": "編輯任務限制",
   "editor.constraints.ok": "確定",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c}) 處的汙染值必須介於 {min} 和 {max} 之間，得到 {value}",
   "model.error.print_value_out_of_range": "({r}, {c}) 處的預期數字必須介於 {min} 和 {max} 之間，得到 {value}",
   "loader.env_dto_invalid": "無效的環境 envDtos[{index}]：{detail} ({task_path})",
-  "loader.too_many_environments": "任務檔案包含 {count} 個環境，但最多只允許 {max} 個：{task_path}"
+  "loader.too_many_environments": "任務檔案包含 {count} 個環境，但最多只允許 {max} 個：{task_path}",
+  "editor.error.cannot_save_bundled_category": "內建分類的任務無法儲存到標準任務資料夾。請使用「另存為」並選擇其他資料夾。"
 }

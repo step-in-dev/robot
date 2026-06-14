@@ -143,8 +143,6 @@
   "editor.error.no_environments": "कार्य फ़ाइल में कम से कम एक परिवेश होना चाहिए",
   "editor.error.width_out_of_range": "मैदान की चौड़ाई 1 और {max} के बीच होनी चाहिए",
   "editor.error.height_out_of_range": "मैदान की ऊँचाई 1 और {max} के बीच होनी चाहिए",
-  "editor.confirm.overwrite_bundled_title": "अंतर्निहित कार्य को अधिलेखित करें?",
-  "editor.confirm.overwrite_bundled": "यह फ़ाइल रोबोट के अंतर्निहित कार्यों का हिस्सा है। क्या इसे अधिलेखित करें?",
   "editor.edit_constraints_title": "कार्य प्रतिबंध",
   "editor.tooltip.constraints": "कार्य प्रतिबंध संपादित करें",
   "editor.constraints.ok": "ठीक है",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c}) पर प्रदूषण मान {min} और {max} के बीच होना चाहिए, मिला {value}",
   "model.error.print_value_out_of_range": "({r}, {c}) पर अपेक्षित संख्या {min} और {max} के बीच होनी चाहिए, मिला {value}",
   "loader.env_dto_invalid": "अमान्य परिवेश envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "कार्य फ़ाइल में {count} परिवेश हैं, लेकिन अधिकतम {max} की अनुमति है: {task_path}"
+  "loader.too_many_environments": "कार्य फ़ाइल में {count} परिवेश हैं, लेकिन अधिकतम {max} की अनुमति है: {task_path}",
+  "editor.error.cannot_save_bundled_category": "अंतर्निहित श्रेणियों के कार्यों को मानक कार्य फ़ोल्डर में सहेजा नहीं जा सकता। 'इस रूप में सहेजें' का उपयोग करें और कोई अन्य फ़ोल्डर चुनें।"
 }

@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Plik zadania musi zawierać co najmniej jedno środowisko",
   "editor.error.width_out_of_range": "Szerokość pola musi być między 1 a {max}",
   "editor.error.height_out_of_range": "Wysokość pola musi być między 1 a {max}",
-  "editor.confirm.overwrite_bundled_title": "Nadpisać wbudowane zadanie?",
-  "editor.confirm.overwrite_bundled": "Ten plik jest częścią wbudowanych zadań Robota. Nadpisać go?",
   "editor.edit_constraints_title": "Ograniczenia zadania",
   "editor.tooltip.constraints": "Edytuj ograniczenia zadania",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Poziom zanieczyszczenia w ({r}, {c}) musi być między {min} a {max}, otrzymano {value}",
   "model.error.print_value_out_of_range": "Oczekiwana liczba w ({r}, {c}) musi być między {min} a {max}, otrzymano {value}",
   "loader.env_dto_invalid": "Nieprawidłowe środowisko envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Plik zadania zawiera {count} środowisk, ale dozwolone jest najwyżej {max}: {task_path}"
+  "loader.too_many_environments": "Plik zadania zawiera {count} środowisk, ale dozwolone jest najwyżej {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Zadań z wbudowanych kategorii nie można zapisywać w folderze standardowych zadań. Użyj „Zapisz jako” i wybierz inny folder."
 }

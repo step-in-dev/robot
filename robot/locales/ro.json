@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Fișierul sarcinii trebuie să conțină cel puțin un mediu",
   "editor.error.width_out_of_range": "Lățimea câmpului trebuie să fie între 1 și {max}",
   "editor.error.height_out_of_range": "Înălțimea câmpului trebuie să fie între 1 și {max}",
-  "editor.confirm.overwrite_bundled_title": "Suprascrieți sarcina inclusă?",
-  "editor.confirm.overwrite_bundled": "Acest fișier face parte din sarcinile incluse ale Robotului. Să fie suprascris?",
   "editor.edit_constraints_title": "Restricții ale sarcinii",
   "editor.tooltip.constraints": "Editează restricțiile sarcinii",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Valoarea poluării la ({r}, {c}) trebuie să fie între {min} și {max}, primit {value}",
   "model.error.print_value_out_of_range": "Numărul așteptat la ({r}, {c}) trebuie să fie între {min} și {max}, primit {value}",
   "loader.env_dto_invalid": "Mediu nevalid envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Fișierul sarcinii are {count} medii, dar sunt permise cel mult {max}: {task_path}"
+  "loader.too_many_environments": "Fișierul sarcinii are {count} medii, dar sunt permise cel mult {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Sarcinile din categoriile incluse nu pot fi salvate în folderul sarcinilor standard. Folosiți « Salvare ca » și alegeți alt folder."
 }

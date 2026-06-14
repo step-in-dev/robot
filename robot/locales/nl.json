@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Het taakbestand moet minstens één omgeving bevatten",
   "editor.error.width_out_of_range": "De veldbreedte moet tussen 1 en {max} liggen",
   "editor.error.height_out_of_range": "De veldhoogte moet tussen 1 en {max} liggen",
-  "editor.confirm.overwrite_bundled_title": "Ingebouwde taak overschrijven?",
-  "editor.confirm.overwrite_bundled": "Dit bestand maakt deel uit van de ingebouwde Robot-taken. Overschrijven?",
   "editor.edit_constraints_title": "Taakbeperkingen",
   "editor.tooltip.constraints": "Taakbeperkingen bewerken",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "De vervuilingswaarde op ({r}, {c}) moet tussen {min} en {max} liggen, gekregen {value}",
   "model.error.print_value_out_of_range": "Het verwachte getal op ({r}, {c}) moet tussen {min} en {max} liggen, gekregen {value}",
   "loader.env_dto_invalid": "Ongeldige omgeving envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Taakbestand heeft {count} omgevingen, maar hoogstens {max} zijn toegestaan: {task_path}"
+  "loader.too_many_environments": "Taakbestand heeft {count} omgevingen, maar hoogstens {max} zijn toegestaan: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Taken uit ingebouwde categorieën kunnen niet worden opgeslagen in de map met standaardtaken. Gebruik 'Opslaan als' en kies een andere map."
 }

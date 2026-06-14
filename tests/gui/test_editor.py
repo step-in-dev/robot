@@ -21,7 +21,6 @@ from robot._version import __version__
 from robot.task_serializer import (
     EditorDocument,
     TaskSaveError,
-    bundled_tasks_dir,
     create_default_env_dto,
     create_empty_document,
 )
@@ -33,6 +32,7 @@ from ._editor_harness import (
     make_editor_window,
     open_and_assert_painted_task,
     open_task_via_menu,
+    save_as_to_path,
     write_task_env_file,
 )
 from ._helpers import (
@@ -171,35 +171,12 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
             save_path = Path(temp_dir) / "new.env"
             window = make_editor_window()
             try:
-                with patch(
-                    "robot.gui_editor_file.filedialog.asksaveasfilename",
-                    return_value=str(save_path),
-                ):
-                    window.save_as_via_menu()
+                save_as_to_path(window, save_path)
                 saved = json.loads(save_path.read_text(encoding="utf-8"))
                 self.assertEqual(saved["envDtos"][0]["width"], 5)
                 self.assertEqual(window.document.file_path, save_path)
             finally:
                 close_editor_for_teardown(window)
-
-    def test_save_as_confirms_bundled_overwrite(self) -> None:
-        window = make_editor_window()
-        try:
-            bundled_path = bundled_tasks_dir() / "intro1.env"
-            with patch(
-                "robot.gui_editor_file.filedialog.asksaveasfilename",
-                return_value=str(bundled_path),
-            ), patch(
-                "robot.gui_editor_file.messagebox.askyesno",
-                return_value=False,
-            ) as askyesno, patch(
-                "robot.gui_editor_file.save_task_file"
-            ) as save_mock:
-                window.save_as_via_menu()
-            askyesno.assert_called_once()
-            save_mock.assert_not_called()
-        finally:
-            close_editor_for_teardown(window)
 
     def test_save_failure_shows_error_dialog(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

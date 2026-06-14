@@ -143,8 +143,6 @@
   "editor.error.no_environments": "任务文件必须至少包含一个环境",
   "editor.error.width_out_of_range": "场地宽度必须在 1 和 {max} 之间",
   "editor.error.height_out_of_range": "场地高度必须在 1 和 {max} 之间",
-  "editor.confirm.overwrite_bundled_title": "覆盖内置任务？",
-  "editor.confirm.overwrite_bundled": "此文件属于机器人内置任务的一部分。要覆盖它吗？",
   "editor.edit_constraints_title": "任务限制",
   "editor.tooltip.constraints": "编辑任务限制",
   "editor.constraints.ok": "确定",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "({r}, {c}) 处的污染值必须在 {min} 和 {max} 之间，得到 {value}",
   "model.error.print_value_out_of_range": "({r}, {c}) 处的期望数字必须在 {min} 和 {max} 之间，得到 {value}",
   "loader.env_dto_invalid": "无效的环境 envDtos[{index}]：{detail} ({task_path})",
-  "loader.too_many_environments": "任务文件包含 {count} 个环境，但最多只允许 {max} 个：{task_path}"
+  "loader.too_many_environments": "任务文件包含 {count} 个环境，但最多只允许 {max} 个：{task_path}",
+  "editor.error.cannot_save_bundled_category": "内置分类的任务无法保存到标准任务文件夹。请使用“另存为”并选择其他文件夹。"
 }

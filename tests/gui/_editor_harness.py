@@ -267,6 +267,14 @@ def make_editor_window() -> EditorWindowHarness:
     return EditorWindowHarness(create_empty_document())
 
 
+def save_as_to_path(window: EditorWindowHarness, save_path: Path) -> None:
+    with patch(
+        "robot.gui_editor_file.filedialog.asksaveasfilename",
+        return_value=str(save_path),
+    ):
+        window.save_as_via_menu()
+
+
 def close_editor_for_teardown(window: EditorWindowHarness) -> None:
     """Close an editor window in test cleanup, discarding unsaved changes."""
     if window.is_closed:

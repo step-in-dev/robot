@@ -14,7 +14,7 @@ from .task_serializer import (
     EditorDocument,
     TaskSaveError,
     create_empty_document,
-    is_bundled_task_path,
+    is_bundled_category_save_forbidden,
     load_task_file,
     persisted_snapshot_from_document,
     save_task_file,
@@ -106,14 +106,15 @@ class EditorFileMixin:
         self.root.bind("<Control-y>", lambda _event: self.redo())
         self.root.bind("<Control-Y>", lambda _event: self.redo())
 
-    def _confirm_bundled_overwrite(self, path: Path) -> bool:
-        if not is_bundled_task_path(path):
+    def _allow_save_to_path(self, path: Path) -> bool:
+        if not is_bundled_category_save_forbidden(path):
             return True
-        return messagebox.askyesno(
-            t("editor.confirm.overwrite_bundled_title"),
-            t("editor.confirm.overwrite_bundled"),
+        messagebox.showerror(
+            t(_EDITOR_ERROR_TITLE_KEY),
+            t("editor.error.cannot_save_bundled_category"),
             parent=self.root,
         )
+        return False
 
     def _prompt_save_as_path(self) -> Optional[Path]:
         path = filedialog.asksaveasfilename(
@@ -128,7 +129,7 @@ class EditorFileMixin:
         if not path:
             return None
         target = Path(path)
-        if not self._confirm_bundled_overwrite(target):
+        if not self._allow_save_to_path(target):
             return None
         return target
 
@@ -165,7 +166,7 @@ class EditorFileMixin:
             if target is None:
                 return False
             return self._save_to_path(target)
-        if not self._confirm_bundled_overwrite(self._state.document.file_path):
+        if not self._allow_save_to_path(self._state.document.file_path):
             return False
         return self._save_to_path(self._state.document.file_path)
 

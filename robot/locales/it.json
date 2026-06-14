@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Il file del compito deve contenere almeno un ambiente",
   "editor.error.width_out_of_range": "La larghezza del campo deve essere compresa tra 1 e {max}",
   "editor.error.height_out_of_range": "L'altezza del campo deve essere compresa tra 1 e {max}",
-  "editor.confirm.overwrite_bundled_title": "Sovrascrivere il compito incluso?",
-  "editor.confirm.overwrite_bundled": "Questo file fa parte dei compiti inclusi di Robot. Sovrascriverlo?",
   "editor.edit_constraints_title": "Vincoli del compito",
   "editor.tooltip.constraints": "Modifica vincoli del compito",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Il valore di inquinamento in ({r}, {c}) deve essere compreso tra {min} e {max}, ottenuto {value}",
   "model.error.print_value_out_of_range": "Il numero atteso in ({r}, {c}) deve essere compreso tra {min} e {max}, ottenuto {value}",
   "loader.env_dto_invalid": "Ambiente non valido envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Il file del compito ha {count} ambienti, ma al massimo ne sono consentiti {max}: {task_path}"
+  "loader.too_many_environments": "Il file del compito ha {count} ambienti, ma al massimo ne sono consentiti {max}: {task_path}",
+  "editor.error.cannot_save_bundled_category": "I compiti delle categorie integrate non possono essere salvati nella cartella delle attività standard. Usa « Salva con nome » e scegli un'altra cartella."
 }

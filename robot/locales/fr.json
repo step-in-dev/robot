@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Le fichier de tâche doit contenir au moins un environnement",
   "editor.error.width_out_of_range": "La largeur du champ doit être comprise entre 1 et {max}",
   "editor.error.height_out_of_range": "La hauteur du champ doit être comprise entre 1 et {max}",
-  "editor.confirm.overwrite_bundled_title": "Écraser une tâche intégrée ?",
-  "editor.confirm.overwrite_bundled": "Ce fichier fait partie des tâches Robot intégrées. L'écraser ?",
   "editor.edit_constraints_title": "Contraintes de la tâche",
   "editor.tooltip.constraints": "Modifier les contraintes de la tâche",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "La valeur de pollution en ({r}, {c}) doit être comprise entre {min} et {max}, obtenue {value}",
   "model.error.print_value_out_of_range": "Le nombre attendu en ({r}, {c}) doit être compris entre {min} et {max}, obtenu {value}",
   "loader.env_dto_invalid": "Environnement invalide envDtos[{index}] : {detail} ({task_path})",
-  "loader.too_many_environments": "Le fichier de tâche a {count} environnements, mais au plus {max} sont autorisés : {task_path}"
+  "loader.too_many_environments": "Le fichier de tâche a {count} environnements, mais au plus {max} sont autorisés : {task_path}",
+  "editor.error.cannot_save_bundled_category": "Les tâches des catégories intégrées ne peuvent pas être enregistrées dans le dossier des tâches standard. Utilisez « Enregistrer sous » et choisissez un autre dossier."
 }

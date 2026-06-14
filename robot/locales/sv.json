@@ -143,8 +143,6 @@
   "editor.error.no_environments": "Uppgiftsfilen måste innehålla minst en miljö",
   "editor.error.width_out_of_range": "Fältets bredd måste vara mellan 1 och {max}",
   "editor.error.height_out_of_range": "Fältets höjd måste vara mellan 1 och {max}",
-  "editor.confirm.overwrite_bundled_title": "Skriva över inbyggd uppgift?",
-  "editor.confirm.overwrite_bundled": "Den här filen är en del av Robots inbyggda uppgifter. Skriva över den?",
   "editor.edit_constraints_title": "Uppgiftsbegränsningar",
   "editor.tooltip.constraints": "Redigera uppgiftsbegränsningar",
   "editor.constraints.ok": "OK",
@@ -163,5 +161,6 @@
   "model.error.pollution_value_out_of_range": "Föroreningsvärdet i ({r}, {c}) måste vara mellan {min} och {max}, fick {value}",
   "model.error.print_value_out_of_range": "Det förväntade talet i ({r}, {c}) måste vara mellan {min} och {max}, fick {value}",
   "loader.env_dto_invalid": "Ogiltig miljö envDtos[{index}]: {detail} ({task_path})",
-  "loader.too_many_environments": "Uppgiftsfilen har {count} miljöer, men högst {max} är tillåtna: {task_path}"
+  "loader.too_many_environments": "Uppgiftsfilen har {count} miljöer, men högst {max} är tillåtna: {task_path}",
+  "editor.error.cannot_save_bundled_category": "Uppgifter från inbyggda kategorier kan inte sparas i mappen med standarduppgifter. Använd 'Spara som' och välj en annan mapp."
 }
