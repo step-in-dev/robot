@@ -48,7 +48,7 @@
 | Поле | Лимит |
 |------|-------|
 | `width` | 1–25 |
-| `height` | 1–16 |
+| `height` | 1–15 |
 | `pollutedCells[*].value` | 1–99 |
 | `cellsToPrint[*].value` | −99–99 |
 | длина массива `envDtos` | 1–7 |

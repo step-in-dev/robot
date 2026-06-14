@@ -8,7 +8,7 @@ from typing import Callable, Iterable, List, Set, Tuple
 from .i18n import t
 
 MAX_FIELD_WIDTH = 25
-MAX_FIELD_HEIGHT = 16
+MAX_FIELD_HEIGHT = 15
 MAX_ENV_COUNT = 7
 POLLUTION_VALUE_MIN = 1
 POLLUTION_VALUE_MAX = 99

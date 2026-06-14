@@ -181,7 +181,7 @@ class RobotEnvDtoValidationDimensionsTest(unittest.TestCase):
 
     def test_height_above_maximum(self):
         with self.assertRaises(ValueError) as ctx:
-            RobotEnvDto.from_dict(minimal_valid_env_dict(height=17))
+            RobotEnvDto.from_dict(minimal_valid_env_dict(height=16))
         self.assertIn("height", str(ctx.exception).lower())
 
     def test_start_row_negative(self):

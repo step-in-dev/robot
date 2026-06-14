@@ -48,7 +48,7 @@ The desktop loader and environment editor reject task files whose values fall ou
 | Field | Limit |
 |-------|-------|
 | `width` | 1–25 |
-| `height` | 1–16 |
+| `height` | 1–15 |
 | `pollutedCells[*].value` | 1–99 |
 | `cellsToPrint[*].value` | −99–99 |
 | `envDtos` array length | 1–7 |

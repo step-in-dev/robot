@@ -186,11 +186,11 @@ class RuntimeFacadeTest(LoaderRuntimeTestBase):
                 "robot.gui.RobotWindow", Capture
             ):
                 with self.assertRaises(SystemExit):
-                    runtime.field(25, 16)
+                    runtime.field(25, 15)
 
         env = captured[0]["task_definition"].envs[0]
         self.assertEqual(env.width, 25)
-        self.assertEqual(env.height, 16)
+        self.assertEqual(env.height, 15)
 
     def test_field_rejects_non_integers(self) -> None:
         with patch.dict("os.environ", {"ROBOT_LANGUAGE": "en"}, clear=False):
