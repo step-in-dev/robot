@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Feladat korlátozások szerkesztése",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Mégse",
-  "editor.constraints.field.operators_limit": "Max. robot parancsok és függvényhívások",
+  "editor.constraints.field.operators_limit": "Max. Robot parancsok és függvényhívások",
   "editor.constraints.field.custom_function_call_count": "Min. saját függvényhívások",
   "editor.constraints.field.if_limit": "Max. 'if' kulcsszó",
   "editor.constraints.field.while_limit": "Max. 'while' kulcsszó",

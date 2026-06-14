@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Taakbeperkingen bewerken",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Annuleren",
-  "editor.constraints.field.operators_limit": "Max. robotactiecommando's en functieaanroepen",
+  "editor.constraints.field.operators_limit": "Max. Robotactiecommando's en functieaanroepen",
   "editor.constraints.field.custom_function_call_count": "Min. aanroepen van eigen functies",
   "editor.constraints.field.if_limit": "Max. trefwoord 'if'",
   "editor.constraints.field.while_limit": "Max. trefwoord 'while'",

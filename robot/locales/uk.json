@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Змінити обмеження завдання",
   "editor.constraints.ok": "ОК",
   "editor.constraints.cancel": "Скасувати",
-  "editor.constraints.field.operators_limit": "Макс. команд робота та викликів функцій",
+  "editor.constraints.field.operators_limit": "Макс. команд Робота та викликів функцій",
   "editor.constraints.field.custom_function_call_count": "Мін. викликів власних функцій",
   "editor.constraints.field.if_limit": "Макс. ключових слів «if»",
   "editor.constraints.field.while_limit": "Макс. ключових слів «while»",

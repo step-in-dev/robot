@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Изменить ограничения задачи",
   "editor.constraints.ok": "ОК",
   "editor.constraints.cancel": "Отмена",
-  "editor.constraints.field.operators_limit": "Макс. команд робота и вызовов функций",
+  "editor.constraints.field.operators_limit": "Макс. команд Робота и вызовов функций",
   "editor.constraints.field.custom_function_call_count": "Мин. вызовов своих функций",
   "editor.constraints.field.if_limit": "Макс. ключевых слов «if»",
   "editor.constraints.field.while_limit": "Макс. ключевых слов «while»",

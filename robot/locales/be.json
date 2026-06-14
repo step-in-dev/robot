@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Змяніць абмежаванні задання",
   "editor.constraints.ok": "ОК",
   "editor.constraints.cancel": "Адмена",
-  "editor.constraints.field.operators_limit": "Макс. каманд робата і выклікаў функцый",
+  "editor.constraints.field.operators_limit": "Макс. каманд Робата і выклікаў функцый",
   "editor.constraints.field.custom_function_call_count": "Мін. выклікаў уласных функцый",
   "editor.constraints.field.if_limit": "Макс. ключавых слоў «if»",
   "editor.constraints.field.while_limit": "Макс. ключавых слоў «while»",

@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Edit task constraints",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Cancel",
-  "editor.constraints.field.operators_limit": "Max robot commands and function calls",
+  "editor.constraints.field.operators_limit": "Max Robot commands and function calls",
   "editor.constraints.field.custom_function_call_count": "Min custom function calls",
   "editor.constraints.field.if_limit": "Max 'if' keywords",
   "editor.constraints.field.while_limit": "Max 'while' keywords",

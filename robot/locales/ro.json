@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Editează restricțiile sarcinii",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Anulează",
-  "editor.constraints.field.operators_limit": "Max. comenzi robot și apeluri de funcții",
+  "editor.constraints.field.operators_limit": "Max. comenzi Robot și apeluri de funcții",
   "editor.constraints.field.custom_function_call_count": "Min. apeluri de funcții proprii",
   "editor.constraints.field.if_limit": "Max. cuvânt cheie 'if'",
   "editor.constraints.field.while_limit": "Max. cuvânt cheie 'while'",

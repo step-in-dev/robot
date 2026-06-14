@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Edytuj ograniczenia zadania",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Anuluj",
-  "editor.constraints.field.operators_limit": "Maks. komend robota i wywołań funkcji",
+  "editor.constraints.field.operators_limit": "Maks. komend Robota i wywołań funkcji",
   "editor.constraints.field.custom_function_call_count": "Min. wywołań własnych funkcji",
   "editor.constraints.field.if_limit": "Maks. słów kluczowych „if”",
   "editor.constraints.field.while_limit": "Maks. słów kluczowych „while”",

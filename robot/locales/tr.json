@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Görev kısıtlamalarını düzenle",
   "editor.constraints.ok": "Tamam",
   "editor.constraints.cancel": "İptal",
-  "editor.constraints.field.operators_limit": "Maks. robot komutları ve fonksiyon çağrıları",
+  "editor.constraints.field.operators_limit": "Maks. Robot komutları ve fonksiyon çağrıları",
   "editor.constraints.field.custom_function_call_count": "Min. kendi fonksiyon çağrıları",
   "editor.constraints.field.if_limit": "Maks. 'if' anahtar kelimesi",
   "editor.constraints.field.while_limit": "Maks. 'while' anahtar kelimesi",

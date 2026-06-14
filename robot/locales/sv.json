@@ -147,7 +147,7 @@
   "editor.tooltip.constraints": "Redigera uppgiftsbegränsningar",
   "editor.constraints.ok": "OK",
   "editor.constraints.cancel": "Avbryt",
-  "editor.constraints.field.operators_limit": "Max robotkommandon och funktionsanrop",
+  "editor.constraints.field.operators_limit": "Max Robotkommandon och funktionsanrop",
   "editor.constraints.field.custom_function_call_count": "Min. egna funktionsanrop",
   "editor.constraints.field.if_limit": "Max 'if'-nyckelord",
   "editor.constraints.field.while_limit": "Max 'while'-nyckelord",
