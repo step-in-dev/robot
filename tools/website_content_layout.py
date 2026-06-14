@@ -8,7 +8,7 @@ import json
 import os
 import re
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from robot.command_help import iter_command_help
@@ -206,7 +206,27 @@ def theme_title(theme_prefix: str, lang: str) -> str:
 
 
 @dataclass(frozen=True)
-class PageLayout:  # pylint: disable=too-many-instance-attributes
+class PageAlternateUrls:
+    """Canonical and hreflang alternate paths for one page."""
+
+    canonical_path: str
+    alternate_en: str
+    alternate_ru: str
+
+
+@dataclass(frozen=True)
+class PageMeta:
+    """Open Graph, keywords, and structured data for one page."""
+
+    og_type: str = "website"
+    og_image_path: Optional[str] = None
+    og_image_alt: Optional[str] = None
+    keywords: Optional[Sequence[str]] = None
+    json_ld: Optional[dict] = None
+
+
+@dataclass(frozen=True)
+class PageLayout:
     """SEO and navigation metadata for one generated HTML page."""
 
     lang: str
@@ -214,14 +234,48 @@ class PageLayout:  # pylint: disable=too-many-instance-attributes
     page_kind: str
     title: str
     description: str
-    canonical_path: str
-    alternate_en: str
-    alternate_ru: str
-    og_image_path: Optional[str] = None
-    og_image_alt: Optional[str] = None
-    og_type: str = "website"
-    keywords: Optional[Sequence[str]] = None
-    json_ld: Optional[dict] = None
+    urls: PageAlternateUrls
+    meta: PageMeta = field(default_factory=PageMeta)
+
+    @property
+    def canonical_path(self) -> str:
+        """Canonical path relative to the site root."""
+        return self.urls.canonical_path
+
+    @property
+    def alternate_en(self) -> str:
+        """English alternate path relative to the site root."""
+        return self.urls.alternate_en
+
+    @property
+    def alternate_ru(self) -> str:
+        """Russian alternate path relative to the site root."""
+        return self.urls.alternate_ru
+
+    @property
+    def og_image_path(self) -> Optional[str]:
+        """Open Graph image path relative to the site root."""
+        return self.meta.og_image_path
+
+    @property
+    def og_image_alt(self) -> Optional[str]:
+        """Open Graph image alt text."""
+        return self.meta.og_image_alt
+
+    @property
+    def og_type(self) -> str:
+        """Open Graph type."""
+        return self.meta.og_type
+
+    @property
+    def keywords(self) -> Optional[Sequence[str]]:
+        """Optional meta keywords."""
+        return self.meta.keywords
+
+    @property
+    def json_ld(self) -> Optional[dict]:
+        """Optional JSON-LD object for the page."""
+        return self.meta.json_ld
 
     @property
     def asset_prefix(self) -> str:

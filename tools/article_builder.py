@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -26,7 +26,9 @@ from tools.website_content_data import (  # noqa: E402
     WEBSITE_DIR,
 )
 from tools.website_content_layout import (  # noqa: E402
+    PageAlternateUrls,
     PageLayout,
+    PageMeta,
     _ui,
     absolute_url,
     articles_index_relpath,
@@ -283,32 +285,20 @@ def build_article_page(article: Article, lang: str) -> str:
         page_kind="article",
         title=locale.title,
         description=normalize_meta_description(locale.description),
-        canonical_path=canonical,
-        alternate_en=article.page_relpath("en") if "en" in article.slug else canonical,
-        alternate_ru=article.page_relpath("ru") if "ru" in article.slug else canonical,
-        keywords=locale.keywords,
-        og_type="article",
+        urls=PageAlternateUrls(
+            canonical_path=canonical,
+            alternate_en=article.page_relpath("en") if "en" in article.slug else canonical,
+            alternate_ru=article.page_relpath("ru") if "ru" in article.slug else canonical,
+        ),
+        meta=PageMeta(
+            keywords=locale.keywords,
+            og_type="article",
+        ),
     )
     body_html = rewrite_article_html(markdown_to_html(locale.body), layout, lang)
     og_image = first_image_path(body_html)
     if og_image:
-        layout = PageLayout(
-            lang=lang,
-            depth=depth,
-            page_kind="article",
-            title=locale.title,
-            description=normalize_meta_description(locale.description),
-            canonical_path=canonical,
-            alternate_en=article.page_relpath("en")
-            if "en" in article.slug
-            else canonical,
-            alternate_ru=article.page_relpath("ru")
-            if "ru" in article.slug
-            else canonical,
-            keywords=locale.keywords,
-            og_type="article",
-            og_image_path=og_image,
-        )
+        layout = replace(layout, meta=replace(layout.meta, og_image_path=og_image))
 
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),
@@ -343,20 +333,7 @@ def build_article_page(article: Article, lang: str) -> str:
             },
         ],
     }
-    layout = PageLayout(
-        lang=layout.lang,
-        depth=layout.depth,
-        page_kind=layout.page_kind,
-        title=layout.title,
-        description=layout.description,
-        canonical_path=layout.canonical_path,
-        alternate_en=layout.alternate_en,
-        alternate_ru=layout.alternate_ru,
-        keywords=layout.keywords,
-        og_type=layout.og_type,
-        og_image_path=layout.og_image_path,
-        json_ld=json_ld,
-    )
+    layout = replace(layout, meta=replace(layout.meta, json_ld=json_ld))
     return wrap_page(layout, main)
 
 
@@ -404,9 +381,11 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
         page_kind="articles_index",
         title=title,
         description=description,
-        canonical_path=canonical,
-        alternate_en=articles_index_relpath("en"),
-        alternate_ru=articles_index_relpath("ru"),
+        urls=PageAlternateUrls(
+            canonical_path=canonical,
+            alternate_en=articles_index_relpath("en"),
+            alternate_ru=articles_index_relpath("ru"),
+        ),
     )
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),

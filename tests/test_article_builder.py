@@ -16,7 +16,7 @@ from tools.article_builder import (
     rewrite_article_html,
     validate_articles,
 )
-from tools.website_content_layout import PageLayout
+from tools.website_content_layout import PageAlternateUrls, PageLayout
 
 INTRO_META = """\
 order: 1
@@ -110,9 +110,11 @@ class RewriteArticleHtmlTest(unittest.TestCase):
             page_kind="article",
             title="T",
             description="D",
-            canonical_path="articles/foo/index.html",
-            alternate_en="articles/foo/index.html",
-            alternate_ru="articles/bar/index_ru.html",
+            urls=PageAlternateUrls(
+                canonical_path="articles/foo/index.html",
+                alternate_en="articles/foo/index.html",
+                alternate_ru="articles/bar/index_ru.html",
+            ),
         )
         raw = '<img src="../../website/img/hero/intro19_en.png" alt="">'
         out = rewrite_article_html(raw, layout, "en")
@@ -125,9 +127,11 @@ class RewriteArticleHtmlTest(unittest.TestCase):
             page_kind="article",
             title="T",
             description="D",
-            canonical_path="articles/bar/index_ru.html",
-            alternate_en="articles/foo/index.html",
-            alternate_ru="articles/bar/index_ru.html",
+            urls=PageAlternateUrls(
+                canonical_path="articles/bar/index_ru.html",
+                alternate_en="articles/foo/index.html",
+                alternate_ru="articles/bar/index_ru.html",
+            ),
         )
         raw = '<a href="https://robot.stepindev.com/commands.html">ref</a>'
         out = rewrite_article_html(raw, layout, "ru")

@@ -33,7 +33,9 @@ from tools.website_content_data import (
     WEBSITE_DIR,
 )
 from tools.website_content_layout import (
+    PageAlternateUrls,
     PageLayout,
+    PageMeta,
     _ui,
     absolute_url,
     breadcrumb_json_ld,
@@ -173,24 +175,28 @@ def _task_page_layout(parts: _TaskPageParts) -> PageLayout:
         page_kind="task",
         title=parts.title,
         description=parts.description,
-        canonical_path=parts.canonical,
-        alternate_en=task_page_relpath(parts.task_id, "en"),
-        alternate_ru=task_page_relpath(parts.task_id, "ru"),
-        og_image_path=parts.og_image,
-        json_ld={
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumb_json_ld(parts.crumbs),
-                {
-                    "@type": "LearningResource",
-                    "name": parts.task_id,
-                    "description": parts.description,
-                    "inLanguage": parts.lang,
-                    "learningResourceType": "problem",
-                    "url": absolute_url(parts.canonical),
-                },
-            ],
-        },
+        urls=PageAlternateUrls(
+            canonical_path=parts.canonical,
+            alternate_en=task_page_relpath(parts.task_id, "en"),
+            alternate_ru=task_page_relpath(parts.task_id, "ru"),
+        ),
+        meta=PageMeta(
+            og_image_path=parts.og_image,
+            json_ld={
+                "@context": "https://schema.org",
+                "@graph": [
+                    breadcrumb_json_ld(parts.crumbs),
+                    {
+                        "@type": "LearningResource",
+                        "name": parts.task_id,
+                        "description": parts.description,
+                        "inLanguage": parts.lang,
+                        "learningResourceType": "problem",
+                        "url": absolute_url(parts.canonical),
+                    },
+                ],
+            },
+        ),
     )
 
 
@@ -245,9 +251,7 @@ def _task_page_env_html(lang: str, task_id: str, env_count: int) -> str:
         page_kind="task",
         title="",
         description="",
-        canonical_path="",
-        alternate_en="",
-        alternate_ru="",
+        urls=PageAlternateUrls("", "", ""),
     )
     return render_environment_figures(
         layout_stub,
@@ -423,28 +427,32 @@ def _theme_hub_layout(parts: _ThemeHubParts) -> PageLayout:
         page_kind="theme",
         title=parts.title,
         description=parts.description,
-        canonical_path=parts.canonical,
-        alternate_en=f"tasks/{parts.slug}/{page_filename('en')}",
-        alternate_ru=f"tasks/{parts.slug}/{page_filename('ru')}",
-        og_image_path=theme_hub_og_image(parts.task_ids),
-        og_image_alt=theme_hub_og_image_alt(
-            parts.theme_label, parts.task_ids, parts.lang
+        urls=PageAlternateUrls(
+            canonical_path=parts.canonical,
+            alternate_en=f"tasks/{parts.slug}/{page_filename('en')}",
+            alternate_ru=f"tasks/{parts.slug}/{page_filename('ru')}",
         ),
-        keywords=theme_hub_keywords(parts.theme_label, parts.lang),
-        json_ld={
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumb_json_ld(parts.crumbs),
-                {
-                    "@type": "CollectionPage",
-                    "name": parts.theme_label,
-                    "description": parts.description,
-                    "inLanguage": parts.lang,
-                    "url": absolute_url(parts.canonical),
-                    "mainEntity": item_list,
-                },
-            ],
-        },
+        meta=PageMeta(
+            og_image_path=theme_hub_og_image(parts.task_ids),
+            og_image_alt=theme_hub_og_image_alt(
+                parts.theme_label, parts.task_ids, parts.lang
+            ),
+            keywords=theme_hub_keywords(parts.theme_label, parts.lang),
+            json_ld={
+                "@context": "https://schema.org",
+                "@graph": [
+                    breadcrumb_json_ld(parts.crumbs),
+                    {
+                        "@type": "CollectionPage",
+                        "name": parts.theme_label,
+                        "description": parts.description,
+                        "inLanguage": parts.lang,
+                        "url": absolute_url(parts.canonical),
+                        "mainEntity": item_list,
+                    },
+                ],
+            },
+        ),
     )
 
 
@@ -487,9 +495,7 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
         page_kind="theme",
         title="",
         description="",
-        canonical_path="",
-        alternate_en="",
-        alternate_ru="",
+        urls=PageAlternateUrls("", "", ""),
     )
     parts = _load_theme_hub_parts(catalog, theme_prefix, lang, layout_stub)
     layout = _theme_hub_layout(parts)
@@ -553,22 +559,26 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
         page_kind="catalog",
         title=title,
         description=description,
-        canonical_path=canonical,
-        alternate_en=catalog_relpath("en"),
-        alternate_ru=catalog_relpath("ru"),
-        json_ld={
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumb_json_ld(crumbs),
-                {
-                    "@type": "CollectionPage",
-                    "name": _ui(lang, "task_catalog"),
-                    "description": description,
-                    "inLanguage": lang,
-                    "url": absolute_url(canonical),
-                },
-            ],
-        },
+        urls=PageAlternateUrls(
+            canonical_path=canonical,
+            alternate_en=catalog_relpath("en"),
+            alternate_ru=catalog_relpath("ru"),
+        ),
+        meta=PageMeta(
+            json_ld={
+                "@context": "https://schema.org",
+                "@graph": [
+                    breadcrumb_json_ld(crumbs),
+                    {
+                        "@type": "CollectionPage",
+                        "name": _ui(lang, "task_catalog"),
+                        "description": description,
+                        "inLanguage": lang,
+                        "url": absolute_url(canonical),
+                    },
+                ],
+            },
+        ),
     )
     total = sum(len(catalog.task_ids_for(theme)) for theme in catalog.themes)
     intro = escape(_ui(lang, "catalog_intro"))
@@ -639,24 +649,28 @@ def build_commands_page(lang: str) -> str:
         page_kind="commands",
         title=title,
         description=description,
-        canonical_path=canonical,
-        alternate_en=commands_relpath("en"),
-        alternate_ru=commands_relpath("ru"),
-        og_image_alt=_ui(lang, "commands_og_image_alt"),
-        keywords=COMMAND_KEYWORDS[lang],
-        json_ld={
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumb_json_ld(crumbs),
-                {
-                    "@type": "TechArticle",
-                    "name": _ui(lang, "commands_schema_name"),
-                    "description": description,
-                    "inLanguage": lang,
-                    "url": absolute_url(canonical),
-                },
-            ],
-        },
+        urls=PageAlternateUrls(
+            canonical_path=canonical,
+            alternate_en=commands_relpath("en"),
+            alternate_ru=commands_relpath("ru"),
+        ),
+        meta=PageMeta(
+            og_image_alt=_ui(lang, "commands_og_image_alt"),
+            keywords=COMMAND_KEYWORDS[lang],
+            json_ld={
+                "@context": "https://schema.org",
+                "@graph": [
+                    breadcrumb_json_ld(crumbs),
+                    {
+                        "@type": "TechArticle",
+                        "name": _ui(lang, "commands_schema_name"),
+                        "description": description,
+                        "inLanguage": lang,
+                        "url": absolute_url(canonical),
+                    },
+                ],
+            },
+        ),
     )
     crumb_html = render_breadcrumbs(layout, crumbs)
     body_html = f"""    <div class="hub-page commands-page">
@@ -769,22 +783,26 @@ def build_editor_page(lang: str) -> str:
         page_kind="editor",
         title=title,
         description=description,
-        canonical_path=canonical,
-        alternate_en=editor_relpath("en"),
-        alternate_ru=editor_relpath("ru"),
-        json_ld={
-            "@context": "https://schema.org",
-            "@graph": [
-                breadcrumb_json_ld(crumbs),
-                {
-                    "@type": "TechArticle",
-                    "name": _ui(lang, "editor_nav"),
-                    "description": description,
-                    "inLanguage": lang,
-                    "url": absolute_url(canonical),
-                },
-            ],
-        },
+        urls=PageAlternateUrls(
+            canonical_path=canonical,
+            alternate_en=editor_relpath("en"),
+            alternate_ru=editor_relpath("ru"),
+        ),
+        meta=PageMeta(
+            json_ld={
+                "@context": "https://schema.org",
+                "@graph": [
+                    breadcrumb_json_ld(crumbs),
+                    {
+                        "@type": "TechArticle",
+                        "name": _ui(lang, "editor_nav"),
+                        "description": description,
+                        "inLanguage": lang,
+                        "url": absolute_url(canonical),
+                    },
+                ],
+            },
+        ),
     )
     crumb_html = render_breadcrumbs(layout, crumbs)
     steps_html = _render_editor_steps(layout, lang)
