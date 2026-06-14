@@ -24,7 +24,7 @@ class EditorLauncherTest(unittest.TestCase):
 
         captured: List[EditorDocument] = []
 
-        class CaptureEditorWindow:  # pylint: disable=too-few-public-methods
+        class CaptureEditorWindow:
             def __init__(self, document=None):
                 captured.append(document or create_empty_document())
 

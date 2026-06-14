@@ -4,8 +4,8 @@ The Robot runtime supports **Python 3.7+**. Pylint in `requirements-dev.txt` (4.
 
 Pylint configuration lives in `lint/`.
 
-- `lint/pylint-src.rc` — pylint’s default enabled messages on production paths (no extra `enable`/`disable` in the rcfile), including `missing-function-docstring` (**C0116**) and `missing-class-docstring` (**C0115**).
-- `lint/pylint-tests.rc` — the same defaults on `tests/`, with **C0116** and **C0115** disabled.
+- `lint/pylint-src.rc` — pylint’s default enabled messages on production paths, with **R0903** (`too-few-public-methods`) disabled globally.
+- `lint/pylint-tests.rc` — the same defaults on `tests/`, with **C0116**, **C0115**, and **R0903** disabled.
 
 ## Docstrings in tests
 
@@ -21,9 +21,7 @@ Flat value-object types that mirror JSON or a single job struct (`RobotEnvDto`, 
 
 ## Too few public methods (R0903)
 
-Pylint’s default minimum is two public methods per class. `RobotWindow` mixins (`KeyboardHandlerMixin`, `ActionButtonMixin`, `ViewerMixin`) are not full public APIs: they expose one setup hook or only `_`-prefixed helpers.
-
-Those types may use a **class-level** `# pylint: disable=too-few-public-methods`. Do not raise the global limit in `lint/pylint-src.rc` and do not add empty public methods just to satisfy the linter.
+**R0903** is disabled globally in `lint/pylint-src.rc` and `lint/pylint-tests.rc`. Mixins and small helper types often expose one setup hook or only `_`-prefixed helpers; do not add empty public methods just to satisfy a linter.
 
 ## Too many public methods (R0904)
 

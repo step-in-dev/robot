@@ -31,7 +31,7 @@ def _configure_viewer_combobox_height(
         style.configure(_VIEWER_TOOLBAR_COMBO_STYLE, padding=(4, pad, 4, pad))
 
 
-class ViewerMixin:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
+class ViewerMixin:  # pylint: disable=too-many-instance-attributes
     """Theme dropdown and task navigation for ``RobotWindow`` viewer mode."""
 
     def _init_viewer_state(self, catalog: TaskCatalog) -> None:

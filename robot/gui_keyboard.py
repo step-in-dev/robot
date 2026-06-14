@@ -8,7 +8,7 @@ import tkinter as tk
 _ESCAPE_BINDING = "<Escape>"
 
 
-class KeyboardHandlerMixin:  # pylint: disable=too-few-public-methods
+class KeyboardHandlerMixin:
     """Root-level Enter invokes the action button; Escape closes the window."""
 
     root: tk.Tk

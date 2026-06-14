@@ -1,4 +1,4 @@
 # Tests: same rule set as production, except missing-function-docstring (C0116) and
 # missing-class-docstring (C0115).
 [MESSAGES CONTROL]
-disable=missing-function-docstring,missing-class-docstring
+disable=missing-function-docstring,missing-class-docstring,too-few-public-methods
