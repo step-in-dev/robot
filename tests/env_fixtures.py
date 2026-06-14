@@ -8,23 +8,14 @@ from unittest.mock import MagicMock
 from robot.model import RobotEnv, RobotEnvDto
 
 
-def env_dict(  # pylint: disable=too-many-arguments
-    width: int,
-    height: int,
-    *,
-    start_row: int = 0,
-    start_col: int = 0,
-    final_row: int = 0,
-    final_col: int = 0,
-    **extra: Any,
-) -> Dict[str, Any]:
+def env_dict(width: int, height: int, **extra: Any) -> Dict[str, Any]:
     data: Dict[str, Any] = {
         "width": width,
         "height": height,
-        "startRow": start_row,
-        "startCol": start_col,
-        "finalRow": final_row,
-        "finalCol": final_col,
+        "startRow": extra.pop("start_row", 0),
+        "startCol": extra.pop("start_col", 0),
+        "finalRow": extra.pop("final_row", 0),
+        "finalCol": extra.pop("final_col", 0),
     }
     data.update(extra)
     return data
