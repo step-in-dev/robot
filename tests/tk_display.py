@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+import functools
 import gc
 import sys
 import unittest
@@ -11,22 +11,17 @@ import tkinter as tk
 
 from robot.tk_util import destroy_tk_root
 
-_TK_DISPLAY_WORKS: Optional[bool] = None
 
-
+@functools.lru_cache(maxsize=1)
 def tkinter_display_works() -> bool:
-    global _TK_DISPLAY_WORKS  # pylint: disable=global-statement
-    if _TK_DISPLAY_WORKS is not None:
-        return _TK_DISPLAY_WORKS
     try:
         root = tk.Tk()
         root.withdraw()
         root.update_idletasks()
         destroy_tk_root(root)
-        _TK_DISPLAY_WORKS = True
+        return True
     except tk.TclError:
-        _TK_DISPLAY_WORKS = False
-    return _TK_DISPLAY_WORKS
+        return False
 
 
 def destroy_stray_tk_root() -> None:
