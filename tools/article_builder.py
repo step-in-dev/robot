@@ -20,10 +20,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # pylint: disable=wrong-import-position
-from tools.build_website_content import (  # noqa: E402
+from tools.website_content_data import (  # noqa: E402
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
     WEBSITE_DIR,
+)
+from tools.website_content_layout import (  # noqa: E402
     PageLayout,
     _ui,
     absolute_url,
@@ -31,14 +33,13 @@ from tools.build_website_content import (  # noqa: E402
     breadcrumb_json_ld,
     escape,
     home_relpath,
-    iso_date_from_mtime,
-    newest_mtime,
     normalize_meta_description,
     page_filename,
     render_breadcrumbs,
     wrap_page,
     write_page,
 )
+from tools.website_content_util import iso_date_from_mtime, newest_mtime
 
 # pylint: enable=wrong-import-position
 

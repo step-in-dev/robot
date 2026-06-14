@@ -16,7 +16,7 @@ from tools.article_builder import (
     rewrite_article_html,
     validate_articles,
 )
-from tools.build_website_content import PageLayout
+from tools.website_content_layout import PageLayout
 
 INTRO_META = """\
 order: 1
