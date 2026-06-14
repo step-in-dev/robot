@@ -16,9 +16,11 @@ from tests.gui._editor_harness import (
     open_task_via_menu,
     write_task_env_file,
 )
+from tests.gui._helpers import GuiTestCase, requires_tk_display
 
 
-class EditorOpenValidationTest(unittest.TestCase):
+@requires_tk_display
+class EditorOpenValidationTest(GuiTestCase):
     def test_open_invalid_env_width_shows_error_and_keeps_document(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             current_path = write_task_env_file(Path(temp_dir), filename="current.env")
