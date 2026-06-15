@@ -5,7 +5,7 @@ from __future__ import annotations
 import tkinter as tk
 import tkinter.font as tkfont
 from functools import lru_cache
-from typing import Optional, Tuple
+from typing import Tuple
 
 from .gui_theme import (
     DIALOG_BODY_FONT,
@@ -48,13 +48,6 @@ def get_todo_banner_text(widget: tk.Text) -> str:
     return widget.get("1.0", "end-1c")
 
 
-def _todo_banner_key_action(event: tk.Event) -> Optional[str]:
-    """Block editing keys but let Escape reach the root close handler."""
-    if event.keysym == "Escape":
-        return None
-    return "break"
-
-
 def create_todo_banner(
     parent: tk.Misc,
     *,
@@ -91,7 +84,6 @@ def create_todo_banner(
     scroll.pack(side=tk.RIGHT, fill=tk.Y)
     text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-    text_widget.bind("<Key>", _todo_banner_key_action)
     set_todo_banner_text(text_widget, text)
 
     return frame, text_widget

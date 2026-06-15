@@ -90,6 +90,34 @@ class RobotWindowTodoBannerTest(GuiTestCase):
         finally:
             window.close()
 
+    def test_todo_banner_copy_selected_text(self) -> None:
+        todo = "Move the robot down."
+        envs = [make_env(cell_1x1())]
+
+        def run_env(_env: RobotEnv) -> RunResult:
+            return RunResult(status="success", message="ok")
+
+        window = RobotWindow(
+            "todo_copy",
+            RobotTask(
+                envs=envs,
+                todo_text=todo,
+                script_constraints=ScriptConstraints(),
+            ),
+            run_env,
+            RobotWindowOptions(),
+        )
+        try:
+            text_widget = window.todo_label
+            self.assertIsNotNone(text_widget)
+            text_widget.focus_set()
+            text_widget.tag_add(tk.SEL, "1.0", "end-1c")
+            text_widget.event_generate("<<Copy>>", when="tail")
+            window.root.update()
+            self.assertEqual(window.root.clipboard_get(), todo)
+        finally:
+            window.close()
+
     def test_escape_from_todo_banner_closes_window(self) -> None:
         todo = "Move the robot down."
         envs = [make_env(cell_1x1())]
