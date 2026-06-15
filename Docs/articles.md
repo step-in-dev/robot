@@ -74,7 +74,7 @@ Example:
 title: "Robot: what it is, commands, and how to use in class"
 description: "The school Robot on a grid field…"
 keywords:
-  - robot executor school
+  - robot simulator school
   - grid robot programming
 ---
 
