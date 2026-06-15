@@ -165,6 +165,66 @@ class BuildCommandsPageTest(unittest.TestCase):
         )
         self.assertIn('"name": "Справочник команд Робота на Python"', html)
 
+    def test_commands_page_en_command_groups(self) -> None:
+        html = build_commands_page("en")
+
+        self.assertIn("<h2>Choosing a task or creating a field</h2>", html)
+        self.assertIn("<h2>Action commands</h2>", html)
+        self.assertIn("<h2>Environment analysis</h2>", html)
+        self.assertNotIn("<h2>Values &amp; output</h2>", html)
+        self.assertEqual(html.count('<article class="command-group">'), 3)
+
+        action_group = re.search(
+            r'<article class="command-group">\s*<h2>Action commands</h2>(.*?)</article>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(action_group)
+        action_html = action_group.group(1)
+        self.assertIn("<code>paint()</code>", action_html)
+        self.assertIn("<code>printn(value)</code>", action_html)
+
+        env_group = re.search(
+            r'<article class="command-group">\s*<h2>Environment analysis</h2>(.*?)</article>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(env_group)
+        env_html = env_group.group(1)
+        self.assertIn("<code>pol()</code>", env_html)
+        self.assertNotIn("<code>paint()</code>", env_html)
+        self.assertNotIn("<code>printn(value)</code>", env_html)
+
+    def test_commands_page_ru_command_groups(self) -> None:
+        html = build_commands_page("ru")
+
+        self.assertIn("<h2>Выбор задачи или создание поля</h2>", html)
+        self.assertIn("<h2>Команды-действия</h2>", html)
+        self.assertIn("<h2>Анализ обстановки</h2>", html)
+        self.assertNotIn("<h2>Значения и вывод</h2>", html)
+        self.assertEqual(html.count('<article class="command-group">'), 3)
+
+        action_group = re.search(
+            r'<article class="command-group">\s*<h2>Команды-действия</h2>(.*?)</article>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(action_group)
+        action_html = action_group.group(1)
+        self.assertIn("<code>paint()</code>", action_html)
+        self.assertIn("<code>printn(value)</code>", action_html)
+
+        env_group = re.search(
+            r'<article class="command-group">\s*<h2>Анализ обстановки</h2>(.*?)</article>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(env_group)
+        env_html = env_group.group(1)
+        self.assertIn("<code>pol()</code>", env_html)
+        self.assertNotIn("<code>paint()</code>", env_html)
+        self.assertNotIn("<code>printn(value)</code>", env_html)
+
 
 class BuildEditorPageTest(unittest.TestCase):
     def test_editor_page_en(self) -> None:

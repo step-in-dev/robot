@@ -30,7 +30,17 @@ THEME_URL_SLUG: Dict[str, str] = {
 
 COMMAND_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("task_field", ("task", "field")),
-    ("movement", ("move_right", "move_left", "move_up", "move_down")),
+    (
+        "movement",
+        (
+            "move_right",
+            "move_left",
+            "move_up",
+            "move_down",
+            "paint",
+            "printn",
+        ),
+    ),
     (
         "cell_walls",
         tuple(
@@ -42,12 +52,11 @@ COMMAND_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
                 "move_left",
                 "move_up",
                 "move_down",
-                "pol",
+                "paint",
                 "printn",
             )
         ),
     ),
-    ("values", ("pol", "printn")),
 )
 
 UI_STRINGS: Dict[str, Dict[str, str]] = {
@@ -264,16 +273,14 @@ EDITOR_CONSTRAINT_DOC_ANCHORS: Dict[str, Dict[str, str]] = {
 
 COMMAND_GROUP_TITLES: Dict[str, Dict[str, str]] = {
     "en": {
-        "task_field": "Task or free field",
-        "movement": "Movement",
-        "cell_walls": "Cell & walls",
-        "values": "Values & output",
+        "task_field": "Choosing a task or creating a field",
+        "movement": "Action commands",
+        "cell_walls": "Environment analysis",
     },
     "ru": {
-        "task_field": "Задача или свободное поле",
-        "movement": "Движение",
-        "cell_walls": "Клетка и стены",
-        "values": "Значения и вывод",
+        "task_field": "Выбор задачи или создание поля",
+        "movement": "Команды-действия",
+        "cell_walls": "Анализ обстановки",
     },
 }
 

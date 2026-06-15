@@ -286,7 +286,7 @@ move_down()</code></pre>
 
         <div class="command-grid">
           <article class="command-group">
-            <h3>Задание или свободное поле</h3>
+            <h3>Выбор задачи или создание поля</h3>
             <dl>
               <dt><code>task("имя")</code></dt>
               <dd>Открыть задание из набора.</dd>
@@ -295,29 +295,24 @@ move_down()</code></pre>
             </dl>
           </article>
           <article class="command-group">
-            <h3>Движение</h3>
+            <h3>Команды-действия</h3>
             <dl>
               <dt><code>move_right()</code></dt><dd>На одну клетку вправо.</dd>
               <dt><code>move_left()</code></dt><dd>На одну клетку влево.</dd>
               <dt><code>move_up()</code></dt><dd>На одну клетку вверх.</dd>
               <dt><code>move_down()</code></dt><dd>На одну клетку вниз.</dd>
+              <dt><code>paint()</code></dt><dd>Закрасить текущую клетку.</dd>
+              <dt><code>printn(value)</code></dt><dd>Вывести целое число в текущей клетке.</dd>
             </dl>
           </article>
           <article class="command-group">
-            <h3>Клетка и стены</h3>
+            <h3>Анализ обстановки</h3>
             <dl>
-              <dt><code>paint()</code></dt><dd>Закрасить текущую клетку.</dd>
               <dt><code>is_free_left()</code> … <code>is_free_down()</code></dt><dd>True, если в этом направлении нет стены.</dd>
               <dt><code>is_wall_left()</code> … <code>is_wall_down()</code></dt><dd>True, если стена есть.</dd>
               <dt><code>is_cell_painted()</code></dt><dd>True, если клетка закрашена.</dd>
               <dt><code>is_cell_not_painted()</code></dt><dd>True, если не закрашена.</dd>
-            </dl>
-          </article>
-          <article class="command-group">
-            <h3>Значения и вывод</h3>
-            <dl>
               <dt><code>pol()</code></dt><dd>Значение загрязнения в текущей клетке (целое число).</dd>
-              <dt><code>printn(value)</code></dt><dd>Вывести целое число в текущей клетке.</dd>
             </dl>
           </article>
         </div>

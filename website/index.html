@@ -285,7 +285,7 @@ move_down()</code></pre>
 
         <div class="command-grid">
           <article class="command-group">
-            <h3>Task or free field</h3>
+            <h3>Choosing a task or creating a field</h3>
             <dl>
               <dt><code>task("name")</code></dt>
               <dd>Open a task from the bundled set.</dd>
@@ -294,29 +294,24 @@ move_down()</code></pre>
             </dl>
           </article>
           <article class="command-group">
-            <h3>Movement</h3>
+            <h3>Action commands</h3>
             <dl>
               <dt><code>move_right()</code></dt><dd>One cell right.</dd>
               <dt><code>move_left()</code></dt><dd>One cell left.</dd>
               <dt><code>move_up()</code></dt><dd>One cell up.</dd>
               <dt><code>move_down()</code></dt><dd>One cell down.</dd>
+              <dt><code>paint()</code></dt><dd>Paint the current cell.</dd>
+              <dt><code>printn(value)</code></dt><dd>Print an integer in the current cell.</dd>
             </dl>
           </article>
           <article class="command-group">
-            <h3>Cell &amp; walls</h3>
+            <h3>Environment analysis</h3>
             <dl>
-              <dt><code>paint()</code></dt><dd>Paint the current cell.</dd>
               <dt><code>is_free_left()</code> … <code>is_free_down()</code></dt><dd>True if no wall in that direction.</dd>
               <dt><code>is_wall_left()</code> … <code>is_wall_down()</code></dt><dd>True if there is a wall.</dd>
               <dt><code>is_cell_painted()</code></dt><dd>True if the cell is painted.</dd>
               <dt><code>is_cell_not_painted()</code></dt><dd>True if not painted.</dd>
-            </dl>
-          </article>
-          <article class="command-group">
-            <h3>Values &amp; output</h3>
-            <dl>
               <dt><code>pol()</code></dt><dd>Pollution value in the current cell (integer).</dd>
-              <dt><code>printn(value)</code></dt><dd>Print an integer in the current cell.</dd>
             </dl>
           </article>
         </div>
