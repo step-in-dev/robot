@@ -119,7 +119,7 @@ compound1, ..., compound11
 
 1. Modül arşivini **[GitHub Releases](https://github.com/step-in-dev/robot/releases)** sayfasından indirin.
 2. Arşivi öğrencinin çalışma klasörüne çıkartın.
-3. Çözüm dosyanızı `robot` paketinin yanına kaydedin. Başlangıç noktası olarak arşivdeki **`sample_solution.py`** dosyasını kullanın.
+3. Çözüm dosyanızı `robot` modülünün yanına kaydedin. Başlangıç noktası olarak arşivdeki **`sample_solution.py`** dosyasını kullanın.
 4. Farklı bir alıştırma çalıştırmak için **`task()`** fonksiyonuna iletilen dizeyi değiştirin (yukarıdaki **`task()` için Kullanılabilir Görevler** bölümüne bakın).
 
 Gereksinimler: Standart kütüphaneli **Python 3.7+** (arayüz `tkinter` kullanır, bu da masaüstü sistemlerdeki çoğu Python kurulumunda bulunur).

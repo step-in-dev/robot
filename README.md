@@ -121,7 +121,7 @@ compound1, ..., compound11
 
 1. Download the module archive from the **[GitHub Releases](https://github.com/step-in-dev/robot/releases)** page.
 2. Extract the archive into the student’s working folder.
-3. Save your solution file next to the `robot` package. Use **`sample_solution.py`** from the archive as a starting point.
+3. Save your solution file next to the `robot` module. Use **`sample_solution.py`** from the archive as a starting point.
 4. To run a different exercise, change the string passed to **`task()`** (see the **Available tasks for `task()`** section above).
 
 Requirements: **Python 3.7+** with the standard library (the UI uses `tkinter`, which is included with most Python installations on desktop systems).

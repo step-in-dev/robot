@@ -119,7 +119,7 @@ compound1, ..., compound11
 
 1. Descărcați arhiva modulului de pe pagina **[GitHub Releases](https://github.com/step-in-dev/robot/releases)**.
 2. Extrageți arhiva în dosarul de lucru al elevului.
-3. Salvați fișierul soluție alături de pachetul `robot`. Folosiți **`sample_solution.py`** din arhivă ca punct de plecare.
+3. Salvați fișierul soluție alături de modulul `robot`. Folosiți **`sample_solution.py`** din arhivă ca punct de plecare.
 4. Pentru a rula un exercițiu diferit, modificați șirul transmis către **`task()`** (consultați secțiunea **Sarcini disponibile pentru `task()`** de mai sus).
 
 Cerințe: **Python 3.7+** cu biblioteca standard (interfața folosește `tkinter`, care este inclusă în majoritatea instalărilor Python pe sistemele desktop).

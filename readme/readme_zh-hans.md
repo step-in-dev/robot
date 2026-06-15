@@ -119,7 +119,7 @@ compound1, ..., compound11
 
 1. 从 **[GitHub Releases](https://github.com/step-in-dev/robot/releases)** 页面下载模块压缩包。
 2. 将压缩包解压到学生的工作文件夹中。
-3. 将解答文件保存在 `robot` 包旁边。以压缩包中的 **`sample_solution.py`** 作为起点。
+3. 将解答文件保存在 `robot` 模块旁边。以压缩包中的 **`sample_solution.py`** 作为起点。
 4. 若要运行其他练习，请更改传递给 **`task()`** 的字符串（参见上方的 **可用于 `task()` 的课题** 一节）。
 
 要求：**Python 3.7+** 及标准库（界面使用 `tkinter`，大多数桌面系统的 Python 安装中均包含该库）。

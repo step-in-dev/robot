@@ -119,7 +119,7 @@ compound1, …, compound11
 
 1. Stáhněte si archiv modulu ze stránky **[GitHub Releases](https://github.com/step-in-dev/robot/releases)**.
 2. Rozbalte archiv do pracovní složky studenta.
-3. Uložte soubor s řešením vedle balíčku `robot`. Jako výchozí bod použijte soubor **`sample_solution.py`** z archivu.
+3. Uložte soubor s řešením vedle modulu `robot`. Jako výchozí bod použijte soubor **`sample_solution.py`** z archivu.
 4. Pro spuštění jiného cvičení změňte řetězec předávaný funkci **`task()`** (viz sekce **Dostupné úlohy pro `task()`** výše).
 
 Požadavky: **Python 3.7+** se standardní knihovnou (uživatelské rozhraní používá `tkinter`, který je součástí většiny instalací Pythonu na stolních počítačích).

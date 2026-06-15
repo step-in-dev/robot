@@ -115,11 +115,11 @@ ifelse1, ..., ifelse12
 **複合條件**  
 compound1, ..., compound11
 
-## 使用分發套件
+## 使用分發模組
 
 1. 從 **[GitHub Releases](https://github.com/step-in-dev/robot/releases)** 頁面下載模組壓縮檔。
 2. 將壓縮檔解壓縮到學生的工作資料夾中。
-3. 將解答檔案儲存在 `robot` 套件旁邊。以壓縮檔中的 **`sample_solution.py`** 作為起點。
+3. 將解答檔案儲存在 `robot` 模組旁邊。以壓縮檔中的 **`sample_solution.py`** 作為起點。
 4. 若要執行其他練習，請變更傳遞給 **`task()`** 的字串（參見上方的 **可用於 `task()` 的課題** 一節）。
 
 需求：**Python 3.7+** 及標準程式庫（介面使用 `tkinter`，大多數桌面系統的 Python 安裝中均包含該程式庫）。

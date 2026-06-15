@@ -119,7 +119,7 @@ compound1, ..., compound11
 
 1. **[GitHub Releases](https://github.com/step-in-dev/robot/releases)** 페이지에서 모듈 아카이브를 다운로드합니다.
 2. 아카이브를 학생 작업 폴더에 압축 해제합니다.
-3. 풀이 파일을 `robot` 패키지 옆에 저장합니다. 아카이브에 포함된 **`sample_solution.py`** 를 시작점으로 사용하세요.
+3. 풀이 파일을 `robot` 모듈 옆에 저장합니다. 아카이브에 포함된 **`sample_solution.py`** 를 시작점으로 사용하세요.
 4. 다른 연습 과제를 실행하려면 **`task()`** 에 전달하는 문자열을 변경하세요(위쪽의 **`task()`에서 사용 가능한 과제** 섹션을 참조하세요).
 
 필요한 환경: **Python 3.7+** 표준 라이브러리 (UI는 `tkinter`를 사용하며, 대부분의 데스크톱 Python 설치에 포함되어 있습니다).
