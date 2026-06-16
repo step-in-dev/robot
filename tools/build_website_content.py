@@ -535,11 +535,10 @@ def _catalog_theme_blocks(
             f"<code>{escape(task_ids[-1])}</code>"
         )
         theme_href = layout.href(f"tasks/{slug}/{page_filename(lang)}")
-        count_label = escape(_ui(lang, "tasks_in_theme", count=len(task_ids)))
         theme_blocks.append(
             f"""          <li class="theme-card">
             <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a></h2>
-            <p>{range_text} · {count_label}</p>
+            <p>{range_text}</p>
           </li>"""
         )
     return theme_blocks

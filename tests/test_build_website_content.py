@@ -7,6 +7,7 @@ import unittest
 
 from robot.task_catalog import TaskCatalog
 from tools.build_website_content import (
+    build_catalog,
     build_commands_page,
     build_editor_page,
     build_theme_hub,
@@ -107,6 +108,27 @@ class BuildThemeHubTest(unittest.TestCase):
             r'<a class="task-list__thumb-link" href="[^"]*intro1\.html">\s*'
             r'<img class="task-list__thumb"',
         )
+
+
+class BuildCatalogTest(unittest.TestCase):
+    def test_catalog_theme_cards_show_range_without_per_theme_count(self) -> None:
+        catalog = TaskCatalog.discover()
+        html = build_catalog(catalog, "ru")
+
+        intro_card = re.search(
+            r'<li class="theme-card">\s*'
+            r'<h2><a href="[^"]*intro/index_ru\.html">Первые шаги</a></h2>\s*'
+            r"<p>(.*?)</p>\s*"
+            r"</li>",
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(intro_card)
+        intro_paragraph = intro_card.group(1)
+        self.assertIn("<code>intro1</code> … <code>intro24</code>", intro_paragraph)
+        self.assertNotIn("Задач:", intro_paragraph)
+        self.assertNotIn("·", intro_paragraph)
+        self.assertIn("Всего задач:", html)
 
 
 class BuildCommandsPageTest(unittest.TestCase):
