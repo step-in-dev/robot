@@ -265,7 +265,7 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn("GitHub Releases</a>", html)
         self.assertNotIn("repository root", html)
         self.assertIn("robot/tasks", html)
-        self.assertIn('src="img/editor/editor.png"', html)
+        self.assertIn('src="img/editor/editor.webp"', html)
         self.assertIn("width=\"846\" height=\"554\"", html)
         self.assertNotIn("save_env_en.png", html)
         self.assertNotIn("stepindev.com/en/py-robot", html)

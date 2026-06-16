@@ -704,7 +704,7 @@ def _releases_link() -> str:
 def _editor_main_figure(layout: PageLayout, lang: str) -> str:
     """Render the editor window screenshot figure."""
     fig_alt = escape(_ui(lang, "editor_fig_editor"))
-    editor_img = layout.href("img/editor/editor.png")
+    editor_img = layout.href("img/editor/editor.webp")
     return f"""          <figure class="inline-figure">
             <img src="{editor_img}" width="846" height="554" alt="{fig_alt}" loading="lazy">
             <figcaption>{fig_alt}</figcaption>

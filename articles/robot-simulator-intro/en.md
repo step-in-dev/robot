@@ -77,7 +77,7 @@ A typical lesson flow:
 4. If the result does not match the required state, the simulator shows a message and the student fixes the program.
 5. Many tasks have several environments, and one program must pass every variant of the field.
 
-![Robot window: success, all environments for the task completed.](../../website/img/all_done/w45_en.png)
+![Robot window: success, all environments for the task completed.](../../website/img/all_done/w45_en.webp)
 
 *All environments passed. One program worked for every field variant.*
 
