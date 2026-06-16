@@ -25,6 +25,29 @@ from robot.loader import TaskLoadError, load_task_definition
 # pylint: enable=wrong-import-position
 
 
+def _lossless_png_to_webp(png_path: Path, webp_path: Path) -> None:
+    """Convert ``png_path`` to lossless WebP at ``webp_path``."""
+    proc = subprocess.run(
+        ["cwebp", "-lossless", str(png_path), "-o", str(webp_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(
+            f"cwebp failed with code {proc.returncode}"
+            + (f": {detail}" if detail else "")
+        )
+
+
+def _field_canvas_png_path(output_path: Path) -> Path:
+    """Return the temporary PNG path used while exporting a WebP field screenshot."""
+    if output_path.suffix.lower() == ".webp":
+        return output_path.with_suffix(".png")
+    return output_path
+
+
 def _require_command(cmd: str) -> None:
     """Raise when ``cmd`` is not available on ``PATH``."""
     if subprocess.run(
@@ -386,8 +409,9 @@ def capture_for_language(job: LanguageCaptureJob) -> None:
     env = os.environ.copy()
     env["ROBOT_LANGUAGE"] = job.language
     env["PYTHONUNBUFFERED"] = "1"
+    field_png_path = _field_canvas_png_path(job.output_path)
     if job.field_canvas_only:
-        env["ROBOT_FIELD_SCREENSHOT_PATH"] = str(job.output_path)
+        env["ROBOT_FIELD_SCREENSHOT_PATH"] = str(field_png_path)
 
     if job.field_canvas_only:
         proc = subprocess.run(
@@ -405,8 +429,11 @@ def capture_for_language(job: LanguageCaptureJob) -> None:
                 f"Robot field export exited with code {proc.returncode}"
                 + (f": {detail}" if detail else "")
             )
-        if not job.output_path.is_file():
+        if not field_png_path.is_file():
             raise RuntimeError("Field canvas PNG was not written")
+        if job.output_path != field_png_path:
+            _lossless_png_to_webp(field_png_path, job.output_path)
+            field_png_path.unlink(missing_ok=True)
         return
 
     before_ids = _all_window_ids()

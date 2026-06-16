@@ -36,7 +36,7 @@ class BuildThemeHubTest(unittest.TestCase):
         )
         self.assertIn(
             'meta property="og:image" '
-            'content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            'content="https://robot.stepindev.com/img/tasks/intro1_env0.webp"',
             html,
         )
         self.assertIn(
@@ -72,7 +72,7 @@ class BuildThemeHubTest(unittest.TestCase):
         )
         self.assertIn(
             'meta property="og:image" '
-            'content="https://robot.stepindev.com/img/tasks/intro1_env0.png"',
+            'content="https://robot.stepindev.com/img/tasks/intro1_env0.webp"',
             html,
         )
         self.assertIn(
@@ -86,7 +86,7 @@ class BuildThemeHubTest(unittest.TestCase):
         html = build_theme_hub(catalog, "intro", "en")
 
         self.assertIn('class="task-list__thumb"', html)
-        self.assertIn('src="../../img/tasks/intro1_env0.png"', html)
+        self.assertIn('src="../../img/tasks/intro1_env0.webp"', html)
 
         title_link = re.search(
             r'<h2 class="task-list__title"><a href="([^"]*intro1\.html)">'

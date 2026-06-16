@@ -1,4 +1,4 @@
-"""Capture field-canvas PNGs for every task environment (one file per env)."""
+"""Capture field-canvas WebPs for every task environment (one file per env)."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
-        help="Directory for PNG files (default: website/img/tasks).",
+        help="Directory for WebP files (default: website/img/tasks).",
     )
     parser.add_argument(
         "--task",
@@ -59,7 +59,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-existing",
         action="store_true",
-        help="Skip captures when the output PNG already exists.",
+        help="Skip captures when the output WebP already exists.",
     )
     parser.add_argument(
         "--dry-run",
@@ -92,7 +92,7 @@ def resolve_task_ids(catalog: TaskCatalog, args: argparse.Namespace) -> List[str
 
 
 def expected_output_paths(task_ids: List[str], output_dir: Path) -> List[Path]:
-    """Return every PNG path the batch would attempt for *task_ids*."""
+    """Return every WebP path the batch would attempt for *task_ids*."""
     paths: List[Path] = []
     for task_id in task_ids:
         try:
@@ -100,7 +100,7 @@ def expected_output_paths(task_ids: List[str], output_dir: Path) -> List[Path]:
         except TaskLoadError:
             continue
         for env_index in range(len(task_def.envs)):
-            paths.append(output_dir / f"{task_id}_env{env_index}.png")
+            paths.append(output_dir / f"{task_id}_env{env_index}.webp")
     return paths
 
 
@@ -112,7 +112,7 @@ def capture_task_envs(
     skip_existing: bool,
     failed: List[Tuple[str, str]],
 ) -> None:
-    """Capture one PNG per environment for *task_id* in viewer mode."""
+    """Capture one WebP per environment for *task_id* in viewer mode."""
     try:
         task_def = load_task_definition(task_id)
     except TaskLoadError as exc:
@@ -127,7 +127,7 @@ def capture_task_envs(
             env_index=env_index,
             settle_seconds=settle_seconds,
         )
-        output_path = output_dir / f"{task_id}_env{env_index}.png"
+        output_path = output_dir / f"{task_id}_env{env_index}.webp"
         label = f"{task_id}/env{env_index}"
         if skip_existing and output_path.is_file():
             print(f"[{label}] skip (exists)")

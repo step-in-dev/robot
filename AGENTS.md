@@ -26,7 +26,7 @@ The target audience is school students who are learning introductory programming
 - `Docs/editor-icons.md` describes toolbar icon assets for the environment editor (`robot/assets/editor_icons/`).
 - `Docs/localization-style.md` describes conventions for localized UI strings and task conditions (`todoText` in `.env` files). Read it when you change localization or add or edit task conditions.
 - `Docs/linting.md` describes pylint usage.
-- `Docs/website-screenshots.md` describes capturing PNGs for the static website (field canvas and full-window shots).
+- `Docs/website-screenshots.md` describes capturing WebPs for the static website (field canvas and full-window shots).
 - `Docs/articles.md` describes the `articles/` directory layout, `meta.yaml`, and locale markdown files for site publishing.
 - UI string catalogs are JSON files in `robot/locales/`.
 
@@ -34,7 +34,7 @@ The target audience is school students who are learning introductory programming
 
 The `website/` directory holds a static landing page for the Robot project: `index.html` (English), `index_ru.html` (Russian), shared `styles.css` and `script.js`, and images under `website/img/`.
 
-Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.html`, `website/sitemap.xml`) is **not** committed; it is listed in `.gitignore` and built on deploy by [`.github/workflows/static.yml`](.github/workflows/static.yml). Install build dependencies once (`python -m pip install -r requirements-build.txt`), then run `python tools/build_website_content.py` (same locally and in CI). Serve with `python -m http.server` in `website/` to preview task and article pages. Article sources live under `articles/`; see [`Docs/articles.md`](Docs/articles.md). Field PNGs under `website/img/tasks/` remain in the repository. For screenshot capture workflow, prerequisites, and batch commands, see [`Docs/website-screenshots.md`](Docs/website-screenshots.md).
+Generated site HTML (`website/tasks/`, `website/articles/`, `website/commands*.html`, `website/sitemap.xml`) is **not** committed; it is listed in `.gitignore` and built on deploy by [`.github/workflows/static.yml`](.github/workflows/static.yml). Install build dependencies once (`python -m pip install -r requirements-build.txt`), then run `python tools/build_website_content.py` (same locally and in CI). Serve with `python -m http.server` in `website/` to preview task and article pages. Article sources live under `articles/`; see [`Docs/articles.md`](Docs/articles.md). Field WebPs under `website/img/tasks/` remain in the repository. For screenshot capture workflow, prerequisites, and batch commands, see [`Docs/website-screenshots.md`](Docs/website-screenshots.md).
 
 ## Architecture Overview
 

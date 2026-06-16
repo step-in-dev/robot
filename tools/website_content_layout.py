@@ -152,6 +152,24 @@ def absolute_url(relative_path: str) -> str:
     return f"{SITE_BASE}/{relative_path.lstrip('/')}"
 
 
+def webp_dimensions(path: Path) -> Optional[Tuple[int, int]]:
+    """Read width and height from a WebP header, or return ``None`` on failure."""
+    try:
+        with path.open("rb") as stream:
+            header = stream.read(30)
+        if len(header) < 25 or header[0:4] != b"RIFF" or header[8:12] != b"WEBP":
+            return None
+        if header[12:16] == b"VP8L":
+            bits = int.from_bytes(header[21:25], "little")
+            return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+        if header[12:16] == b"VP8 " and len(header) >= 30:
+            bits = int.from_bytes(header[26:29], "little")
+            return bits & 0x3FFF, (bits >> 14) & 0x3FFF
+        return None
+    except OSError:
+        return None
+
+
 def png_dimensions(path: Path) -> Optional[Tuple[int, int]]:
     """Read width and height from a PNG header, or return ``None`` on failure."""
     try:
@@ -165,21 +183,34 @@ def png_dimensions(path: Path) -> Optional[Tuple[int, int]]:
         return None
 
 
+def image_dimensions(path: Path) -> Optional[Tuple[int, int]]:
+    """Read width and height from a PNG or WebP file."""
+    suffix = path.suffix.lower()
+    if suffix == ".webp":
+        return webp_dimensions(path)
+    if suffix == ".png":
+        return png_dimensions(path)
+    return webp_dimensions(path) or png_dimensions(path)
+
+
 def task_screenshot_path(task_id: str, env_index: int) -> Path:
-    """Return path to a field PNG, with legacy ``_en`` fallback during migration."""
-    primary = TASKS_IMG_DIR / f"{task_id}_env{env_index}.png"
+    """Return path to a field screenshot, with legacy PNG fallbacks during migration."""
+    primary = TASKS_IMG_DIR / f"{task_id}_env{env_index}.webp"
     if primary.is_file():
         return primary
-    legacy = TASKS_IMG_DIR / f"{task_id}_env{env_index}_en.png"
-    if legacy.is_file():
-        return legacy
+    legacy_png = TASKS_IMG_DIR / f"{task_id}_env{env_index}.png"
+    if legacy_png.is_file():
+        return legacy_png
+    legacy_en = TASKS_IMG_DIR / f"{task_id}_env{env_index}_en.png"
+    if legacy_en.is_file():
+        return legacy_en
     return primary
 
 
 def first_existing_env_shot(
     task_id: str, env_count: int
 ) -> Optional[Tuple[Path, int, str]]:
-    """Return ``(shot path, env index, site-relative img path)`` for the first PNG found."""
+    """Return ``(shot path, env index, site-relative img path)`` for the first shot found."""
     for env_index in range(env_count):
         shot = task_screenshot_path(task_id, env_index)
         if shot.is_file():
@@ -189,7 +220,7 @@ def first_existing_env_shot(
 
 def env_image_dim_attr(shot: Path) -> str:
     """Return a width/height attribute string for ``shot`` when dimensions are known."""
-    dims = png_dimensions(shot)
+    dims = image_dimensions(shot)
     if not dims:
         return ""
     width, height = dims
@@ -346,7 +377,7 @@ def render_head(layout: PageLayout) -> str:
         og_image = og_image.replace("_en.", "_ru.", 1)
     og_image_url = layout.site_url(og_image)
     og_alt = escape(layout.og_image_alt or _ui(layout.lang, "og_default_alt"))
-    dims = png_dimensions(WEBSITE_DIR / og_image)
+    dims = image_dimensions(WEBSITE_DIR / og_image)
     dim_tags = ""
     if dims:
         width, height = dims
@@ -561,7 +592,7 @@ def render_environment_figures(
     task_id: str,
     env_count: int,
 ) -> str:
-    """Render environment figure blocks for ``task_id`` when PNGs exist."""
+    """Render environment figure blocks for ``task_id`` when screenshots exist."""
     blocks: List[str] = []
     for env_index in range(env_count):
         shot = task_screenshot_path(task_id, env_index)

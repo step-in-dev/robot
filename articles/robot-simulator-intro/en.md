@@ -209,7 +209,7 @@ task("intro1")
 move_right()
 ```
 
-![Task intro1.](../../website/img/tasks/intro1_env0.png)
+![Task intro1.](../../website/img/tasks/intro1_env0.webp)
 
 Even this tiny program helps students learn the basic shape of a program.
 
@@ -233,7 +233,7 @@ paint()
 move_down()
 ```
 
-![Robot window for intro8: paint the marked cells.](../../website/img/tasks/intro8_env0.png)
+![Robot window for intro8: paint the marked cells.](../../website/img/tasks/intro8_env0.webp)
 
 Even here, a plain sequence of commands already works as an algorithm.
 
@@ -241,7 +241,7 @@ Even here, a plain sequence of commands already works as an algorithm.
 
 In task `w2`, Robot stands at the top of a narrow vertical corridor. The goal is on the cell just above the bottom edge of the field. There are two environments with different heights, so the number of steps down is not known in advance. That is why this task leads naturally to the classic "while free below" pattern instead of a long chain of `move_down()`.
 
-![Task w2, first environment: vertical corridor.](../../website/img/tasks/w2_env0.png)
+![Task w2, first environment: vertical corridor.](../../website/img/tasks/w2_env0.webp)
 
 Program:
 
