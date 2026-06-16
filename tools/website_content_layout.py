@@ -341,9 +341,9 @@ def localized_command_help(lang: str) -> List[Tuple[str, str]]:
 
 def render_head(layout: PageLayout) -> str:
     """Render the ``<head>`` block for ``layout``."""
-    og_image = layout.og_image_path or "img/hero/intro19_en.png"
-    if layout.lang == "ru" and og_image.endswith("_en.png"):
-        og_image = og_image.replace("_en.png", "_ru.png")
+    og_image = layout.og_image_path or "img/hero/intro19_en.webp"
+    if layout.lang == "ru" and "_en." in og_image:
+        og_image = og_image.replace("_en.", "_ru.", 1)
     og_image_url = layout.site_url(og_image)
     og_alt = escape(layout.og_image_alt or _ui(layout.lang, "og_default_alt"))
     dims = png_dimensions(WEBSITE_DIR / og_image)

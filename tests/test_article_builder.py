@@ -37,7 +37,7 @@ keywords:
 
 # Test title
 
-![Hero.](../../website/img/hero/intro19_en.png)
+![Hero.](../../website/img/hero/intro19_en.webp)
 
 | A | B |
 | - | - |
@@ -116,9 +116,9 @@ class RewriteArticleHtmlTest(unittest.TestCase):
                 alternate_ru="articles/bar/index_ru.html",
             ),
         )
-        raw = '<img src="../../website/img/hero/intro19_en.png" alt="">'
+        raw = '<img src="../../website/img/hero/intro19_en.webp" alt="">'
         out = rewrite_article_html(raw, layout, "en")
-        self.assertIn('src="../../img/hero/intro19_en.png"', out)
+        self.assertIn('src="../../img/hero/intro19_en.webp"', out)
 
     def test_rewrites_absolute_site_links(self) -> None:
         layout = PageLayout(
@@ -152,7 +152,7 @@ class BuildArticlePageSmokeTest(unittest.TestCase):
         html = build_article_page(intro, "en")
         self.assertIn("<table>", html)
         self.assertIn("<pre>", html)
-        self.assertIn('src="../../img/hero/intro19_en.png"', html)
+        self.assertIn('src="../../img/hero/intro19_en.webp"', html)
         self.assertIn("<meta name=\"keywords\"", html)
         self.assertIn('property="og:type" content="article"', html)
 

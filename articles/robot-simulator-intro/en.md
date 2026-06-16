@@ -65,7 +65,7 @@ In Russia, Robot became part of school computer science and later entered the Ku
 
 On screen, students see a window with the grid. It shows Robot in the current cell, walls between cells and along the border, cells that need painting, cells that are already painted, the task goal, and, when needed, limits such as a command cap or a required loop. At the bottom are Run and Step.
 
-![Robot window: grid with Robot, walls, and painted cells.](../../website/img/hero/intro19_en.png)
+![Robot window: grid with Robot, walls, and painted cells.](../../website/img/hero/intro19_en.webp)
 
 *Robot window: field, walls, task goal, and the result of a run.*
 

@@ -90,10 +90,10 @@ Keeping a `#` heading in the body that matches `title` is normal for Markdown ed
 Paths to assets under [`website/`](../website/) are relative to the locale file. From `articles/<article_id>/en.md`, use:
 
 ```markdown
-![Alt text.](../../website/img/hero/intro19_en.png)
+![Alt text.](../../website/img/hero/intro19_en.webp)
 ```
 
-At build time these become paths relative to the generated HTML page (for example `../../img/hero/intro19_en.png` on an article page under `website/articles/<slug>/`).
+At build time these become paths relative to the generated HTML page (for example `../../img/hero/intro19_en.webp` on an article page under `website/articles/<slug>/`).
 
 Absolute links to `https://robot.stepindev.com/...` for the task catalog and command reference are rewritten to locale-appropriate relative URLs during the build.
 
