@@ -42,7 +42,7 @@ The second tool is part of the module itself and runs locally through `viewer/vi
 
 For classroom work, another detail may matter even more. The local viewer shows the tasks from the exact version of the module installed on that computer. So if you need to check not the newest set on the website but the set that students actually have, the local viewer is the safer reference point.
 
-![The task viewer inside the Robot module: local catalog and task preview.](../../website/img/viewer/viewer_if3_en.png)
+![The task viewer inside the Robot module: local catalog and task preview.](../../website/img/viewer/viewer_if3_en.webp)
 
 *The local viewer is the practical choice when you need the installed version of the module and do not want to depend on the network.*
 

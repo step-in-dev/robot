@@ -539,7 +539,7 @@ def parse_args() -> argparse.Namespace:
         default="",
         help=(
             "Optional prefix for PNG filenames (e.g. viewer_ yields "
-            "viewer_if3_ru.png)."
+            "viewer_if3_ru.webp)."
         ),
     )
     parser.add_argument(
