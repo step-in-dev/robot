@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
-from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 import re
@@ -41,7 +40,6 @@ from tools.website_content_layout import (  # noqa: E402
     wrap_page,
     write_page,
 )
-from tools.website_content_util import iso_date_from_mtime, newest_mtime
 
 # pylint: enable=wrong-import-position
 
@@ -262,18 +260,6 @@ def first_image_path(html_text: str) -> Optional[str]:
     return None
 
 
-def _article_source_paths(article: Article) -> List[Path]:
-    paths = [ARTICLES_DIR / article.article_id / "meta.yaml"]
-    paths.extend(article.locale_path(lang) for lang in article.locales)
-    return paths
-
-
-def article_lastmod(article: Article) -> str:
-    """Return ISO date of the newest source file for ``article``."""
-    newest = newest_mtime(_article_source_paths(article))
-    return iso_date_from_mtime(newest, article.date)
-
-
 def build_article_page(article: Article, lang: str) -> str:
     """Render one localized article page as a full HTML document."""
     locale = article.locales[lang]
@@ -443,30 +429,18 @@ def generate_articles(articles_dir: Path = ARTICLES_DIR) -> List[Article]:
 
 def collect_article_sitemap_groups(
     articles: Sequence[Article],
-    lastmod: str,
-) -> List[Tuple[str, str, str]]:
-    """Return ``(en_path, ru_path, lastmod)`` tuples for article sitemap entries."""
-    groups: List[Tuple[str, str, str]] = [
-        (articles_index_relpath("en"), articles_index_relpath("ru"), lastmod),
+) -> List[Tuple[str, str]]:
+    """Return ``(en_path, ru_path)`` tuples for article sitemap entries."""
+    groups: List[Tuple[str, str]] = [
+        (articles_index_relpath("en"), articles_index_relpath("ru")),
     ]
     for article in articles:
         if "en" not in article.slug or "ru" not in article.slug:
             continue
-        mod = article_lastmod(article)
         groups.append(
             (
                 article.page_relpath("en"),
                 article.page_relpath("ru"),
-                mod,
             )
         )
     return groups
-
-
-def articles_lastmod(articles: Sequence[Article]) -> str:
-    """Return ISO date of the newest article source file across ``articles``."""
-    paths: List[Path] = []
-    for article in articles:
-        paths.extend(_article_source_paths(article))
-    newest = newest_mtime(paths)
-    return iso_date_from_mtime(newest, date.today().isoformat())

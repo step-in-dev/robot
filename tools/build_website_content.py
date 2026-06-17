@@ -7,7 +7,6 @@ import argparse
 import shutil
 import sys
 from dataclasses import dataclass
-from datetime import date
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -17,7 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 # pylint: disable=wrong-import-position
 from robot.command_help import COMMAND_HELP_SPECS
 from robot.gui_constraints import task_has_any_constraints
-from robot.loader import find_task_file, load_task_definition
+from robot.loader import load_task_definition
 from robot.task_catalog import TaskCatalog
 
 from tools.website_content_data import (
@@ -65,7 +64,6 @@ from tools.website_content_layout import (
     wrap_page,
     write_page,
 )
-from tools.website_content_util import iso_date_from_mtime, newest_mtime
 from tools import article_builder
 
 # pylint: enable=wrong-import-position
@@ -78,9 +76,6 @@ __all__ = [
     "build_theme_hub",
     "collect_sitemap_urls",
     "generate_all",
-    "iso_date_from_mtime",
-    "newest_mtime",
-    "tasks_lastmod",
     "write_sitemap",
 ]
 
@@ -815,15 +810,14 @@ def build_editor_page(lang: str) -> str:
 
 def collect_sitemap_urls(
     catalog: TaskCatalog,
-    lastmod: str,
-    article_groups: Optional[Sequence[Tuple[str, str, str]]] = None,
-) -> List[Tuple[str, str, str]]:
-    """Return (en_path, ru_path, lastmod) tuples for alternate URL groups."""
-    groups: List[Tuple[str, str, str]] = [
-        ("index.html", "index_ru.html", lastmod),
-        (commands_relpath("en"), commands_relpath("ru"), lastmod),
-        (editor_relpath("en"), editor_relpath("ru"), lastmod),
-        (catalog_relpath("en"), catalog_relpath("ru"), lastmod),
+    article_groups: Optional[Sequence[Tuple[str, str]]] = None,
+) -> List[Tuple[str, str]]:
+    """Return (en_path, ru_path) tuples for alternate URL groups."""
+    groups: List[Tuple[str, str]] = [
+        ("index.html", "index_ru.html"),
+        (commands_relpath("en"), commands_relpath("ru")),
+        (editor_relpath("en"), editor_relpath("ru")),
+        (catalog_relpath("en"), catalog_relpath("ru")),
     ]
     if article_groups:
         groups.extend(article_groups)
@@ -833,7 +827,6 @@ def collect_sitemap_urls(
             (
                 f"tasks/{slug}/index.html",
                 f"tasks/{slug}/index_ru.html",
-                lastmod,
             )
         )
     for theme_prefix in catalog.themes:
@@ -842,7 +835,6 @@ def collect_sitemap_urls(
                 (
                     task_page_relpath(task_id, "en"),
                     task_page_relpath(task_id, "ru"),
-                    lastmod,
                 )
             )
     return groups
@@ -857,8 +849,7 @@ def _sitemap_loc(path: str) -> str:
 
 def write_sitemap(
     catalog: TaskCatalog,
-    lastmod: str,
-    article_groups: Optional[Sequence[Tuple[str, str, str]]] = None,
+    article_groups: Optional[Sequence[Tuple[str, str]]] = None,
 ) -> None:
     """Write ``sitemap.xml`` under ``WEBSITE_DIR``."""
     lines = [
@@ -866,8 +857,8 @@ def write_sitemap(
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
         '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
     ]
-    for en_path, ru_path, mod in collect_sitemap_urls(
-        catalog, lastmod, article_groups=article_groups
+    for en_path, ru_path in collect_sitemap_urls(
+        catalog, article_groups=article_groups
     ):
         en_href = _sitemap_loc(en_path)
         ru_href = _sitemap_loc(ru_path)
@@ -876,7 +867,6 @@ def write_sitemap(
                 [
                     "  <url>",
                     f"    <loc>{_sitemap_loc(loc_path)}</loc>",
-                    f"    <lastmod>{mod}</lastmod>",
                     f'    <xhtml:link rel="alternate" hreflang="en" href="{en_href}"/>',
                     f'    <xhtml:link rel="alternate" hreflang="ru" href="{ru_href}"/>',
                     f'    <xhtml:link rel="alternate" hreflang="x-default" href="{en_href}"/>',
@@ -885,17 +875,6 @@ def write_sitemap(
             )
     lines.append("</urlset>")
     (WEBSITE_DIR / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
-def tasks_lastmod(catalog: TaskCatalog) -> str:
-    """Return ISO date of the newest bundled task ``.env`` file in ``catalog``."""
-    paths = [
-        find_task_file(task_id)
-        for theme_prefix in catalog.themes
-        for task_id in catalog.task_ids_for(theme_prefix)
-    ]
-    newest = newest_mtime(paths)
-    return iso_date_from_mtime(newest, date.today().isoformat())
 
 
 def clean_generated_tasks_dir() -> None:
@@ -930,11 +909,8 @@ def generate_all() -> Tuple[TaskCatalog, list]:
                 write_page(out, build_task_page(catalog, task_id, lang))
 
     articles = article_builder.generate_articles()
-    article_groups = article_builder.collect_article_sitemap_groups(
-        articles, article_builder.articles_lastmod(articles)
-    )
-    lastmod = tasks_lastmod(catalog)
-    write_sitemap(catalog, lastmod, article_groups=article_groups)
+    article_groups = article_builder.collect_article_sitemap_groups(articles)
+    write_sitemap(catalog, article_groups=article_groups)
     return catalog, articles
 
 

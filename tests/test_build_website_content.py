@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from robot.task_catalog import TaskCatalog
+from tools import article_builder
 from tools.build_website_content import (
     build_catalog,
     build_commands_page,
     build_editor_page,
     build_theme_hub,
+    write_sitemap,
 )
 
 
@@ -310,6 +315,25 @@ class BuildEditorPageTest(unittest.TestCase):
             "Docs/task-env-format.ru.md#requiredkeywords-%D0%B8-bannedkeywords",
             html,
         )
+
+
+class WriteSitemapTest(unittest.TestCase):
+    def test_sitemap_omits_lastmod(self) -> None:
+        catalog = TaskCatalog.discover()
+        articles = article_builder.discover_articles()
+        article_groups = article_builder.collect_article_sitemap_groups(articles)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            website_dir = Path(tmp) / "website"
+            website_dir.mkdir()
+            with patch("tools.build_website_content.WEBSITE_DIR", website_dir):
+                write_sitemap(catalog, article_groups=article_groups)
+                sitemap = (website_dir / "sitemap.xml").read_text(encoding="utf-8")
+
+        self.assertNotIn("<lastmod>", sitemap)
+        self.assertIn("<loc>", sitemap)
+        self.assertIn('hreflang="en"', sitemap)
+        self.assertIn('hreflang="ru"', sitemap)
 
 
 if __name__ == "__main__":
