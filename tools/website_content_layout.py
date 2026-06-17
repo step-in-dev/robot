@@ -253,6 +253,7 @@ class PageMeta:
     og_image_path: Optional[str] = None
     og_image_alt: Optional[str] = None
     keywords: Optional[Sequence[str]] = None
+    robots: Optional[str] = None
     json_ld: Optional[dict] = None
 
 
@@ -302,6 +303,11 @@ class PageLayout:
     def keywords(self) -> Optional[Sequence[str]]:
         """Optional meta keywords."""
         return self.meta.keywords
+
+    @property
+    def robots(self) -> Optional[str]:
+        """Optional robots meta directive (e.g. ``noindex, follow``)."""
+        return self.meta.robots
 
     @property
     def json_ld(self) -> Optional[dict]:
@@ -370,6 +376,19 @@ def localized_command_help(lang: str) -> List[Tuple[str, str]]:
         _restore_language(previous)
 
 
+def _optional_name_meta_tags(layout: PageLayout) -> str:
+    """Render optional ``meta name=…`` tags (robots, keywords)."""
+    lines: List[str] = []
+    if layout.robots:
+        lines.append(f'  <meta name="robots" content="{escape(layout.robots)}">')
+    if layout.keywords:
+        keywords_text = ", ".join(layout.keywords)
+        lines.append(f'  <meta name="keywords" content="{escape(keywords_text)}">')
+    if not lines:
+        return ""
+    return "\n".join(lines) + "\n"
+
+
 def render_head(layout: PageLayout) -> str:
     """Render the ``<head>`` block for ``layout``."""
     og_image = layout.og_image_path or "img/hero/intro19_en.webp"
@@ -395,12 +414,7 @@ def render_head(layout: PageLayout) -> str:
     locale = "ru_RU" if layout.lang == "ru" else "en_US"
     alt_locale = "en_US" if layout.lang == "ru" else "ru_RU"
     html_lang = "ru" if layout.lang == "ru" else "en"
-    keywords_block = ""
-    if layout.keywords:
-        keywords_text = ", ".join(layout.keywords)
-        keywords_block = (
-            f'  <meta name="keywords" content="{escape(keywords_text)}">\n'
-        )
+    name_meta_tags = _optional_name_meta_tags(layout)
     canonical_url = escape(layout.site_url(layout.canonical_path))
     return f"""<!DOCTYPE html>
 <html lang="{html_lang}">
@@ -409,7 +423,7 @@ def render_head(layout: PageLayout) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{escape(layout.title)}</title>
   <meta name="description" content="{escape(layout.description)}">
-{keywords_block}  <link rel="canonical" href="{canonical_url}">
+{name_meta_tags}  <link rel="canonical" href="{canonical_url}">
   <link rel="alternate" hreflang="en" href="{escape(absolute_url(layout.alternate_en))}">
   <link rel="alternate" hreflang="ru" href="{escape(absolute_url(layout.alternate_ru))}">
   <link rel="alternate" hreflang="x-default" href="{escape(absolute_url(layout.alternate_en))}">

@@ -178,6 +178,7 @@ def _task_page_layout(parts: _TaskPageParts) -> PageLayout:
             alternate_ru=task_page_relpath(parts.task_id, "ru"),
         ),
         meta=PageMeta(
+            robots="noindex, follow",
             og_image_path=parts.og_image,
             json_ld={
                 "@context": "https://schema.org",
@@ -829,14 +830,6 @@ def collect_sitemap_urls(
                 f"tasks/{slug}/index_ru.html",
             )
         )
-    for theme_prefix in catalog.themes:
-        for task_id in catalog.task_ids_for(theme_prefix):
-            groups.append(
-                (
-                    task_page_relpath(task_id, "en"),
-                    task_page_relpath(task_id, "ru"),
-                )
-            )
     return groups
 
 

@@ -14,7 +14,9 @@ from tools.build_website_content import (
     build_catalog,
     build_commands_page,
     build_editor_page,
+    build_task_page,
     build_theme_hub,
+    collect_sitemap_urls,
     write_sitemap,
 )
 
@@ -317,6 +319,23 @@ class BuildEditorPageTest(unittest.TestCase):
         )
 
 
+class TaskPageSeoTest(unittest.TestCase):
+    def test_task_page_has_noindex(self) -> None:
+        catalog = TaskCatalog.discover()
+        html = build_task_page(catalog, "intro1", "en")
+
+        self.assertIn(
+            'meta name="robots" content="noindex, follow"',
+            html,
+        )
+
+    def test_theme_hub_has_no_noindex(self) -> None:
+        catalog = TaskCatalog.discover()
+        html = build_theme_hub(catalog, "intro", "en")
+
+        self.assertNotIn("noindex", html)
+
+
 class WriteSitemapTest(unittest.TestCase):
     def test_sitemap_omits_lastmod(self) -> None:
         catalog = TaskCatalog.discover()
@@ -334,6 +353,28 @@ class WriteSitemapTest(unittest.TestCase):
         self.assertIn("<loc>", sitemap)
         self.assertIn('hreflang="en"', sitemap)
         self.assertIn('hreflang="ru"', sitemap)
+
+    def test_sitemap_includes_catalog_and_theme_hubs_not_task_pages(self) -> None:
+        catalog = TaskCatalog.discover()
+        articles = article_builder.discover_articles()
+        article_groups = article_builder.collect_article_sitemap_groups(articles)
+        groups = collect_sitemap_urls(catalog, article_groups=article_groups)
+        flat_paths = {path for pair in groups for path in pair}
+
+        self.assertIn("tasks/index.html", flat_paths)
+        self.assertIn("tasks/intro/index.html", flat_paths)
+        self.assertNotIn("tasks/intro1.html", flat_paths)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            website_dir = Path(tmp) / "website"
+            website_dir.mkdir()
+            with patch("tools.build_website_content.WEBSITE_DIR", website_dir):
+                write_sitemap(catalog, article_groups=article_groups)
+                sitemap = (website_dir / "sitemap.xml").read_text(encoding="utf-8")
+
+        self.assertIn("tasks/index.html", sitemap)
+        self.assertIn("tasks/intro/index.html", sitemap)
+        self.assertNotIn("tasks/intro1.html", sitemap)
 
 
 if __name__ == "__main__":
