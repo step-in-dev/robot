@@ -284,6 +284,16 @@ class BuildEditorPageTest(unittest.TestCase):
             html,
         )
         self.assertIn(">Open online editor</a>", html)
+        online_card = re.search(
+            r'<div class="callout editor-online-card">(.*?)</div>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(online_card)
+        card_html = online_card.group(1)
+        self.assertIn('<ul class="track-list">', card_html)
+        self.assertIn("8 rows by 10 columns", card_html)
+        self.assertIn("Does not support setting solution constraints.", card_html)
         self.assertRegex(
             html,
             r"</div>\s*<div class=\"callout editor-online-card\">",
@@ -320,6 +330,16 @@ class BuildEditorPageTest(unittest.TestCase):
             html,
         )
         self.assertIn(">Открыть онлайн-редактор</a>", html)
+        online_card = re.search(
+            r'<div class="callout editor-online-card">(.*?)</div>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(online_card)
+        card_html = online_card.group(1)
+        self.assertIn('<ul class="track-list">', card_html)
+        self.assertIn("8 строк на 10 колонок", card_html)
+        self.assertIn("Не поддерживается задание ограничений на решение.", card_html)
         self.assertRegex(
             html,
             r"</div>\s*<div class=\"callout editor-online-card\">",

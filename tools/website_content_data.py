@@ -15,6 +15,8 @@ ONLINE_EDITOR_URL = {
     "en": "https://stepindev.com/en/py-robot",
     "ru": "https://stepindev.com/ru/py-robot",
 }
+ONLINE_EDITOR_MAX_ROWS = 8
+ONLINE_EDITOR_MAX_COLS = 10
 WEBSITE_DIR = PROJECT_ROOT / "website"
 TASKS_IMG_DIR = WEBSITE_DIR / "img" / "tasks"
 SUPPORTED_SITE_LANGS = ("en", "ru")
@@ -153,6 +155,12 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "the module."
         ),
         "editor_online_link": "Open online editor",
+        "editor_online_limit_size": (
+            "Supports smaller environments: up to {rows} rows by {cols} columns."
+        ),
+        "editor_online_limit_constraints": (
+            "Does not support setting solution constraints."
+        ),
     },
     "ru": {
         "site_name": "Робот",
@@ -243,6 +251,12 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Создавайте и редактируйте обстановки в браузере, без установки модуля."
         ),
         "editor_online_link": "Открыть онлайн-редактор",
+        "editor_online_limit_size": (
+            "Поддерживаются обстановки меньшего размера: до {rows} строк на {cols} колонок."
+        ),
+        "editor_online_limit_constraints": (
+            "Не поддерживается задание ограничений на решение."
+        ),
     },
 }
 

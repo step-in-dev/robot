@@ -27,6 +27,8 @@ from tools.website_content_data import (
     ENV_FORMAT_DOC_BASE,
     GITHUB_RELEASES_URL,
     ONLINE_EDITOR_URL,
+    ONLINE_EDITOR_MAX_COLS,
+    ONLINE_EDITOR_MAX_ROWS,
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
     TASKS_IMG_DIR,
@@ -757,9 +759,22 @@ def _render_editor_online_card(lang: str) -> str:
     """Render the online environment editor promo card."""
     url = escape(ONLINE_EDITOR_URL[lang])
     link_text = escape(_ui(lang, "editor_online_link"))
+    limit_size = escape(
+        _ui(
+            lang,
+            "editor_online_limit_size",
+            rows=ONLINE_EDITOR_MAX_ROWS,
+            cols=ONLINE_EDITOR_MAX_COLS,
+        )
+    )
+    limit_constraints = escape(_ui(lang, "editor_online_limit_constraints"))
     return f"""      <div class="callout editor-online-card">
         <h3>{escape(_ui(lang, "editor_online_heading"))}</h3>
         <p>{escape(_ui(lang, "editor_online_text"))}</p>
+        <ul class="track-list">
+        <li>{limit_size}</li>
+        <li>{limit_constraints}</li>
+        </ul>
         <p><a href="{url}" rel="noopener noreferrer" target="_blank">{link_text}</a></p>
       </div>"""
 
