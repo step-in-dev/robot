@@ -275,7 +275,19 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertIn('src="img/editor/editor.webp"', html)
         self.assertIn("width=\"846\" height=\"554\"", html)
         self.assertNotIn("save_env_en.png", html)
-        self.assertNotIn("stepindev.com/en/py-robot", html)
+        self.assertIn("stepindev.com/en/py-robot", html)
+        self.assertIn("editor-online-card", html)
+        self.assertIn("<h3>Online environment editor</h3>", html)
+        self.assertIn(
+            "Create and edit task environments in the browser without installing "
+            "the module.",
+            html,
+        )
+        self.assertIn(">Open online editor</a>", html)
+        self.assertRegex(
+            html,
+            r"</div>\s*<div class=\"callout editor-online-card\">",
+        )
         self.assertIn("todoText", html)
         self.assertIn("Max Robot commands and function calls", html)
         self.assertIn(
@@ -300,7 +312,18 @@ class BuildEditorPageTest(unittest.TestCase):
         self.assertNotIn("корня репозитория", html)
         self.assertIn("robot/tasks", html)
         self.assertNotIn("save_env_ru.png", html)
-        self.assertNotIn("stepindev.com/ru/py-robot", html)
+        self.assertIn("stepindev.com/ru/py-robot", html)
+        self.assertIn("editor-online-card", html)
+        self.assertIn("<h3>Онлайн-редактор обстановок</h3>", html)
+        self.assertIn(
+            "Создавайте и редактируйте обстановки в браузере, без установки модуля.",
+            html,
+        )
+        self.assertIn(">Открыть онлайн-редактор</a>", html)
+        self.assertRegex(
+            html,
+            r"</div>\s*<div class=\"callout editor-online-card\">",
+        )
         self.assertIn("todoText", html)
         self.assertIn("Макс. команд Робота и вызовов функций", html)
         self.assertIn(

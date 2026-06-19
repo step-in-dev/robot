@@ -11,6 +11,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 SITE_BASE = "https://robot.stepindev.com"
 GITHUB_RELEASES_URL = "https://github.com/step-in-dev/robot/releases"
+ONLINE_EDITOR_URL = {
+    "en": "https://stepindev.com/en/py-robot",
+    "ru": "https://stepindev.com/ru/py-robot",
+}
 WEBSITE_DIR = PROJECT_ROOT / "website"
 TASKS_IMG_DIR = WEBSITE_DIR / "img" / "tasks"
 SUPPORTED_SITE_LANGS = ("en", "ru")
@@ -143,6 +147,12 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "editor_fig_editor": "Environment editor.",
         "editor_example_task": "robot",
+        "editor_online_heading": "Online environment editor",
+        "editor_online_text": (
+            "Create and edit task environments in the browser without installing "
+            "the module."
+        ),
+        "editor_online_link": "Open online editor",
     },
     "ru": {
         "site_name": "Робот",
@@ -228,6 +238,11 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "editor_fig_editor": "Редактор обстановок.",
         "editor_example_task": "robot",
+        "editor_online_heading": "Онлайн-редактор обстановок",
+        "editor_online_text": (
+            "Создавайте и редактируйте обстановки в браузере, без установки модуля."
+        ),
+        "editor_online_link": "Открыть онлайн-редактор",
     },
 }
 

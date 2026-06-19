@@ -26,6 +26,7 @@ from tools.website_content_data import (
     EDITOR_CONSTRAINT_DOC_ANCHORS,
     ENV_FORMAT_DOC_BASE,
     GITHUB_RELEASES_URL,
+    ONLINE_EDITOR_URL,
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
     TASKS_IMG_DIR,
@@ -752,6 +753,17 @@ def _render_editor_constraints_note(lang: str) -> str:
         </ul>"""
 
 
+def _render_editor_online_card(lang: str) -> str:
+    """Render the online environment editor promo card."""
+    url = escape(ONLINE_EDITOR_URL[lang])
+    link_text = escape(_ui(lang, "editor_online_link"))
+    return f"""      <div class="callout editor-online-card">
+        <h3>{escape(_ui(lang, "editor_online_heading"))}</h3>
+        <p>{escape(_ui(lang, "editor_online_text"))}</p>
+        <p><a href="{url}" rel="noopener noreferrer" target="_blank">{link_text}</a></p>
+      </div>"""
+
+
 def build_editor_page(lang: str) -> str:
     """Render the environment editor guide page for ``lang``."""
     canonical = editor_relpath(lang)
@@ -792,6 +804,7 @@ def build_editor_page(lang: str) -> str:
     crumb_html = render_breadcrumbs(layout, crumbs)
     steps_html = _render_editor_steps(layout, lang)
     constraints_note_html = _render_editor_constraints_note(lang)
+    online_card_html = _render_editor_online_card(lang)
     body_html = f"""    <div class="hub-page editor-page">
       {crumb_html}
       <header class="content-header">
@@ -804,6 +817,7 @@ def build_editor_page(lang: str) -> str:
         <p>{escape(_ui(lang, "editor_note_p1"))}</p>
 {constraints_note_html}
       </div>
+{online_card_html}
     </div>
 """
     return wrap_page(layout, body_html)

@@ -990,6 +990,10 @@ code {
   height: auto;
 }
 
+.editor-page .callout + .callout {
+  margin-top: 1.5rem;
+}
+
 .task-list {
   list-style: none;
   margin: 0;
