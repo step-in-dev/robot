@@ -157,9 +157,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "tasks with the Robot."
         ),
         "theme_hub_intro.ifelse": (
-            "An 'if' and 'else' pair lets the Robot choose between two actions based "
-            "on the field. These tasks teach branching with an alternative. For "
-            "example, turn left or right depending on which side is free."
+            "An 'if' and 'else' pair lets a program for the Robot choose between "
+            "two actions based on the field. These tasks teach branching with an "
+            "alternative. For example, turn left or right depending on which side "
+            "is free."
         ),
         "theme_hub_intro.compound": (
             "Compound conditions combine several checks with 'and' or 'or'. These "
@@ -305,10 +306,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "с исполнителем Робот."
         ),
         "theme_hub_intro.ifelse": (
-            "Пара «if» и «else» позволяет исполнителю Робот выбрать одно из двух "
-            "действий в зависимости от поля. Задачи учат ветвлению с альтернативой. "
-            "Например, повернуть влево или вправо в зависимости от того, с какой "
-            "стороны свободно."
+            "Пара «if» и «else» позволяет программе для исполнителя Робот выбрать "
+            "одно из двух действий в зависимости от поля. Задачи учат ветвлению с "
+            "альтернативой. Например, повернуть влево или вправо в зависимости от "
+            "того, с какой стороны свободно."
         ),
         "theme_hub_intro.compound": (
             "Составные условия объединяют несколько проверок через «and» или «or». "
