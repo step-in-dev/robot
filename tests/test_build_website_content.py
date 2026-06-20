@@ -56,6 +56,11 @@ class BuildThemeHubTest(unittest.TestCase):
             'intro1\u2013intro24. Browse task conditions, field layouts, and limits."',
             html,
         )
+        self.assertIn(
+            '<p class="hub-page__intro">First steps with the Robot: move across a '
+            "field, paint cells, and reach the goal cell.",
+            html,
+        )
 
     def test_theme_hub_ru_meta(self) -> None:
         catalog = TaskCatalog.discover()
@@ -126,15 +131,18 @@ class BuildCatalogTest(unittest.TestCase):
             r'<li class="theme-card">\s*'
             r'<h2><a href="[^"]*intro/index_ru\.html">Первые шаги</a></h2>\s*'
             r"<p>(.*?)</p>\s*"
+            r'<p class="theme-card__intro">(.*?)</p>\s*'
             r"</li>",
             html,
             flags=re.DOTALL,
         )
         self.assertIsNotNone(intro_card)
         intro_paragraph = intro_card.group(1)
+        intro_description = intro_card.group(2)
         self.assertIn("<code>intro1</code> … <code>intro24</code>", intro_paragraph)
         self.assertNotIn("Задач:", intro_paragraph)
         self.assertNotIn("·", intro_paragraph)
+        self.assertIn("Первые шаги с исполнителем Робот", intro_description)
         self.assertIn("Всего задач:", html)
 
 

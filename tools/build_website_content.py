@@ -106,6 +106,7 @@ class _ThemeHubParts:  # pylint: disable=too-many-instance-attributes
     """Collected HTML inputs for one theme hub page."""
 
     lang: str
+    theme_prefix: str
     theme_label: str
     slug: str
     canonical: str
@@ -477,6 +478,7 @@ def _load_theme_hub_parts(
     )
     return _ThemeHubParts(
         lang=lang,
+        theme_prefix=theme_prefix,
         theme_label=theme_label,
         slug=slug,
         canonical=canonical,
@@ -501,6 +503,7 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
     parts = _load_theme_hub_parts(catalog, theme_prefix, lang, layout_stub)
     layout = _theme_hub_layout(parts)
     tasks_intro = escape(_ui(lang, "tasks_in_theme", count=len(parts.task_ids)))
+    hub_intro = escape(_ui(lang, f"theme_hub_intro.{parts.theme_prefix}"))
     catalog_link = layout.href(catalog_relpath(lang))
     catalog_label = escape(_ui(lang, "task_catalog"))
     body_html = f"""    <div class="hub-page">
@@ -508,6 +511,7 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
       <header class="content-header">
         <h1>{escape(parts.theme_label)}</h1>
         <p class="section__intro">{tasks_intro}</p>
+        <p class="hub-page__intro">{hub_intro}</p>
       </header>
       <ul class="task-list">
 {parts.list_items_html}
@@ -534,10 +538,12 @@ def _catalog_theme_blocks(
             f"<code>{escape(task_ids[-1])}</code>"
         )
         theme_href = layout.href(f"tasks/{slug}/{page_filename(lang)}")
+        theme_intro = escape(_ui(lang, f"theme_hub_intro.{theme_prefix}"))
         theme_blocks.append(
             f"""          <li class="theme-card">
             <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a></h2>
             <p>{range_text}</p>
+            <p class="theme-card__intro">{theme_intro}</p>
           </li>"""
         )
     return theme_blocks

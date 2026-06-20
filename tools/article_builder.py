@@ -359,13 +359,14 @@ def _render_article_list_item(
 def build_articles_index(articles: Sequence[Article], lang: str) -> str:
     """Render the localized articles index page."""
     canonical = articles_index_relpath(lang)
-    title = _ui(lang, "articles_heading")
+    page_title = _ui(lang, "articles_page_title")
+    heading = _ui(lang, "articles_heading")
     description = normalize_meta_description(_ui(lang, "articles_intro"))
     layout = PageLayout(
         lang=lang,
         depth=1,
         page_kind="articles_index",
-        title=title,
+        title=page_title,
         description=description,
         urls=PageAlternateUrls(
             canonical_path=canonical,
@@ -375,7 +376,7 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
     )
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),
-        (title, canonical),
+        (heading, canonical),
     ]
     items: List[str] = []
     for article in articles:
@@ -392,7 +393,7 @@ def build_articles_index(articles: Sequence[Article], lang: str) -> str:
     main = f"""    <div class="articles-index">
       {crumb_html}
       <header class="content-header">
-        <h1>{escape(title)}</h1>
+        <h1>{escape(heading)}</h1>
         <p class="section__intro">{escape(_ui(lang, "articles_intro"))}</p>
       </header>
       <ul class="article-list">
