@@ -69,7 +69,8 @@ class BuildThemeHubTest(unittest.TestCase):
         self.assertIn("<title>Первые шаги | Robot</title>", html)
         self.assertNotIn("Robot tasks", html)
         self.assertIn(
-            'meta name="description" content="24 задач Робота по теме «Первые шаги»: '
+            'meta name="description" content="24 задач исполнителя Робот по теме '
+            '«Первые шаги»: '
             "intro1\u2013intro24. Условия, поля обстановок и ограничения.\"",
             html,
         )
@@ -88,7 +89,8 @@ class BuildThemeHubTest(unittest.TestCase):
             html,
         )
         self.assertIn(
-            'meta property="og:image:alt" content="Задачи Робота по теме «Первые шаги» '
+            'meta property="og:image:alt" content="Задачи исполнителя Робот по теме '
+            '«Первые шаги» '
             "(intro1\u2013intro24): превью полей из каталога задач.\"",
             html,
         )
