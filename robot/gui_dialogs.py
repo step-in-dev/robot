@@ -231,18 +231,31 @@ def pack_ok_cancel_buttons(
     on_cancel: Callable[[], None],
 ) -> None:
     """Pack localized OK and Cancel buttons into *button_row*."""
-    tk.Button(
+    ok_button = tk.Button(
         button_row,
         text=t("editor.constraints.ok"),
         width=10,
         command=on_ok,
-    ).pack(side=tk.LEFT, padx=(0, 6))
-    tk.Button(
+    )
+    ok_button.pack(side=tk.LEFT, padx=(0, 6))
+    cancel_button = tk.Button(
         button_row,
         text=t("editor.constraints.cancel"),
         width=10,
         command=on_cancel,
-    ).pack(side=tk.LEFT)
+    )
+    cancel_button.pack(side=tk.LEFT)
+
+    def _handle_ok_return(_event: tk.Event) -> str:
+        on_ok()
+        return "break"
+
+    def _handle_cancel_return(_event: tk.Event) -> str:
+        on_cancel()
+        return "break"
+
+    _bind_return(ok_button, _handle_ok_return)
+    _bind_return(cancel_button, _handle_cancel_return)
 
 
 def bind_dialog_cancel(dialog: tk.Toplevel, on_cancel: Callable[[], None]) -> None:
@@ -291,7 +304,6 @@ def _pack_string_prompt_form(
         on_ok()
         return "break"
 
-    _bind_return(dialog, _handle_return)
     _bind_return(text_widget, _handle_return)
     return text_widget
 

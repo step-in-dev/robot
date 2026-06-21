@@ -17,6 +17,7 @@ from robot.gui_editor_constraints import (
     prompt_edit_constraints,
 )
 from robot.i18n import t
+from robot.tk_util import flush_tk_events
 from robot._version import __version__
 from robot.task_serializer import (
     EditorDocument,
@@ -38,8 +39,12 @@ from ._editor_harness import (
 from ._helpers import (
     GuiTestCase,
     dialog_test_root,
+    emit_return,
+    find_first_text_widget,
     press_return_in_dialog_string_field,
     requires_tk_display,
+    set_dialog_string_field,
+    tab_to_dialog_cancel_button,
     withdrawn_root,
 )
 
@@ -549,6 +554,31 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
                 )
             self.assertIsNotNone(result)
             self.assertEqual(result.operators_limit, "5")
+
+    def test_constraints_dialog_return_on_cancel_returns_none(self) -> None:
+        state = _ConstraintsDialogState()
+        with withdrawn_root() as root:
+            def wait_then_tab_cancel_return(dialog_self: tk.Toplevel) -> None:
+                flush_tk_events(dialog_self, max_rounds=10)
+                field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(field)
+                assert field is not None
+                set_dialog_string_field(field, "99")
+                cancel_button = tab_to_dialog_cancel_button(
+                    dialog_self, field, 7
+                )
+                self.assertIs(cancel_button, dialog_self.focus_get())
+                emit_return(cancel_button, dialog_self)
+
+            with patch.object(
+                tk.Toplevel, "wait_window", wait_then_tab_cancel_return
+            ):
+                result = prompt_edit_constraints(
+                    root,
+                    {"operatorsLimit": 5},
+                    state,
+                )
+            self.assertIsNone(result)
 
 
 @requires_tk_display

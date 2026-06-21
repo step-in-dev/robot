@@ -31,6 +31,7 @@ __all__ = [
     "emit_keypad_enter",
     "emit_return",
     "env_dict",
+    "find_dialog_buttons",
     "find_first_text_widget",
     "make_env",
     "make_test_window",
@@ -39,6 +40,7 @@ __all__ = [
     "press_return_in_dialog_string_field",
     "requires_tk_display",
     "set_dialog_string_field",
+    "tab_to_dialog_cancel_button",
     "test_window",
     "withdrawn_root",
     "dialog_test_root",
@@ -144,6 +146,33 @@ def find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:
         if nested is not None:
             return nested
     return None
+
+
+def find_dialog_buttons(parent: tk.Misc) -> List[tk.Button]:
+    buttons: List[tk.Button] = []
+    for child in parent.winfo_children():
+        if isinstance(child, tk.Button):
+            buttons.append(child)
+            continue
+        buttons.extend(find_dialog_buttons(child))
+    return buttons
+
+
+def tab_to_dialog_cancel_button(
+    dialog: tk.Toplevel,
+    start_widget: tk.Misc,
+    tab_count: int,
+) -> tk.Button:
+    """Tab from *start_widget* and return the Cancel button when it has focus."""
+    start_widget.focus_set()
+    dialog.update_idletasks()
+    for _ in range(tab_count):
+        start_widget.event_generate("<Tab>")
+    dialog.update_idletasks()
+    buttons = find_dialog_buttons(dialog)
+    if len(buttons) < 2:
+        raise AssertionError("expected OK and Cancel buttons in dialog")
+    return buttons[-1]
 
 
 def set_dialog_string_field(widget: tk.Text, value: str) -> None:

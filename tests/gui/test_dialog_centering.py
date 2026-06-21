@@ -18,10 +18,13 @@ from robot.tk_util import flush_tk_events
 
 from ._helpers import (
     dialog_test_root,
+    emit_return,
+    find_dialog_buttons,
     find_first_text_widget,
     press_return_in_dialog_string_field,
     requires_tk_display,
     set_dialog_string_field,
+    tab_to_dialog_cancel_button,
     withdrawn_root,
 )
 
@@ -47,16 +50,6 @@ def _window_center(win: tk.Misc) -> tuple[int, int]:
         win.winfo_rootx() + win.winfo_width() // 2,
         win.winfo_rooty() + win.winfo_height() // 2,
     )
-
-
-def _find_buttons(parent: tk.Misc) -> list[tk.Button]:
-    buttons: list[tk.Button] = []
-    for child in parent.winfo_children():
-        if isinstance(child, tk.Button):
-            buttons.append(child)
-            continue
-        buttons.extend(_find_buttons(child))
-    return buttons
 
 
 @requires_tk_display
@@ -192,7 +185,7 @@ class PromptStringDialogTest(unittest.TestCase):
                 self.assertIsNotNone(text_field)
                 assert text_field is not None
                 set_dialog_string_field(text_field, "New condition")
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
 
@@ -208,11 +201,36 @@ class PromptStringDialogTest(unittest.TestCase):
     def test_cancel_returns_none(self) -> None:
         with withdrawn_root() as root:
             def wait_then_click_cancel(dialog_self: tk.Toplevel) -> None:
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 2)
                 buttons[1].invoke()
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_click_cancel):
+                result = prompt_string_dialog(
+                    root,
+                    title="Title",
+                    prompt="Prompt",
+                    initialvalue="Old",
+                )
+            self.assertIsNone(result)
+
+    def test_return_on_cancel_button_returns_none(self) -> None:
+        with withdrawn_root() as root:
+            def wait_then_tab_cancel_return(dialog_self: tk.Toplevel) -> None:
+                flush_tk_events(dialog_self, max_rounds=10)
+                text_field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(text_field)
+                assert text_field is not None
+                set_dialog_string_field(text_field, "Changed")
+                cancel_button = tab_to_dialog_cancel_button(
+                    dialog_self, text_field, 2
+                )
+                self.assertIs(cancel_button, dialog_self.focus_get())
+                emit_return(cancel_button, dialog_self)
+
+            with patch.object(
+                tk.Toplevel, "wait_window", wait_then_tab_cancel_return
+            ):
                 result = prompt_string_dialog(
                     root,
                     title="Title",
@@ -248,7 +266,7 @@ class PromptStringDialogTest(unittest.TestCase):
                 self.assertIsNotNone(text_field)
                 assert text_field is not None
                 self.assertIs(text_field, dialog_self.focus_get())
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
 
@@ -274,7 +292,7 @@ class PromptStringDialogTest(unittest.TestCase):
                 self.assertEqual(text_field.get("1.0", "end-1c"), "Old added")
                 text_field.edit_undo()
                 self.assertEqual(text_field.get("1.0", "end-1c"), "Old")
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
 
@@ -299,7 +317,7 @@ class PromptStringDialogTest(unittest.TestCase):
                 self.assertEqual(text_field.get("1.0", "end-1c"), "Old")
                 text_field.edit_redo()
                 self.assertEqual(text_field.get("1.0", "end-1c"), "Old added")
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
 
@@ -316,7 +334,7 @@ class PromptStringDialogTest(unittest.TestCase):
         with dialog_test_root() as root:
             def wait_then_check_alignment(dialog_self: tk.Toplevel) -> None:
                 dialog_self.update_idletasks()
-                buttons = _find_buttons(dialog_self)
+                buttons = find_dialog_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 2)
                 cancel_button = buttons[-1]
                 dialog_right = _widget_right_edge(dialog_self)

@@ -152,7 +152,6 @@ def prompt_edit_constraints(
         _on_ok()
         return "break"
 
-    _bind_return(dialog, _handle_return)
     for field in fields:
         _bind_return(field, _handle_return)
 
