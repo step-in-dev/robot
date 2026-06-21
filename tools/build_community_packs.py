@@ -8,7 +8,7 @@ from typing import List, Optional, Sequence
 import argparse
 import zipfile
 
-import yaml
+from tools.markdown_front_matter import parse_markdown_front_matter
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 COMMUNITY_DIR = PROJECT_ROOT / "community"
@@ -30,26 +30,15 @@ class CommunityPack:
         return f"{self.prefix}tasks.zip"
 
 
-def parse_readme_front_matter(path: Path) -> dict:
-    """Parse YAML front matter from a pack ``readme.md`` file."""
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        raise SystemExit(f"Pack readme {path} must start with YAML front matter (---)")
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        raise SystemExit(f"Invalid front matter in {path}")
-    front = yaml.safe_load(parts[1])
-    if not isinstance(front, dict):
-        raise SystemExit(f"Front matter in {path} must be a mapping")
-    return front
-
-
 def load_pack_metadata(pack_dir: Path) -> CommunityPack:
     """Load author and prefix from ``pack_dir/readme.md``."""
     readme_path = pack_dir / README_NAME
     if not readme_path.is_file():
         raise SystemExit(f"Missing {README_NAME} in {pack_dir}")
-    front = parse_readme_front_matter(readme_path)
+    front, _ = parse_markdown_front_matter(
+        readme_path,
+        source_label="Pack readme",
+    )
     try:
         author = str(front["author"])
         prefix = str(front["prefix"])

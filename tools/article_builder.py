@@ -19,6 +19,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # pylint: disable=wrong-import-position
+from tools.markdown_front_matter import parse_markdown_front_matter  # noqa: E402
 from tools.website_content_data import (  # noqa: E402
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
@@ -185,15 +186,7 @@ def validate_articles(articles: Sequence[Article]) -> None:
 
 def parse_locale_md(path: Path) -> LocaleContent:
     """Parse YAML front matter and Markdown body from a locale ``.md`` file."""
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        raise SystemExit(f"Locale file {path} must start with YAML front matter (---)")
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        raise SystemExit(f"Invalid front matter in {path}")
-    front = yaml.safe_load(parts[1])
-    if not isinstance(front, dict):
-        raise SystemExit(f"Front matter in {path} must be a mapping")
+    front, body = parse_markdown_front_matter(path, source_label="Locale file")
     try:
         title = str(front["title"])
         description = str(front["description"])
@@ -203,7 +196,6 @@ def parse_locale_md(path: Path) -> LocaleContent:
     if not isinstance(keywords_raw, list):
         raise SystemExit(f"keywords in {path} must be a list")
     keywords = tuple(str(k) for k in keywords_raw)
-    body = parts[2].lstrip("\n")
     return LocaleContent(
         title=title,
         description=description,
