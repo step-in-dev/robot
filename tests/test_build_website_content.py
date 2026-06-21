@@ -171,6 +171,17 @@ class BuildCatalogTest(unittest.TestCase):
             "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
             html,
         )
+        community_intro_card = re.search(
+            r'<li class="theme-card">\s*'
+            r'<h2><a href="[^"]*community/r/intro/index_ru\.html">Первые шаги</a></h2>\s*'
+            r"<p>(.*?)</p>\s*"
+            r"</li>",
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(community_intro_card)
+        self.assertNotIn("theme-card__intro", community_intro_card.group(0))
+        self.assertNotIn("Первые шаги с исполнителем Робот", community_intro_card.group(0))
 
 
 class BuildCommunityThemeHubTest(unittest.TestCase):
@@ -200,6 +211,8 @@ class BuildCommunityThemeHubTest(unittest.TestCase):
         )
         self.assertIn("tasks/community/r/intro/index_ru.html", html)
         self.assertIn("rintro1_ru.html", html)
+        self.assertNotIn('class="hub-page__intro"', html)
+        self.assertNotIn("Первые шаги с исполнителем Робот", html)
 
 
 class BuildCommunityTaskPageTest(unittest.TestCase):

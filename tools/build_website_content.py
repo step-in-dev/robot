@@ -643,7 +643,6 @@ def _theme_hub_body_html(
 ) -> str:
     """Render the article body for a bundled or community theme hub page."""
     tasks_intro = escape(_ui(parts.lang, "tasks_in_theme", count=len(parts.task_ids)))
-    hub_intro = escape(_theme_intro_text(parts.theme_prefix, parts.lang))
     catalog_link = layout.href(catalog_relpath(parts.lang))
     catalog_label = escape(_ui(parts.lang, "task_catalog"))
     eyebrow_html = ""
@@ -654,20 +653,22 @@ def _theme_hub_body_html(
             f'        <p class="community-pack__eyebrow">{pack_label}</p>\n'
             f'        <p class="community-pack__download">{pack_download}</p>\n'
         )
+    hub_intro_block = ""
+    if pack is None:
+        intro = escape(_theme_intro_text(parts.theme_prefix, parts.lang))
+        hub_intro_block = f'        <p class="hub-page__intro">{intro}</p>\n'
     return f"""    <div class="hub-page">
       {render_breadcrumbs(layout, parts.crumbs)}
       <header class="content-header">
 {eyebrow_html}        <h1>{escape(parts.theme_label)}</h1>
         <p class="section__intro">{tasks_intro}</p>
-        <p class="hub-page__intro">{hub_intro}</p>
-      </header>
+{hub_intro_block}      </header>
       <ul class="task-list">
 {parts.list_items_html}
       </ul>
       <p class="content-outro"><a href="{catalog_link}">← {catalog_label}</a></p>
     </div>
 """
-
 
 def _build_theme_hub_page(
     catalog: SiteTaskCatalog,
@@ -709,6 +710,8 @@ def build_community_theme_hub(
 def _catalog_theme_blocks(
     task_groups: Sequence[Tuple[str, Sequence[str], str]],
     lang: str,
+    *,
+    show_theme_intro: bool = True,
 ) -> List[str]:
     """Render theme summary cards for already-resolved theme groups."""
     theme_blocks: List[str] = []
@@ -720,13 +723,15 @@ def _catalog_theme_blocks(
             f"<code>{escape(task_ids[0])}</code> … "
             f"<code>{escape(task_ids[-1])}</code>"
         )
-        theme_intro = escape(_theme_intro_text(theme_prefix, lang))
+        intro_block = ""
+        if show_theme_intro:
+            intro = escape(_theme_intro_text(theme_prefix, lang))
+            intro_block = f'            <p class="theme-card__intro">{intro}</p>\n'
         theme_blocks.append(
             f"""          <li class="theme-card">
             <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a></h2>
             <p>{range_text}</p>
-            <p class="theme-card__intro">{theme_intro}</p>
-          </li>"""
+{intro_block}          </li>"""
         )
     return theme_blocks
 
@@ -777,7 +782,7 @@ def _community_catalog_sections(
         <h3 class="community-pack__heading" id="{pack_anchor}">{pack_heading}</h3>
         <p class="community-pack__download">{pack_download}</p>
         <ul class="theme-card-list">
-{chr(10).join(_catalog_theme_blocks(task_groups, lang))}
+{chr(10).join(_catalog_theme_blocks(task_groups, lang, show_theme_intro=False))}
         </ul>
       </section>"""
         )
