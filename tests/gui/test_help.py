@@ -13,7 +13,7 @@ from robot.model import MAX_FIELD_HEIGHT, MAX_FIELD_WIDTH
 
 from ._helpers import (
     GuiTestCase,
-    _find_first_text_widget,
+    find_first_text_widget,
     cell_1x1,
     clear_i18n_cache,
     make_env,
@@ -30,7 +30,7 @@ def _help_toplevel_children(root: tk.Misc) -> List[tk.Toplevel]:
 
 
 def _help_window_body_text(help_top: tk.Toplevel) -> str:
-    widget = _find_first_text_widget(help_top)
+    widget = find_first_text_widget(help_top)
     if widget is None:
         return ""
     return widget.get("1.0", tk.END)
@@ -120,7 +120,7 @@ class RobotWindowHelpTest(GuiTestCase):
             window.root.update_idletasks()
             tops = _help_toplevel_children(window.root)
             self.assertEqual(len(tops), 1)
-            text = _find_first_text_widget(tops[0])
+            text = find_first_text_widget(tops[0])
             self.assertIsNotNone(text)
             assert text is not None
             ranges = text.tag_ranges("help_repo_link")
@@ -152,7 +152,7 @@ class RobotWindowHelpTest(GuiTestCase):
             tops = _help_toplevel_children(window.root)
             self.assertEqual(len(tops), 1)
             help_top = tops[0]
-            text = _find_first_text_widget(help_top)
+            text = find_first_text_widget(help_top)
             self.assertIsNotNone(text)
             text.focus_set()
             text.event_generate("<Escape>", when="tail")

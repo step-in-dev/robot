@@ -12,7 +12,7 @@ from robot.i18n import t
 
 from ._helpers import (
     GuiTestCase,
-    _find_first_text_widget,
+    find_first_text_widget,
     cell_1x1,
     clear_i18n_cache,
     make_env,
@@ -116,7 +116,7 @@ class RobotWindowConstraintsTest(GuiTestCase):
             window.root.update()
             tops = _toplevels_with_title(window.root, t("constraints.title"))
             self.assertEqual(len(tops), 1)
-            text_w = _find_first_text_widget(tops[0])
+            text_w = find_first_text_widget(tops[0])
             self.assertIsNotNone(text_w)
             body = text_w.get("1.0", tk.END)
             self.assertIn(
@@ -150,7 +150,7 @@ class RobotWindowConstraintsTest(GuiTestCase):
             window.root.update()
             tops = _toplevels_with_title(window.root, t("constraints.title"))
             self.assertEqual(len(tops), 1)
-            text = _find_first_text_widget(tops[0])
+            text = find_first_text_widget(tops[0])
             self.assertIsNotNone(text)
             text.focus_set()
             text.event_generate("<Escape>", when="tail")

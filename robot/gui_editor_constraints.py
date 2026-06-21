@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import tkinter as tk
 from tkinter import messagebox
 
 from .gui_dialogs import (
     bind_dialog_cancel,
+    create_dialog_string_field,
     pack_ok_cancel_buttons,
+    read_dialog_string_field,
     reveal_centered_toplevel,
 )
 from .gui_theme import DIALOG_BODY_FONT
@@ -44,12 +46,9 @@ _CONSTRAINT_FIELD_SPECS = (
 def _constraint_field_rows(
     parent: tk.Frame,
     display: Dict[str, str],
-) -> Tuple[Tuple[tk.StringVar, ...], List[tk.Entry]]:
-    variables: List[tk.StringVar] = []
-    entries: List[tk.Entry] = []
+) -> List[tk.Text]:
+    fields: List[tk.Text] = []
     for row_index, (field_key, label_key) in enumerate(_CONSTRAINT_FIELD_SPECS):
-        variable = tk.StringVar(parent, value=display[field_key])
-        variables.append(variable)
         label = tk.Label(
             parent,
             text=t(label_key),
@@ -58,16 +57,23 @@ def _constraint_field_rows(
             justify=tk.LEFT,
         )
         label.grid(row=row_index, column=0, sticky=tk.W, pady=(0, 6))
-        entry = tk.Entry(parent, textvariable=variable, width=36, font=DIALOG_BODY_FONT)
-        entry.grid(row=row_index, column=1, sticky=tk.EW, pady=(0, 6))
-        entries.append(entry)
+        field = create_dialog_string_field(
+            parent,
+            initialvalue=display[field_key],
+            width=36,
+        )
+        field.grid(row=row_index, column=1, sticky=tk.EW, pady=(0, 6))
+        fields.append(field)
     parent.grid_columnconfigure(1, weight=1)
-    return tuple(variables), entries
+    return fields
 
 
-def _read_constraint_fields(variables: Tuple[tk.StringVar, ...]) -> ConstraintFieldInput:
+def _read_constraint_fields(fields: List[tk.Text]) -> ConstraintFieldInput:
     keys = [spec[0] for spec in _CONSTRAINT_FIELD_SPECS]
-    values = {key: variable.get() for key, variable in zip(keys, variables)}
+    values = {
+        key: read_dialog_string_field(field)
+        for key, field in zip(keys, fields)
+    }
     return ConstraintFieldInput(**values)
 
 
@@ -123,18 +129,18 @@ def prompt_edit_constraints(
     frame = tk.Frame(dialog, padx=12, pady=12)
     frame.pack(fill=tk.BOTH, expand=True)
 
-    variables, entries = _constraint_field_rows(frame, display)
+    fields = _constraint_field_rows(frame, display)
 
     def _on_ok() -> None:
-        fields = _read_constraint_fields(variables)
+        parsed_fields = _read_constraint_fields(fields)
         try:
-            parse_constraint_field_input(fields)
+            parse_constraint_field_input(parsed_fields)
         except ValueError as exc:
             messagebox.showerror(
                 t(_EDITOR_ERROR_TITLE_KEY), str(exc), parent=dialog
             )
             return
-        result["values"] = fields
+        result["values"] = parsed_fields
         _close_dialog()
 
     def _on_cancel() -> None:
@@ -147,12 +153,12 @@ def prompt_edit_constraints(
         return "break"
 
     _bind_return(dialog, _handle_return)
-    for entry in entries:
-        _bind_return(entry, _handle_return)
+    for field in fields:
+        _bind_return(field, _handle_return)
 
     _pack_constraint_buttons(
         frame,
-        row=len(entries),
+        row=len(fields),
         on_ok=_on_ok,
         on_cancel=_on_cancel,
     )
@@ -161,6 +167,6 @@ def prompt_edit_constraints(
         dialog,
         root,
         modal=True,
-        focus_widget=entries[0] if entries else None,
+        focus_widget=fields[0] if fields else None,
     )
     return result["values"]

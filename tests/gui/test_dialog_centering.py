@@ -10,6 +10,7 @@ import tkinter as tk
 
 from robot.gui_dialogs import (
     center_toplevel_on_parent,
+    create_dialog_string_field,
     prompt_string_dialog,
     reveal_centered_toplevel,
 )
@@ -17,8 +18,10 @@ from robot.tk_util import flush_tk_events
 
 from ._helpers import (
     dialog_test_root,
-    emit_keypad_enter,
+    find_first_text_widget,
+    press_return_in_dialog_string_field,
     requires_tk_display,
+    set_dialog_string_field,
     withdrawn_root,
 )
 
@@ -56,14 +59,70 @@ def _find_buttons(parent: tk.Misc) -> list[tk.Button]:
     return buttons
 
 
-def _find_first_entry(parent: tk.Misc) -> tk.Entry | None:
-    for child in parent.winfo_children():
-        if isinstance(child, tk.Entry):
-            return child
-        nested = _find_first_entry(child)
-        if nested is not None:
-            return nested
-    return None
+@requires_tk_display
+class CreateDialogStringFieldTest(unittest.TestCase):
+    def test_tab_focus_chain_follows_widget_order(self) -> None:
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            dialog = tk.Toplevel(root)
+            first = create_dialog_string_field(dialog, initialvalue="a")
+            second = create_dialog_string_field(dialog, initialvalue="b")
+            ok_button = tk.Button(dialog, text="OK")
+            first.pack()
+            second.pack()
+            ok_button.pack()
+            dialog.update()
+            self.assertIs(first.tk_focusNext(), second)
+            self.assertIs(second.tk_focusNext(), ok_button)
+            self.assertIs(ok_button.tk_focusNext(), first)
+        finally:
+            root.destroy()
+
+    def test_tab_binding_does_not_insert_tab_character(self) -> None:
+        root = tk.Tk()
+        try:
+            field = create_dialog_string_field(root, initialvalue="abc")
+            field.pack()
+            field.focus_set()
+            root.update()
+            field.event_generate("<Tab>")
+            root.update()
+            self.assertEqual(field.get("1.0", "end-1c"), "abc")
+        finally:
+            root.destroy()
+
+    def test_control_y_binding_redoes_undone_text(self) -> None:
+        root = tk.Tk()
+        try:
+            field = create_dialog_string_field(root, initialvalue="Old")
+            field.pack()
+            field.focus_set()
+            root.update()
+            field.insert(tk.END, " added")
+            field.edit_undo()
+            self.assertEqual(field.get("1.0", "end-1c"), "Old")
+            field.event_generate("<Control-y>")
+            root.update()
+            self.assertEqual(field.get("1.0", "end-1c"), "Old added")
+        finally:
+            root.destroy()
+
+    def test_control_shift_z_binding_redoes_undone_text(self) -> None:
+        root = tk.Tk()
+        try:
+            field = create_dialog_string_field(root, initialvalue="Old")
+            field.pack()
+            field.focus_set()
+            root.update()
+            field.insert(tk.END, " added")
+            field.edit_undo()
+            self.assertEqual(field.get("1.0", "end-1c"), "Old")
+            field.event_generate("<Control-Shift-z>")
+            root.update()
+            self.assertEqual(field.get("1.0", "end-1c"), "Old added")
+        finally:
+            root.destroy()
 
 
 @requires_tk_display
@@ -129,11 +188,10 @@ class PromptStringDialogTest(unittest.TestCase):
     def test_ok_returns_entered_text(self) -> None:
         with dialog_test_root() as root:
             def wait_then_click_ok(dialog_self: tk.Toplevel) -> None:
-                entry = _find_first_entry(dialog_self)
-                self.assertIsNotNone(entry)
-                assert entry is not None
-                entry.delete(0, tk.END)
-                entry.insert(0, "New condition")
+                text_field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(text_field)
+                assert text_field is not None
+                set_dialog_string_field(text_field, "New condition")
                 buttons = _find_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
@@ -165,18 +223,13 @@ class PromptStringDialogTest(unittest.TestCase):
 
     def test_return_commits_value(self) -> None:
         with withdrawn_root() as root:
-            original_wait_window = tk.Toplevel.wait_window
-
             def wait_then_press_return(dialog_self: tk.Toplevel) -> None:
-                entry = _find_first_entry(dialog_self)
-                if entry is None:
-                    original_wait_window(dialog_self)
-                    return
-                entry.delete(0, tk.END)
-                entry.insert(0, "Committed")
-                entry.focus_set()
-                dialog_self.update_idletasks()
-                emit_keypad_enter(entry, dialog_self)
+                field = press_return_in_dialog_string_field(
+                    dialog_self,
+                    text="Committed",
+                    use_keypad=True,
+                )
+                self.assertIsNotNone(field)
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_press_return):
                 result = prompt_string_dialog(
@@ -187,25 +240,77 @@ class PromptStringDialogTest(unittest.TestCase):
                 )
             self.assertEqual(result, "Committed")
 
-    def test_entry_receives_focus_on_open(self) -> None:
+    def test_text_field_receives_focus_on_open(self) -> None:
         with dialog_test_root() as root:
             def wait_then_check_focus(dialog_self: tk.Toplevel) -> None:
                 flush_tk_events(dialog_self, max_rounds=10)
-                entry = _find_first_entry(dialog_self)
-                self.assertIsNotNone(entry)
-                assert entry is not None
-                self.assertIs(entry, dialog_self.focus_get())
+                text_field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(text_field)
+                assert text_field is not None
+                self.assertIs(text_field, dialog_self.focus_get())
                 buttons = _find_buttons(dialog_self)
                 self.assertGreaterEqual(len(buttons), 1)
                 buttons[0].invoke()
 
-            with patch.object(tk.Toplevel, "wait_window", wait_then_check_focus):
+            with patch.object(
+                tk.Toplevel, "wait_window", wait_then_check_focus
+            ):
                 prompt_string_dialog(
                     root,
                     title="Title",
                     prompt="Prompt",
                     initialvalue="Old",
                 )
+
+    def test_edit_undo_restores_previous_text(self) -> None:
+        with dialog_test_root() as root:
+            def wait_then_undo(dialog_self: tk.Toplevel) -> None:
+                flush_tk_events(dialog_self, max_rounds=10)
+                text_field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(text_field)
+                assert text_field is not None
+                self.assertEqual(text_field.get("1.0", "end-1c"), "Old")
+                text_field.insert(tk.END, " added")
+                self.assertEqual(text_field.get("1.0", "end-1c"), "Old added")
+                text_field.edit_undo()
+                self.assertEqual(text_field.get("1.0", "end-1c"), "Old")
+                buttons = _find_buttons(dialog_self)
+                self.assertGreaterEqual(len(buttons), 1)
+                buttons[0].invoke()
+
+            with patch.object(tk.Toplevel, "wait_window", wait_then_undo):
+                result = prompt_string_dialog(
+                    root,
+                    title="Title",
+                    prompt="Prompt",
+                    initialvalue="Old",
+                )
+            self.assertEqual(result, "Old")
+
+    def test_edit_redo_restores_undone_text(self) -> None:
+        with dialog_test_root() as root:
+            def wait_then_redo(dialog_self: tk.Toplevel) -> None:
+                flush_tk_events(dialog_self, max_rounds=10)
+                text_field = find_first_text_widget(dialog_self)
+                self.assertIsNotNone(text_field)
+                assert text_field is not None
+                text_field.insert(tk.END, " added")
+                text_field.edit_undo()
+                self.assertEqual(text_field.get("1.0", "end-1c"), "Old")
+                text_field.edit_redo()
+                self.assertEqual(text_field.get("1.0", "end-1c"), "Old added")
+                buttons = _find_buttons(dialog_self)
+                self.assertGreaterEqual(len(buttons), 1)
+                buttons[0].invoke()
+
+            with patch.object(tk.Toplevel, "wait_window", wait_then_redo):
+                result = prompt_string_dialog(
+                    root,
+                    title="Title",
+                    prompt="Prompt",
+                    initialvalue="Old",
+                )
+            self.assertEqual(result, "Old added")
 
     def test_cancel_button_aligned_right(self) -> None:
         with dialog_test_root() as root:

@@ -38,21 +38,10 @@ from ._editor_harness import (
 from ._helpers import (
     GuiTestCase,
     dialog_test_root,
-    emit_keypad_enter,
-    emit_return,
+    press_return_in_dialog_string_field,
     requires_tk_display,
     withdrawn_root,
 )
-
-
-def _find_first_entry_widget(parent: tk.Misc) -> tk.Entry | None:
-    for child in parent.winfo_children():
-        if isinstance(child, tk.Entry):
-            return child
-        nested = _find_first_entry_widget(child)
-        if nested is not None:
-            return nested
-    return None
 
 
 def _invoke_first_button(parent: tk.Misc) -> bool:
@@ -63,15 +52,6 @@ def _invoke_first_button(parent: tk.Misc) -> bool:
         if _invoke_first_button(child):
             return True
     return False
-
-
-def _wait_window_then_click_ok(
-    dialog: tk.Toplevel,
-    original_wait_window,
-) -> None:
-    if _invoke_first_button(dialog):
-        return
-    original_wait_window(dialog)
 
 
 @requires_tk_display
@@ -520,10 +500,8 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_constraints_dialog_shows_error_on_invalid_input(self) -> None:
         state = _ConstraintsDialogState()
         with withdrawn_root() as root:
-            original_wait_window = tk.Toplevel.wait_window
-
             def wait_then_click_ok(dialog: tk.Toplevel) -> None:
-                _wait_window_then_click_ok(dialog, original_wait_window)
+                self.assertTrue(_invoke_first_button(dialog))
 
             with patch(
                 "robot.gui_editor_constraints.parse_constraint_field_input",
@@ -540,16 +518,9 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_constraints_dialog_return_commits_valid_input(self) -> None:
         state = _ConstraintsDialogState()
         with withdrawn_root() as root:
-            original_wait_window = tk.Toplevel.wait_window
-
             def wait_then_press_return(dialog_self: tk.Toplevel) -> None:
-                entry = _find_first_entry_widget(dialog_self)
-                if entry is None:
-                    original_wait_window(dialog_self)
-                    return
-                entry.focus_set()
-                dialog_self.update_idletasks()
-                emit_return(entry, dialog_self)
+                field = press_return_in_dialog_string_field(dialog_self)
+                self.assertIsNotNone(field)
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_press_return):
                 result = prompt_edit_constraints(
@@ -563,16 +534,12 @@ class EditorWindowTest(GuiTestCase):  # pylint: disable=too-many-public-methods
     def test_constraints_dialog_kp_enter_commits_valid_input(self) -> None:
         state = _ConstraintsDialogState()
         with dialog_test_root() as root:
-            original_wait_window = tk.Toplevel.wait_window
-
             def wait_then_press_kp_enter(dialog_self: tk.Toplevel) -> None:
-                entry = _find_first_entry_widget(dialog_self)
-                if entry is None:
-                    original_wait_window(dialog_self)
-                    return
-                entry.focus_set()
-                dialog_self.update_idletasks()
-                emit_keypad_enter(entry, dialog_self)
+                field = press_return_in_dialog_string_field(
+                    dialog_self,
+                    use_keypad=True,
+                )
+                self.assertIsNotNone(field)
 
             with patch.object(tk.Toplevel, "wait_window", wait_then_press_kp_enter):
                 result = prompt_edit_constraints(

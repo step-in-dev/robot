@@ -31,11 +31,14 @@ __all__ = [
     "emit_keypad_enter",
     "emit_return",
     "env_dict",
+    "find_first_text_widget",
     "make_env",
     "make_test_window",
     "minimal_env_dict",
     "noop_success_run_env",
+    "press_return_in_dialog_string_field",
     "requires_tk_display",
+    "set_dialog_string_field",
     "test_window",
     "withdrawn_root",
     "dialog_test_root",
@@ -133,14 +136,40 @@ def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:
     flush_tk_events(widget.winfo_toplevel(), max_rounds=5)
 
 
-def _find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:
+def find_first_text_widget(parent: tk.Misc) -> Optional[tk.Text]:
     for child in parent.winfo_children():
         if isinstance(child, tk.Text):
             return child
-        nested = _find_first_text_widget(child)
+        nested = find_first_text_widget(child)
         if nested is not None:
             return nested
     return None
+
+
+def set_dialog_string_field(widget: tk.Text, value: str) -> None:
+    widget.delete("1.0", tk.END)
+    widget.insert("1.0", value)
+
+
+def press_return_in_dialog_string_field(
+    dialog: tk.Toplevel,
+    *,
+    text: Optional[str] = None,
+    use_keypad: bool = False,
+) -> Optional[tk.Text]:
+    """Focus a dialog string field, optionally replace text, and press Enter."""
+    field = find_first_text_widget(dialog)
+    if field is None:
+        return None
+    if text is not None:
+        set_dialog_string_field(field, text)
+    field.focus_set()
+    dialog.update_idletasks()
+    if use_keypad:
+        emit_keypad_enter(field, dialog)
+    else:
+        emit_return(field, dialog)
+    return field
 
 
 def make_test_window(
