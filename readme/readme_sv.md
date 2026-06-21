@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **'while'-loop med 'if'**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **'if' och 'else'**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **Sammansatta villkor**  
 compound1, ..., compound11

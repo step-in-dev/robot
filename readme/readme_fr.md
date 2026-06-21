@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **Boucle « while » avec « if »**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **« if » et « else »**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **Conditions composées**  
 compound1, ..., compound11

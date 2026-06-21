@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **Βρόχος «while» με «if»**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **«if» και «else»**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **Σύνθετες συνθήκες**  
 compound1, ..., compound11

@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **حلقة «⁦while⁩» مع «⁦if⁩»**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **«⁦if⁩» و«⁦else⁩»**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **الشروط المركبة**  
 compound1, ..., compound11

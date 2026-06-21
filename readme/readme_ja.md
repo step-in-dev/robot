@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **「while」ループと「if」**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **「if」と「else」**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **複合条件**  
 compound1, ..., compound11

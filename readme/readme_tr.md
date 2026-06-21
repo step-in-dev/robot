@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **“while” döngüsü ile “if”**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **“if” ve “else”**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **Birleşik Koşullar**  
 compound1, ..., compound11

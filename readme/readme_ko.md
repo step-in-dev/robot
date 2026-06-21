@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **'while' 반복문과 'if'**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **'if' 와 'else'**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **복합 조건**  
 compound1, ..., compound11

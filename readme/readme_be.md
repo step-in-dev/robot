@@ -107,10 +107,10 @@ wfun1, ..., wfun12
 if1, ..., if14
 
 **Цыкл «while» з канструкцыяй «if»**  
-wif1, ..., wif13
+wif1, ..., wif15
 
 **«if» і «else»**  
-ifelse1, ..., ifelse12
+ifelse1, ..., ifelse10
 
 **Складаныя ўмовы**  
 compound1, ..., compound11

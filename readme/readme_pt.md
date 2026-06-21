@@ -107,10 +107,10 @@ wfun1, …, wfun12
 if1, …, if14
 
 **Loop 'while' com 'if'**  
-wif1, …, wif13
+wif1, …, wif15
 
 **'if' e 'else'**  
-ifelse1, …, ifelse12
+ifelse1, …, ifelse10
 
 **Condições compostas**  
 compound1, …, compound11
