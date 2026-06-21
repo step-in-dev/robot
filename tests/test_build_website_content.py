@@ -133,19 +133,19 @@ class BuildCatalogTest(unittest.TestCase):
 
         intro_card = re.search(
             r'<li class="theme-card">\s*'
-            r'<h2><a href="[^"]*intro/index_ru\.html">Первые шаги</a></h2>\s*'
-            r"<p>(.*?)</p>\s*"
+            r'<h2><a href="[^"]*intro/index_ru\.html">Первые шаги</a>'
+            r'<span class="theme-card__range">(.*?)</span></h2>\s*'
             r'<p class="theme-card__intro">(.*?)</p>\s*'
             r"</li>",
             html,
             flags=re.DOTALL,
         )
         self.assertIsNotNone(intro_card)
-        intro_paragraph = intro_card.group(1)
+        intro_range = intro_card.group(1)
         intro_description = intro_card.group(2)
-        self.assertIn("<code>intro1</code> … <code>intro24</code>", intro_paragraph)
-        self.assertNotIn("Задач:", intro_paragraph)
-        self.assertNotIn("·", intro_paragraph)
+        self.assertIn("<code>intro1</code> … <code>intro24</code>", intro_range)
+        self.assertNotIn("Задач:", intro_range)
+        self.assertNotIn("·", intro_range)
         self.assertIn("Первые шаги с исполнителем Робот", intro_description)
         self.assertIn("Всего задач:", html)
 
@@ -173,8 +173,8 @@ class BuildCatalogTest(unittest.TestCase):
         )
         community_intro_card = re.search(
             r'<li class="theme-card">\s*'
-            r'<h2><a href="[^"]*community/r/intro/index_ru\.html">Первые шаги</a></h2>\s*'
-            r"<p>(.*?)</p>\s*"
+            r'<h2><a href="[^"]*community/r/intro/index_ru\.html">Первые шаги</a>'
+            r'<span class="theme-card__range">(.*?)</span></h2>\s*'
             r"</li>",
             html,
             flags=re.DOTALL,

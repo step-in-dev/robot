@@ -1112,6 +1112,11 @@ code {
   font-size: 1.15rem;
 }
 
+.theme-card__range {
+  color: var(--color-muted);
+  font-weight: normal;
+}
+
 .theme-card p {
   margin: 0;
   color: var(--color-muted);

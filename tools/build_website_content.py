@@ -729,9 +729,9 @@ def _catalog_theme_blocks(
             intro_block = f'            <p class="theme-card__intro">{intro}</p>\n'
         theme_blocks.append(
             f"""          <li class="theme-card">
-            <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a></h2>
-            <p>{range_text}</p>
-{intro_block}          </li>"""
+            <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a>"""
+            f'<span class="theme-card__range"> {range_text}</span></h2>\n'
+            f"{intro_block}          </li>"
         )
     return theme_blocks
 
