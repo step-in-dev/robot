@@ -105,7 +105,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "community_tasks_heading": "Community tasks",
         "community_pack_heading": "Task set {number}. Prepared by: {author}",
-        "community_pack_download": "Download tasks: {link}",
+        "community_pack_download": (
+            "Tasks in this section are not included in the module archive and are "
+            "downloaded separately. Download tasks: {link}. Unpack into robot/tasks"
+        ),
         "community_theme_hub_intro": (
             "Community tasks on {theme} collected in this pack."
         ),
@@ -258,7 +261,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "community_tasks_heading": "Задачи от сообщества:",
         "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
-        "community_pack_download": "Скачать задачи: {link}",
+        "community_pack_download": (
+            "Задачи этого раздела не включены в архив с модулем и скачиваются отдельно. "
+            "Скачать задачи: {link}. Распаковать в robot/tasks"
+        ),
         "community_theme_hub_intro": (
             "Задачи от сообщества по теме «{theme}» из этого набора."
         ),

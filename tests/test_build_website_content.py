@@ -161,7 +161,11 @@ class BuildCatalogTest(unittest.TestCase):
         self.assertIn('id="community-pack-r"', html)
         self.assertIn('href="../tasks/community/r/intro/index_ru.html"', html)
         self.assertIn('class="community-pack__download"', html)
+        self.assertIn(
+            "не включены в архив с модулем и скачиваются отдельно", html
+        )
         self.assertIn("Скачать задачи:", html)
+        self.assertIn("Распаковать в robot/tasks", html)
         self.assertIn("rtasks.zip", html)
         self.assertIn(
             "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
@@ -184,7 +188,11 @@ class BuildCommunityThemeHubTest(unittest.TestCase):
             html,
         )
         self.assertIn('class="community-pack__download"', html)
+        self.assertIn(
+            "не включены в архив с модулем и скачиваются отдельно", html
+        )
         self.assertIn("Скачать задачи:", html)
+        self.assertIn("Распаковать в robot/tasks", html)
         self.assertIn("rtasks.zip", html)
         self.assertIn(
             "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
