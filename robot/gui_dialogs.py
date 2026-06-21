@@ -39,7 +39,20 @@ _REDO_BINDINGS = (
     "<Control-Shift-Z>",
 )
 _TAB_BINDINGS = ("<Tab>", "<KeyPress-Tab>")
+# On X11, Shift+Tab is often reported as ISO_Left_Tab; that keysym is invalid on Windows.
 _SHIFT_TAB_BINDINGS = ("<Shift-Tab>", "<ISO_Left_Tab>", "<KeyPress-ISO_Left_Tab>")
+
+
+def _bind_if_supported(
+    widget: tk.Misc,
+    sequence: str,
+    handler: Callable[[tk.Event], str],
+) -> None:
+    """Bind *sequence* to *handler*, ignoring unsupported platform-specific keysyms."""
+    try:
+        widget.bind(sequence, handler)
+    except tk.TclError:
+        pass
 
 
 def _widget_size(widget: tk.Misc) -> tuple[int, int]:
@@ -159,7 +172,7 @@ def _bind_dialog_text_tab_navigation(text_widget: tk.Text) -> None:
     for sequence in _TAB_BINDINGS:
         text_widget.bind(sequence, _focus_next)
     for sequence in _SHIFT_TAB_BINDINGS:
-        text_widget.bind(sequence, _focus_prev)
+        _bind_if_supported(text_widget, sequence, _focus_prev)
 
 
 def _focus_toplevel_widget(child: tk.Toplevel, focus_widget: Optional[tk.Misc]) -> None:
