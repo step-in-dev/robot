@@ -41,7 +41,7 @@ Field canvas WebPs under `website/img/tasks/` are committed. English and Russian
 Generated from bundled task files in [`robot/tasks/`](../robot/tasks/) plus optional community packs in [`community/`](../community/) via [`TaskCatalog`](../robot/task_catalog.py) and the site-only discovery helpers in [`tools/site_catalog.py`](../tools/site_catalog.py).
 
 - **Catalog** — all themes with links to theme hubs.
-- **Community section** — bundled themes first, then one section per community pack with its own theme cards and links to `tasks/community/<prefix>/...`.
+- **Community section** — bundled themes first, then one section per community pack with its own theme cards, a direct download link to `{prefix}tasks.zip` via GitHub `releases/latest/download`, and links to `tasks/community/<prefix>/...`.
 - **Theme hub** — task list for one topic. Public URL slugs come from [`THEME_URL_SLUG`](../tools/website_content_data.py):
 
   | Internal prefix | URL slug |
@@ -58,7 +58,7 @@ Generated from bundled task files in [`robot/tasks/`](../robot/tasks/) plus opti
   | `compound` | `compound` |
 
 - **Task detail** — condition text, environment figures, constraints, and prev/next navigation within the theme. HTML files live in the **root** of `website/tasks/` (e.g. `tasks/intro8.html`), not inside the theme subfolder.
-- **Community theme hub** — same layout as a bundled hub, but breadcrumbs include the community pack heading and the generated path includes the pack prefix.
+- **Community theme hub** — same layout as a bundled hub, but breadcrumbs include the community pack heading, a direct download link to the pack archive, and the generated path includes the pack prefix.
 
 ### Command reference and editor guide
 

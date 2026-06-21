@@ -33,6 +33,8 @@ from tools.website_content_layout import (
     absolute_url,
     breadcrumb_json_ld,
     catalog_relpath,
+    community_pack_anchor_id,
+    community_pack_label,
     community_theme_hub_relpath,
     commands_relpath,
     editor_relpath,
@@ -43,6 +45,7 @@ from tools.website_content_layout import (
     localized_constraints,
     normalize_meta_description,
     render_breadcrumbs,
+    render_community_pack_download,
     render_environment_figures,
     env_image_dim_attr,
     first_existing_env_shot,
@@ -81,17 +84,6 @@ __all__ = [
 SiteCatalogInput = Union[TaskCatalog, SiteTaskCatalog]
 
 
-def _community_pack_anchor_id(prefix: str) -> str:
-    """Return fragment id for one community pack section."""
-    return f"community-pack-{prefix}"
-def _community_pack_label(pack: CommunityPackCatalog, lang: str) -> str:
-    """Return localized heading for one community pack."""
-    return _ui(
-        lang,
-        "community_pack_heading",
-        number=pack.pack_number,
-        author=pack.author,
-    )
 def _theme_display_title(theme_prefix: str, lang: str) -> str:
     """Return localized known theme title or the raw theme id."""
     if theme_prefix in KNOWN_TASK_GROUP_PREFIXES:
@@ -194,8 +186,8 @@ def _community_task_page_crumbs(
         (_ui(lang, "home"), home_relpath(lang)),
         (_ui(lang, "task_catalog"), catalog_relpath(lang)),
         (
-            _community_pack_label(location.pack, lang),
-            f"{catalog_relpath(lang)}#{_community_pack_anchor_id(location.pack.prefix)}",
+            community_pack_label(location.pack.pack_number, location.pack.author, lang),
+            f"{catalog_relpath(lang)}#{community_pack_anchor_id(location.pack.prefix)}",
         ),
         (
             theme_label,
@@ -604,8 +596,8 @@ def _community_theme_hub_spec(
             (_ui(lang, "home"), home_relpath(lang)),
             (_ui(lang, "task_catalog"), catalog_relpath(lang)),
             (
-                _community_pack_label(pack, lang),
-                f"{catalog_relpath(lang)}#{_community_pack_anchor_id(pack.prefix)}",
+                community_pack_label(pack.pack_number, pack.author, lang),
+                f"{catalog_relpath(lang)}#{community_pack_anchor_id(pack.prefix)}",
             ),
             (theme_label, canonical),
         ],
@@ -656,9 +648,11 @@ def _theme_hub_body_html(
     catalog_label = escape(_ui(parts.lang, "task_catalog"))
     eyebrow_html = ""
     if pack is not None:
-        pack_label = escape(_community_pack_label(pack, parts.lang))
+        pack_label = escape(community_pack_label(pack.pack_number, pack.author, parts.lang))
+        pack_download = render_community_pack_download(pack.pack.zip_name, parts.lang)
         eyebrow_html = (
             f'        <p class="community-pack__eyebrow">{pack_label}</p>\n'
+            f'        <p class="community-pack__download">{pack_download}</p>\n'
         )
     return f"""    <div class="hub-page">
       {render_breadcrumbs(layout, parts.crumbs)}
@@ -761,8 +755,9 @@ def _community_catalog_sections(
     """Render the community section below bundled tasks."""
     sections: List[str] = []
     for pack in catalog.community_packs:
-        pack_heading = escape(_community_pack_label(pack, lang))
-        pack_anchor = _community_pack_anchor_id(pack.prefix)
+        pack_heading = escape(community_pack_label(pack.pack_number, pack.author, lang))
+        pack_download = render_community_pack_download(pack.pack.zip_name, lang)
+        pack_anchor = community_pack_anchor_id(pack.prefix)
         task_groups = [
             (
                 theme_prefix,
@@ -780,6 +775,7 @@ def _community_catalog_sections(
         sections.append(
             f"""      <section class="community-pack">
         <h3 class="community-pack__heading" id="{pack_anchor}">{pack_heading}</h3>
+        <p class="community-pack__download">{pack_download}</p>
         <ul class="theme-card-list">
 {chr(10).join(_catalog_theme_blocks(task_groups, lang))}
         </ul>

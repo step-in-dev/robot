@@ -11,6 +11,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 SITE_BASE = "https://robot.stepindev.com"
 GITHUB_RELEASES_URL = "https://github.com/step-in-dev/robot/releases"
+GITHUB_LATEST_DOWNLOAD_BASE = (
+    "https://github.com/step-in-dev/robot/releases/latest/download"
+)
+
+
+def community_pack_download_url(zip_name: str) -> str:
+    """Return a direct download URL for one community pack release archive."""
+    return f"{GITHUB_LATEST_DOWNLOAD_BASE}/{zip_name}"
 ONLINE_EDITOR_URL = {
     "en": "https://stepindev.com/en/py-robot",
     "ru": "https://stepindev.com/ru/py-robot",
@@ -97,6 +105,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "community_tasks_heading": "Community tasks",
         "community_pack_heading": "Task set {number}. Prepared by: {author}",
+        "community_pack_download": "Download tasks: {link}",
         "community_theme_hub_intro": (
             "Community tasks on {theme} collected in this pack."
         ),
@@ -250,6 +259,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "community_tasks_heading": "Задачи от сообщества:",
         "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
+        "community_pack_download": "Скачать задачи: {link}",
         "community_theme_hub_intro": (
             "Задачи от сообщества по теме «{theme}» из этого набора."
         ),

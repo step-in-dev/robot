@@ -1142,6 +1142,12 @@ code {
   font-weight: 600;
 }
 
+.community-pack__download {
+  margin: 0 0 1rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
 .commands-page .command-grid h2 {
   font-size: 1.05rem;
 }

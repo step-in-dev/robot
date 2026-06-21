@@ -24,6 +24,7 @@ from tools.website_content_data import (
     THEME_URL_SLUG,
     UI_STRINGS,
     WEBSITE_DIR,
+    community_pack_download_url,
 )
 
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -39,6 +40,33 @@ def _ui(lang: str, key: str, **kwargs: object) -> str:
     """Return a localized UI string for ``lang``, formatting with ``kwargs`` when given."""
     text = UI_STRINGS[lang][key]
     return text.format(**kwargs) if kwargs else text
+
+
+def render_community_pack_download(zip_name: str, lang: str) -> str:
+    """Render a direct download link for one community pack archive."""
+    url = community_pack_download_url(zip_name)
+    link = (
+        f'<a href="{escape(url)}" rel="noopener noreferrer" target="_blank">'
+        f"<code>{escape(zip_name)}</code></a>"
+    )
+    return escape(_ui(lang, "community_pack_download", link="{link}")).replace(
+        "{link}", link
+    )
+
+
+def community_pack_anchor_id(prefix: str) -> str:
+    """Return fragment id for one community pack section."""
+    return f"community-pack-{prefix}"
+
+
+def community_pack_label(pack_number: int, author: str, lang: str) -> str:
+    """Return localized heading for one community pack."""
+    return _ui(
+        lang,
+        "community_pack_heading",
+        number=pack_number,
+        author=author,
+    )
 
 
 def resolve_todo_text_for_language(raw: Any, language: str) -> str:

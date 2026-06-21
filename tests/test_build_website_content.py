@@ -160,6 +160,13 @@ class BuildCatalogTest(unittest.TestCase):
         self.assertIn("Набор задач 1. Подготовил: Александр Родюшкин", html)
         self.assertIn('id="community-pack-r"', html)
         self.assertIn('href="../tasks/community/r/intro/index_ru.html"', html)
+        self.assertIn('class="community-pack__download"', html)
+        self.assertIn("Скачать задачи:", html)
+        self.assertIn("rtasks.zip", html)
+        self.assertIn(
+            "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
+            html,
+        )
 
 
 class BuildCommunityThemeHubTest(unittest.TestCase):
@@ -174,6 +181,13 @@ class BuildCommunityThemeHubTest(unittest.TestCase):
         self.assertIn(
             '<p class="community-pack__eyebrow">Набор задач 1. Подготовил: '
             "Александр Родюшкин</p>",
+            html,
+        )
+        self.assertIn('class="community-pack__download"', html)
+        self.assertIn("Скачать задачи:", html)
+        self.assertIn("rtasks.zip", html)
+        self.assertIn(
+            "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
             html,
         )
         self.assertIn("tasks/community/r/intro/index_ru.html", html)
