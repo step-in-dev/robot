@@ -163,9 +163,8 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "to extract a repeated check into a function and call it from a loop."
         ),
         "theme_hub_intro.if": (
-            "An 'if' statement lets the Robot act differently depending on the field, "
-            "such as painting only when a cell is not painted. These tasks introduce "
-            "conditional execution without a loop."
+            "An 'if' statement lets the Robot act differently depending on the field. "
+            "These tasks introduce conditional execution without a loop."
         ),
         "theme_hub_intro.wif": (
             "A 'while' loop with an 'if' statement lets you solve more interesting "
@@ -320,8 +319,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.if": (
             "Конструкция «if» позволяет исполнителю Робот действовать по-разному в "
-            "зависимости от поля, например закрашивать только незакрашенную клетку. "
-            "Задачи знакомят с условным выполнением без цикла."
+            "зависимости от поля. Задачи знакомят с условным выполнением без цикла."
         ),
         "theme_hub_intro.wif": (
             "Цикл «while» с конструкцией «if» позволяет решать более интересные задачи "
