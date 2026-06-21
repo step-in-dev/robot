@@ -64,9 +64,14 @@ jobs:
       - name: Build distribution zip
         run: zip -r "robot-${{ github.ref_name }}.zip" robot sample_solution.py viewer editor -x '*__pycache__*'
 
+      - name: Build community task packs
+        run: python tools/build_community_packs.py --output-dir .
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          files: robot-${{ github.ref_name }}.zip
+          files: |
+            robot-${{ github.ref_name }}.zip
+            *tasks.zip
           generate_release_notes: false

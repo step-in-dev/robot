@@ -29,12 +29,13 @@ The target audience is school students who are learning introductory programming
 - `Docs/website-screenshots.md` describes capturing WebPs for the static website (field canvas and full-window shots).
 - `Docs/website-structure.md` describes the static site under `website/`: page map, committed vs generated files, assets, build, and deploy.
 - `Docs/articles.md` describes the `articles/` directory layout, `meta.yaml`, and locale markdown files for site publishing.
+- `Docs/community-tasks.md` describes community task packs under `community/`, pack metadata, and release zip naming.
 - UI string catalogs are JSON files in `robot/locales/`.
 
 ## Architecture Overview
 
 - `robot/model.py` contains the domain model: cells, valued cells, robot environments, wall handling, robot movement, painting, pollution values, printed numbers, and final-state validation.
-- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText` — follow `Docs/localization-style.md` when writing localized task conditions, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory.
+- `robot/loader.py` loads task definitions from `.env` files (JSON body with `envDtos` array and optional `todoText` — follow `Docs/localization-style.md` when writing localized task conditions, optional `operatorsLimit` — counts robot commands plus calls to user-defined functions, optional `customFunctionCallCount`, optional `ifLimit`, optional `whileLimit`), either from `ROBOT_TASKS_DIR` or the bundled `robot/tasks` directory. Optional community packs live under `community/` and are distributed as separate release zips; see `Docs/community-tasks.md`.
 - `robot/results.py` defines run outcome types (`RunResult`, `RunStatus`) and final-state checking.
 - `robot/runtime_state.py` holds shared mutable execution state (active environment, command delay) and small helpers (`begin_solution_run` / `end_solution_run`, `active_robot`, …) so the simulator and commands avoid ad-hoc global access.
 - `robot/commands.py` implements the student-facing robot command functions (`move_*`, `paint`, probes, `pol`, `printn`).
