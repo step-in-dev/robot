@@ -15,6 +15,7 @@ from robot.command_help import iter_command_help
 from robot.gui_constraints import constraints_body_lines
 from robot.i18n import DEFAULT_LANGUAGE, t
 from robot.loader import ScriptConstraints, find_task_file
+from robot.task_catalog import KNOWN_TASK_GROUP_PREFIXES
 from robot.task_todo import normalized_todo_text_map
 
 from tools.website_content_data import (
@@ -26,6 +27,7 @@ from tools.website_content_data import (
 )
 
 _WHITESPACE_RE = re.compile(r"\s+")
+_SLUG_CHARS_RE = re.compile(r"[^a-z0-9]+")
 
 
 def normalize_dashes(text: str) -> str:
@@ -98,14 +100,20 @@ def task_page_filename(task_id: str, lang: str) -> str:
 def theme_slug(theme_prefix: str) -> str:
     """Map an internal theme prefix to its public URL slug."""
     slug = THEME_URL_SLUG.get(theme_prefix)
-    if slug is None:
-        raise KeyError(f"No URL slug configured for theme {theme_prefix!r}")
-    return slug
+    if slug is not None:
+        return slug
+    fallback = _SLUG_CHARS_RE.sub("-", theme_prefix.lower()).strip("-")
+    return fallback or "theme"
 
 
 def theme_hub_relpath(theme_prefix: str, lang: str) -> str:
     """Return the site-relative path to a theme hub page."""
     return f"tasks/{theme_slug(theme_prefix)}/{page_filename(lang)}"
+
+
+def community_theme_hub_relpath(prefix: str, theme_prefix: str, lang: str) -> str:
+    """Return the site-relative path to a community theme hub page."""
+    return f"tasks/community/{prefix}/{theme_slug(theme_prefix)}/{page_filename(lang)}"
 
 
 def catalog_relpath(lang: str) -> str:
@@ -229,6 +237,8 @@ def env_image_dim_attr(shot: Path) -> str:
 
 def theme_title(theme_prefix: str, lang: str) -> str:
     """Return the localized display title for a theme prefix."""
+    if theme_prefix not in KNOWN_TASK_GROUP_PREFIXES:
+        return theme_prefix
     previous = _set_language(lang)
     try:
         return t(f"help.task_group.{theme_prefix}")

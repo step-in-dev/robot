@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple, Union
 import argparse
 import shutil
 import sys
@@ -14,21 +14,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # pylint: disable=wrong-import-position
-from robot.command_help import COMMAND_HELP_SPECS
 from robot.gui_constraints import task_has_any_constraints
 from robot.loader import load_task_definition
-from robot.task_catalog import TaskCatalog
+from robot.task_catalog import KNOWN_TASK_GROUP_PREFIXES, TaskCatalog
 
 from tools.website_content_data import (
-    COMMAND_GROUP_TITLES,
-    COMMAND_GROUPS,
-    COMMAND_KEYWORDS,
-    EDITOR_CONSTRAINT_DOC_ANCHORS,
-    ENV_FORMAT_DOC_BASE,
-    GITHUB_RELEASES_URL,
-    ONLINE_EDITOR_URL,
-    ONLINE_EDITOR_MAX_COLS,
-    ONLINE_EDITOR_MAX_ROWS,
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
     TASKS_IMG_DIR,
@@ -43,17 +33,15 @@ from tools.website_content_layout import (
     absolute_url,
     breadcrumb_json_ld,
     catalog_relpath,
+    community_theme_hub_relpath,
     commands_relpath,
     editor_relpath,
     escape,
     first_available_task_image,
     home_relpath,
     load_raw_todo_text,
-    localized_command_help,
     localized_constraints,
-    localized_editor_constraint_fields,
     normalize_meta_description,
-    page_filename,
     render_breadcrumbs,
     render_environment_figures,
     env_image_dim_attr,
@@ -62,17 +50,25 @@ from tools.website_content_layout import (
     task_page_filename,
     task_page_relpath,
     theme_hub_relpath,
-    theme_slug,
     theme_title,
     wrap_page,
     write_page,
 )
 from tools import article_builder
+from tools.site_catalog import (
+    CommunityPackCatalog,
+    SiteTaskCatalog,
+    as_site_catalog,
+    discover_site_catalog,
+)
+from tools.site_reference_pages import build_commands_page, build_editor_page
+from tools.site_task_load import load_raw_todo_from_path, load_task_from_path
 
 # pylint: enable=wrong-import-position
 
 __all__ = [
     "build_catalog",
+    "build_community_theme_hub",
     "build_commands_page",
     "build_editor_page",
     "build_task_page",
@@ -81,6 +77,64 @@ __all__ = [
     "generate_all",
     "write_sitemap",
 ]
+
+SiteCatalogInput = Union[TaskCatalog, SiteTaskCatalog]
+
+
+def _community_pack_anchor_id(prefix: str) -> str:
+    """Return fragment id for one community pack section."""
+    return f"community-pack-{prefix}"
+def _community_pack_label(pack: CommunityPackCatalog, lang: str) -> str:
+    """Return localized heading for one community pack."""
+    return _ui(
+        lang,
+        "community_pack_heading",
+        number=pack.pack_number,
+        author=pack.author,
+    )
+def _theme_display_title(theme_prefix: str, lang: str) -> str:
+    """Return localized known theme title or the raw theme id."""
+    if theme_prefix in KNOWN_TASK_GROUP_PREFIXES:
+        return theme_title(theme_prefix, lang)
+    return theme_prefix
+def _theme_intro_text(theme_prefix: str, lang: str) -> str:
+    """Return theme intro copy with a fallback for unknown community themes."""
+    if theme_prefix in KNOWN_TASK_GROUP_PREFIXES:
+        return _ui(lang, f"theme_hub_intro.{theme_prefix}")
+    return _ui(
+        lang,
+        "community_theme_hub_intro",
+        theme=_theme_display_title(theme_prefix, lang),
+    )
+def _load_task_definition_for_catalog(catalog: SiteTaskCatalog, task_id: str):
+    """Load task definition from bundled tasks or a community pack path."""
+    location = catalog.locate_community_task(task_id)
+    if location is None:
+        return load_task_definition(task_id)
+    return load_task_from_path(location.path)
+
+
+def _load_raw_todo_for_catalog(catalog: SiteTaskCatalog, task_id: str):
+    """Load raw ``todoText`` from bundled tasks or a community pack path."""
+    location = catalog.locate_community_task(task_id)
+    if location is None:
+        return load_raw_todo_text(task_id)
+    return load_raw_todo_from_path(location.path)
+
+
+@dataclass(frozen=True)
+class _ThemeHubPageSpec:  # pylint: disable=too-many-instance-attributes
+    """Inputs that differ between bundled and community theme hub pages."""
+
+    theme_prefix: str
+    theme_label: str
+    task_ids: Sequence[str]
+    depth: int
+    canonical: str
+    alternate_en: str
+    alternate_ru: str
+    crumbs: List[Tuple[str, str]]
+    pack: Optional[CommunityPackCatalog] = None
 
 
 @dataclass(frozen=True)
@@ -106,17 +160,18 @@ class _ThemeHubParts:  # pylint: disable=too-many-instance-attributes
     """Collected HTML inputs for one theme hub page."""
 
     lang: str
+    depth: int
     theme_prefix: str
     theme_label: str
-    slug: str
     canonical: str
+    alternate_en: str
+    alternate_ru: str
     title: str
     description: str
+    og_image: Optional[str]
     task_ids: Sequence[str]
     crumbs: List[Tuple[str, str]]
     list_items_html: str
-
-
 def _task_page_crumbs(
     lang: str, theme: str, theme_label: str, task_id: str, canonical: str
 ) -> List[Tuple[str, str]]:
@@ -127,8 +182,27 @@ def _task_page_crumbs(
         (theme_label, theme_hub_relpath(theme, lang)),
         (task_id, canonical),
     ]
-
-
+def _community_task_page_crumbs(
+    lang: str,
+    location,
+    theme_label: str,
+    task_id: str,
+    canonical: str,
+) -> List[Tuple[str, str]]:
+    """Build breadcrumb items for a community task detail page."""
+    return [
+        (_ui(lang, "home"), home_relpath(lang)),
+        (_ui(lang, "task_catalog"), catalog_relpath(lang)),
+        (
+            _community_pack_label(location.pack, lang),
+            f"{catalog_relpath(lang)}#{_community_pack_anchor_id(location.pack.prefix)}",
+        ),
+        (
+            theme_label,
+            community_theme_hub_relpath(location.pack.prefix, location.theme, lang),
+        ),
+        (task_id, canonical),
+    ]
 def _task_page_nav_html(ids: Sequence[str], idx: int, lang: str) -> str:
     """Render prev/next navigation links for a task within its theme."""
     nav_bits: List[str] = []
@@ -150,8 +224,6 @@ def _task_page_nav_html(ids: Sequence[str], idx: int, lang: str) -> str:
         f'<nav class="task-nav" aria-label="Task navigation">'
         f'{" ".join(nav_bits)}</nav>'
     )
-
-
 def _task_page_constraints_html(task_def, lang: str) -> str:
     """Render the constraints section for a task page, or an empty string."""
     if not task_has_any_constraints(task_def.script_constraints):
@@ -166,8 +238,6 @@ def _task_page_constraints_html(task_def, lang: str) -> str:
         </ul>
       </section>
 """
-
-
 def _task_page_layout(parts: _TaskPageParts) -> PageLayout:
     """Build page metadata for a task detail page."""
     return PageLayout(
@@ -232,17 +302,31 @@ def _task_page_body_html(layout: PageLayout, parts: _TaskPageParts) -> str:
 
 
 def _task_page_navigation(
-    catalog: TaskCatalog,
-    theme: str,
+    catalog: SiteTaskCatalog,
     lang: str,
     task_id: str,
     canonical: str,
-) -> Tuple[List[Tuple[str, str]], str]:
+) -> Tuple[str, List[Tuple[str, str]], str]:
     """Return breadcrumb items and prev/next navigation HTML for a task page."""
-    theme_label = theme_title(theme, lang)
+    location = catalog.locate_community_task(task_id)
+    if location is not None:
+        theme_label = _theme_display_title(location.theme, lang)
+        crumbs = _community_task_page_crumbs(
+            lang,
+            location,
+            theme_label,
+            task_id,
+            canonical,
+        )
+        ids = location.pack.task_ids_for(location.theme)
+        return theme_label, crumbs, _task_page_nav_html(ids, ids.index(task_id), lang)
+    theme = catalog.bundled.current_theme_for_task(task_id)
+    if theme is None:
+        raise ValueError(f"Task {task_id!r} not in bundled catalog")
+    theme_label = _theme_display_title(theme, lang)
     crumbs = _task_page_crumbs(lang, theme, theme_label, task_id, canonical)
-    ids = catalog.task_ids_for(theme)
-    return crumbs, _task_page_nav_html(ids, ids.index(task_id), lang)
+    ids = catalog.bundled.task_ids_for(theme)
+    return theme_label, crumbs, _task_page_nav_html(ids, ids.index(task_id), lang)
 
 
 def _task_page_env_html(lang: str, task_id: str, env_count: int) -> str:
@@ -263,24 +347,23 @@ def _task_page_env_html(lang: str, task_id: str, env_count: int) -> str:
 
 
 def _load_task_page_parts(
-    catalog: TaskCatalog,
+    catalog: SiteTaskCatalog,
     task_id: str,
     lang: str,
 ) -> _TaskPageParts:
     """Load task metadata and HTML fragments for a task detail page."""
-    theme = catalog.current_theme_for_task(task_id)
-    if theme is None:
-        raise ValueError(f"Task {task_id!r} not in catalog")
-    task_def = load_task_definition(task_id)
-    todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang).strip()
-    theme_label = theme_title(theme, lang)
-    title = f"{task_id} – {theme_label} | Robot"
-    description = normalize_meta_description(todo or f"Robot task {task_id}.")
+    task_def = _load_task_definition_for_catalog(catalog, task_id)
+    todo = resolve_todo_text_for_language(
+        _load_raw_todo_for_catalog(catalog, task_id),
+        lang,
+    ).strip()
     canonical = task_page_relpath(task_id, lang)
     og_image = first_available_task_image(task_id, len(task_def.envs))
-    crumbs, task_nav = _task_page_navigation(
-        catalog, theme, lang, task_id, canonical
+    theme_label, crumbs, task_nav = _task_page_navigation(
+        catalog, lang, task_id, canonical
     )
+    title = f"{task_id} – {theme_label} | Robot"
+    description = normalize_meta_description(todo or f"Robot task {task_id}.")
     constraints_html = _task_page_constraints_html(task_def, lang)
     env_html = _task_page_env_html(lang, task_id, len(task_def.envs))
     return _TaskPageParts(
@@ -300,12 +383,13 @@ def _load_task_page_parts(
 
 
 def build_task_page(
-    catalog: TaskCatalog,
+    catalog: SiteCatalogInput,
     task_id: str,
     lang: str,
 ) -> str:
     """Render a full HTML page for one task in ``lang``."""
-    parts = _load_task_page_parts(catalog, task_id, lang)
+    site = as_site_catalog(catalog)
+    parts = _load_task_page_parts(site, task_id, lang)
     layout = _task_page_layout(parts)
     return wrap_page(layout, _task_page_body_html(layout, parts))
 
@@ -330,12 +414,22 @@ def _task_list_thumbnail(
     )
 
 
-def render_task_list_item(layout: PageLayout, task_id: str, lang: str) -> str:
+def render_task_list_item(
+    layout: PageLayout,
+    task_id: str,
+    lang: str,
+    *,
+    task_def=None,
+    raw_todo=None,
+) -> str:
     """Render one task entry in a theme hub or catalog list."""
-    todo = resolve_todo_text_for_language(load_raw_todo_text(task_id), lang)
+    if raw_todo is None:
+        raw_todo = load_raw_todo_text(task_id)
+    if task_def is None:
+        task_def = load_task_definition(task_id)
+    todo = resolve_todo_text_for_language(raw_todo, lang)
     snippet = normalize_meta_description(todo, limit=120)
     task_href = layout.href(task_page_relpath(task_id, lang))
-    task_def = load_task_definition(task_id)
     img_html = _task_list_thumbnail(
         layout, task_id, lang, task_href, len(task_def.envs)
     )
@@ -354,6 +448,22 @@ def render_task_list_item(layout: PageLayout, task_id: str, lang: str) -> str:
 {snippet_html}              </div>
             </div>
           </li>"""
+
+
+def render_task_list_item_from_catalog(
+    layout: PageLayout,
+    catalog: SiteTaskCatalog,
+    task_id: str,
+    lang: str,
+) -> str:
+    """Render one task list entry using bundled or community catalog loaders."""
+    return render_task_list_item(
+        layout,
+        task_id,
+        lang,
+        task_def=_load_task_definition_for_catalog(catalog, task_id),
+        raw_todo=_load_raw_todo_for_catalog(catalog, task_id),
+    )
 
 
 def theme_task_id_range(task_ids: Sequence[str]) -> str:
@@ -383,8 +493,6 @@ def theme_hub_meta_description(
             range=theme_task_id_range(task_ids),
         )
     )
-
-
 def theme_hub_og_image_alt(theme_label: str, task_ids: Sequence[str], lang: str) -> str:
     """Return Open Graph image alt text for a theme hub page."""
     return _ui(
@@ -393,22 +501,16 @@ def theme_hub_og_image_alt(theme_label: str, task_ids: Sequence[str], lang: str)
         theme=theme_label,
         range=theme_task_id_range(task_ids),
     )
-
-
 def theme_hub_keywords(theme_label: str, lang: str) -> Tuple[str, ...]:
     """Return SEO keywords for a theme hub page."""
     return (theme_label,) + THEME_HUB_KEYWORDS[lang]
-
-
-def theme_hub_og_image(task_ids: Sequence[str]) -> Optional[str]:
+def theme_hub_og_image(catalog: SiteTaskCatalog, task_ids: Sequence[str]) -> Optional[str]:
     """Return the first available task screenshot for a theme hub OG image."""
     if not task_ids:
         return None
     first_task = task_ids[0]
-    task_def = load_task_definition(first_task)
+    task_def = _load_task_definition_for_catalog(catalog, first_task)
     return first_available_task_image(first_task, len(task_def.envs))
-
-
 def _theme_hub_layout(parts: _ThemeHubParts) -> PageLayout:
     """Build page metadata for a theme hub page."""
     item_list = {
@@ -425,17 +527,17 @@ def _theme_hub_layout(parts: _ThemeHubParts) -> PageLayout:
     }
     return PageLayout(
         lang=parts.lang,
-        depth=2,
+        depth=parts.depth,
         page_kind="theme",
         title=parts.title,
         description=parts.description,
         urls=PageAlternateUrls(
             canonical_path=parts.canonical,
-            alternate_en=f"tasks/{parts.slug}/{page_filename('en')}",
-            alternate_ru=f"tasks/{parts.slug}/{page_filename('ru')}",
+            alternate_en=parts.alternate_en,
+            alternate_ru=parts.alternate_ru,
         ),
         meta=PageMeta(
-            og_image_path=theme_hub_og_image(parts.task_ids),
+            og_image_path=parts.og_image,
             og_image_alt=theme_hub_og_image_alt(
                 parts.theme_label, parts.task_ids, parts.lang
             ),
@@ -458,58 +560,110 @@ def _theme_hub_layout(parts: _ThemeHubParts) -> PageLayout:
     )
 
 
+def _bundled_theme_hub_spec(
+    catalog: SiteTaskCatalog,
+    theme_prefix: str,
+    lang: str,
+) -> _ThemeHubPageSpec:
+    """Build page spec for one bundled theme hub."""
+    theme_label = _theme_display_title(theme_prefix, lang)
+    canonical = theme_hub_relpath(theme_prefix, lang)
+    return _ThemeHubPageSpec(
+        theme_prefix=theme_prefix,
+        theme_label=theme_label,
+        task_ids=catalog.bundled.task_ids_for(theme_prefix),
+        depth=2,
+        canonical=canonical,
+        alternate_en=theme_hub_relpath(theme_prefix, "en"),
+        alternate_ru=theme_hub_relpath(theme_prefix, "ru"),
+        crumbs=[
+            (_ui(lang, "home"), home_relpath(lang)),
+            (_ui(lang, "task_catalog"), catalog_relpath(lang)),
+            (theme_label, canonical),
+        ],
+    )
+
+
+def _community_theme_hub_spec(
+    pack: CommunityPackCatalog,
+    theme_prefix: str,
+    lang: str,
+) -> _ThemeHubPageSpec:
+    """Build page spec for one community pack theme hub."""
+    theme_label = _theme_display_title(theme_prefix, lang)
+    canonical = community_theme_hub_relpath(pack.prefix, theme_prefix, lang)
+    return _ThemeHubPageSpec(
+        theme_prefix=theme_prefix,
+        theme_label=theme_label,
+        task_ids=pack.task_ids_for(theme_prefix),
+        depth=4,
+        canonical=canonical,
+        alternate_en=community_theme_hub_relpath(pack.prefix, theme_prefix, "en"),
+        alternate_ru=community_theme_hub_relpath(pack.prefix, theme_prefix, "ru"),
+        crumbs=[
+            (_ui(lang, "home"), home_relpath(lang)),
+            (_ui(lang, "task_catalog"), catalog_relpath(lang)),
+            (
+                _community_pack_label(pack, lang),
+                f"{catalog_relpath(lang)}#{_community_pack_anchor_id(pack.prefix)}",
+            ),
+            (theme_label, canonical),
+        ],
+        pack=pack,
+    )
+
+
 def _load_theme_hub_parts(
-    catalog: TaskCatalog, theme_prefix: str, lang: str, layout: PageLayout
+    catalog: SiteTaskCatalog,
+    lang: str,
+    layout: PageLayout,
+    spec: _ThemeHubPageSpec,
 ) -> _ThemeHubParts:
     """Load theme hub metadata and list item HTML."""
-    task_ids = catalog.task_ids_for(theme_prefix)
-    theme_label = theme_title(theme_prefix, lang)
-    slug = theme_slug(theme_prefix)
-    canonical = f"tasks/{slug}/{page_filename(lang)}"
-    title = theme_hub_page_title(theme_label)
-    description = theme_hub_meta_description(theme_label, task_ids, lang)
-    crumbs = [
-        (_ui(lang, "home"), home_relpath(lang)),
-        (_ui(lang, "task_catalog"), catalog_relpath(lang)),
-        (theme_label, canonical),
-    ]
+    title = theme_hub_page_title(spec.theme_label)
+    description = theme_hub_meta_description(spec.theme_label, spec.task_ids, lang)
     list_items_html = chr(10).join(
-        render_task_list_item(layout, task_id, lang) for task_id in task_ids
+        render_task_list_item_from_catalog(layout, catalog, task_id, lang)
+        for task_id in spec.task_ids
     )
     return _ThemeHubParts(
         lang=lang,
-        theme_prefix=theme_prefix,
-        theme_label=theme_label,
-        slug=slug,
-        canonical=canonical,
+        depth=spec.depth,
+        theme_prefix=spec.theme_prefix,
+        theme_label=spec.theme_label,
+        canonical=spec.canonical,
+        alternate_en=spec.alternate_en,
+        alternate_ru=spec.alternate_ru,
         title=title,
         description=description,
-        task_ids=task_ids,
-        crumbs=crumbs,
+        og_image=theme_hub_og_image(catalog, spec.task_ids),
+        task_ids=spec.task_ids,
+        crumbs=spec.crumbs,
         list_items_html=list_items_html,
     )
 
 
-def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
-    """Render a theme hub page listing all tasks in ``theme_prefix``."""
-    layout_stub = PageLayout(
-        lang=lang,
-        depth=2,
-        page_kind="theme",
-        title="",
-        description="",
-        urls=PageAlternateUrls("", "", ""),
-    )
-    parts = _load_theme_hub_parts(catalog, theme_prefix, lang, layout_stub)
-    layout = _theme_hub_layout(parts)
-    tasks_intro = escape(_ui(lang, "tasks_in_theme", count=len(parts.task_ids)))
-    hub_intro = escape(_ui(lang, f"theme_hub_intro.{parts.theme_prefix}"))
-    catalog_link = layout.href(catalog_relpath(lang))
-    catalog_label = escape(_ui(lang, "task_catalog"))
-    body_html = f"""    <div class="hub-page">
+def _theme_hub_body_html(
+    layout: PageLayout,
+    parts: _ThemeHubParts,
+    *,
+    pack: Optional[CommunityPackCatalog] = None,
+) -> str:
+    """Render the article body for a bundled or community theme hub page."""
+    tasks_intro = escape(_ui(parts.lang, "tasks_in_theme", count=len(parts.task_ids)))
+    hub_intro = escape(_theme_intro_text(parts.theme_prefix, parts.lang))
+    catalog_link = layout.href(catalog_relpath(parts.lang))
+    catalog_label = escape(_ui(parts.lang, "task_catalog"))
+    eyebrow_html = ""
+    if pack is not None:
+        pack_label = escape(_community_pack_label(pack, parts.lang))
+        eyebrow_html = (
+            f'        <p class="community-pack__eyebrow">{pack_label}</p>\n'
+        )
+    return f"""    <div class="hub-page">
       {render_breadcrumbs(layout, parts.crumbs)}
       <header class="content-header">
-        <h1>{escape(parts.theme_label)}</h1>
+{eyebrow_html}        <h1>{escape(parts.theme_label)}</h1>
         <p class="section__intro">{tasks_intro}</p>
         <p class="hub-page__intro">{hub_intro}</p>
       </header>
@@ -519,26 +673,60 @@ def build_theme_hub(catalog: TaskCatalog, theme_prefix: str, lang: str) -> str:
       <p class="content-outro"><a href="{catalog_link}">← {catalog_label}</a></p>
     </div>
 """
-    return wrap_page(layout, body_html)
+
+
+def _build_theme_hub_page(
+    catalog: SiteTaskCatalog,
+    lang: str,
+    spec: _ThemeHubPageSpec,
+) -> str:
+    """Render a theme hub page from a bundled or community page spec."""
+    layout_stub = PageLayout(
+        lang=lang,
+        depth=spec.depth,
+        page_kind="theme",
+        title="",
+        description="",
+        urls=PageAlternateUrls("", "", ""),
+    )
+    parts = _load_theme_hub_parts(catalog, lang, layout_stub, spec)
+    layout = _theme_hub_layout(parts)
+    return wrap_page(layout, _theme_hub_body_html(layout, parts, pack=spec.pack))
+
+
+def build_theme_hub(catalog: SiteCatalogInput, theme_prefix: str, lang: str) -> str:
+    """Render a theme hub page listing all tasks in ``theme_prefix``."""
+    site = as_site_catalog(catalog)
+    spec = _bundled_theme_hub_spec(site, theme_prefix, lang)
+    return _build_theme_hub_page(site, lang, spec)
+
+
+def build_community_theme_hub(
+    catalog: SiteTaskCatalog,
+    pack: CommunityPackCatalog,
+    theme_prefix: str,
+    lang: str,
+) -> str:
+    """Render a theme hub page listing community tasks from one pack."""
+    spec = _community_theme_hub_spec(pack, theme_prefix, lang)
+    return _build_theme_hub_page(catalog, lang, spec)
 
 
 def _catalog_theme_blocks(
-    layout: PageLayout, catalog: TaskCatalog, lang: str
+    task_groups: Sequence[Tuple[str, Sequence[str], str]],
+    lang: str,
 ) -> List[str]:
-    """Render theme summary cards for the catalog index."""
+    """Render theme summary cards for already-resolved theme groups."""
     theme_blocks: List[str] = []
-    for theme_prefix in catalog.themes:
-        task_ids = catalog.task_ids_for(theme_prefix)
+    for theme_prefix, task_ids, theme_href in task_groups:
         if not task_ids:
             continue
-        theme_label = theme_title(theme_prefix, lang)
-        slug = theme_slug(theme_prefix)
+        theme_label = _theme_display_title(theme_prefix, lang)
         range_text = (
             f"<code>{escape(task_ids[0])}</code> … "
             f"<code>{escape(task_ids[-1])}</code>"
         )
-        theme_href = layout.href(f"tasks/{slug}/{page_filename(lang)}")
-        theme_intro = escape(_ui(lang, f"theme_hub_intro.{theme_prefix}"))
+        theme_intro = escape(_theme_intro_text(theme_prefix, lang))
         theme_blocks.append(
             f"""          <li class="theme-card">
             <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a></h2>
@@ -549,8 +737,66 @@ def _catalog_theme_blocks(
     return theme_blocks
 
 
-def build_catalog(catalog: TaskCatalog, lang: str) -> str:
+def _bundled_catalog_theme_groups(
+    layout: PageLayout,
+    catalog: TaskCatalog,
+    lang: str,
+) -> List[Tuple[str, Sequence[str], str]]:
+    """Return bundled theme groups with already-built hrefs."""
+    return [
+        (
+            theme_prefix,
+            catalog.task_ids_for(theme_prefix),
+            layout.href(theme_hub_relpath(theme_prefix, lang)),
+        )
+        for theme_prefix in catalog.themes
+    ]
+
+
+def _community_catalog_sections(
+    layout: PageLayout,
+    catalog: SiteTaskCatalog,
+    lang: str,
+) -> str:
+    """Render the community section below bundled tasks."""
+    sections: List[str] = []
+    for pack in catalog.community_packs:
+        pack_heading = escape(_community_pack_label(pack, lang))
+        pack_anchor = _community_pack_anchor_id(pack.prefix)
+        task_groups = [
+            (
+                theme_prefix,
+                pack.task_ids_for(theme_prefix),
+                layout.href(
+                    community_theme_hub_relpath(
+                        pack.prefix,
+                        theme_prefix,
+                        lang,
+                    )
+                ),
+            )
+            for theme_prefix in pack.themes
+        ]
+        sections.append(
+            f"""      <section class="community-pack">
+        <h3 class="community-pack__heading" id="{pack_anchor}">{pack_heading}</h3>
+        <ul class="theme-card-list">
+{chr(10).join(_catalog_theme_blocks(task_groups, lang))}
+        </ul>
+      </section>"""
+        )
+    if not sections:
+        return ""
+    return f"""      <section class="community-section">
+        <h2 class="community-section__heading">{escape(_ui(lang, "community_tasks_heading"))}</h2>
+{chr(10).join(sections)}
+      </section>"""
+
+
+def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
     """Render the top-level task catalog index page."""
+    site = as_site_catalog(catalog)
+    bundled = site.bundled
     canonical = catalog_relpath(lang)
     title = f"{_ui(lang, 'task_catalog')} | Robot"
     description = normalize_meta_description(_ui(lang, "catalog_intro"))
@@ -586,9 +832,10 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
             },
         ),
     )
-    total = sum(len(catalog.task_ids_for(theme)) for theme in catalog.themes)
+    total = site.total_task_count()
     intro = escape(_ui(lang, "catalog_intro"))
     total_label = escape(_ui(lang, "task_count_total", count=total))
+    community_sections = _community_catalog_sections(layout, site, lang)
     body_html = f"""    <div class="hub-page">
       {render_breadcrumbs(layout, crumbs)}
       <header class="content-header">
@@ -596,259 +843,26 @@ def build_catalog(catalog: TaskCatalog, lang: str) -> str:
         <p class="section__intro">{intro} {total_label}</p>
       </header>
       <ul class="theme-card-list">
-{chr(10).join(_catalog_theme_blocks(layout, catalog, lang))}
+{chr(10).join(
+    _catalog_theme_blocks(
+        _bundled_catalog_theme_groups(layout, bundled, lang),
+        lang,
+    )
+)}
       </ul>
-    </div>
-"""
-    return wrap_page(layout, body_html)
-
-
-def _command_help_by_key(lang: str) -> dict:
-    """Map command keys to localized help descriptions."""
-    help_by_key = {key: "" for key, _ in COMMAND_HELP_SPECS}
-    for signature, desc in localized_command_help(lang):
-        for key, _spec_sig in COMMAND_HELP_SPECS:
-            if signature.startswith(key):
-                help_by_key[key] = desc
-                break
-    return help_by_key
-
-
-def _render_command_groups(lang: str, help_by_key: dict) -> str:
-    """Render grouped command reference sections for ``lang``."""
-    sig_map = dict(COMMAND_HELP_SPECS)
-    groups_html: List[str] = []
-    for group_id, keys in COMMAND_GROUPS:
-        entries = []
-        for key in keys:
-            entries.append(
-                f"              <dt><code>{escape(sig_map[key])}</code></dt>"
-                f"<dd>{escape(help_by_key[key])}</dd>"
-            )
-        groups_html.append(
-            f"""          <article class="command-group">
-            <h2>{escape(COMMAND_GROUP_TITLES[lang][group_id])}</h2>
-            <dl>
-{chr(10).join(entries)}
-            </dl>
-          </article>"""
-        )
-    return chr(10).join(groups_html)
-
-
-def build_commands_page(lang: str) -> str:
-    """Render the command reference page for ``lang``."""
-    canonical = commands_relpath(lang)
-    title = _ui(lang, "commands_page_title")
-    description = normalize_meta_description(_ui(lang, "commands_meta_description"))
-    intro_html = _ui(lang, "commands_intro", code="<code>from robot import *</code>")
-    crumbs = [
-        (_ui(lang, "home"), home_relpath(lang)),
-        (_ui(lang, "command_reference"), canonical),
-    ]
-    help_by_key = _command_help_by_key(lang)
-    groups_html = _render_command_groups(lang, help_by_key)
-
-    layout = PageLayout(
-        lang=lang,
-        depth=0,
-        page_kind="commands",
-        title=title,
-        description=description,
-        urls=PageAlternateUrls(
-            canonical_path=canonical,
-            alternate_en=commands_relpath("en"),
-            alternate_ru=commands_relpath("ru"),
-        ),
-        meta=PageMeta(
-            og_image_alt=_ui(lang, "commands_og_image_alt"),
-            keywords=COMMAND_KEYWORDS[lang],
-            json_ld={
-                "@context": "https://schema.org",
-                "@graph": [
-                    breadcrumb_json_ld(crumbs),
-                    {
-                        "@type": "TechArticle",
-                        "name": _ui(lang, "commands_schema_name"),
-                        "description": description,
-                        "inLanguage": lang,
-                        "url": absolute_url(canonical),
-                    },
-                ],
-            },
-        ),
-    )
-    crumb_html = render_breadcrumbs(layout, crumbs)
-    body_html = f"""    <div class="hub-page commands-page">
-      {crumb_html}
-      <header class="content-header">
-        <h1>{escape(_ui(lang, "command_reference"))}</h1>
-        <p class="section__intro">{intro_html}</p>
-      </header>
-      <div class="command-grid">
-{groups_html}
-      </div>
-    </div>
-"""
-    return wrap_page(layout, body_html)
-
-
-def _env_format_doc_url(lang: str, anchor: str) -> str:
-    """Return a GitHub URL for a section in the task-env-format documentation."""
-    return f"{ENV_FORMAT_DOC_BASE[lang]}#{anchor}"
-
-
-def _releases_link() -> str:
-    """Render a link to the module releases page."""
-    return (
-        f'<a href="{escape(GITHUB_RELEASES_URL)}" rel="noopener noreferrer" '
-        f'target="_blank">GitHub Releases</a>'
-    )
-
-
-def _editor_main_figure(layout: PageLayout, lang: str) -> str:
-    """Render the editor window screenshot figure."""
-    fig_alt = escape(_ui(lang, "editor_fig_editor"))
-    editor_img = layout.href("img/editor/editor.webp")
-    return f"""          <figure class="inline-figure">
-            <img src="{editor_img}" width="846" height="554" alt="{fig_alt}" loading="lazy">
-            <figcaption>{fig_alt}</figcaption>
-          </figure>"""
-
-
-def _render_editor_steps(layout: PageLayout, lang: str) -> str:
-    """Render numbered editor guide steps with figures."""
-    example_task = escape(_ui(lang, "editor_example_task"))
-    step_1 = escape(_ui(lang, "editor_step_1", link="{link}")).replace(
-        "{link}", _releases_link()
-    )
-    return f"""      <ol class="editor-steps">
-        <li>
-          <p>{step_1}</p>
-          <pre class="code-block"><code>python editor/editor.py</code></pre>
-        </li>
-        <li>
-          <p>{escape(_ui(lang, "editor_step_2"))}</p>
-{_editor_main_figure(layout, lang)}
-        </li>
-        <li>
-          <p>{escape(_ui(lang, "editor_step_3"))}</p>
-        </li>
-        <li>
-          <p>{escape(_ui(lang, "editor_step_4"))}</p>
-          <pre class="code-block"><code>from robot import *
-
-task("{example_task}")</code></pre>
-        </li>
-      </ol>"""
-
-
-def _render_editor_constraints_note(lang: str) -> str:
-    """Render the solution-constraints list for the editor page callout."""
-    items: List[str] = []
-    for label, field_name in localized_editor_constraint_fields(lang):
-        anchor = EDITOR_CONSTRAINT_DOC_ANCHORS[lang][field_name]
-        doc_url = escape(_env_format_doc_url(lang, anchor))
-        items.append(
-            f"        <li>{escape(label)} ("
-            f'<a href="{doc_url}" rel="noopener noreferrer" target="_blank">'
-            f"<code>{escape(field_name)}</code></a>)</li>"
-        )
-    items_html = "\n".join(items)
-    return f"""        <p>{escape(_ui(lang, "editor_note_p2_intro"))}</p>
-        <ul class="track-list">
-{items_html}
-        </ul>"""
-
-
-def _render_editor_online_card(lang: str) -> str:
-    """Render the online environment editor promo card."""
-    url = escape(ONLINE_EDITOR_URL[lang])
-    link_text = escape(_ui(lang, "editor_online_link"))
-    limit_size = escape(
-        _ui(
-            lang,
-            "editor_online_limit_size",
-            rows=ONLINE_EDITOR_MAX_ROWS,
-            cols=ONLINE_EDITOR_MAX_COLS,
-        )
-    )
-    limit_constraints = escape(_ui(lang, "editor_online_limit_constraints"))
-    return f"""      <div class="callout editor-online-card">
-        <h3>{escape(_ui(lang, "editor_online_heading"))}</h3>
-        <p>{escape(_ui(lang, "editor_online_text"))}</p>
-        <ul class="track-list">
-        <li>{limit_size}</li>
-        <li>{limit_constraints}</li>
-        </ul>
-        <p><a href="{url}" rel="noopener noreferrer" target="_blank">{link_text}</a></p>
-      </div>"""
-
-
-def build_editor_page(lang: str) -> str:
-    """Render the environment editor guide page for ``lang``."""
-    canonical = editor_relpath(lang)
-    title = f"{_ui(lang, 'editor_nav')} | Robot"
-    description = normalize_meta_description(_ui(lang, "editor_intro"))
-    crumbs = [
-        (_ui(lang, "home"), home_relpath(lang)),
-        (_ui(lang, "editor_nav"), canonical),
-    ]
-
-    layout = PageLayout(
-        lang=lang,
-        depth=0,
-        page_kind="editor",
-        title=title,
-        description=description,
-        urls=PageAlternateUrls(
-            canonical_path=canonical,
-            alternate_en=editor_relpath("en"),
-            alternate_ru=editor_relpath("ru"),
-        ),
-        meta=PageMeta(
-            json_ld={
-                "@context": "https://schema.org",
-                "@graph": [
-                    breadcrumb_json_ld(crumbs),
-                    {
-                        "@type": "TechArticle",
-                        "name": _ui(lang, "editor_nav"),
-                        "description": description,
-                        "inLanguage": lang,
-                        "url": absolute_url(canonical),
-                    },
-                ],
-            },
-        ),
-    )
-    crumb_html = render_breadcrumbs(layout, crumbs)
-    steps_html = _render_editor_steps(layout, lang)
-    constraints_note_html = _render_editor_constraints_note(lang)
-    online_card_html = _render_editor_online_card(lang)
-    body_html = f"""    <div class="hub-page editor-page">
-      {crumb_html}
-      <header class="content-header">
-        <h1>{escape(_ui(lang, "editor_nav"))}</h1>
-        <p class="section__intro">{escape(_ui(lang, "editor_intro"))}</p>
-      </header>
-{steps_html}
-      <div class="callout">
-        <h3>{escape(_ui(lang, "editor_note_heading"))}</h3>
-        <p>{escape(_ui(lang, "editor_note_p1"))}</p>
-{constraints_note_html}
-      </div>
-{online_card_html}
+{community_sections}
     </div>
 """
     return wrap_page(layout, body_html)
 
 
 def collect_sitemap_urls(
-    catalog: TaskCatalog,
+    catalog: SiteCatalogInput,
     article_groups: Optional[Sequence[Tuple[str, str]]] = None,
 ) -> List[Tuple[str, str]]:
     """Return (en_path, ru_path) tuples for alternate URL groups."""
+    site = as_site_catalog(catalog)
+    bundled = site.bundled
     groups: List[Tuple[str, str]] = [
         ("index.html", "index_ru.html"),
         (commands_relpath("en"), commands_relpath("ru")),
@@ -857,14 +871,21 @@ def collect_sitemap_urls(
     ]
     if article_groups:
         groups.extend(article_groups)
-    for theme_prefix in catalog.themes:
-        slug = theme_slug(theme_prefix)
+    for theme_prefix in bundled.themes:
         groups.append(
             (
-                f"tasks/{slug}/index.html",
-                f"tasks/{slug}/index_ru.html",
+                theme_hub_relpath(theme_prefix, "en"),
+                theme_hub_relpath(theme_prefix, "ru"),
             )
         )
+    for pack in site.community_packs:
+        for theme_prefix in pack.themes:
+            groups.append(
+                (
+                    community_theme_hub_relpath(pack.prefix, theme_prefix, "en"),
+                    community_theme_hub_relpath(pack.prefix, theme_prefix, "ru"),
+                )
+            )
     return groups
 
 
@@ -876,7 +897,7 @@ def _sitemap_loc(path: str) -> str:
 
 
 def write_sitemap(
-    catalog: TaskCatalog,
+    catalog: SiteCatalogInput,
     article_groups: Optional[Sequence[Tuple[str, str]]] = None,
 ) -> None:
     """Write ``sitemap.xml`` under ``WEBSITE_DIR``."""
@@ -913,9 +934,10 @@ def clean_generated_tasks_dir() -> None:
     tasks_dir.mkdir(parents=True)
 
 
-def generate_all() -> Tuple[TaskCatalog, list]:
+def generate_all() -> Tuple[SiteTaskCatalog, list]:
     """Generate all site pages, articles, and the sitemap."""
-    catalog = TaskCatalog.discover()
+    catalog = discover_site_catalog()
+    bundled = catalog.bundled
     clean_generated_tasks_dir()
     TASKS_IMG_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -924,17 +946,31 @@ def generate_all() -> Tuple[TaskCatalog, list]:
         write_page(WEBSITE_DIR / editor_relpath(lang), build_editor_page(lang))
         write_page(WEBSITE_DIR / catalog_relpath(lang), build_catalog(catalog, lang))
 
-    for theme_prefix in catalog.themes:
-        slug = theme_slug(theme_prefix)
+    for theme_prefix in bundled.themes:
         for lang in SUPPORTED_SITE_LANGS:
-            out = WEBSITE_DIR / "tasks" / slug / page_filename(lang)
+            out = WEBSITE_DIR / theme_hub_relpath(theme_prefix, lang)
             write_page(out, build_theme_hub(catalog, theme_prefix, lang))
 
-    for theme_prefix in catalog.themes:
-        for task_id in catalog.task_ids_for(theme_prefix):
+    for pack in catalog.community_packs:
+        for theme_prefix in pack.themes:
             for lang in SUPPORTED_SITE_LANGS:
-                out = WEBSITE_DIR / "tasks" / task_page_filename(task_id, lang)
+                out = WEBSITE_DIR / community_theme_hub_relpath(
+                    pack.prefix,
+                    theme_prefix,
+                    lang,
+                )
+                write_page(out, build_community_theme_hub(catalog, pack, theme_prefix, lang))
+
+    for theme_prefix in bundled.themes:
+        for task_id in bundled.task_ids_for(theme_prefix):
+            for lang in SUPPORTED_SITE_LANGS:
+                out = WEBSITE_DIR / task_page_relpath(task_id, lang)
                 write_page(out, build_task_page(catalog, task_id, lang))
+
+    for task_id in catalog.all_community_task_ids():
+        for lang in SUPPORTED_SITE_LANGS:
+            out = WEBSITE_DIR / task_page_relpath(task_id, lang)
+            write_page(out, build_task_page(catalog, task_id, lang))
 
     articles = article_builder.generate_articles()
     article_groups = article_builder.collect_article_sitemap_groups(articles)
@@ -947,10 +983,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
     catalog, articles = generate_all()
-    task_count = sum(len(catalog.task_ids_for(t)) for t in catalog.themes)
+    task_count = catalog.total_task_count()
+    theme_hub_count = len(catalog.bundled.themes) + sum(
+        len(pack.themes) for pack in catalog.community_packs
+    )
     print(
         f"Generated {task_count} task pages × {len(SUPPORTED_SITE_LANGS)} languages, "
-        f"{len(catalog.themes)} theme hubs, command reference, environment editor, "
+        f"{theme_hub_count} theme hubs, command reference, environment editor, "
         f"{len(articles)} article(s), and sitemap."
     )
     return 0

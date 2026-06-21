@@ -12,6 +12,7 @@ from robot.task_catalog import TaskCatalog
 from tools import article_builder
 from tools.build_website_content import (
     build_catalog,
+    build_community_theme_hub,
     build_commands_page,
     build_editor_page,
     build_task_page,
@@ -19,6 +20,7 @@ from tools.build_website_content import (
     collect_sitemap_urls,
     write_sitemap,
 )
+from tools.site_catalog import COMMUNITY_DIR, discover_site_catalog
 
 
 class BuildThemeHubTest(unittest.TestCase):
@@ -146,6 +148,51 @@ class BuildCatalogTest(unittest.TestCase):
         self.assertNotIn("·", intro_paragraph)
         self.assertIn("Первые шаги с исполнителем Робот", intro_description)
         self.assertIn("Всего задач:", html)
+
+    def test_catalog_includes_community_sections(self) -> None:
+        if not (COMMUNITY_DIR / "pack1").is_dir():
+            self.skipTest("community/pack1 not present")
+
+        site_catalog = discover_site_catalog()
+        html = build_catalog(site_catalog, "ru")
+
+        self.assertIn("Задачи от сообщества:", html)
+        self.assertIn("Набор задач 1. Подготовил: Александр Родюшкин", html)
+        self.assertIn('id="community-pack-r"', html)
+        self.assertIn('href="../tasks/community/r/intro/index_ru.html"', html)
+
+
+class BuildCommunityThemeHubTest(unittest.TestCase):
+    def test_community_theme_hub_uses_pack_breadcrumbs(self) -> None:
+        if not (COMMUNITY_DIR / "pack1").is_dir():
+            self.skipTest("community/pack1 not present")
+
+        site_catalog = discover_site_catalog()
+        pack = site_catalog.community_packs[0]
+        html = build_community_theme_hub(site_catalog, pack, "intro", "ru")
+
+        self.assertIn(
+            '<p class="community-pack__eyebrow">Набор задач 1. Подготовил: '
+            "Александр Родюшкин</p>",
+            html,
+        )
+        self.assertIn("tasks/community/r/intro/index_ru.html", html)
+        self.assertIn("rintro1_ru.html", html)
+
+
+class BuildCommunityTaskPageTest(unittest.TestCase):
+    def test_community_task_page_has_pack_breadcrumb_and_nav(self) -> None:
+        if not (COMMUNITY_DIR / "pack1").is_dir():
+            self.skipTest("community/pack1 not present")
+
+        site_catalog = discover_site_catalog()
+        html = build_task_page(site_catalog, "rintro2", "ru")
+
+        self.assertIn("Набор задач 1. Подготовил: Александр Родюшкин", html)
+        self.assertIn('href="../tasks/index_ru.html#community-pack-r"', html)
+        self.assertIn('href="../tasks/community/r/intro/index_ru.html"', html)
+        self.assertIn("Предыдущая задача", html)
+        self.assertIn("<code>rintro1</code>", html)
 
 
 class BuildCommandsPageTest(unittest.TestCase):
@@ -428,6 +475,17 @@ class WriteSitemapTest(unittest.TestCase):
         self.assertIn("tasks/index.html", sitemap)
         self.assertIn("tasks/intro/index.html", sitemap)
         self.assertNotIn("tasks/intro1.html", sitemap)
+
+    def test_sitemap_includes_community_theme_hubs(self) -> None:
+        if not (COMMUNITY_DIR / "pack1").is_dir():
+            self.skipTest("community/pack1 not present")
+
+        site_catalog = discover_site_catalog()
+        groups = collect_sitemap_urls(site_catalog)
+        flat_paths = {path for pair in groups for path in pair}
+
+        self.assertIn("tasks/community/r/intro/index.html", flat_paths)
+        self.assertIn("tasks/community/r/intro/index_ru.html", flat_paths)
 
 
 if __name__ == "__main__":

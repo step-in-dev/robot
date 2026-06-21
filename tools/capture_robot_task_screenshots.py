@@ -321,6 +321,7 @@ class LanguageCaptureJob:  # pylint: disable=too-many-instance-attributes
     viewer_mode: bool
     field_canvas_only: bool
     settle_seconds: float
+    tasks_dir: Optional[Path] = None
 
 
 @dataclass(frozen=True)
@@ -346,6 +347,7 @@ class _CaptureBatchContext:
         language: str,
         output_path: Path,
         flags: _ScreenshotCaptureFlags,
+        tasks_dir: Optional[Path] = None,
     ) -> LanguageCaptureJob:
         """Build a capture job for one language using shared batch parameters."""
         return LanguageCaptureJob(
@@ -359,6 +361,7 @@ class _CaptureBatchContext:
             viewer_mode=flags.viewer_mode,
             field_canvas_only=flags.field_canvas_only,
             settle_seconds=self.settle_seconds,
+            tasks_dir=tasks_dir,
         )
 
 
@@ -409,6 +412,8 @@ def capture_for_language(job: LanguageCaptureJob) -> None:
     env = os.environ.copy()
     env["ROBOT_LANGUAGE"] = job.language
     env["PYTHONUNBUFFERED"] = "1"
+    if job.tasks_dir is not None:
+        env["ROBOT_TASKS_DIR"] = str(job.tasks_dir)
     field_png_path = _field_canvas_png_path(job.output_path)
     if job.field_canvas_only:
         env["ROBOT_FIELD_SCREENSHOT_PATH"] = str(field_png_path)

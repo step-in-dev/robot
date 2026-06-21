@@ -1,10 +1,11 @@
-"""Capture field-canvas WebPs for every task environment (one file per env)."""
+"""Capture field-canvas WebPs for bundled or community task environments."""
 
 from __future__ import annotations
 
 from typing import List, Tuple
 import argparse
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -22,11 +23,21 @@ from capture_robot_task_screenshots import (
     capture_for_language,
 )
 from robot.loader import TaskLoadError, load_task_definition
-from robot.task_catalog import TaskCatalog
+from tools.site_catalog import SiteTaskCatalog, discover_site_catalog
+from tools.site_task_load import load_task_from_path
 # pylint: enable=wrong-import-position
 
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "website" / "img" / "tasks"
 SITE_CAPTURE_LANGUAGE = "en"
+
+
+@dataclass(frozen=True)
+class _CaptureOptions:
+    """Shared batch options for one capture_all_task_screenshots run."""
+
+    output_dir: Path
+    settle_seconds: float
+    skip_existing: bool
 
 
 def parse_args() -> argparse.Namespace:
@@ -66,37 +77,79 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print expected output paths without launching the GUI.",
     )
+    parser.add_argument(
+        "--community-only",
+        action="store_true",
+        help="Capture only community pack tasks.",
+    )
+    parser.add_argument(
+        "--pack-prefix",
+        action="append",
+        metavar="PREFIX",
+        help=(
+            "Limit community capture to these pack prefixes (repeatable). "
+            "Requires --community-only."
+        ),
+    )
     return parser.parse_args()
 
 
-def resolve_task_ids(catalog: TaskCatalog, args: argparse.Namespace) -> List[str]:
-    """Build ordered task id list from --task, --theme, or full catalog."""
-    if args.task or args.theme:
+def validate_capture_args(args: argparse.Namespace) -> None:
+    """Raise ``ValueError`` when CLI flag combinations are invalid."""
+    if args.pack_prefix and not args.community_only:
+        raise ValueError("--pack-prefix requires --community-only")
+
+
+def resolve_task_ids(catalog: SiteTaskCatalog, args: argparse.Namespace) -> List[str]:
+    """Build ordered task ids from bundled/community selection flags."""
+    bundled = catalog.bundled
+    if args.task or args.theme or args.community_only:
         seen: set[str] = set()
         ordered: List[str] = []
-        for task_id in args.task or []:
+
+        def add_task_id(task_id: str) -> None:
             if task_id not in seen:
                 seen.add(task_id)
                 ordered.append(task_id)
+
+        for task_id in args.task or []:
+            add_task_id(task_id)
         for prefix in args.theme or []:
-            for task_id in catalog.task_ids_for(prefix):
-                if task_id not in seen:
-                    seen.add(task_id)
-                    ordered.append(task_id)
+            for task_id in bundled.task_ids_for(prefix):
+                add_task_id(task_id)
+        if args.community_only:
+            selected_prefixes = set(args.pack_prefix or [])
+            for pack in catalog.community_packs:
+                if selected_prefixes and pack.prefix not in selected_prefixes:
+                    continue
+                for task_id in pack.all_task_ids():
+                    add_task_id(task_id)
         return ordered
     return [
         task_id
-        for theme in catalog.themes
-        for task_id in catalog.task_ids_for(theme)
+        for theme in bundled.themes
+        for task_id in bundled.task_ids_for(theme)
     ]
 
 
-def expected_output_paths(task_ids: List[str], output_dir: Path) -> List[Path]:
+def _task_definition_and_tasks_dir(catalog: SiteTaskCatalog, task_id: str):
+    """Return loaded task definition and optional source directory for ``task_id``."""
+    location = catalog.locate_community_task(task_id)
+    if location is None:
+        return load_task_definition(task_id), None
+    return load_task_from_path(location.path), location.pack.directory
+
+
+def expected_output_paths(
+    catalog: SiteTaskCatalog,
+    task_ids: List[str],
+    output_dir: Path,
+) -> List[Path]:
     """Return every WebP path the batch would attempt for *task_ids*."""
     paths: List[Path] = []
     for task_id in task_ids:
         try:
-            task_def = load_task_definition(task_id)
+            task_def, _tasks_dir = _task_definition_and_tasks_dir(catalog, task_id)
         except TaskLoadError:
             continue
         for env_index in range(len(task_def.envs)):
@@ -106,15 +159,14 @@ def expected_output_paths(task_ids: List[str], output_dir: Path) -> List[Path]:
 
 def capture_task_envs(
     *,
+    catalog: SiteTaskCatalog,
     task_id: str,
-    output_dir: Path,
-    settle_seconds: float,
-    skip_existing: bool,
+    options: _CaptureOptions,
     failed: List[Tuple[str, str]],
 ) -> None:
     """Capture one WebP per environment for *task_id* in viewer mode."""
     try:
-        task_def = load_task_definition(task_id)
+        task_def, tasks_dir = _task_definition_and_tasks_dir(catalog, task_id)
     except TaskLoadError as exc:
         failed.append((task_id, str(exc)))
         print(f"SKIP {task_id}: {exc}", file=sys.stderr)
@@ -125,11 +177,11 @@ def capture_task_envs(
             task_id=task_id,
             workdir=PROJECT_ROOT,
             env_index=env_index,
-            settle_seconds=settle_seconds,
+            settle_seconds=options.settle_seconds,
         )
-        output_path = output_dir / f"{task_id}_env{env_index}.webp"
+        output_path = options.output_dir / f"{task_id}_env{env_index}.webp"
         label = f"{task_id}/env{env_index}"
-        if skip_existing and output_path.is_file():
+        if options.skip_existing and output_path.is_file():
             print(f"[{label}] skip (exists)")
             continue
         _try_capture(
@@ -149,36 +201,46 @@ def capture_task_envs(
                     viewer_mode=True,
                     field_canvas_only=True,
                     settle_seconds=b.settle_seconds,
+                    tasks_dir=tasks_dir,
                 )
             ),
         )
 
 
 def main() -> int:
-    """Capture field-canvas PNGs for selected catalog tasks and report failures."""
+    """Capture field-canvas WebPs for selected catalog tasks and report failures."""
     args = parse_args()
+    try:
+        validate_capture_args(args)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     output_dir = args.output_dir.resolve()
 
-    catalog = TaskCatalog.discover()
+    catalog = discover_site_catalog()
     task_ids = resolve_task_ids(catalog, args)
 
     if args.dry_run:
-        paths = expected_output_paths(task_ids, output_dir)
+        paths = expected_output_paths(catalog, task_ids, output_dir)
         for path in paths:
             print(path)
-        print(f"\n{len(paths)} PNG(s) for {len(task_ids)} task(s)")
+        print(f"\n{len(paths)} WebP(s) for {len(task_ids)} task(s)")
         return 0
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    options = _CaptureOptions(
+        output_dir=output_dir,
+        settle_seconds=args.settle_seconds,
+        skip_existing=args.skip_existing,
+    )
 
     failed: List[Tuple[str, str]] = []
     for index, task_id in enumerate(task_ids, start=1):
         print(f"\n=== [{index}/{len(task_ids)}] {task_id} ===")
         capture_task_envs(
+            catalog=catalog,
             task_id=task_id,
-            output_dir=output_dir,
-            settle_seconds=args.settle_seconds,
-            skip_existing=args.skip_existing,
+            options=options,
             failed=failed,
         )
 

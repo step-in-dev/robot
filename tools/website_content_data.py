@@ -91,8 +91,14 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "prev_task": "Previous task",
         "next_task": "Next task",
         "catalog_intro": (
-            "All bundled Robot tasks grouped by topic. Each page shows the task "
-            "condition, field layouts, and limits."
+            "Bundled Robot tasks grouped by topic, plus community task packs "
+            "published separately. Each page shows the task condition, field "
+            "layouts, and limits."
+        ),
+        "community_tasks_heading": "Community tasks",
+        "community_pack_heading": "Task set {number}. Prepared by: {author}",
+        "community_theme_hub_intro": (
+            "Community tasks on {theme} collected in this pack."
         ),
         "commands_page_title": "Robot command reference (Python) | Robot",
         "commands_meta_description": (
@@ -238,8 +244,14 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "prev_task": "Предыдущая задача",
         "next_task": "Следующая задача",
         "catalog_intro": (
-            "Все встроенные задачи исполнителя Робот по темам. На странице задачи – "
-            "условие, поля обстановок и ограничения."
+            "Встроенные задачи исполнителя Робот по темам, а также отдельные наборы "
+            "задач от сообщества. На странице задачи – условие, поля обстановок и "
+            "ограничения."
+        ),
+        "community_tasks_heading": "Задачи от сообщества:",
+        "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
+        "community_theme_hub_intro": (
+            "Задачи от сообщества по теме «{theme}» из этого набора."
         ),
         "commands_page_title": "Справочник команд Робота на Python | Robot",
         "commands_meta_description": (

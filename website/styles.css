@@ -1122,6 +1122,26 @@ code {
   color: var(--color-muted);
 }
 
+.community-section {
+  margin-top: 2.5rem;
+}
+
+.community-section__heading {
+  margin: 0 0 1rem;
+}
+
+.community-pack + .community-pack {
+  margin-top: 2rem;
+}
+
+.community-pack__heading,
+.community-pack__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--color-muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .commands-page .command-grid h2 {
   font-size: 1.05rem;
 }

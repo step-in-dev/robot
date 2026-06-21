@@ -1,6 +1,6 @@
 # Community task packs (`community/`)
 
-Optional Robot task sets contributed by external authors. They are **not** bundled in [`robot/tasks/`](../robot/tasks/) and are **not** included in the static website task catalog (which is built only from bundled tasks).
+Optional Robot task sets contributed by external authors. They are **not** bundled in [`robot/tasks/`](../robot/tasks/). The static website now shows them in a separate **Community tasks** section after the bundled themes, but the desktop module still loads them only when the user places the files into their own task directory (for example `robot/tasks/` in a local unpacked copy, or another folder selected via `ROBOT_TASKS_DIR`).
 
 ## Directory layout
 
@@ -53,10 +53,20 @@ Use `{prefix}{theme}{number}.env`, where `{theme}` is a short topic slug and `{n
 2. Unpack the archive into a folder that contains only the `.env` files (and optionally `readme.md`).
 3. Point the simulator at that folder:
    - Set the `ROBOT_TASKS_DIR` environment variable to the unpacked directory, **or**
-   - Place task files in a directory your workflow already uses for custom tasks.
+   - Copy the `.env` files into a directory your workflow already uses for custom tasks, including `robot/tasks/` in your local unpacked module copy if that is more convenient.
 4. Run student solutions with `task("rintro1")` (use the actual task id), or browse tasks with `python viewer/viewer.py` when `ROBOT_TASKS_DIR` is set.
 
 Bundled tasks in `robot/tasks/` remain available when `ROBOT_TASKS_DIR` is not set. When it is set, the loader and viewer use only that directory.
+
+## On the static website
+
+The generated site keeps community tasks separate from bundled tasks:
+
+- The main catalog page shows bundled themes first, then **Community tasks**.
+- Each pack gets its own heading, for example `Task set 1. Prepared by: …`.
+- Themes inside a pack are grouped from task ids **after removing the pack prefix**, so `rintro1` and `rintro2` appear under the `intro` theme inside the `r` pack.
+- Community theme hubs use URLs such as `tasks/community/r/intro/index.html`.
+- Individual community task pages still use the task id at the root of `tasks/`, for example `tasks/rintro1.html`.
 
 ## Adding a new pack
 

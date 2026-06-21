@@ -1,6 +1,6 @@
 # Website screenshots
 
-The static site under `website/` uses WebP images for marketing shots and for the **Environments** section on generated task pages. Task catalog, articles, commands reference, and `sitemap.xml` are generated at GitHub Pages deploy (see [`.github/workflows/static.yml`](../.github/workflows/static.yml)) or locally with `python -m pip install -r requirements-build.txt` and `python tools/build_website_content.py`; generated HTML is not stored in git. HTML is built separately from images: the generator does not launch the GUI; task pages reference WebP paths such as `img/tasks/<task_id>_env<index>.webp` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels). Theme hub pages (`website/tasks/<theme>/`) show the same WebP as the first available environment on the task page as a clickable list thumbnail linking to the task page; no separate capture is needed.
+The static site under `website/` uses WebP images for marketing shots and for the **Environments** section on generated task pages. Task catalog, articles, commands reference, and `sitemap.xml` are generated at GitHub Pages deploy (see [`.github/workflows/static.yml`](../.github/workflows/static.yml)) or locally with `python -m pip install -r requirements-build.txt` and `python tools/build_website_content.py`; generated HTML is not stored in git. HTML is built separately from images: the generator does not launch the GUI; task pages reference WebP paths such as `img/tasks/<task_id>_env<index>.webp` when the files exist. English and Russian task pages use the **same** field images (the canvas has no UI chrome or locale-specific labels). Bundled theme hubs and community theme hubs (`website/tasks/community/<prefix>/<theme>/`) show the same WebP as the first available environment on the task page as a clickable list thumbnail linking to the task page; no separate capture is needed.
 
 ## Two capture modes
 
@@ -9,7 +9,7 @@ The static site under `website/` uses WebP images for marketing shots and for th
 | Task page field (Environments) | [`tools/capture_all_task_screenshots.py`](../tools/capture_all_task_screenshots.py) | `website/img/tasks/` | Field grid **canvas only** (no toolbar, todo, buttons, title bar, status) via [`tools/field_canvas_export.py`](../tools/field_canvas_export.py) |
 | Hero / viewer marketing | [`tools/capture_robot_task_screenshots.py`](../tools/capture_robot_task_screenshots.py) | e.g. `website/img/viewer/` | **Full window** including OS title bar (`gnome-screenshot -w`) |
 
-Field exports open the task in **viewer mode** (`viewer_catalog`) so the correct environment is selected, but the saved image is cropped to the `tkinter` field canvas and stored as lossless WebP. The `robot` package is not modified for this; export logic lives under `tools/`. Capture uses `ROBOT_LANGUAGE=en` for the viewer session; grid content is the same for all site locales.
+Field exports open the task in **viewer mode** (`viewer_catalog`) so the correct environment is selected, but the saved image is cropped to the `tkinter` field canvas and stored as lossless WebP. The `robot` package is not modified for this; export logic lives under `tools/`. Capture uses `ROBOT_LANGUAGE=en` for the viewer session; grid content is the same for all site locales. Community captures set `ROBOT_TASKS_DIR` only in the screenshot subprocess, so the main package code does not need to know about community packs.
 
 Low-level single-task capture (both modes):
 
@@ -42,7 +42,12 @@ python tools/build_website_content.py
 
 ## Batch workflow (task field images)
 
-Rough scale: ~194 tasks, ~351 environments, **351** WebP files (`{task_id}_env{index}.webp`). A full run often takes on the order of **30–60 minutes**.
+The default batch still captures **bundled** tasks only. Community packs are opt-in via `--community-only` (and optionally `--pack-prefix`).
+
+Rough scale:
+
+- Bundled-only run: ~194 tasks, ~351 environments, **351** WebP files.
+- Current `community/pack1` run: **29** tasks, **68** WebP files.
 
 1. **Pilot** — one task:
 
@@ -66,6 +71,18 @@ Rough scale: ~194 tasks, ~351 environments, **351** WebP files (`{task_id}_env{i
    python tools/capture_all_task_screenshots.py
    ```
 
+   Community-only pack capture:
+
+   ```bash
+   python tools/capture_all_task_screenshots.py --community-only
+   ```
+
+   Or one pack by prefix:
+
+   ```bash
+   python tools/capture_all_task_screenshots.py --community-only --pack-prefix r
+   ```
+
 4. **Verification**:
 
    ```bash
@@ -81,6 +98,8 @@ Rough scale: ~194 tasks, ~351 environments, **351** WebP files (`{task_id}_env{i
 | `--task ID` | Limit to specific task ids (repeatable) |
 | `--theme PREFIX` | All tasks in a theme, e.g. `intro`, `if` (repeatable) |
 | `--dry-run` | Print expected WebP paths without opening the GUI |
+| `--community-only` | Capture only community pack tasks |
+| `--pack-prefix PREFIX` | Limit community capture to one or more pack prefixes (requires `--community-only`) |
 | `--skip-existing` | Skip files that already exist |
 | `--output-dir PATH` | Default: `website/img/tasks` |
 
