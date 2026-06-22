@@ -291,7 +291,7 @@ def build_article_page(article: Article, lang: str) -> str:
         <h1>{escape(locale.title)}</h1>
         <p class="article-meta">{meta_line}</p>
       </header>
-      <div class="article-body">
+      <div class="article-body prose">
 {body_html}
       </div>
     </article>
