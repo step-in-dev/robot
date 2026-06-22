@@ -28,7 +28,6 @@ __all__ = [
     "emit_action_enter_press",
     "emit_action_enter_press_release",
     "emit_action_enter_release",
-    "emit_dialog_redo",
     "emit_keypad_enter",
     "emit_return",
     "env_dict",
@@ -127,35 +126,6 @@ def emit_return(widget: tk.Misc, _root: tk.Misc) -> None:
             flush_tk_events(toplevel, max_rounds=5)
     except tk.TclError:
         pass
-
-
-def emit_dialog_redo(
-    widget: tk.Misc,
-    root: tk.Misc,
-    *,
-    shift_z: bool = False,
-) -> None:
-    """Simulate Ctrl+Y or Ctrl+Shift+Z redo in dialog string field GUI tests."""
-    widget.focus_set()
-    if sys.platform == "win32":
-        # event_generate does not reliably deliver modifier shortcuts on Windows.
-        state = "5" if shift_z else "4"
-        keysym = "z" if shift_z else "y"
-        try:
-            widget.tk.call(
-                "event",
-                "generate",
-                str(widget),
-                f"<KeyPress-{keysym}>",
-                "-state",
-                state,
-            )
-        except tk.TclError:
-            pass
-    else:
-        sequence = "<Control-Shift-z>" if shift_z else "<Control-y>"
-        widget.event_generate(sequence, when="tail")
-    flush_tk_events(root, max_rounds=5)
 
 
 def emit_keypad_enter(widget: tk.Misc, root: tk.Misc) -> None:

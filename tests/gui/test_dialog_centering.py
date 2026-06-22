@@ -18,7 +18,6 @@ from robot.tk_util import flush_tk_events
 
 from ._helpers import (
     dialog_test_root,
-    emit_dialog_redo,
     emit_return,
     find_dialog_buttons,
     find_first_text_widget,
@@ -32,6 +31,11 @@ from ._helpers import (
 # Windows Tk root vs Toplevel client metrics can differ by one frame border (~8 px).
 _CENTER_TOLERANCE_PX = 8 if sys.platform == "win32" else 3
 _FRAME_PADDING_TOLERANCE_PX = 12
+# Ctrl+Y redo override in dialog fields targets Linux/X11 paste binding only.
+_linux_only_dialog_redo_shortcuts = unittest.skipIf(
+    sys.platform == "win32",
+    "Ctrl+Y redo override targets Linux/X11 paste binding; Windows redo is native",
+)
 
 
 def _widget_right_edge(widget: tk.Misc) -> int:
@@ -86,6 +90,7 @@ class CreateDialogStringFieldTest(unittest.TestCase):
         finally:
             root.destroy()
 
+    @_linux_only_dialog_redo_shortcuts
     def test_control_y_binding_redoes_undone_text(self) -> None:
         root = tk.Tk()
         try:
@@ -96,11 +101,13 @@ class CreateDialogStringFieldTest(unittest.TestCase):
             field.insert(tk.END, " added")
             field.edit_undo()
             self.assertEqual(field.get("1.0", "end-1c"), "Old")
-            emit_dialog_redo(field, root)
+            field.event_generate("<Control-y>", when="tail")
+            flush_tk_events(root, max_rounds=5)
             self.assertEqual(field.get("1.0", "end-1c"), "Old added")
         finally:
             root.destroy()
 
+    @_linux_only_dialog_redo_shortcuts
     def test_control_shift_z_binding_redoes_undone_text(self) -> None:
         root = tk.Tk()
         try:
@@ -111,7 +118,8 @@ class CreateDialogStringFieldTest(unittest.TestCase):
             field.insert(tk.END, " added")
             field.edit_undo()
             self.assertEqual(field.get("1.0", "end-1c"), "Old")
-            emit_dialog_redo(field, root, shift_z=True)
+            field.event_generate("<Control-Shift-z>", when="tail")
+            flush_tk_events(root, max_rounds=5)
             self.assertEqual(field.get("1.0", "end-1c"), "Old added")
         finally:
             root.destroy()
