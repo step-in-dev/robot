@@ -18,6 +18,7 @@ from robot.tk_util import flush_tk_events
 
 from ._helpers import (
     dialog_test_root,
+    emit_dialog_redo,
     emit_return,
     find_dialog_buttons,
     find_first_text_widget,
@@ -95,8 +96,7 @@ class CreateDialogStringFieldTest(unittest.TestCase):
             field.insert(tk.END, " added")
             field.edit_undo()
             self.assertEqual(field.get("1.0", "end-1c"), "Old")
-            field.event_generate("<Control-y>")
-            root.update()
+            emit_dialog_redo(field, root)
             self.assertEqual(field.get("1.0", "end-1c"), "Old added")
         finally:
             root.destroy()
@@ -111,8 +111,7 @@ class CreateDialogStringFieldTest(unittest.TestCase):
             field.insert(tk.END, " added")
             field.edit_undo()
             self.assertEqual(field.get("1.0", "end-1c"), "Old")
-            field.event_generate("<Control-Shift-z>")
-            root.update()
+            emit_dialog_redo(field, root, shift_z=True)
             self.assertEqual(field.get("1.0", "end-1c"), "Old added")
         finally:
             root.destroy()
