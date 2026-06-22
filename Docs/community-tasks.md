@@ -63,7 +63,7 @@ Bundled tasks in `robot/tasks/` remain available when `ROBOT_TASKS_DIR` is not s
 The generated site keeps community tasks separate from bundled tasks:
 
 - The main catalog page shows bundled themes first, then **Community tasks**.
-- Each pack gets its own heading, for example `Task set 1. Prepared by: …`, plus a direct download link to `{prefix}tasks.zip`.
+- Each pack gets one catalog card with its heading, for example `Task set 1. Prepared by: …`, a direct download link to `{prefix}tasks.zip`, and a compact list of theme links inside the card.
 - Themes inside a pack are grouped from task ids **after removing the pack prefix**, so `rintro1` and `rintro2` appear under the `intro` theme inside the `r` pack.
 - Community theme hubs use URLs such as `tasks/community/r/intro/index.html`.
 - Individual community task pages still use the task id at the root of `tasks/`, for example `tasks/rintro1.html`.

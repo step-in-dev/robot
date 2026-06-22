@@ -41,7 +41,7 @@ Field canvas WebPs under `website/img/tasks/` are committed. English and Russian
 Generated from bundled task files in [`robot/tasks/`](../robot/tasks/) plus optional community packs in [`community/`](../community/) via [`TaskCatalog`](../robot/task_catalog.py) and the site-only discovery helpers in [`tools/site_catalog.py`](../tools/site_catalog.py).
 
 - **Catalog** — all themes with links to theme hubs.
-- **Community section** — bundled themes first, then one section per community pack with its own theme cards, a direct download link to `{prefix}tasks.zip` via GitHub `releases/latest/download`, and links to `tasks/community/<prefix>/...`.
+- **Community section** — bundled themes first, then one section per community pack with a single catalog card listing theme links inside, a direct download link to `{prefix}tasks.zip` via GitHub `releases/latest/download`, and links to `tasks/community/<prefix>/...`.
 - **Theme hub** — task list for one topic. Public URL slugs come from [`THEME_URL_SLUG`](../tools/website_content_data.py):
 
   | Internal prefix | URL slug |

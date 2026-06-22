@@ -69,6 +69,14 @@ def community_pack_label(pack_number: int, author: str, lang: str) -> str:
     )
 
 
+def theme_task_range_html(task_ids: Sequence[str]) -> str:
+    """Return HTML for a first…last task id range."""
+    return (
+        f"<code>{escape(task_ids[0])}</code> … "
+        f"<code>{escape(task_ids[-1])}</code>"
+    )
+
+
 def resolve_todo_text_for_language(raw: Any, language: str) -> str:
     """Like :func:`robot.task_todo.resolve_todo_text` but for a fixed site language."""
     if isinstance(raw, str):

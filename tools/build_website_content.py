@@ -53,6 +53,7 @@ from tools.website_content_layout import (
     task_page_filename,
     task_page_relpath,
     theme_hub_relpath,
+    theme_task_range_html,
     theme_title,
     wrap_page,
     write_page,
@@ -64,6 +65,7 @@ from tools.site_catalog import (
     as_site_catalog,
     discover_site_catalog,
 )
+from tools.website_community_catalog import render_community_catalog_sections
 from tools.site_reference_pages import build_commands_page, build_editor_page
 from tools.site_task_load import load_raw_todo_from_path, load_task_from_path
 
@@ -719,10 +721,7 @@ def _catalog_theme_blocks(
         if not task_ids:
             continue
         theme_label = _theme_display_title(theme_prefix, lang)
-        range_text = (
-            f"<code>{escape(task_ids[0])}</code> … "
-            f"<code>{escape(task_ids[-1])}</code>"
-        )
+        range_text = theme_task_range_html(task_ids)
         intro_block = ""
         if show_theme_intro:
             intro = escape(_theme_intro_text(theme_prefix, lang))
@@ -750,48 +749,6 @@ def _bundled_catalog_theme_groups(
         )
         for theme_prefix in catalog.themes
     ]
-
-
-def _community_catalog_sections(
-    layout: PageLayout,
-    catalog: SiteTaskCatalog,
-    lang: str,
-) -> str:
-    """Render the community section below bundled tasks."""
-    sections: List[str] = []
-    for pack in catalog.community_packs:
-        pack_heading = escape(community_pack_label(pack.pack_number, pack.author, lang))
-        pack_download = render_community_pack_download(pack.pack.zip_name, lang)
-        pack_anchor = community_pack_anchor_id(pack.prefix)
-        task_groups = [
-            (
-                theme_prefix,
-                pack.task_ids_for(theme_prefix),
-                layout.href(
-                    community_theme_hub_relpath(
-                        pack.prefix,
-                        theme_prefix,
-                        lang,
-                    )
-                ),
-            )
-            for theme_prefix in pack.themes
-        ]
-        sections.append(
-            f"""      <section class="community-pack">
-        <h3 class="community-pack__heading" id="{pack_anchor}">{pack_heading}</h3>
-        <p class="community-pack__download">{pack_download}</p>
-        <ul class="theme-card-list">
-{chr(10).join(_catalog_theme_blocks(task_groups, lang, show_theme_intro=False))}
-        </ul>
-      </section>"""
-        )
-    if not sections:
-        return ""
-    return f"""      <section class="community-section">
-        <h2 class="community-section__heading">{escape(_ui(lang, "community_tasks_heading"))}</h2>
-{chr(10).join(sections)}
-      </section>"""
 
 
 def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
@@ -836,7 +793,7 @@ def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
     total = site.total_task_count()
     intro = escape(_ui(lang, "catalog_intro"))
     total_label = escape(_ui(lang, "task_count_total", count=total))
-    community_sections = _community_catalog_sections(layout, site, lang)
+    community_sections = render_community_catalog_sections(layout, site, lang)
     body_html = f"""    <div class="hub-page">
       {render_breadcrumbs(layout, crumbs)}
       <header class="content-header">

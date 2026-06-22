@@ -1153,6 +1153,35 @@ code {
   font-size: 0.95rem;
 }
 
+.community-pack-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.community-pack-card .community-pack__download {
+  margin: 0 0 0.75rem;
+}
+
+.community-pack__themes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.community-pack__theme {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.95rem;
+}
+
+.community-pack__theme a {
+  font-weight: 600;
+}
+
 .commands-page .command-grid h2 {
   font-size: 1.05rem;
 }

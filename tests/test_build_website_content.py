@@ -171,17 +171,28 @@ class BuildCatalogTest(unittest.TestCase):
             "https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip",
             html,
         )
-        community_intro_card = re.search(
-            r'<li class="theme-card">\s*'
-            r'<h2><a href="[^"]*community/r/intro/index_ru\.html">Первые шаги</a>'
-            r'<span class="theme-card__range">(.*?)</span></h2>\s*'
-            r"</li>",
+        community_intro_link = re.search(
+            r'<section class="community-pack">.*?'
+            r'<li class="theme-card community-pack-card">.*?'
+            r'<ul class="community-pack__themes">.*?'
+            r'<a href="[^"]*community/r/intro/index_ru\.html">Первые шаги</a>'
+            r'.*?<span class="theme-card__range">(.*?)</span>.*?</ul>.*?</section>',
             html,
             flags=re.DOTALL,
         )
-        self.assertIsNotNone(community_intro_card)
-        self.assertNotIn("theme-card__intro", community_intro_card.group(0))
-        self.assertNotIn("Первые шаги с исполнителем Робот", community_intro_card.group(0))
+        self.assertIsNotNone(community_intro_link)
+        intro_range = community_intro_link.group(1)
+        self.assertIn("<code>rintro1</code> … <code>rintro6</code>", intro_range)
+        community_pack_section = re.search(
+            r'<section class="community-pack">(.*?)</section>',
+            html,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(community_pack_section)
+        self.assertEqual(
+            len(re.findall(r'<li class="theme-card', community_pack_section.group(1))),
+            1,
+        )
 
 
 class BuildCommunityThemeHubTest(unittest.TestCase):
