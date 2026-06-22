@@ -156,7 +156,7 @@ class BuildCatalogTest(unittest.TestCase):
         site_catalog = discover_site_catalog()
         html = build_catalog(site_catalog, "ru")
 
-        self.assertIn("Задачи от сообщества:", html)
+        self.assertIn("Задачи от сообщества", html)
         self.assertIn("Набор задач 1. Подготовил: Александр Родюшкин", html)
         self.assertIn('id="community-pack-r"', html)
         self.assertIn('href="../tasks/community/r/intro/index_ru.html"', html)

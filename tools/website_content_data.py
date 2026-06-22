@@ -259,7 +259,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "задач от сообщества. На странице задачи – условие, поля обстановок и "
             "ограничения."
         ),
-        "community_tasks_heading": "Задачи от сообщества:",
+        "community_tasks_heading": "Задачи от сообщества",
         "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
         "community_pack_download": (
             "Задачи этого раздела не включены в архив с модулем и скачиваются отдельно. "
