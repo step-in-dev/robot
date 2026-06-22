@@ -62,7 +62,7 @@ class BuildCommunityPacksTest(unittest.TestCase):
                 names = set(archive.namelist())
             self.assertEqual(
                 names,
-                {"readme.md", "tintro1.env", "tintro2.env"},
+                {"readme_t.md", "tintro1.env", "tintro2.env"},
             )
 
     def test_duplicate_prefix_raises(self) -> None:
@@ -111,7 +111,7 @@ class BuildCommunityPacksTest(unittest.TestCase):
             with zipfile.ZipFile(paths[0]) as archive:
                 names = archive.namelist()
             self.assertEqual(len(names), 30)
-            self.assertIn("readme.md", names)
+            self.assertIn("readme_r.md", names)
             self.assertIn("rintro1.env", names)
 
 

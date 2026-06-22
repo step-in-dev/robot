@@ -50,7 +50,7 @@ Use `{prefix}{theme}{number}.env`, where `{theme}` is a short topic slug and `{n
 ## Using a community pack
 
 1. Download [`{prefix}tasks.zip`](https://github.com/step-in-dev/robot/releases/latest/download/{prefix}tasks.zip) (e.g. [`rtasks.zip`](https://github.com/step-in-dev/robot/releases/latest/download/rtasks.zip) for prefix `r`).
-2. Unpack the archive into a folder that contains only the `.env` files (and optionally `readme.md`).
+2. Unpack the archive into a folder that contains the `.env` files and optionally `readme_{prefix}.md` (for example `readme_r.md` for prefix `r`). When you merge several packs into one directory, these readme files do not overwrite each other. The simulator does not read them, but they keep the pack author metadata.
 3. Point the simulator at that folder:
    - Set the `ROBOT_TASKS_DIR` environment variable to the unpacked directory, **or**
    - Copy the `.env` files into a directory your workflow already uses for custom tasks, including `robot/tasks/` in your local unpacked module copy if that is more convenient.
@@ -82,7 +82,7 @@ Implementation: [`tools/build_community_packs.py`](../tools/build_community_pack
 For each `community/pack*/` directory the builder:
 
 1. Reads `prefix` from `readme.md` front matter.
-2. Zips **only regular files** in the pack root (no subdirectories) into `{prefix}tasks.zip`.
+2. Zips **only regular files** in the pack root (no subdirectories) into `{prefix}tasks.zip`, renaming `readme.md` to `readme_{prefix}.md` inside the archive.
 3. Publishes the zip alongside `robot-vX.zip` on GitHub Releases.
 
 Local build (from the repository root, with build dependencies installed):

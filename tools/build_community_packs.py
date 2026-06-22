@@ -81,6 +81,18 @@ def pack_root_files(pack_dir: Path) -> List[Path]:
     )
 
 
+def readme_archive_name(prefix: str) -> str:
+    """Return the readme file name inside a release zip."""
+    return f"readme_{prefix}.md"
+
+
+def zip_arcname(file_path: Path, pack: CommunityPack) -> str:
+    """Return the archive entry name for one pack file."""
+    if file_path.name == README_NAME:
+        return readme_archive_name(pack.prefix)
+    return file_path.name
+
+
 def build_pack_zip(pack: CommunityPack, output_dir: Path) -> Path:
     """Zip flat files from one pack into ``{prefix}tasks.zip``."""
     files = pack_root_files(pack.directory)
@@ -90,7 +102,7 @@ def build_pack_zip(pack: CommunityPack, output_dir: Path) -> Path:
     zip_path = output_dir / pack.zip_name
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for file_path in files:
-            archive.write(file_path, arcname=file_path.name)
+            archive.write(file_path, arcname=zip_arcname(file_path, pack))
     return zip_path
 
 
