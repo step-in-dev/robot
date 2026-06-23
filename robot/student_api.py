@@ -32,9 +32,7 @@ STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
 
 COUNTED_OPERATOR_NAMES: FrozenSet[str] = frozenset(ACTION_COMMAND_NAMES)
 
-INIT_EXPORT_NAMES: Tuple[str, ...] = ("field", *STUDENT_COMMAND_NAMES, "task")
-
-RUNTIME_STUDENT_EXPORT_NAMES: Tuple[str, ...] = (
+STUDENT_EXPORT_NAMES: Tuple[str, ...] = (
     "task",
     "field",
     *STUDENT_COMMAND_NAMES,

@@ -1,6 +1,6 @@
 """Student-facing Robot API re-exports."""
 
-from .student_api import INIT_EXPORT_NAMES
+from .student_api import STUDENT_EXPORT_NAMES
 from .runtime import (
     field,
     is_cell_not_painted,
@@ -23,4 +23,4 @@ from .runtime import (
     task,
 )
 
-__all__ = list(INIT_EXPORT_NAMES)
+__all__ = list(STUDENT_EXPORT_NAMES)

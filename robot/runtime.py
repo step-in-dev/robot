@@ -49,7 +49,7 @@ from .model import (
     _is_plain_int,
 )
 from .results import RunResult, RunStatus
-from .student_api import RUNTIME_EXTRA_EXPORT_NAMES, RUNTIME_STUDENT_EXPORT_NAMES
+from .student_api import RUNTIME_EXTRA_EXPORT_NAMES, STUDENT_EXPORT_NAMES
 
 
 def _detect_student_script() -> Path:
@@ -154,4 +154,4 @@ def field(width: int = 8, height: int = 6) -> None:
     )
 
 
-__all__ = [*RUNTIME_STUDENT_EXPORT_NAMES, *RUNTIME_EXTRA_EXPORT_NAMES]
+__all__ = [*STUDENT_EXPORT_NAMES, *RUNTIME_EXTRA_EXPORT_NAMES]
