@@ -339,9 +339,11 @@ class BuildCommandsPageTest(unittest.TestCase):
         self.assertEqual(leader_by_item["to_paint"], "393.4,487.0 345.0,487.0 345.0,421.0")
         intro_pos = html.find('class="section__intro"')
         legend_pos = html.find("field-legend")
+        completion_pos = html.find("A task is considered complete if")
         grid_pos = html.find('class="command-grid"')
         self.assertLess(intro_pos, legend_pos)
-        self.assertLess(legend_pos, grid_pos)
+        self.assertLess(legend_pos, completion_pos)
+        self.assertLess(completion_pos, grid_pos)
 
     def test_commands_page_ru_field_legend(self) -> None:
         html = build_commands_page("ru")
@@ -374,6 +376,13 @@ class BuildCommandsPageTest(unittest.TestCase):
         self.assertEqual(leader_by_item["painted"], "333.5,32.0 345.0,32.0 345.0,101.0")
         self.assertEqual(leader_by_item["to_paint"], "369.8,495.0 345.0,495.0 345.0,421.0")
         self.assertEqual(leader_by_item["walls"], "122.0,243.0 150.0,243.0 345.0,221.0")
+        self.assertIn(
+            "<p class=\"section__intro\">Задание считается выполненным, если после "
+            "завершения работы программы исполнитель Робот находится в клетке с "
+            "домиком, все помеченные для закраски клетки закрашены и во все "
+            "клетки, ожидающие вывода числа, это число выведено.</p>",
+            html,
+        )
 
     def test_commands_page_en_command_groups(self) -> None:
         html = build_commands_page("en")

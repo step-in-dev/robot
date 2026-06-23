@@ -428,6 +428,7 @@ def build_commands_page(lang: str) -> str:
     )
     crumb_html = render_breadcrumbs(layout, crumbs)
     legend_html = _render_field_legend(layout, lang)
+    completion_html = escape(_ui(lang, "commands_field_legend_completion"))
     body_html = f"""    <div class="hub-page commands-page">
       {crumb_html}
       <header class="content-header">
@@ -435,6 +436,7 @@ def build_commands_page(lang: str) -> str:
         <p class="section__intro">{intro_html}</p>
       </header>
 {legend_html}
+      <p class="section__intro">{completion_html}</p>
       <div class="command-grid">
 {groups_html}
       </div>

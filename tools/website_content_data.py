@@ -214,6 +214,11 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "commands_field_legend_walls": "Walls",
         "commands_field_legend_pollution": "Pollution level",
         "commands_field_legend_print": "Expected number (printn)",
+        "commands_field_legend_completion": (
+            "A task is considered complete if, after the program finishes, Robot is "
+            "in the home cell, all cells marked for painting are painted, and the "
+            "expected number has been printed in every cell that expects number output."
+        ),
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
         "theme_hub_meta_description": (
@@ -378,6 +383,12 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "commands_field_legend_walls": "Стены",
         "commands_field_legend_pollution": "Уровень загрязнения",
         "commands_field_legend_print": "Ожидаемое число (printn)",
+        "commands_field_legend_completion": (
+            "Задание считается выполненным, если после завершения работы программы "
+            "исполнитель Робот находится в клетке с домиком, все помеченные для "
+            "закраски клетки закрашены и во все клетки, ожидающие вывода числа, "
+            "это число выведено."
+        ),
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
         "theme_hub_meta_description": (
