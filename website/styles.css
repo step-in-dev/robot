@@ -1314,6 +1314,32 @@ code {
   font-size: 1.05rem;
 }
 
+.commands-page .field-legend {
+  margin: 0 0 2rem;
+  text-align: center;
+}
+
+.field-legend__svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  box-shadow: var(--shadow-soft), 0 0 0 1px var(--color-border);
+}
+
+.field-legend__leader {
+  stroke: var(--color-muted);
+  stroke-width: 1.2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.field-legend__label {
+  fill: var(--color-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
 /* Generated article pages */
 .article-page .content-header {
   margin-bottom: 1.25rem;

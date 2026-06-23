@@ -297,6 +297,84 @@ class BuildCommandsPageTest(unittest.TestCase):
         )
         self.assertIn('"name": "Справочник команд Робота на Python"', html)
 
+    def test_commands_page_en_field_legend(self) -> None:
+        html = build_commands_page("en")
+        legend_html = re.search(
+            r'<figure class="field-legend">(.*?)</figure>',
+            html,
+            re.DOTALL,
+        ).group(1)
+        leader_points = re.findall(
+            r'<polyline points="([^"]+)" data-field-legend-item="([^"]+)"'
+            r' class="field-legend__leader"/>',
+            legend_html,
+        )
+        leader_by_item = {item_id: points for points, item_id in leader_points}
+
+        self.assertIn('<figure class="field-legend">', html)
+        self.assertIn('img/commands/field.webp', html)
+        self.assertIn('viewBox="0 0 774 541"', html)
+        self.assertIn("Task environment field elements", html)
+        self.assertIn(">Robot</text>", legend_html)
+        self.assertIn(">Painted cell</text>", legend_html)
+        self.assertIn(">Expected number (printn)</text>", legend_html)
+        self.assertIn(">Pollution level</text>", legend_html)
+        self.assertIn(">Marked cell</text>", legend_html)
+        self.assertIn(">Walls</text>", legend_html)
+        self.assertIn(">Expected final</tspan><tspan", legend_html)
+        self.assertIn("position of Robot</tspan>", legend_html)
+        self.assertIn('dominant-baseline="middle"', legend_html)
+        self.assertIn('font-size="13"', legend_html)
+        self.assertEqual(len(leader_by_item), 7)
+        self.assertNotIn("<line ", legend_html)
+        self.assertEqual(leader_by_item["robot"], "122.0,101.0 185.0,101.0 185.0,101.0")
+        self.assertEqual(leader_by_item["print"], "572.0,181.0 345.0,181.0 345.0,181.0")
+        self.assertEqual(
+            leader_by_item["pollution"],
+            "572.0,261.0 345.0,261.0 345.0,261.0",
+        )
+        self.assertEqual(leader_by_item["walls"], "122.0,243.0 150.0,243.0 345.0,221.0")
+        self.assertEqual(leader_by_item["home"], "572.0,421.0 505.0,421.0 505.0,421.0")
+        self.assertEqual(leader_by_item["painted"], "312.2,32.0 345.0,32.0 345.0,101.0")
+        self.assertEqual(leader_by_item["to_paint"], "393.4,487.0 345.0,487.0 345.0,421.0")
+        intro_pos = html.find('class="section__intro"')
+        legend_pos = html.find("field-legend")
+        grid_pos = html.find('class="command-grid"')
+        self.assertLess(intro_pos, legend_pos)
+        self.assertLess(legend_pos, grid_pos)
+
+    def test_commands_page_ru_field_legend(self) -> None:
+        html = build_commands_page("ru")
+        legend_html = re.search(
+            r'<figure class="field-legend">(.*?)</figure>',
+            html,
+            re.DOTALL,
+        ).group(1)
+        leader_points = re.findall(
+            r'<polyline points="([^"]+)" data-field-legend-item="([^"]+)"'
+            r' class="field-legend__leader"/>',
+            legend_html,
+        )
+        leader_by_item = {item_id: points for points, item_id in leader_points}
+
+        self.assertIn('<figure class="field-legend">', html)
+        self.assertIn("Элементы обстановки на поле", html)
+        self.assertIn(">Робот</text>", legend_html)
+        self.assertIn(">Закрашенная клетка</text>", legend_html)
+        self.assertIn(">Ожидаемое число (printn)</text>", legend_html)
+        self.assertIn(">Уровень загрязнения</text>", legend_html)
+        self.assertIn(">Стены</text>", legend_html)
+        self.assertIn("Клетка, помеченная", legend_html)
+        self.assertIn("для закраски</tspan>", legend_html)
+        self.assertIn(">Ожидаемое</tspan><tspan", legend_html)
+        self.assertIn("конечное положение Робота</tspan>", legend_html)
+        self.assertIn('dominant-baseline="middle"', legend_html)
+        self.assertEqual(len(leader_by_item), 7)
+        self.assertNotIn("<line ", legend_html)
+        self.assertEqual(leader_by_item["painted"], "333.5,32.0 345.0,32.0 345.0,101.0")
+        self.assertEqual(leader_by_item["to_paint"], "369.8,495.0 345.0,495.0 345.0,421.0")
+        self.assertEqual(leader_by_item["walls"], "122.0,243.0 150.0,243.0 345.0,221.0")
+
     def test_commands_page_en_command_groups(self) -> None:
         html = build_commands_page("en")
 

@@ -87,6 +87,7 @@ website/
     viewer/                       # task viewer marketing shots
     tasks/                        # field canvas for generated task pages (committed)
     task_catalog/, editor/        # previews for generated pages
+    commands/                     # command reference illustrations (field legend)
   tasks/                          # generated: catalog, theme hubs, task pages
   articles/                       # generated from articles/
   commands.html, commands_ru.html # generated

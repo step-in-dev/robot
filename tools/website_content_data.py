@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict, Literal, Tuple
 
 from robot.student_api import STUDENT_COMMAND_NAMES
 
@@ -28,6 +29,85 @@ ONLINE_EDITOR_MAX_COLS = 10
 WEBSITE_DIR = PROJECT_ROOT / "website"
 TASKS_IMG_DIR = WEBSITE_DIR / "img" / "tasks"
 SUPPORTED_SITE_LANGS = ("en", "ru")
+
+FIELD_LEGEND_IMAGE = "img/commands/field.webp"
+FIELD_LEGEND_WIDTH = 414
+FIELD_LEGEND_HEIGHT = 413
+FIELD_LEGEND_PADDING: Dict[str, int] = {
+    "top": 56,
+    "right": 220,
+    "bottom": 72,
+    "left": 140,
+}
+FIELD_LEGEND_LABEL_GAP = 28
+FIELD_LEGEND_LINE_CLASS = "field-legend__leader"
+FIELD_LEGEND_TEXT_CLASS = "field-legend__label"
+
+_FIELD_LEGEND_GRID_ORIGIN = 5
+_FIELD_LEGEND_CELL_SIZE = 80
+_FIELD_LEGEND_CELL_CENTER_OFFSET = _FIELD_LEGEND_CELL_SIZE // 2
+
+
+@dataclass(frozen=True)
+class FieldLegendItem:
+    """One labeled element on the commands-page field legend diagram."""
+
+    item_id: str
+    ax: int
+    ay: int
+    side: Literal["left", "right", "top", "bottom"]
+    label_dx: int = 0
+    label_dy: int = 0
+    connector_dy: int = 0
+
+
+def _field_cell_center(col: int, row: int) -> Tuple[int, int]:
+    """Return the pixel-space center of one field cell in field.webp."""
+    x = (
+        _FIELD_LEGEND_GRID_ORIGIN
+        + col * _FIELD_LEGEND_CELL_SIZE
+        + _FIELD_LEGEND_CELL_CENTER_OFFSET
+    )
+    y = (
+        _FIELD_LEGEND_GRID_ORIGIN
+        + row * _FIELD_LEGEND_CELL_SIZE
+        + _FIELD_LEGEND_CELL_CENTER_OFFSET
+    )
+    return x, y
+
+
+def _field_horizontal_wall_point(col: int, row_boundary: int) -> Tuple[int, int]:
+    """Return a point on a horizontal wall segment between two rows."""
+    return (
+        _FIELD_LEGEND_GRID_ORIGIN
+        + col * _FIELD_LEGEND_CELL_SIZE
+        + _FIELD_LEGEND_CELL_CENTER_OFFSET,
+        _FIELD_LEGEND_GRID_ORIGIN + row_boundary * _FIELD_LEGEND_CELL_SIZE,
+    )
+
+
+# Anchor coordinates are derived from the current 5x5 demo field image.
+FIELD_LEGEND_ITEMS: Tuple[FieldLegendItem, ...] = (
+    FieldLegendItem("robot", *_field_cell_center(0, 0), "left"),
+    FieldLegendItem(
+        "painted",
+        *_field_cell_center(2, 0),
+        "top",
+        label_dx=-84,
+        label_dy=12,
+    ),
+    FieldLegendItem("print", *_field_cell_center(2, 1), "right"),
+    FieldLegendItem("pollution", *_field_cell_center(2, 2), "right"),
+    FieldLegendItem(
+        "to_paint",
+        *_field_cell_center(2, 4),
+        "bottom",
+        label_dx=96,
+        label_dy=-18,
+    ),
+    FieldLegendItem("walls", *_field_horizontal_wall_point(2, 2), "left", label_dy=22),
+    FieldLegendItem("home", *_field_cell_center(4, 4), "right"),
+)
 
 THEME_URL_SLUG: Dict[str, str] = {
     "intro": "intro",
@@ -126,6 +206,14 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Robot command reference page listing move, paint, task(), "
             "and other student commands."
         ),
+        "commands_field_legend_title": "Task environment field elements",
+        "commands_field_legend_robot": "Robot",
+        "commands_field_legend_home": "Expected final\nposition of Robot",
+        "commands_field_legend_painted": "Painted cell",
+        "commands_field_legend_to_paint": "Marked cell",
+        "commands_field_legend_walls": "Walls",
+        "commands_field_legend_pollution": "Pollution level",
+        "commands_field_legend_print": "Expected number (printn)",
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
         "theme_hub_meta_description": (
@@ -282,6 +370,14 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Справочник команд исполнителя Робот: сигнатуры и описания move, paint, "
             "task() и других команд."
         ),
+        "commands_field_legend_title": "Элементы обстановки на поле",
+        "commands_field_legend_robot": "Робот",
+        "commands_field_legend_home": "Ожидаемое\nконечное положение Робота",
+        "commands_field_legend_painted": "Закрашенная клетка",
+        "commands_field_legend_to_paint": "Клетка, помеченная\nдля закраски",
+        "commands_field_legend_walls": "Стены",
+        "commands_field_legend_pollution": "Уровень загрязнения",
+        "commands_field_legend_print": "Ожидаемое число (printn)",
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
         "theme_hub_meta_description": (
