@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Tuple
 
-from robot.student_api import STUDENT_COMMAND_NAMES
+from robot.student_api import ACTION_COMMAND_NAMES, STUDENT_COMMAND_NAMES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -124,31 +124,13 @@ THEME_URL_SLUG: Dict[str, str] = {
 
 COMMAND_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("task_field", ("task", "field")),
-    (
-        "movement",
-        (
-            "move_right",
-            "move_left",
-            "move_up",
-            "move_down",
-            "paint",
-            "printn",
-        ),
-    ),
+    ("movement", ACTION_COMMAND_NAMES),
     (
         "cell_walls",
         tuple(
             name
             for name in STUDENT_COMMAND_NAMES
-            if name
-            not in (
-                "move_right",
-                "move_left",
-                "move_up",
-                "move_down",
-                "paint",
-                "printn",
-            )
+            if name not in ACTION_COMMAND_NAMES
         ),
     ),
 )
@@ -508,15 +490,6 @@ ENV_FORMAT_DOC_BASE = {
 
 _RU_IF_WHILE_ANCHOR = "iflimit-%D0%B8-whilelimit"
 _RU_REQUIRED_BANNED_ANCHOR = "requiredkeywords-%D0%B8-bannedkeywords"
-
-EDITOR_CONSTRAINT_FIELDS = (
-    "operatorsLimit",
-    "customFunctionCallCount",
-    "ifLimit",
-    "whileLimit",
-    "requiredKeywords",
-    "bannedKeywords",
-)
 
 EDITOR_CONSTRAINT_DOC_ANCHORS: Dict[str, Dict[str, str]] = {
     "en": {

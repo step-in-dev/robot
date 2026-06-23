@@ -2,12 +2,17 @@
 
 from typing import FrozenSet, Tuple
 
-STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
+ACTION_COMMAND_NAMES: Tuple[str, ...] = (
     "move_right",
     "move_left",
     "move_up",
     "move_down",
     "paint",
+    "printn",
+)
+
+STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
+    *ACTION_COMMAND_NAMES[:-1],
     "is_free_left",
     "is_free_right",
     "is_free_up",
@@ -19,19 +24,10 @@ STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
     "is_cell_painted",
     "is_cell_not_painted",
     "pol",
-    "printn",
+    ACTION_COMMAND_NAMES[-1],
 )
 
-COUNTED_OPERATOR_NAMES: FrozenSet[str] = frozenset(
-    {
-        "move_right",
-        "move_left",
-        "move_up",
-        "move_down",
-        "paint",
-        "printn",
-    }
-)
+COUNTED_OPERATOR_NAMES: FrozenSet[str] = frozenset(ACTION_COMMAND_NAMES)
 
 INIT_EXPORT_NAMES: Tuple[str, ...] = ("field", *STUDENT_COMMAND_NAMES, "task")
 
