@@ -148,6 +148,19 @@ Open `http://localhost:8000/` (or the port shown). Generated task and article pa
 
 **Deploy:** [`.github/workflows/static.yml`](../.github/workflows/static.yml) runs the build on push to `main` (when relevant paths change) and publishes the `website/` folder to GitHub Pages.
 
+### CI path filters
+
+The workflow `paths` list limits deploys to pushes that touch site inputs. When you add or change code that affects generated HTML, **update that list** in [`.github/workflows/static.yml`](../.github/workflows/static.yml); otherwise a merge to `main` may not redeploy.
+
+Keep in sync:
+
+- `tools/` modules used by [`build_website_content.py`](../tools/build_website_content.py) and its imports (layout, data, catalog, articles, community helpers, and so on)
+- `robot/` modules and locale JSON read by those tools (`loader`, `command_help`, `task_todo`, `student_api`, …)
+- Data sources: `robot/tasks/`, `community/`, `articles/`
+- [`requirements-build.txt`](../requirements-build.txt) when build dependencies change
+
+Screenshot tooling (`tools/capture_*.py`, [`tools/field_canvas_export.py`](../tools/field_canvas_export.py)) is not listed: it writes committed assets under `website/img/`, already covered by `website/**`.
+
 ## Related docs
 
 - [`Docs/articles.md`](articles.md) — article folder layout, `meta.yaml`, and locale files.
