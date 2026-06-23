@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Tuple
 
-from robot.student_api import ACTION_COMMAND_NAMES, STUDENT_COMMAND_NAMES
+from robot.student_api import ACTION_COMMAND_NAMES, ENVIRONMENT_QUERY_NAMES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -125,14 +125,7 @@ THEME_URL_SLUG: Dict[str, str] = {
 COMMAND_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("task_field", ("task", "field")),
     ("movement", ACTION_COMMAND_NAMES),
-    (
-        "cell_walls",
-        tuple(
-            name
-            for name in STUDENT_COMMAND_NAMES
-            if name not in ACTION_COMMAND_NAMES
-        ),
-    ),
+    ("cell_walls", ENVIRONMENT_QUERY_NAMES),
 )
 
 UI_STRINGS: Dict[str, Dict[str, str]] = {

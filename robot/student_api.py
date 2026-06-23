@@ -11,8 +11,7 @@ ACTION_COMMAND_NAMES: Tuple[str, ...] = (
     "printn",
 )
 
-STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
-    *ACTION_COMMAND_NAMES[:-1],
+ENVIRONMENT_QUERY_NAMES: Tuple[str, ...] = (
     "is_free_left",
     "is_free_right",
     "is_free_up",
@@ -24,7 +23,11 @@ STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
     "is_cell_painted",
     "is_cell_not_painted",
     "pol",
-    ACTION_COMMAND_NAMES[-1],
+)
+
+STUDENT_COMMAND_NAMES: Tuple[str, ...] = (
+    *ACTION_COMMAND_NAMES,
+    *ENVIRONMENT_QUERY_NAMES,
 )
 
 COUNTED_OPERATOR_NAMES: FrozenSet[str] = frozenset(ACTION_COMMAND_NAMES)
