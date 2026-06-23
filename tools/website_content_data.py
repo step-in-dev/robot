@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Literal, Tuple
+from typing import Dict, Tuple
 
 from robot.student_api import STUDENT_COMMAND_NAMES
 
@@ -55,7 +55,7 @@ class FieldLegendItem:
     item_id: str
     ax: int
     ay: int
-    side: Literal["left", "right", "top", "bottom"]
+    side: str
     label_dx: int = 0
     label_dy: int = 0
     connector_dy: int = 0
