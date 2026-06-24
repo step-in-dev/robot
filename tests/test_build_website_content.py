@@ -261,7 +261,7 @@ class BuildCommandsPageTest(unittest.TestCase):
             "listing move, paint, task(), and other student commands.",
             html,
         )
-        self.assertIn("<h1>Command reference for the Robot simulator in Python</h1>", html)
+        self.assertIn("<h1>Command reference</h1>", html)
         self.assertIn(
             "<p class=\"section__intro\">Below are all commands available to "
             "students in the Robot simulator. Use "
@@ -293,10 +293,6 @@ class BuildCommandsPageTest(unittest.TestCase):
             "в исполнителе Робот. В программе подключите модуль: "
             "<code>from robot import *</code> или импортируйте только нужные "
             "имена.</p>",
-            html,
-        )
-        self.assertIn(
-            "<h1>Справочник команд исполнителя Робот на Python</h1>",
             html,
         )
         self.assertIn('"name": "Справочник команд Робота на Python"', html)

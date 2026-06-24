@@ -169,7 +169,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Community tasks on {theme} collected in this pack."
         ),
         "commands_page_title": "Robot command reference",
-        "commands_page_heading": "Command reference for the Robot simulator in Python",
         "commands_meta_description": (
             "Robot Python command reference: movement, painting, walls, cell values, "
             "task(), field(), pol(), and printn(), each with a short description."
@@ -340,7 +339,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Задачи от сообщества по теме «{theme}» из этого набора."
         ),
         "commands_page_title": "Справочник команд Робота",
-        "commands_page_heading": "Справочник команд исполнителя Робот на Python",
         "commands_meta_description": (
             "Справочник команд исполнителя Робот на Python: движение, закраска, "
             "проверка стен и клеток, task(), field(), pol() и printn()."
