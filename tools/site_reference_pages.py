@@ -432,7 +432,7 @@ def build_commands_page(lang: str) -> str:
     body_html = f"""    <div class="hub-page commands-page">
       {crumb_html}
       <header class="content-header">
-        <h1>{escape(_ui(lang, "command_reference"))}</h1>
+        <h1>{escape(_ui(lang, "commands_page_heading"))}</h1>
         <p class="section__intro">{intro_html}</p>
       </header>
 {legend_html}
