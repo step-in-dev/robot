@@ -28,9 +28,9 @@ class BuildThemeHubTest(unittest.TestCase):
         catalog = TaskCatalog.discover()
         html = build_theme_hub(catalog, "intro", "en")
 
-        self.assertIn("<title>First steps | Robot</title>", html)
+        self.assertIn("<title>First steps | Robot simulator in Python</title>", html)
         self.assertIn(
-            'meta name="description" content="24 Robot tasks on First steps: '
+            'meta name="description" content="24 Robot tasks in Python on First steps: '
             "intro1\u2013intro24. Browse task conditions, field layouts, and limits.\"",
             html,
         )
@@ -54,7 +54,7 @@ class BuildThemeHubTest(unittest.TestCase):
             html,
         )
         self.assertIn(
-            '"description": "24 Robot tasks on First steps: '
+            '"description": "24 Robot tasks in Python on First steps: '
             'intro1\u2013intro24. Browse task conditions, field layouts, and limits."',
             html,
         )
@@ -68,10 +68,10 @@ class BuildThemeHubTest(unittest.TestCase):
         catalog = TaskCatalog.discover()
         html = build_theme_hub(catalog, "intro", "ru")
 
-        self.assertIn("<title>Первые шаги | Robot</title>", html)
+        self.assertIn("<title>Первые шаги | Исполнитель Робот на Python</title>", html)
         self.assertNotIn("Robot tasks", html)
         self.assertIn(
-            'meta name="description" content="24 задач исполнителя Робот по теме '
+            'meta name="description" content="24 задач исполнителя Робот на Python по теме '
             '«Первые шаги»: '
             "intro1\u2013intro24. Условия, поля обстановок и ограничения.\"",
             html,
@@ -246,7 +246,7 @@ class BuildCommandsPageTest(unittest.TestCase):
         html = build_commands_page("en")
 
         self.assertIn(
-            "<title>Robot command reference (Python) | Robot</title>",
+            "<title>Robot command reference | Robot simulator in Python</title>",
             html,
         )
         self.assertIn(
@@ -275,7 +275,7 @@ class BuildCommandsPageTest(unittest.TestCase):
         html = build_commands_page("ru")
 
         self.assertIn(
-            "<title>Справочник команд Робота на Python | Robot</title>",
+            "<title>Справочник команд Робота | Исполнитель Робот на Python</title>",
             html,
         )
         self.assertIn(

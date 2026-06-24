@@ -351,7 +351,7 @@ def _render_article_list_item(
 def build_articles_index(articles: Sequence[Article], lang: str) -> str:
     """Render the localized articles index page."""
     canonical = articles_index_relpath(lang)
-    page_title = _ui(lang, "articles_page_title")
+    page_title = f"{_ui(lang, 'articles_page_title')} | {_ui(lang, 'brand_title_suffix')}"
     heading = _ui(lang, "articles_heading")
     description = normalize_meta_description(_ui(lang, "articles_intro"))
     layout = PageLayout(

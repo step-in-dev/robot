@@ -356,7 +356,7 @@ def _load_task_page_parts(
     theme_label, crumbs, task_nav = _task_page_navigation(
         catalog, lang, task_id, canonical
     )
-    title = f"{task_id} – {theme_label} | Robot"
+    title = f"{task_id} – {theme_label} | {_ui(lang, 'brand_title_suffix')}"
     description = normalize_meta_description(todo or f"Robot task {task_id}.")
     constraints_html = _task_page_constraints_html(task_def, lang)
     env_html = _task_page_env_html(lang, task_id, len(task_def.envs))
@@ -469,9 +469,9 @@ def theme_task_id_range(task_ids: Sequence[str]) -> str:
     return f"{task_ids[0]}\u2013{task_ids[-1]}"
 
 
-def theme_hub_page_title(theme_label: str) -> str:
+def theme_hub_page_title(theme_label: str, lang: str) -> str:
     """Return the HTML title for a theme hub page."""
-    return f"{theme_label} | Robot"
+    return f"{theme_label} | {_ui(lang, 'brand_title_suffix')}"
 
 
 def theme_hub_meta_description(
@@ -614,7 +614,7 @@ def _load_theme_hub_parts(
     spec: _ThemeHubPageSpec,
 ) -> _ThemeHubParts:
     """Load theme hub metadata and list item HTML."""
-    title = theme_hub_page_title(spec.theme_label)
+    title = theme_hub_page_title(spec.theme_label, lang)
     description = theme_hub_meta_description(spec.theme_label, spec.task_ids, lang)
     list_items_html = chr(10).join(
         render_task_list_item_from_catalog(layout, catalog, task_id, lang)
@@ -756,7 +756,7 @@ def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
     site = as_site_catalog(catalog)
     bundled = site.bundled
     canonical = catalog_relpath(lang)
-    title = f"{_ui(lang, 'task_catalog')} | Robot"
+    title = f"{_ui(lang, 'task_catalog')} | {_ui(lang, 'brand_title_suffix')}"
     description = normalize_meta_description(_ui(lang, "catalog_intro"))
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),

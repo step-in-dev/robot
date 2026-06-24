@@ -393,7 +393,7 @@ def _render_field_legend(layout: PageLayout, lang: str) -> str:
 def build_commands_page(lang: str) -> str:
     """Render the command reference page for ``lang``."""
     canonical = commands_relpath(lang)
-    title = _ui(lang, "commands_page_title")
+    title = f"{_ui(lang, 'commands_page_title')} | {_ui(lang, 'brand_title_suffix')}"
     description = normalize_meta_description(_ui(lang, "commands_meta_description"))
     intro_html = _ui(lang, "commands_intro", code="<code>from robot import *</code>")
     crumbs = [
@@ -540,7 +540,7 @@ def _render_editor_online_card(lang: str) -> str:
 def build_editor_page(lang: str) -> str:
     """Render the environment editor guide page for ``lang``."""
     canonical = editor_relpath(lang)
-    title = f"{_ui(lang, 'editor_nav')} | Robot"
+    title = f"{_ui(lang, 'editor_nav')} | {_ui(lang, 'brand_title_suffix')}"
     description = normalize_meta_description(_ui(lang, "editor_intro"))
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),

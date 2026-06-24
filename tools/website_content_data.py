@@ -144,6 +144,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "english": "English",
         "russian": "Русский",
         "footer_tagline": "Robot – educational simulator",
+        "brand_title_suffix": "Robot simulator in Python",
         "releases": "Releases",
         "environments_heading": "Environments",
         "environment_n": "Environment {n}",
@@ -167,7 +168,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "community_theme_hub_intro": (
             "Community tasks on {theme} collected in this pack."
         ),
-        "commands_page_title": "Robot command reference (Python) | Robot",
+        "commands_page_title": "Robot command reference",
         "commands_meta_description": (
             "Robot Python command reference: movement, painting, walls, cell values, "
             "task(), field(), pol(), and printn(), each with a short description."
@@ -197,7 +198,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "tasks_in_theme": "{count} tasks",
         "task_count_total": "{count} tasks in total",
         "theme_hub_meta_description": (
-            "{count} Robot tasks on {theme}: {range}. "
+            "{count} Robot tasks in Python on {theme}: {range}. "
             "Browse task conditions, field layouts, and limits."
         ),
         "theme_hub_og_image_alt": (
@@ -255,7 +256,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "og_default_alt": "Robot desktop window showing a grid programming task.",
         "articles_nav": "Articles",
         "articles_heading": "Articles",
-        "articles_page_title": "Articles about the Robot simulator | Robot",
+        "articles_page_title": "Articles",
         "articles_intro": (
             "Long-form guides about the Robot simulator for teachers and learners."
         ),
@@ -313,6 +314,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "english": "English",
         "russian": "Русский",
         "footer_tagline": "Робот – учебный исполнитель",
+        "brand_title_suffix": "Исполнитель Робот на Python",
         "releases": "Релизы",
         "environments_heading": "Обстановки",
         "environment_n": "Обстановка {n}",
@@ -336,7 +338,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "community_theme_hub_intro": (
             "Задачи от сообщества по теме «{theme}» из этого набора."
         ),
-        "commands_page_title": "Справочник команд Робота на Python | Robot",
+        "commands_page_title": "Справочник команд Робота",
         "commands_meta_description": (
             "Справочник команд исполнителя Робот на Python: движение, закраска, "
             "проверка стен и клеток, task(), field(), pol() и printn()."
@@ -367,7 +369,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "tasks_in_theme": "Задач: {count}",
         "task_count_total": "Всего задач: {count}",
         "theme_hub_meta_description": (
-            "{count} задач исполнителя Робот по теме «{theme}»: {range}. "
+            "{count} задач исполнителя Робот на Python по теме «{theme}»: {range}. "
             "Условия, поля обстановок и ограничения."
         ),
         "theme_hub_og_image_alt": (
@@ -427,7 +429,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
         "articles_nav": "Статьи",
         "articles_heading": "Статьи",
-        "articles_page_title": "Статьи об исполнителе Робот | Robot",
+        "articles_page_title": "Статьи",
         "articles_intro": (
             "Подробные материалы об исполнителе Робот для учителей и учащихся."
         ),
