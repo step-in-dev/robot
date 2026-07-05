@@ -21,6 +21,7 @@ from robot.task_catalog import KNOWN_TASK_GROUP_PREFIXES, TaskCatalog
 from tools.website_content_data import (
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
+    SitemapUrlGroup,
     TASKS_IMG_DIR,
     THEME_HUB_KEYWORDS,
     WEBSITE_DIR,
@@ -816,32 +817,32 @@ def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
 
 def collect_sitemap_urls(
     catalog: SiteCatalogInput,
-    article_groups: Optional[Sequence[Tuple[str, str]]] = None,
-) -> List[Tuple[str, str]]:
-    """Return (en_path, ru_path) tuples for alternate URL groups."""
+    article_groups: Optional[Sequence[SitemapUrlGroup]] = None,
+) -> List[SitemapUrlGroup]:
+    """Return sitemap URL groups for alternate-aware pages."""
     site = as_site_catalog(catalog)
     bundled = site.bundled
-    groups: List[Tuple[str, str]] = [
-        ("index.html", "index_ru.html"),
-        (commands_relpath("en"), commands_relpath("ru")),
-        (editor_relpath("en"), editor_relpath("ru")),
-        (catalog_relpath("en"), catalog_relpath("ru")),
+    groups: List[SitemapUrlGroup] = [
+        SitemapUrlGroup(en="index.html", ru="index_ru.html"),
+        SitemapUrlGroup(en=commands_relpath("en"), ru=commands_relpath("ru")),
+        SitemapUrlGroup(en=editor_relpath("en"), ru=editor_relpath("ru")),
+        SitemapUrlGroup(en=catalog_relpath("en"), ru=catalog_relpath("ru")),
     ]
     if article_groups:
         groups.extend(article_groups)
     for theme_prefix in bundled.themes:
         groups.append(
-            (
-                theme_hub_relpath(theme_prefix, "en"),
-                theme_hub_relpath(theme_prefix, "ru"),
+            SitemapUrlGroup(
+                en=theme_hub_relpath(theme_prefix, "en"),
+                ru=theme_hub_relpath(theme_prefix, "ru"),
             )
         )
     for pack in site.community_packs:
         for theme_prefix in pack.themes:
             groups.append(
-                (
-                    community_theme_hub_relpath(pack.prefix, theme_prefix, "en"),
-                    community_theme_hub_relpath(pack.prefix, theme_prefix, "ru"),
+                SitemapUrlGroup(
+                    en=community_theme_hub_relpath(pack.prefix, theme_prefix, "en"),
+                    ru=community_theme_hub_relpath(pack.prefix, theme_prefix, "ru"),
                 )
             )
     return groups
@@ -854,22 +855,13 @@ def _sitemap_loc(path: str) -> str:
     return absolute_url(path)
 
 
-def write_sitemap(
-    catalog: SiteCatalogInput,
-    article_groups: Optional[Sequence[Tuple[str, str]]] = None,
-) -> None:
-    """Write ``sitemap.xml`` under ``WEBSITE_DIR``."""
-    lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
-        '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
-    ]
-    for en_path, ru_path in collect_sitemap_urls(
-        catalog, article_groups=article_groups
-    ):
-        en_href = _sitemap_loc(en_path)
-        ru_href = _sitemap_loc(ru_path)
-        for loc_path in (en_path, ru_path):
+def _sitemap_url_lines(group: SitemapUrlGroup) -> List[str]:
+    """Render one or two ``<url>`` entries for a sitemap group."""
+    if group.en and group.ru:
+        en_href = _sitemap_loc(group.en)
+        ru_href = _sitemap_loc(group.ru)
+        lines: List[str] = []
+        for loc_path in (group.en, group.ru):
             lines.extend(
                 [
                     "  <url>",
@@ -880,6 +872,34 @@ def write_sitemap(
                     "  </url>",
                 ]
             )
+        return lines
+    if group.en:
+        return [
+            "  <url>",
+            f"    <loc>{_sitemap_loc(group.en)}</loc>",
+            "  </url>",
+        ]
+    if group.ru:
+        return [
+            "  <url>",
+            f"    <loc>{_sitemap_loc(group.ru)}</loc>",
+            "  </url>",
+        ]
+    return []
+
+
+def write_sitemap(
+    catalog: SiteCatalogInput,
+    article_groups: Optional[Sequence[SitemapUrlGroup]] = None,
+) -> None:
+    """Write ``sitemap.xml`` under ``WEBSITE_DIR``."""
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+        '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+    ]
+    for group in collect_sitemap_urls(catalog, article_groups=article_groups):
+        lines.extend(_sitemap_url_lines(group))
     lines.append("</urlset>")
     (WEBSITE_DIR / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

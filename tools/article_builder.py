@@ -23,6 +23,7 @@ from tools.markdown_front_matter import parse_markdown_front_matter  # noqa: E40
 from tools.website_content_data import (  # noqa: E402
     SITE_BASE,
     SUPPORTED_SITE_LANGS,
+    SitemapUrlGroup,
     WEBSITE_DIR,
 )
 from tools.website_content_layout import (  # noqa: E402
@@ -422,18 +423,19 @@ def generate_articles(articles_dir: Path = ARTICLES_DIR) -> List[Article]:
 
 def collect_article_sitemap_groups(
     articles: Sequence[Article],
-) -> List[Tuple[str, str]]:
-    """Return ``(en_path, ru_path)`` tuples for article sitemap entries."""
-    groups: List[Tuple[str, str]] = [
-        (articles_index_relpath("en"), articles_index_relpath("ru")),
+) -> List[SitemapUrlGroup]:
+    """Return sitemap URL groups for the article index and each article."""
+    groups: List[SitemapUrlGroup] = [
+        SitemapUrlGroup(
+            en=articles_index_relpath("en"),
+            ru=articles_index_relpath("ru"),
+        ),
     ]
     for article in articles:
-        if "en" not in article.slug or "ru" not in article.slug:
-            continue
         groups.append(
-            (
-                article.page_relpath("en"),
-                article.page_relpath("ru"),
+            SitemapUrlGroup(
+                en=article.page_relpath("en") if "en" in article.slug else None,
+                ru=article.page_relpath("ru") if "ru" in article.slug else None,
             )
         )
     return groups

@@ -10,12 +10,14 @@ from tools.article_builder import (
     Article,
     LocaleContent,
     build_article_page,
+    collect_article_sitemap_groups,
     discover_articles,
     markdown_to_html,
     parse_locale_md,
     rewrite_article_html,
     validate_articles,
 )
+from tools.website_content_data import SitemapUrlGroup
 from tools.website_content_layout import PageAlternateUrls, PageLayout
 
 INTRO_META = """\
@@ -100,6 +102,38 @@ class ValidateArticlesTest(unittest.TestCase):
         ]
         with self.assertRaises(SystemExit):
             validate_articles(articles)
+
+
+class CollectArticleSitemapGroupsTest(unittest.TestCase):
+    def test_includes_bilingual_article_paths(self) -> None:
+        articles = discover_articles()
+        intro = next(a for a in articles if a.article_id == "robot-simulator-intro")
+        groups = collect_article_sitemap_groups([intro])
+        self.assertIn(
+            SitemapUrlGroup(
+                en="articles/what-is-the-robot-simulator/index.html",
+                ru="articles/chto-takoe-ispolnitel-robot/index_ru.html",
+            ),
+            groups,
+        )
+
+    def test_includes_mono_locale_article(self) -> None:
+        article = Article(
+            "only-ru",
+            3,
+            "2026-01-01",
+            "Author",
+            {"ru": "only-ru-slug"},
+            {"ru": LocaleContent("t", "d", (), "")},
+        )
+        groups = collect_article_sitemap_groups([article])
+        self.assertIn(
+            SitemapUrlGroup(
+                en=None,
+                ru="articles/only-ru-slug/index_ru.html",
+            ),
+            groups,
+        )
 
 
 class RewriteArticleHtmlTest(unittest.TestCase):

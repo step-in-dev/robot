@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from robot.student_api import ACTION_COMMAND_NAMES, ENVIRONMENT_QUERY_NAMES
 
@@ -29,6 +29,15 @@ ONLINE_EDITOR_MAX_COLS = 10
 WEBSITE_DIR = PROJECT_ROOT / "website"
 TASKS_IMG_DIR = WEBSITE_DIR / "img" / "tasks"
 SUPPORTED_SITE_LANGS = ("en", "ru")
+
+
+@dataclass(frozen=True)
+class SitemapUrlGroup:
+    """One or two localized paths for a sitemap alternate group."""
+
+    en: Optional[str] = None
+    ru: Optional[str] = None
+
 
 FIELD_LEGEND_IMAGE = "img/commands/field.webp"
 FIELD_LEGEND_WIDTH = 414

@@ -21,6 +21,7 @@ from tools.build_website_content import (
     write_sitemap,
 )
 from tools.site_catalog import COMMUNITY_DIR, discover_site_catalog
+from tools.website_content_data import SitemapUrlGroup
 
 
 class BuildThemeHubTest(unittest.TestCase):
@@ -592,7 +593,9 @@ class WriteSitemapTest(unittest.TestCase):
         articles = article_builder.discover_articles()
         article_groups = article_builder.collect_article_sitemap_groups(articles)
         groups = collect_sitemap_urls(catalog, article_groups=article_groups)
-        flat_paths = {path for pair in groups for path in pair}
+        flat_paths = {
+            path for group in groups for path in (group.en, group.ru) if path
+        }
 
         self.assertIn("tasks/index.html", flat_paths)
         self.assertIn("tasks/intro/index.html", flat_paths)
@@ -615,10 +618,33 @@ class WriteSitemapTest(unittest.TestCase):
 
         site_catalog = discover_site_catalog()
         groups = collect_sitemap_urls(site_catalog)
-        flat_paths = {path for pair in groups for path in pair}
+        flat_paths = {
+            path for group in groups for path in (group.en, group.ru) if path
+        }
 
         self.assertIn("tasks/community/r/intro/index.html", flat_paths)
         self.assertIn("tasks/community/r/intro/index_ru.html", flat_paths)
+
+    def test_sitemap_includes_mono_locale_article_without_hreflang(self) -> None:
+        catalog = TaskCatalog.discover()
+        article_groups = [
+            SitemapUrlGroup(en=None, ru="articles/only-ru-slug/index_ru.html"),
+        ]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            website_dir = Path(tmp) / "website"
+            website_dir.mkdir()
+            with patch("tools.build_website_content.WEBSITE_DIR", website_dir):
+                write_sitemap(catalog, article_groups=article_groups)
+                sitemap = (website_dir / "sitemap.xml").read_text(encoding="utf-8")
+
+        self.assertIn("articles/only-ru-slug/index_ru.html", sitemap)
+        mono_url = re.search(
+            r"<url>\s*<loc>[^<]*only-ru-slug[^<]*</loc>\s*</url>",
+            sitemap,
+        )
+        self.assertIsNotNone(mono_url)
+        self.assertNotIn("xhtml:link", mono_url.group(0))
 
 
 if __name__ == "__main__":

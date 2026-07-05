@@ -71,7 +71,7 @@ Markdown sources live under [`articles/`](../articles/). Build rules and URL slu
 
 ### Sitemap
 
-[`sitemap.xml`](../website/sitemap.xml) includes the home page, catalog, commands, editor, theme hubs, and articles (index + each article). **Individual task detail pages are not listed** (see [`collect_sitemap_urls()`](../tools/build_website_content.py)).
+[`sitemap.xml`](../website/sitemap.xml) includes the home page, catalog, commands, editor, theme hubs, and articles (index + each published article locale). Bilingual article pages are listed with `hreflang` alternates; a single-locale article is listed once with `<loc>` only. **Individual task detail pages are not listed** (see [`collect_sitemap_urls()`](../tools/build_website_content.py)).
 
 ## Directory tree
 

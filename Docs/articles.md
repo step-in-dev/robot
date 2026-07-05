@@ -104,7 +104,7 @@ Absolute links to `https://robot.stepindev.com/...` for the task catalog and com
 | Article index | `articles/index.html` | `articles/index_ru.html` |
 | Article body | `articles/<slug.en>/index.html` | `articles/<slug.ru>/index_ru.html` |
 
-Language alternates use `hreflang` and cross-link different slugs for the same article, like other generated site pages.
+Language alternates use `hreflang` and cross-link different slugs for the same article, like other generated site pages. When only one locale is published, the article page still appears in the sitemap as a single `<loc>` entry without `hreflang` alternates; bilingual articles get paired `hreflang` entries like other site pages.
 
 ## Building locally
 
