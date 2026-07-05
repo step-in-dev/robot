@@ -216,8 +216,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.intro": (
             "First steps with the Robot: move across a field, paint cells, and reach the "
-            "goal cell. These tasks introduce the Robot and teach composing command "
-            "sequences before students move on to loops and conditions."
+            "goal cell."
         ),
         "theme_hub_intro.fun": (
             "Functions let students reuse a group of Robot commands instead of repeating "
@@ -229,17 +228,15 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "introduction to counted loops."
         ),
         "theme_hub_intro.forfun": (
-            "Combine a 'for' loop with user-defined functions to keep Robot solutions "
-            "structured. These tasks ask students to wrap a repeated action in a "
-            "function and call it inside a loop."
+            "These tasks teach students to wrap a repeated action in a function and "
+            "call it inside a 'for' loop."
         ),
         "theme_hub_intro.w": (
             "A 'while' loop repeats Robot commands as long as a condition holds, which "
             "is useful when the number of steps is unknown."
         ),
         "theme_hub_intro.wfun": (
-            "Pair a 'while' loop with user-defined functions to structure Robot "
-            "solutions. These tasks teach students "
+            "These tasks teach students "
             "to extract a repeated check into a function and call it from a loop."
         ),
         "theme_hub_intro.if": (
@@ -252,13 +249,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.ifelse": (
             "An 'if' and 'else' pair lets a program for the Robot choose between "
-            "two actions based on the field. These tasks teach branching with an "
-            "alternative."
+            "two actions based on the field."
         ),
         "theme_hub_intro.compound": (
-            "Compound conditions combine several checks with 'and' or 'or'. These "
-            "tasks teach building logical expressions with the Robot environment "
-            "analysis commands."
+            "Compound conditions combine several checks with 'and' or 'or'."
         ),
         "og_default_alt": "Robot desktop window showing a grid programming task.",
         "articles_nav": "Articles",
@@ -384,8 +378,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.intro": (
             "Первые шаги с исполнителем Робот: перемещение по полю, закраска клеток и "
-            "достижение целевой клетки. Задачи знакомят с исполнителем Робот и учат "
-            "составлять последовательности команд перед переходом к циклам и условиям."
+            "достижение финальной клетки."
         ),
         "theme_hub_intro.fun": (
             "Функции позволяют повторно использовать группу команд исполнителя Робот "
@@ -398,18 +391,15 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "Первое знакомство с циклом со счётчиком."
         ),
         "theme_hub_intro.forfun": (
-            "Цикл «for» в сочетании с функциями помогает структурировать решения для "
-            "исполнителя Робот. Задачи учат оформлять повторяющееся действие как "
-            "функцию и вызывать её внутри цикла."
+            "Задачи учат оформлять повторяющееся действие как функцию и вызывать её "
+            "внутри цикла «for»."
         ),
         "theme_hub_intro.w": (
             "Цикл «while» повторяет команды исполнителя Робот, пока условие истинно, "
             "что полезно, когда число шагов заранее неизвестно."
         ),
         "theme_hub_intro.wfun": (
-            "Цикл «while» вместе с функциями помогает структурировать решения "
-            "исполнителя Робот. Задачи "
-            "учат выносить повторяющуюся проверку в функцию и вызывать её из цикла."
+            "Задачи учат выносить повторяющуюся проверку в функцию и вызывать её из цикла."
         ),
         "theme_hub_intro.if": (
             "Конструкция «if» позволяет исполнителю Робот действовать по-разному в "
@@ -421,13 +411,10 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.ifelse": (
             "Пара «if» и «else» позволяет программе для исполнителя Робот выбрать "
-            "одно из двух действий в зависимости от поля. Задачи учат ветвлению с "
-            "альтернативой."
+            "одно из двух действий в зависимости от поля."
         ),
         "theme_hub_intro.compound": (
-            "Составные условия объединяют несколько проверок через «and» или «or». "
-            "Задачи учат строить логические выражения с помощью команд анализа "
-            "обстановки исполнителя Робот."
+            "Составные условия объединяют несколько проверок через «and» или «or»."
         ),
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
         "articles_nav": _RU_ARTICLES_LABEL,
