@@ -165,18 +165,15 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Example in Python",
         "prev_task": "Previous task",
         "next_task": "Next task",
-        "catalog_intro": (
-            "Bundled Robot tasks grouped by topic, plus community task packs "
-            "published separately."
+        "bundled_tasks_heading": "Bundled tasks",
+        "catalog_meta_description": (
+            "Robot task catalog: {count} bundled tasks by topic and community packs."
         ),
         "community_tasks_heading": "Community tasks",
         "community_pack_heading": "Task set {number}. Prepared by: {author}",
         "community_pack_download": (
             "Tasks in this section are not included in the module archive and are "
             "downloaded separately. Download tasks: {link}. Unpack into robot/tasks"
-        ),
-        "community_theme_hub_intro": (
-            "Community tasks on {theme} collected in this pack."
         ),
         "commands_page_title": "Robot command reference",
         "commands_meta_description": (
@@ -213,46 +210,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_og_image_alt": (
             "Robot tasks on {theme} ({range}): grid field previews from the task catalog."
-        ),
-        "theme_hub_intro.intro": (
-            "First steps with the Robot: move across a field, paint cells, and reach the "
-            "goal cell."
-        ),
-        "theme_hub_intro.fun": (
-            "Functions let students reuse a group of Robot commands instead of repeating "
-            "them. These tasks teach how to define a custom function and call it, so "
-            "solutions stay short and readable as the field grows."
-        ),
-        "theme_hub_intro.for": (
-            "A 'for' loop repeats Robot commands a known number of times. A first "
-            "introduction to counted loops."
-        ),
-        "theme_hub_intro.forfun": (
-            "These tasks teach students to wrap a repeated action in a function and "
-            "call it inside a 'for' loop."
-        ),
-        "theme_hub_intro.w": (
-            "A 'while' loop repeats Robot commands as long as a condition holds, which "
-            "is useful when the number of steps is unknown."
-        ),
-        "theme_hub_intro.wfun": (
-            "These tasks teach students "
-            "to extract a repeated check into a function and call it from a loop."
-        ),
-        "theme_hub_intro.if": (
-            "An 'if' statement lets the Robot act differently depending on the field. "
-            "These tasks introduce conditional execution without a loop."
-        ),
-        "theme_hub_intro.wif": (
-            "A 'while' loop with an 'if' statement lets you solve more interesting "
-            "tasks with the Robot."
-        ),
-        "theme_hub_intro.ifelse": (
-            "An 'if' and 'else' pair lets a program for the Robot choose between "
-            "two actions based on the field."
-        ),
-        "theme_hub_intro.compound": (
-            "Compound conditions combine several checks with 'and' or 'or'."
         ),
         "og_default_alt": "Robot desktop window showing a grid programming task.",
         "articles_nav": "Articles",
@@ -325,18 +282,16 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "example_heading": "Пример на Python",
         "prev_task": "Предыдущая задача",
         "next_task": "Следующая задача",
-        "catalog_intro": (
-            "Встроенные задачи исполнителя Робот по темам, а также отдельные наборы "
-            "задач от сообщества."
+        "bundled_tasks_heading": "Встроенные задачи",
+        "catalog_meta_description": (
+            "Каталог задач исполнителя Робот: {count} встроенных задач по темам "
+            "и наборы от сообщества."
         ),
         "community_tasks_heading": "Задачи от сообщества",
         "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
         "community_pack_download": (
             "Задачи этого раздела не включены в архив с модулем и скачиваются отдельно. "
             "Скачать задачи: {link}. Распаковать в robot/tasks"
-        ),
-        "community_theme_hub_intro": (
-            "Задачи от сообщества по теме «{theme}» из этого набора."
         ),
         "commands_page_title": "Справочник команд Робота",
         "commands_meta_description": (
@@ -375,46 +330,6 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "theme_hub_og_image_alt": (
             "Задачи исполнителя Робот по теме «{theme}» ({range}): превью полей из "
             "каталога задач."
-        ),
-        "theme_hub_intro.intro": (
-            "Первые шаги с исполнителем Робот: перемещение по полю, закраска клеток и "
-            "достижение финальной клетки."
-        ),
-        "theme_hub_intro.fun": (
-            "Функции позволяют повторно использовать группу команд исполнителя Робот "
-            "вместо их повторения. Задачи учат определять собственную функцию и "
-            "вызывать её, чтобы решения оставались короткими и понятными даже на "
-            "больших полях."
-        ),
-        "theme_hub_intro.for": (
-            "Цикл «for» повторяет команды исполнителя Робот известное число раз. "
-            "Первое знакомство с циклом со счётчиком."
-        ),
-        "theme_hub_intro.forfun": (
-            "Задачи учат оформлять повторяющееся действие как функцию и вызывать её "
-            "внутри цикла «for»."
-        ),
-        "theme_hub_intro.w": (
-            "Цикл «while» повторяет команды исполнителя Робот, пока условие истинно, "
-            "что полезно, когда число шагов заранее неизвестно."
-        ),
-        "theme_hub_intro.wfun": (
-            "Задачи учат выносить повторяющуюся проверку в функцию и вызывать её из цикла."
-        ),
-        "theme_hub_intro.if": (
-            "Конструкция «if» позволяет исполнителю Робот действовать по-разному в "
-            "зависимости от поля. Задачи знакомят с условным выполнением без цикла."
-        ),
-        "theme_hub_intro.wif": (
-            "Цикл «while» с конструкцией «if» позволяет решать более интересные задачи "
-            "с исполнителем Робот."
-        ),
-        "theme_hub_intro.ifelse": (
-            "Пара «if» и «else» позволяет программе для исполнителя Робот выбрать "
-            "одно из двух действий в зависимости от поля."
-        ),
-        "theme_hub_intro.compound": (
-            "Составные условия объединяют несколько проверок через «and» или «or»."
         ),
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
         "articles_nav": _RU_ARTICLES_LABEL,

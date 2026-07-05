@@ -59,11 +59,7 @@ class BuildThemeHubTest(unittest.TestCase):
             'intro1\u2013intro24. Browse task conditions, field layouts, and limits."',
             html,
         )
-        self.assertIn(
-            '<p class="hub-page__intro">First steps with the Robot: move across a '
-            "field, paint cells, and reach the goal cell.",
-            html,
-        )
+        self.assertNotIn('class="hub-page__intro"', html)
 
     def test_theme_hub_ru_meta(self) -> None:
         catalog = TaskCatalog.discover()
@@ -128,27 +124,34 @@ class BuildThemeHubTest(unittest.TestCase):
 
 
 class BuildCatalogTest(unittest.TestCase):
-    def test_catalog_theme_cards_show_range_without_per_theme_count(self) -> None:
+    def test_catalog_bundled_tasks_in_single_card(self) -> None:
         catalog = TaskCatalog.discover()
         html = build_catalog(catalog, "ru")
 
-        intro_card = re.search(
-            r'<li class="theme-card">\s*'
-            r'<h2><a href="[^"]*intro/index_ru\.html">Первые шаги</a>'
-            r'<span class="theme-card__range">(.*?)</span></h2>\s*'
-            r'<p class="theme-card__intro">(.*?)</p>\s*'
-            r"</li>",
+        bundled_card = re.search(
+            r'<ul class="theme-card-list">\s*'
+            r'<li class="theme-card community-pack-card">\s*'
+            r"<h2>Встроенные задачи</h2>\s*"
+            r'<ul class="community-pack__themes">.*?'
+            r'<a href="[^"]*intro/index_ru\.html">Первые шаги</a>'
+            r'.*?<span class="theme-card__range">(.*?)</span>.*?</ul>\s*'
+            r"</li>\s*</ul>",
             html,
             flags=re.DOTALL,
         )
-        self.assertIsNotNone(intro_card)
-        intro_range = intro_card.group(1)
-        intro_description = intro_card.group(2)
+        self.assertIsNotNone(bundled_card)
+        intro_range = bundled_card.group(1)
         self.assertIn("<code>intro1</code> … <code>intro24</code>", intro_range)
         self.assertNotIn("Задач:", intro_range)
         self.assertNotIn("·", intro_range)
-        self.assertIn("Первые шаги с исполнителем Робот", intro_description)
+        self.assertNotIn("theme-card__intro", html)
+        self.assertNotIn("Встроенные задачи исполнителя Робот по темам", html)
         self.assertIn("Всего задач:", html)
+        bundled_cards = re.findall(
+            r'<ul class="theme-card-list">\s*<li class="theme-card community-pack-card">',
+            html,
+        )
+        self.assertEqual(len(bundled_cards), 1)
 
     def test_catalog_includes_community_sections(self) -> None:
         if not (COMMUNITY_DIR / "pack1").is_dir():

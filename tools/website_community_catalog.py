@@ -15,6 +15,7 @@ from tools.website_content_layout import (
     community_theme_hub_relpath,
     escape,
     render_community_pack_download,
+    theme_hub_relpath,
     theme_task_range_html,
     theme_title,
 )
@@ -49,11 +50,11 @@ def _community_pack_task_groups(
     ]
 
 
-def _render_community_pack_theme_links(
+def render_catalog_theme_links(
     task_groups: Sequence[Tuple[str, Sequence[str], str]],
     lang: str,
 ) -> List[str]:
-    """Render compact theme links for one community pack card."""
+    """Render compact theme links for one catalog card."""
     theme_links: List[str] = []
     for theme_prefix, task_ids, theme_href in task_groups:
         if not task_ids:
@@ -79,12 +80,34 @@ def render_community_pack_card(
     pack_download = render_community_pack_download(pack.pack.zip_name, lang)
     pack_anchor = community_pack_anchor_id(pack.prefix)
     task_groups = _community_pack_task_groups(pack, layout, lang)
-    theme_links_html = "\n".join(
-        _render_community_pack_theme_links(task_groups, lang)
-    )
+    theme_links_html = "\n".join(render_catalog_theme_links(task_groups, lang))
     return f"""          <li class="theme-card community-pack-card">
             <h2 id="{pack_anchor}">{pack_heading}</h2>
             <p class="community-pack__download">{pack_download}</p>
+            <ul class="community-pack__themes">
+{theme_links_html}
+            </ul>
+          </li>"""
+
+
+def render_bundled_catalog_card(
+    layout: PageLayout,
+    catalog: SiteTaskCatalog,
+    lang: str,
+) -> str:
+    """Render one catalog card for bundled tasks with theme links inside."""
+    task_groups = [
+        (
+            theme_prefix,
+            catalog.bundled.task_ids_for(theme_prefix),
+            layout.href(theme_hub_relpath(theme_prefix, lang)),
+        )
+        for theme_prefix in catalog.bundled.themes
+    ]
+    theme_links_html = "\n".join(render_catalog_theme_links(task_groups, lang))
+    heading = escape(_ui(lang, "bundled_tasks_heading"))
+    return f"""          <li class="theme-card community-pack-card">
+            <h2>{heading}</h2>
             <ul class="community-pack__themes">
 {theme_links_html}
             </ul>

@@ -54,7 +54,6 @@ from tools.website_content_layout import (
     task_page_filename,
     task_page_relpath,
     theme_hub_relpath,
-    theme_task_range_html,
     theme_title,
     wrap_page,
     write_page,
@@ -66,7 +65,10 @@ from tools.site_catalog import (
     as_site_catalog,
     discover_site_catalog,
 )
-from tools.website_community_catalog import render_community_catalog_sections
+from tools.website_community_catalog import (
+    render_bundled_catalog_card,
+    render_community_catalog_sections,
+)
 from tools.site_reference_pages import build_commands_page, build_editor_page
 from tools.site_task_load import load_raw_todo_from_path, load_task_from_path
 
@@ -92,15 +94,6 @@ def _theme_display_title(theme_prefix: str, lang: str) -> str:
     if theme_prefix in KNOWN_TASK_GROUP_PREFIXES:
         return theme_title(theme_prefix, lang)
     return theme_prefix
-def _theme_intro_text(theme_prefix: str, lang: str) -> str:
-    """Return theme intro copy with a fallback for unknown community themes."""
-    if theme_prefix in KNOWN_TASK_GROUP_PREFIXES:
-        return _ui(lang, f"theme_hub_intro.{theme_prefix}")
-    return _ui(
-        lang,
-        "community_theme_hub_intro",
-        theme=_theme_display_title(theme_prefix, lang),
-    )
 def _load_task_definition_for_catalog(catalog: SiteTaskCatalog, task_id: str):
     """Load task definition from bundled tasks or a community pack path."""
     location = catalog.locate_community_task(task_id)
@@ -656,16 +649,12 @@ def _theme_hub_body_html(
             f'        <p class="community-pack__eyebrow">{pack_label}</p>\n'
             f'        <p class="community-pack__download">{pack_download}</p>\n'
         )
-    hub_intro_block = ""
-    if pack is None:
-        intro = escape(_theme_intro_text(parts.theme_prefix, parts.lang))
-        hub_intro_block = f'        <p class="hub-page__intro">{intro}</p>\n'
     return f"""    <div class="hub-page">
       {render_breadcrumbs(layout, parts.crumbs)}
       <header class="content-header">
 {eyebrow_html}        <h1>{escape(parts.theme_label)}</h1>
         <p class="section__intro">{tasks_intro}</p>
-{hub_intro_block}      </header>
+      </header>
       <ul class="task-list">
 {parts.list_items_html}
       </ul>
@@ -710,55 +699,15 @@ def build_community_theme_hub(
     return _build_theme_hub_page(catalog, lang, spec)
 
 
-def _catalog_theme_blocks(
-    task_groups: Sequence[Tuple[str, Sequence[str], str]],
-    lang: str,
-    *,
-    show_theme_intro: bool = True,
-) -> List[str]:
-    """Render theme summary cards for already-resolved theme groups."""
-    theme_blocks: List[str] = []
-    for theme_prefix, task_ids, theme_href in task_groups:
-        if not task_ids:
-            continue
-        theme_label = _theme_display_title(theme_prefix, lang)
-        range_text = theme_task_range_html(task_ids)
-        intro_block = ""
-        if show_theme_intro:
-            intro = escape(_theme_intro_text(theme_prefix, lang))
-            intro_block = f'            <p class="theme-card__intro">{intro}</p>\n'
-        theme_blocks.append(
-            f"""          <li class="theme-card">
-            <h2><a href="{escape(theme_href)}">{escape(theme_label)}</a>"""
-            f'<span class="theme-card__range"> {range_text}</span></h2>\n'
-            f"{intro_block}          </li>"
-        )
-    return theme_blocks
-
-
-def _bundled_catalog_theme_groups(
-    layout: PageLayout,
-    catalog: TaskCatalog,
-    lang: str,
-) -> List[Tuple[str, Sequence[str], str]]:
-    """Return bundled theme groups with already-built hrefs."""
-    return [
-        (
-            theme_prefix,
-            catalog.task_ids_for(theme_prefix),
-            layout.href(theme_hub_relpath(theme_prefix, lang)),
-        )
-        for theme_prefix in catalog.themes
-    ]
-
-
 def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
     """Render the top-level task catalog index page."""
     site = as_site_catalog(catalog)
-    bundled = site.bundled
     canonical = catalog_relpath(lang)
     title = f"{_ui(lang, 'task_catalog')} | {_ui(lang, 'brand_title_suffix')}"
-    description = normalize_meta_description(_ui(lang, "catalog_intro"))
+    total = site.total_task_count()
+    description = normalize_meta_description(
+        _ui(lang, "catalog_meta_description", count=total)
+    )
     crumbs = [
         (_ui(lang, "home"), home_relpath(lang)),
         (_ui(lang, "task_catalog"), canonical),
@@ -791,23 +740,17 @@ def build_catalog(catalog: SiteCatalogInput, lang: str) -> str:
             },
         ),
     )
-    total = site.total_task_count()
-    intro = escape(_ui(lang, "catalog_intro"))
     total_label = escape(_ui(lang, "task_count_total", count=total))
+    bundled_card = render_bundled_catalog_card(layout, site, lang)
     community_sections = render_community_catalog_sections(layout, site, lang)
     body_html = f"""    <div class="hub-page">
       {render_breadcrumbs(layout, crumbs)}
       <header class="content-header">
         <h1>{escape(_ui(lang, "task_catalog"))}</h1>
-        <p class="section__intro">{intro} {total_label}</p>
+        <p class="section__intro">{total_label}</p>
       </header>
       <ul class="theme-card-list">
-{chr(10).join(
-    _catalog_theme_blocks(
-        _bundled_catalog_theme_groups(layout, bundled, lang),
-        lang,
-    )
-)}
+{bundled_card}
       </ul>
 {community_sections}
     </div>
