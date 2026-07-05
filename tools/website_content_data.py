@@ -235,13 +235,11 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.w": (
             "A 'while' loop repeats Robot commands as long as a condition holds, which "
-            "is useful when the number of steps is unknown. These tasks cover moving "
-            "until a wall appears or a target cell is reached – the core of grid "
-            "navigation with conditions."
+            "is useful when the number of steps is unknown."
         ),
         "theme_hub_intro.wfun": (
             "Pair a 'while' loop with user-defined functions to structure Robot "
-            "solutions that run until a condition changes. These tasks teach students "
+            "solutions. These tasks teach students "
             "to extract a repeated check into a function and call it from a loop."
         ),
         "theme_hub_intro.if": (
@@ -255,8 +253,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "theme_hub_intro.ifelse": (
             "An 'if' and 'else' pair lets a program for the Robot choose between "
             "two actions based on the field. These tasks teach branching with an "
-            "alternative. For example, turn left or right depending on which side "
-            "is free."
+            "alternative."
         ),
         "theme_hub_intro.compound": (
             "Compound conditions combine several checks with 'and' or 'or'. These "
@@ -407,13 +404,11 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         ),
         "theme_hub_intro.w": (
             "Цикл «while» повторяет команды исполнителя Робот, пока условие истинно, "
-            "что полезно, когда число шагов заранее неизвестно. Задачи посвящены "
-            "движению до стены или до нужной клетки – основе навигации по полю с "
-            "условиями."
+            "что полезно, когда число шагов заранее неизвестно."
         ),
         "theme_hub_intro.wfun": (
             "Цикл «while» вместе с функциями помогает структурировать решения "
-            "исполнителя Робот, которые выполняются до изменения условия. Задачи "
+            "исполнителя Робот. Задачи "
             "учат выносить повторяющуюся проверку в функцию и вызывать её из цикла."
         ),
         "theme_hub_intro.if": (
@@ -427,8 +422,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "theme_hub_intro.ifelse": (
             "Пара «if» и «else» позволяет программе для исполнителя Робот выбрать "
             "одно из двух действий в зависимости от поля. Задачи учат ветвлению с "
-            "альтернативой. Например, повернуть влево или вправо в зависимости от "
-            "того, с какой стороны свободно."
+            "альтернативой."
         ),
         "theme_hub_intro.compound": (
             "Составные условия объединяют несколько проверок через «and» или «or». "
