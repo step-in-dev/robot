@@ -167,8 +167,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "next_task": "Next task",
         "catalog_intro": (
             "Bundled Robot tasks grouped by topic, plus community task packs "
-            "published separately. Each page shows the task condition, field "
-            "layouts, and limits."
+            "published separately."
         ),
         "community_tasks_heading": "Community tasks",
         "community_pack_heading": "Task set {number}. Prepared by: {author}",
@@ -337,8 +336,7 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
         "next_task": "Следующая задача",
         "catalog_intro": (
             "Встроенные задачи исполнителя Робот по темам, а также отдельные наборы "
-            "задач от сообщества. На странице задачи – условие, поля обстановок и "
-            "ограничения."
+            "задач от сообщества."
         ),
         "community_tasks_heading": "Задачи от сообщества",
         "community_pack_heading": "Набор задач {number}. Подготовил: {author}",
