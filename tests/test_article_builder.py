@@ -67,7 +67,9 @@ class DiscoverArticlesTest(unittest.TestCase):
     def test_sorts_by_descending_order(self) -> None:
         articles = discover_articles()
         ids = [article.article_id for article in articles]
-        self.assertEqual(ids, ["quick-task-selection", "robot-simulator-intro"])
+        self.assertEqual(
+            ids, ["robot-handouts", "quick-task-selection", "robot-simulator-intro"]
+        )
 
 
 class ValidateArticlesTest(unittest.TestCase):
