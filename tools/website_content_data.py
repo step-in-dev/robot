@@ -137,6 +137,8 @@ COMMAND_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("cell_walls", ENVIRONMENT_QUERY_NAMES),
 )
 
+_RU_ARTICLES_LABEL = "Статьи"
+
 UI_STRINGS: Dict[str, Dict[str, str]] = {
     "en": {
         "site_name": "Robot",
@@ -436,9 +438,9 @@ UI_STRINGS: Dict[str, Dict[str, str]] = {
             "обстановки исполнителя Робот."
         ),
         "og_default_alt": "Окно Робота с задачей на клеточном поле.",
-        "articles_nav": "Статьи",
-        "articles_heading": "Статьи",
-        "articles_page_title": "Статьи",
+        "articles_nav": _RU_ARTICLES_LABEL,
+        "articles_heading": _RU_ARTICLES_LABEL,
+        "articles_page_title": _RU_ARTICLES_LABEL,
         "articles_intro": (
             "Подробные материалы об исполнителе Робот для учителей и учащихся."
         ),
